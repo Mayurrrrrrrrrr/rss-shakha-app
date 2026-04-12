@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="saffronGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF8F00;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF6B00;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="flagGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF3D00;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF6B00;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#00000033"/>
+    </filter>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="95" fill="#FFF3E0" stroke="url(#saffronGrad)" stroke-width="3"/>
+  
+  <!-- Inner decorative ring -->
+  <circle cx="100" cy="100" r="85" fill="none" stroke="#FFE0B2" stroke-width="1.5" stroke-dasharray="6 4"/>
+  
+  <!-- Flag pole -->
+  <line x1="100" y1="30" x2="100" y2="140" stroke="#8D6E63" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Bhagwa Flag (triangular) -->
+  <polygon points="102,30 102,65 140,47" fill="url(#flagGrad)" filter="url(#shadow)">
+    <animateTransform attributeName="transform" type="rotate" values="0 102 47;2 102 47;0 102 47;-1 102 47;0 102 47" dur="3s" repeatCount="indefinite"/>
+  </polygon>
+  
+  <!-- Flag pole top ornament -->
+  <circle cx="100" cy="28" r="4" fill="#FF6B00"/>
+  
+  <!-- शा character - Devanagari -->
+  <text x="100" y="115" text-anchor="middle" font-family="'Noto Sans Devanagari', sans-serif" font-size="52" font-weight="700" fill="url(#saffronGrad)">शा</text>
+  
+  <!-- शाखा text below -->
+  <text x="100" y="152" text-anchor="middle" font-family="'Noto Sans Devanagari', sans-serif" font-size="18" font-weight="600" fill="#D84315">शाखा प्रबंधन</text>
+  
+  <!-- Bottom decorative line -->
+  <line x1="45" y1="162" x2="155" y2="162" stroke="url(#saffronGrad)" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Small decorative dots -->
+  <circle cx="40" cy="162" r="3" fill="#FF6B00"/>
+  <circle cx="160" cy="162" r="3" fill="#FF6B00"/>
+  
+  <!-- Bottom tagline -->
+  <text x="100" y="180" text-anchor="middle" font-family="'Noto Sans Devanagari', sans-serif" font-size="10" fill="#8D6E63">दैनिक गतिविधि प्रबंधन</text>
+</svg>

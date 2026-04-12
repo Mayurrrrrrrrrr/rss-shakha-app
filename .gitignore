@@ -1,0 +1,5 @@
+﻿# PHP
+api/config.php
+# Flutter
+.dart_tool/
+build/
