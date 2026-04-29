@@ -521,22 +521,45 @@ require_once '../includes/header.php';
             const canShareFiles = navigator.canShare && typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] });
 
             if (navigator.share && canShareFiles) {
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-
-                window.open('https://wa.me/?text=' + encodeURIComponent(textStr), '_blank');
+                try {
+                    await navigator.share({
+                        title: 'शाखा रिपोर्ट',
+                        text: textStr,
+                        files: [file]
+                    });
+                } catch (shareErr) {
+                    console.warn("Share failed, falling back:", shareErr);
+                    runFallback(b64, textStr);
+                }
+            } else {
+                runFallback(b64, textStr);
             }
         } catch (e) {
             if (e.name !== 'AbortError') {
-                console.error('Share Error:', e);
-                alert('शेयर करने में तकनीकी त्रुटि हुई। कृपया डाउनलोड करके शेयर करें।');
+                console.error('Share Logic Error:', e);
+                alert('शेयर करने में समस्या हुई। कृपया इमेज डाउनलोड करके शेयर करें।');
             }
         }
 
         btn.innerHTML = originalText;
         btn.disabled = false;
     });
+
+    // Dedicated fallback function to avoid code duplication and errors
+    function runFallback(b64, textStr) {
+        alert('आपका ब्राउज़र सीधे इमेज शेयरिंग सपोर्ट नहीं करता। इमेज डाउनलोड हो रही है, उसे व्हाट्सएप पर शेयर करें।');
+        const a = document.createElement('a');
+        a.href = b64;
+        a.download = 'shakha_report_<?php echo $record['record_date']; ?>.jpg';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        setTimeout(() => {
+            window.open('https://wa.me/?text=' + encodeURIComponent(textStr), '_blank');
+        }, 1000);
+    }
+</script>
 </script>
 
 <?php require_once '../includes/footer.php'; ?>
