@@ -155,4 +155,48 @@ function formatHindiDate($dateStr)
     <?php endif; ?>
 </div>
 
+<!-- Translate Debug Monitor -->
+<div id="translate-debug" style="margin: 20px; padding: 15px; background: #222; border: 1px solid #444; border-radius: 8px; font-family: monospace; font-size: 13px; color: #0f0; display: none;">
+    <strong>🔍 Translate Debug:</strong><div id="debug-text"></div>
+</div>
+
+<script>
+    (function() {
+        // Show debug box if user requests
+        const debugBox = document.getElementById('translate-debug');
+        const debugText = document.getElementById('debug-text');
+        
+        function addLog(msg, color='#0f0') {
+            debugBox.style.display = 'block';
+            const line = document.createElement('div');
+            line.style.color = color;
+            line.innerText = `> ${msg}`;
+            debugText.appendChild(line);
+        }
+
+        setTimeout(() => {
+            addLog("Checking Translate widget...");
+            const el = document.getElementById('google_translate_element');
+            if (el) {
+                addLog("Container 'google_translate_element' found.");
+                const visibility = window.getComputedStyle(el).display;
+                addLog("Container display style: " + visibility);
+                if (el.innerHTML.length > 0) {
+                    addLog("Widget injected into container.");
+                } else {
+                    addLog("Widget NOT injected yet.", "orange");
+                }
+            } else {
+                addLog("ERROR: Container 'google_translate_element' NOT FOUND!", "red");
+            }
+
+            if (typeof google !== 'undefined' && google.translate) {
+                addLog("Google Translate Library loaded.");
+            } else {
+                addLog("ERROR: Google Translate Library NOT LOADED!", "red");
+            }
+        }, 3000);
+    })();
+</script>
+
 <?php require_once '../includes/footer.php'; ?>

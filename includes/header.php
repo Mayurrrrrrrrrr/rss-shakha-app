@@ -228,6 +228,8 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                 .goog-te-balloon-frame { display: none !important; }
                 #goog-gt-tt { display: none !important; visibility: hidden !important; }
                 .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
+                /* Ensure container has space */
+                #google_translate_element { min-height: 30px; min-width: 100px; display: inline-block !important; }
         </style>
 
         <!-- Google Translate Widget Scripts -->
