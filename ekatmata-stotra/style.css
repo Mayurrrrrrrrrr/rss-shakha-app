@@ -1,0 +1,126 @@
+/* Custom Styles for Ekatmata Stotra */
+
+:root {
+    --saffron: #E67E22;
+    --gold: #D4AF37;
+    --cream: #FFF9F2;
+    --dark: #2C3E50;
+}
+
+body {
+    background-image: 
+        radial-gradient(circle at 50% 50%, rgba(255, 249, 242, 0.8) 0%, rgba(255, 249, 242, 0.9) 100%),
+        url('https://www.transparenttextures.com/patterns/natural-paper.png');
+}
+
+/* Noun styling */
+.entity-link {
+    color: var(--saffron);
+    text-decoration: underline decoration-thickness 2px;
+    text-underline-offset: 4px;
+    transition: all 0.3s ease;
+    cursor: help;
+    display: inline-block;
+    font-weight: 700;
+}
+
+.entity-link:hover {
+    color: var(--gold);
+    transform: translateY(-2px);
+    text-shadow: 0 4px 12px rgba(230, 126, 34, 0.2);
+}
+
+/* Tippy Custom Theme */
+.tippy-box[data-theme~='indic'] {
+    background-color: white;
+    color: var(--dark);
+    border-radius: 1.5rem;
+    padding: 0;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--gold);
+    overflow: hidden;
+    max-width: 320px !important;
+}
+
+.tippy-content {
+    padding: 0 !important;
+}
+
+.preview-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-image {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    background-color: #f3f4f6;
+}
+
+.preview-body {
+    padding: 1.25rem;
+}
+
+.preview-title {
+    font-family: 'Mukta', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--saffron);
+    margin-bottom: 0.5rem;
+}
+
+.preview-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #4b5563;
+    margin-bottom: 0.75rem;
+}
+
+.preview-tithi {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gold);
+    background-color: #fef3c7;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    display: inline-block;
+    margin-bottom: 0.75rem;
+}
+
+.preview-link {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--saffron);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    text-decoration: none;
+}
+
+.preview-link:hover {
+    text-decoration: underline;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.verse {
+    animation: fadeInUp 0.8s ease out forwards;
+    opacity: 0;
+}
+
+.verse:nth-child(1) { animation-delay: 0.1s; }
+.verse:nth-child(2) { animation-delay: 0.2s; }
+.verse:nth-child(3) { animation-delay: 0.3s; }
+.verse:nth-child(4) { animation-delay: 0.4s; }
+.verse:nth-child(5) { animation-delay: 0.5s; }

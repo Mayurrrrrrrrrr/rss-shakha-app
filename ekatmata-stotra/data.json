@@ -1,0 +1,205 @@
+{
+    "परमात्मने": {
+        "name": "परमात्मने",
+        "summary": "The Supreme Soul or Universal Spirit, the ultimate reality that pervades everything.",
+        "image": "https://images.unsplash.com/photo-1545191153-53bcaf3e9bf9?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/परमात्मा",
+        "tithi": "Eternal"
+    },
+    "विश्वमाङ्गल्यमूर्तये": {
+        "name": "विश्वमाङ्गल्यमूर्तये",
+        "summary": "The embodiment of universal well-being and auspiciousness for the entire world.",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/मंगल",
+        "tithi": "Daily"
+    },
+    "प्रकृतिः": {
+        "name": "प्रकृतिः",
+        "summary": "The fundamental creative power or Nature, through which the universe is manifested.",
+        "image": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/प्रकृति",
+        "tithi": "Hariyali Teej"
+    },
+    "पञ्चभूतानि": {
+        "name": "पञ्चभूतानि",
+        "summary": "The five great elements: Prithvi (Earth), Apas (Water), Agni (Fire), Vayu (Air), and Akasha (Ether).",
+        "image": "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/पंचभूत",
+        "tithi": "All Tithis"
+    },
+    "हिमालय": {
+        "name": "हिमालय",
+        "summary": "The 'King of Mountains', forming the northern crown of Bharat and the abode of gods.",
+        "image": "assets/himalaya.png",
+        "link": "https://bharatdiscovery.org/india/हिमालय",
+        "tithi": "Shivaratri"
+    },
+    "भारतमातरम्": {
+        "name": "भारतमातरम्",
+        "summary": "The personification of the Indian subcontinent as a divine Mother Goddess.",
+        "image": "assets/bharat_mata.png",
+        "link": "https://bharatdiscovery.org/india/भारत_माता",
+        "tithi": "Republic Day / Independence Day"
+    },
+    "महेन्द्र": {
+        "name": "महेन्द्र",
+        "summary": "A sacred mountain range in the East (Odisha), associated with Sage Parshurama.",
+        "image": "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/महेन्द्र_पर्वत",
+        "tithi": "Parshurama Jayanti"
+    },
+    "मलय": {
+        "name": "मलय",
+        "summary": "The mountain range in the South known for its fragrant sandalwood forests.",
+        "image": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/मलय_पर्वत",
+        "tithi": "Varalakshmi Vrat"
+    },
+    "सह्य": {
+        "name": "सह्य",
+        "summary": "The Western Ghats, a vast mountain range parallel to the western coast of India.",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/सह्याद्रि",
+        "tithi": "Ganesh Chaturthi"
+    },
+    "रैवतक": {
+        "name": "रैवतक",
+        "summary": "Mount Girnar in Gujarat, sacred to Hindus and Jains, where Lord Krishna held many pastimes.",
+        "image": "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/रैवतक_पर्वत",
+        "tithi": "Kartik Purnima"
+    },
+    "विन्ध्य": {
+        "name": "विन्ध्य",
+        "summary": "The central mountain range that traditionally divides North and South India.",
+        "image": "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/विन्ध्याचल",
+        "tithi": "Navaratri"
+    },
+    "आरावलि": {
+        "name": "आरावलि",
+        "summary": "One of the world's oldest fold mountain systems, located in Western India.",
+        "image": "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/अरावली_पर्वतमाला",
+        "tithi": "Makar Sankranti"
+    },
+    "गङ्गा": {
+        "name": "गङ्गा",
+        "summary": "The holiest river of Bharat, descending from the Himalayas to purify the land.",
+        "image": "assets/ganga.png",
+        "link": "https://bharatdiscovery.org/india/गंगा",
+        "tithi": "Ganga Dashahara"
+    },
+    "सरस्वती": {
+        "name": "सरस्वती",
+        "summary": "The mythical and sacred river of knowledge and wisdom, now lost to the sands of time.",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/सरस्वती_नदी",
+        "tithi": "Vasant Panchami"
+    },
+    "सिन्धु": {
+        "name": "सिन्धु",
+        "summary": "The Indus River, which gave India its name and was the site of its earliest civilization.",
+        "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/सिन्धु_नदी",
+        "tithi": "Sindhu Darshan"
+    },
+    "ब्रह्मपुत्र": {
+        "name": "ब्रह्मपुत्र",
+        "summary": "The 'Son of Brahma', one of the largest rivers in Asia, flowing through Tibet, India, and Bangladesh.",
+        "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/ब्रह्मपुत्र_नदी",
+        "tithi": "Ambubachi Mela"
+    },
+    "गण्डकी": {
+        "name": "गण्डकी",
+        "summary": "A sacred river in Nepal and India, known for producing the Shaligram stones.",
+        "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/गण्डकी_नदी",
+        "tithi": "Kartik Snan"
+    },
+    "कावेरी": {
+        "name": "कावेरी",
+        "summary": "The 'Ganga of the South', a lifeline for the people of Karnataka and Tamil Nadu.",
+        "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/कावेरी_नदी",
+        "tithi": "Kaveri Pushkaram"
+    },
+    "यमुना": {
+        "name": "यमुना",
+        "summary": "The sacred river of devotion, flowing past Mathura and Vrindavan, associated with Lord Krishna.",
+        "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/यमुना_नदी",
+        "tithi": "Bhai Dooj / Yama Dwitiya"
+    },
+    "रेवा": {
+        "name": "रेवा",
+        "summary": "Another name for the Narmada River, which flows through the heart of India.",
+        "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/नर्मदा_नदी",
+        "tithi": "Narmada Jayanti"
+    },
+    "कृष्णा": {
+        "name": "कृष्णा",
+        "summary": "One of the major rivers of South India, originating in the Sahyadri mountains.",
+        "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/कृष्णा_नदी",
+        "tithi": "Krishna Pushkaralu"
+    },
+    "गोदा": {
+        "name": "गोदा",
+        "summary": "The Godavari River, often called the 'Gautami' or 'Vriddha Ganga' in South India.",
+        "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/गोदावरी_नदी",
+        "tithi": "Godavari Pushkaram"
+    },
+    "महानदी": {
+        "name": "महानदी",
+        "summary": "A major river in East Central India, flowing through Chhattisgarh and Odisha.",
+        "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/महानदी",
+        "tithi": "Bali Jatra"
+    },
+    "रत्नाकर": {
+        "name": "रत्नाकर",
+        "summary": "The Indian Ocean, which surrounds the Indian peninsula on three sides.",
+        "image": "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/हिन्द_महासागर",
+        "tithi": "Sagari Purnima"
+    },
+    "ग्रहा": {
+        "name": "ग्रहा",
+        "summary": "The nine celestial influencers (Navagrahas) in Indian astrology and cosmology.",
+        "image": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/ग्रह",
+        "tithi": "Surya Sankranti"
+    },
+    "लोकाः": {
+        "name": "लोकाः",
+        "summary": "The fourteen planes of existence (worlds) mentioned in the Puranas.",
+        "image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/लोक",
+        "tithi": "Daily"
+    },
+    "स्वराः": {
+        "name": "स्वराः",
+        "summary": "The seven primary notes (Saptaswara) of Indian classical music: Sa Re Ga Ma Pa Dha Ni.",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/स्वर",
+        "tithi": "Vasant Panchami"
+    },
+    "दिशः": {
+        "name": "दिशः",
+        "summary": "The ten directions, including the eight cardinal points and Zenit/Nadir.",
+        "image": "https://images.unsplash.com/photo-1526510747491-58f928ec870f?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/दिशा",
+        "tithi": "Daily"
+    },
+    "कालः": {
+        "name": "कालः",
+        "summary": "Time, the eternal witness and the foundation of the Indian calendar (Panchang).",
+        "image": "https://images.unsplash.com/photo-1508921340878-ba53e1f016ec?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/काल",
+        "tithi": "Ugadi / Gudi Padwa"
+    }
+}
