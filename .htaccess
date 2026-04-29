@@ -1,15 +1,92 @@
-# RSS Shakha Management Platform - Advanced Security Configuration
-# Optimized for Google Translate Integration
+# ============================================================
+# RSS Shakha App — Production .htaccess
+# ============================================================
 
-<IfModule mod_headers.c>
-    Header always set X-Frame-Options "SAMEORIGIN"
-    Header set X-Content-Type-Options "nosniff"
-    Header set Referrer-Policy "strict-origin-when-cross-origin"
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com https://www.gstatic.com https://cdn.jsdelivr.net https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://translate.google.com https://translate.googleapis.com https://www.gstatic.com https://fonts.gstatic.com https://www.google.com; frame-src https://translate.googleapis.com https://translate.google.com; connect-src 'self' https://translate.googleapis.com https://translate-pa.googleapis.com https://translate.google.com"
+Options -Indexes
+Options -MultiViews
+
+# ── Compression ─────────────────────────────────────────────
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript text/plain text/xml application/json image/svg+xml
 </IfModule>
 
-# Prevent directory listing
-Options -Indexes
+# ── Browser caching ─────────────────────────────────────────
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css                "access plus 1 year"
+    ExpiresByType application/javascript  "access plus 1 year"
+    ExpiresByType image/png               "access plus 1 month"
+    ExpiresByType image/jpeg              "access plus 1 month"
+    ExpiresByType image/gif               "access plus 1 month"
+    ExpiresByType image/svg+xml           "access plus 1 month"
+    ExpiresByType image/webp              "access plus 1 month"
+    ExpiresByType image/x-icon            "access plus 1 year"
+    ExpiresByType text/html               "access plus 0 seconds"
+</IfModule>
 
-# Default index
-DirectoryIndex index.php
+# ── Security headers ────────────────────────────────────────
+<IfModule mod_headers.c>
+    # SAMEORIGIN (not DENY) — Google Translate needs iframe access
+    Header always set X-Frame-Options            "SAMEORIGIN"
+    Header always set X-Content-Type-Options     "nosniff"
+    Header always set X-XSS-Protection           "1; mode=block"
+    Header always set Referrer-Policy            "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy         "geolocation=(), camera=(), microphone=()"
+
+    # Full CSP — all Google Translate domains whitelisted
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com https://www.gstatic.com https://cdn.jsdelivr.net https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://translate.google.com https://translate.googleapis.com https://www.gstatic.com https://fonts.gstatic.com https://www.google.com; frame-src https://translate.googleapis.com https://translate.google.com; connect-src 'self' https://translate.googleapis.com https://translate-pa.googleapis.com https://translate.google.com"
+
+    Header unset X-Powered-By
+
+    <FilesMatch "\.(php|html)$">
+        Header set Cache-Control "no-store, no-cache, must-revalidate"
+    </FilesMatch>
+    <FilesMatch "\.(css|js|png|jpg|jpeg|gif|svg|webp|ico|woff|woff2)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+</IfModule>
+
+# ── Protect sensitive files ──────────────────────────────────
+<FilesMatch "(^\.env|\.env\..*|composer\.lock|composer\.json|package\.json|package-lock\.json)$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "\.(bak|backup|old|orig|save|swp|tmp|log)$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "^\.(?!htaccess)">
+    Require all denied
+</FilesMatch>
+
+# ── Block direct folder access ───────────────────────────────
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^config/         - [F,L]
+    RewriteRule ^includes/       - [F,L]
+    RewriteRule ^actions/        - [F,L]
+    RewriteRule ^scripts/        - [F,L]
+    RewriteRule ^sql/            - [F,L]
+</IfModule>
+
+# ── Error pages ─────────────────────────────────────────────
+ErrorDocument 403 /index.php
+ErrorDocument 404 /index.php
+ErrorDocument 500 /index.php
+
+# ── PHP hardening ────────────────────────────────────────────
+<IfModule mod_php.c>
+    php_flag display_errors           Off
+    php_flag log_errors               On
+    php_flag expose_php               Off
+    php_value session.cookie_httponly 1
+    php_value session.cookie_samesite Strict
+    php_flag  session.use_strict_mode 1
+</IfModule>
+
+# ── Force HTTPS (uncomment when SSL cert is live) ────────────
+# <IfModule mod_rewrite.c>
+#     RewriteEngine On
+#     RewriteCond %{HTTPS} off
+#     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+# </IfModule>
