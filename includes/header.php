@@ -74,6 +74,12 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                 </div>
                                 <button class="close-sidebar" id="closeSidebar">&times;</button>
                         </div>
+                        
+                        <!-- Language Selection - TOP OF SIDEBAR -->
+                        <div style="padding: 10px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 10px;">
+                            <div id="google_translate_element"></div>
+                        </div>
+
                         <ul class="sidebar-menu">
                                 <?php if (isAdmin()): ?>
                                         <li><a href="../pages/admin_dashboard.php" class="<?php echo $currentPage === 'admin_dashboard' ? 'active' : ''; ?>">👑 एडमिन डैशबोर्ड</a></li>
@@ -148,14 +154,6 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                         <li><a href="../pages/subhashit_view.php" class="<?php echo $currentPage === 'subhashit_view' ? 'active' : ''; ?>">📜 सुभाषित</a></li>
                                         <li><a href="../pages/change_password.php" class="<?php echo $currentPage === 'change_password' ? 'active' : ''; ?>">🔑 पासवर्ड बदलें</a></li>
                                 <?php endif; ?>
-                                
-                                <!-- Language Selection in Sidebar -->
-                                <li class="nav-group">
-                                    <div class="nav-group-header"><span>🌐 भाषा (Language)</span> <span class="chevron">▼</span></div>
-                                    <ul class="nav-group-items">
-                                        <li><div id="google_translate_element" style="padding: 10px;"></div></li>
-                                    </ul>
-                                </li>
 
                                 <li style="margin-top: 20px;"><a href="../logout.php" class="nav-logout">🚪 लॉग आउट</a></li>
                         </ul>
@@ -245,15 +243,20 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
 
                 /* Style the inner Google select box for sidebar */
                 .goog-te-gadget .goog-te-combo {
-                    background: var(--bg-input) !important;
-                    color: var(--text-primary) !important;
-                    border: 1px solid var(--border-color) !important;
+                    background: #2a2a38 !important; /* Specific dark background */
+                    color: #ffffff !important;      /* Force white text */
+                    border: 1px solid var(--saffron) !important;
                     border-radius: 4px !important;
-                    padding: 8px !important;
+                    padding: 10px !important;
                     width: 100% !important;
+                    font-size: 14px !important;
+                    font-family: 'Noto Sans Devanagari', sans-serif !important;
                     outline: none !important;
                 }
-                .goog-te-gadget { font-size: 0 !important; } /* Hide 'Powered by' */
+                .goog-te-gadget { 
+                    font-size: 11px !important; 
+                    color: var(--text-muted) !important;
+                } 
         </style>
 
         <!-- Google Translate Widget Scripts -->
