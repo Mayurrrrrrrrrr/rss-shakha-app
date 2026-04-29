@@ -154,38 +154,6 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                         </ul>
                 </aside>
 
-                <script>
-                        // Sidebar Toggles
-                        const sidebarToggle = document.getElementById('sidebarToggle');
-                        const closeSidebar = document.getElementById('closeSidebar');
-                        const sidebar = document.getElementById('sidebar');
-                        const sidebarOverlay = document.getElementById('sidebarOverlay');
-
-                        function openSidebar() {
-                                sidebar.classList.add('open');
-                                sidebarOverlay.classList.add('active');
-                                document.body.style.overflow = 'hidden'; // Prevent background scrolling
-                        }
-
-                        function closeSidebarFn() {
-                                sidebar.classList.remove('open');
-                                sidebarOverlay.classList.remove('active');
-                                document.body.style.overflow = '';
-                        }
-
-                        sidebarToggle.addEventListener('click', openSidebar);
-                        closeSidebar.addEventListener('click', closeSidebarFn);
-                        sidebarOverlay.addEventListener('click', closeSidebarFn);
-                        
-                        // Accordion Logic
-                        const navGroups = document.querySelectorAll('.nav-group-header');
-                        navGroups.forEach(header => {
-                                header.addEventListener('click', () => {
-                                        const parent = header.parentElement;
-                                        parent.classList.toggle('open');
-                                });
-                        });
-                </script>
 
                 <!-- MOBILE BOTTOM NAVIGATION -->
                 <nav class="bottom-nav">

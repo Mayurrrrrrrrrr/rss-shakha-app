@@ -3,18 +3,47 @@
 // =============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Mobile nav toggle
-    const navToggle = document.getElementById('navToggle');
-    const navMenu = document.getElementById('navMenu');
-    if (navToggle && navMenu) {
-        navToggle.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-        });
-        // Close menu on link click (mobile)
-        navMenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => navMenu.classList.remove('active'));
-        });
+    // Sidebar & Mobile Navigation
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const closeSidebar = document.getElementById('closeSidebar');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    function openSidebar() {
+        if (sidebar && sidebarOverlay) {
+            sidebar.classList.add('open');
+            sidebarOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
     }
+
+    function closeSidebarFn() {
+        if (sidebar && sidebarOverlay) {
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    if (sidebarToggle) sidebarToggle.addEventListener('click', openSidebar);
+    if (closeSidebar) closeSidebar.addEventListener('click', closeSidebarFn);
+    if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebarFn);
+
+    // Close on Escape Key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && sidebar && sidebar.classList.contains('open')) {
+            closeSidebarFn();
+        }
+    });
+
+    // Accordion Logic (Sidebar Groups)
+    const navGroups = document.querySelectorAll('.nav-group-header');
+    navGroups.forEach(header => {
+        header.addEventListener('click', () => {
+            const parent = header.parentElement;
+            parent.classList.toggle('open');
+        });
+    });
 
     // Auto-dismiss alerts after 4 seconds
     document.querySelectorAll('.alert').forEach(alert => {
