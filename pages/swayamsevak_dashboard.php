@@ -1,6 +1,6 @@
 <?php
 /**
- * Swayamsevak Dashboard - स्वयंसेवक डैशबोर्ड (Full Home Page)
+ * Swayamsevak Dashboard - स्वयंसेवक डैशबोर्ड (Modernized)
  */
 $pageTitle = 'मुख्य पृष्ठ';
 require_once '../includes/header.php';
@@ -39,31 +39,9 @@ if ($latestSub) {
 }
 
 // ── Stats ──
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM swayamsevaks WHERE is_active = 1 AND shakha_id = ?");
-$stmt->execute([$shakhaId]);
-$totalSwayamsevaks = $stmt->fetchColumn();
-
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM activities WHERE is_active = 1 AND (shakha_id IS NULL OR shakha_id = ?)");
-$stmt->execute([$shakhaId]);
-$totalActivities = $stmt->fetchColumn();
-
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM daily_records WHERE shakha_id = ?");
-$stmt->execute([$shakhaId]);
-$totalRecords = $stmt->fetchColumn();
-
 $todayRecord = $pdo->prepare("SELECT id FROM daily_records WHERE record_date = CURDATE() AND shakha_id = ?");
 $todayRecord->execute([$shakhaId]);
 $hasTodayRecord = $todayRecord->fetch();
-
-// ── Recent Records ──
-$recentRecordsStmt = $pdo->prepare("SELECT dr.*, 
-    (SELECT COUNT(*) FROM attendance a WHERE a.daily_record_id = dr.id AND a.is_present = 1) as present_count,
-    (SELECT COUNT(*) FROM daily_activities da WHERE da.daily_record_id = dr.id AND da.is_done = 1) as activities_done
-    FROM daily_records dr 
-    WHERE dr.shakha_id = ?
-    ORDER BY record_date DESC LIMIT 5");
-$recentRecordsStmt->execute([$shakhaId]);
-$recentRecords = $recentRecordsStmt->fetchAll();
 
 // ── Recent Notices ──
 $stmtNotice = $pdo->prepare("SELECT * FROM notices WHERE shakha_id = ? ORDER BY created_at DESC LIMIT 3");
@@ -92,7 +70,6 @@ foreach ($stmtCal->fetchAll() as $r) {
 
 $hindiMonths = ['जनवरी', 'फ़रवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'];
 $hindiDays = ['रवि', 'सोम', 'मंगल', 'बुध', 'गुरु', 'शुक्र', 'शनि'];
-$hindiDaysFull = ['रविवार', 'सोमवार', 'मंगलवार', 'बुधवार', 'गुरुवार', 'शुक्रवार', 'शनिवार'];
 
 $prevMonth = $month - 1; $prevYear = $year;
 if ($prevMonth < 1) { $prevMonth = 12; $prevYear--; }
@@ -102,256 +79,195 @@ if ($nextMonth > 12) { $nextMonth = 1; $nextYear++; }
 $today = date('Y-m-d');
 $todayDow = date('w');
 
-// ── Timetable Data for indicators ──
+// ── Timetable Data ──
 $ttDefaultDays = [];
 $ttOverrideDates = [];
-$todayTimetable = [];
-$isTodayOverride = false;
 try {
-    $stmtTTDef = $pdo->prepare("SELECT day_of_week, slots FROM timetable_defaults WHERE shakha_id = ?");
+    $stmtTTDef = $pdo->prepare("SELECT day_of_week FROM timetable_defaults WHERE shakha_id = ?");
     $stmtTTDef->execute([$shakhaId]);
-    foreach ($stmtTTDef->fetchAll() as $row) {
-        $ttDefaultDays[] = $row['day_of_week'];
-        if ($row['day_of_week'] == $todayDow) {
-            $todayTimetable = json_decode($row['slots'], true) ?: [];
-        }
-    }
+    foreach ($stmtTTDef->fetchAll() as $row) { $ttDefaultDays[] = $row['day_of_week']; }
     
-    $stmtTTOvr = $pdo->prepare("SELECT override_date, slots FROM timetable_overrides WHERE shakha_id = ? AND MONTH(override_date) >= ? - 1 AND YEAR(override_date) <= ? + 1");
+    $stmtTTOvr = $pdo->prepare("SELECT override_date FROM timetable_overrides WHERE shakha_id = ? AND MONTH(override_date) >= ? - 1 AND YEAR(override_date) <= ? + 1");
     $stmtTTOvr->execute([$shakhaId, $month, $year]);
-    foreach ($stmtTTOvr->fetchAll() as $row) {
-        $ttOverrideDates[] = $row['override_date'];
-        if ($row['override_date'] === $today) {
-            $todayTimetable = json_decode($row['slots'], true) ?: [];
-            $isTodayOverride = true;
-        }
-    }
+    foreach ($stmtTTOvr->fetchAll() as $row) { $ttOverrideDates[] = $row['override_date']; }
 } catch (PDOException $e) {}
 
-function formatHindiDateDash($dateStr) {
-    global $hindiMonths, $hindiDaysFull;
-    $ts = strtotime($dateStr);
-    $day = $hindiDaysFull[date('w', $ts)];
-    $d = date('j', $ts);
-    $m = $hindiMonths[date('n', $ts) - 1];
-    $y = date('Y', $ts);
-    return "$day, $d $m $y";
-}
 ?>
+<style>
+/* Modern Overrides */
+.hero-flipbook {
+    background: linear-gradient(135deg, #FF6B00 0%, #FF9800 100%);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 8px 20px rgba(255,107,0,0.3);
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+}
+.hero-flipbook::after {
+    content: '📖';
+    position: absolute;
+    right: -20px;
+    top: -10px;
+    font-size: 100px;
+    opacity: 0.2;
+    transform: rotate(15deg);
+}
+.hero-flipbook h2 { margin: 0 0 10px 0; font-family: 'Tiro Devanagari Hindi', serif; font-size: 28px; }
+.hero-flipbook p { margin: 0 0 20px 0; font-size: 15px; opacity: 0.9; }
+.btn-flipbook {
+    background: white;
+    color: #FF6B00;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 16px;
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+.btn-flipbook:hover { transform: scale(1.05); }
 
-<div class="page-header">
+.glass-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    margin-bottom: 24px;
+}
+.glass-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px dashed rgba(0,0,0,0.1);
+    padding-bottom: 10px;
+}
+.glass-header h3 { margin: 0; font-size: 18px; color: #C2185B; font-family: 'Tiro Devanagari Hindi', serif; }
+</style>
+
+<div class="page-header" style="margin-bottom: 20px;">
     <h1>🙏 नमस्ते, <?php echo htmlspecialchars(getUserName()); ?></h1>
+</div>
+
+<!-- ═══════ HERO FLIPBOOK ═══════ -->
+<div class="hero-flipbook fade-in">
+    <h2>आज का डिजिटल वृत्त</h2>
+    <p>उपस्थिति, सुभाषित, गीत और आज के सभी कार्यक्रम एक ही स्थान पर देखें।</p>
+    <a href="../pages/daily_flipbook.php?date=<?php echo $today; ?>" class="btn-flipbook">📖 3D फ्लिपबुक खोलें</a>
+</div>
+
+<!-- ═══════ STATS MINI ═══════ -->
+<div style="display: flex; gap: 15px; margin-bottom: 24px; flex-wrap: wrap;">
+    <div style="flex: 1; background: #E8F5E9; padding: 15px; border-radius: 12px; border: 1px dashed #81C784; text-align: center;">
+        <div style="font-size: 24px; margin-bottom: 5px;"><?php echo $hasTodayRecord ? '✅' : '⏳'; ?></div>
+        <div style="font-size: 14px; color: #2E7D32; font-weight: bold;"><?php echo $hasTodayRecord ? 'आज का रिकॉर्ड तैयार है' : 'रिकॉर्ड की प्रतीक्षा है'; ?></div>
+    </div>
 </div>
 
 <!-- ═══════ LATEST SUBHASHIT ═══════ -->
 <?php if ($latestSub): ?>
-<div class="card fade-in" style="padding: 0; overflow: hidden; border: 1px solid rgba(233, 30, 99, 0.2); margin-bottom: 24px;">
-    <div style="background: linear-gradient(135deg, #C2185B, #AD1457); color: #FCE4EC; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-weight: 700; font-size: 1.1rem;">📜 आज का सुभाषित</span>
-        <span style="font-size: 0.85rem; opacity: 0.8;"><?php echo date('d M Y', strtotime($latestSub['subhashit_date'])); ?></span>
+<div class="glass-card fade-in" style="animation-delay: 0.1s; background: linear-gradient(180deg, #FFF9E6 0%, #FFF5F5 100%);">
+    <div class="glass-header">
+        <h3 style="color: #880E4F;">📜 आज का सुभाषित</h3>
+        <span style="font-size: 12px; opacity: 0.8; color: #880E4F;"><?php echo date('d M Y', strtotime($latestSub['subhashit_date'])); ?></span>
     </div>
-    <div style="background: linear-gradient(180deg, #FFF9E6 0%, #FFF5F5 50%, #F0FFF4 100%); padding: 20px; text-align: center;">
-        <div style="font-size: 1.2rem; font-weight: 600; color: #1B5E20; line-height: 1.9; white-space: pre-wrap; margin-bottom: 12px;">
-            <?php echo nl2br(htmlspecialchars($latestSub['sanskrit_text'])); ?>
+    
+    <div style="font-size: 1.1rem; font-weight: 600; color: #1B5E20; line-height: 1.8; white-space: pre-wrap; text-align: center; margin-bottom: 15px;">
+        <?php echo nl2br(htmlspecialchars($latestSub['sanskrit_text'])); ?>
+    </div>
+    
+    <?php if (!empty($latestSub['hindi_meaning'])): ?>
+        <div style="background: rgba(255,255,255,0.7); border-radius: 10px; padding: 12px; margin-top: 10px; border-left: 4px solid #FF9800;">
+            <div style="font-weight: 700; color: #E65100; font-size: 0.85rem; margin-bottom: 4px;">भावार्थ:</div>
+            <div style="color: #3E2723; font-size: 0.95rem; line-height: 1.6;"><?php echo nl2br(htmlspecialchars($latestSub['hindi_meaning'])); ?></div>
         </div>
-        <?php if (!empty($latestSub['hindi_meaning'])): ?>
-            <div style="background: rgba(255,249,196,0.5); border: 1px dashed #F9A825; border-radius: 10px; padding: 12px 16px; margin-top: 10px;">
-                <div style="font-weight: 700; color: #E65100; font-size: 0.85rem; margin-bottom: 6px;">— हिंदी अर्थ —</div>
-                <div style="color: #3E2723; font-size: 0.95rem; line-height: 1.6;"><?php echo nl2br(htmlspecialchars($latestSub['hindi_meaning'])); ?></div>
-            </div>
-        <?php endif; ?>
-        <?php if (!empty($shabdarth)): ?>
-            <div style="background: rgba(232,245,233,0.5); border: 1px dashed #81C784; border-radius: 10px; padding: 12px 16px; margin-top: 10px;">
-                <div style="font-weight: 700; color: #E65100; font-size: 0.85rem; margin-bottom: 6px;">— चुनिंदा शब्दार्थ —</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px;">
-                    <?php foreach ($shabdarth as $p): ?>
-                        <div style="font-size: 0.9rem; color: #2E7D32; padding: 2px 0;">
-                            <strong style="color: #1B5E20;"><?php echo htmlspecialchars($p['shabd']); ?></strong>
-                            <span style="color: #81C784;">—</span>
-                            <span style="color: #33691E;"><?php echo htmlspecialchars($p['arth']); ?></span>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        <?php endif; ?>
-    </div>
-    <div style="text-align: center; padding: 10px 20px; background: rgba(0,0,0,0.02); border-top: 1px solid rgba(233,30,99,0.1);">
-        <a href="../pages/subhashit_view.php" style="color: #C2185B; font-size: 0.9rem; font-weight: 600; text-decoration: none;">सभी सुभाषित देखें →</a>
-    </div>
-</div>
-<?php endif; ?>
-
-<!-- ═══════ TODAY'S TIMETABLE ═══════ -->
-<?php if (!empty($todayTimetable)): ?>
-<div class="card fade-in" style="animation-delay: 0.05s; margin-bottom: 24px; border: 1px solid rgba(255,107,0,0.2);">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <strong style="color: var(--saffron-light); font-size: 1.1rem;">📋 आज की समय-सारणी</strong>
-        <?php if ($isTodayOverride): ?>
-            <span class="badge badge-saffron" style="font-size: 0.75rem;">विशेष दिन</span>
-        <?php else: ?>
-            <span class="badge badge-success" style="font-size: 0.75rem;">साप्ताहिक डिफ़ॉल्ट</span>
-        <?php endif; ?>
-    </div>
-    <div style="display: grid; gap: 8px;">
-        <?php foreach ($todayTimetable as $slot): ?>
-            <div style="display: flex; align-items: stretch; background: rgba(255,255,255,0.04); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
-                <div style="background: var(--saffron); color: white; padding: 10px; font-weight: 700; font-size: 0.85rem; min-width: 80px; text-align: center;">
-                    <?php echo $slot['start_min']; ?>–<?php echo $slot['end_min']; ?> मि.
-                </div>
-                <div style="padding: 10px 14px; font-size: 0.95rem; display: flex; align-items: center; color: var(--text-primary);">
-                    <?php echo htmlspecialchars($slot['topic']); ?>
-                </div>
-            </div>
-        <?php endforeach; ?>
-    </div>
+    <?php endif; ?>
+    
     <div style="text-align: center; margin-top: 15px;">
-        <a href="../pages/timetable_view.php?date=<?php echo $today; ?>" class="btn btn-outline btn-sm">पूरा विवरण देखें</a>
+        <a href="../pages/subhashit_view.php" style="color: #C2185B; font-size: 14px; font-weight: bold; text-decoration: none;">सभी सुभाषित देखें →</a>
     </div>
 </div>
 <?php endif; ?>
-
-<!-- ═══════ STATS ═══════ -->
-<div class="stats-grid fade-in" style="animation-delay: 0.05s;">
-    <div class="stat-card">
-        <div class="stat-icon">👥</div>
-        <div class="stat-number"><?php echo $totalSwayamsevaks; ?></div>
-        <div class="stat-label">कुल स्वयंसेवक</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon">📋</div>
-        <div class="stat-number"><?php echo $totalActivities; ?></div>
-        <div class="stat-label">गतिविधियाँ</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon">📊</div>
-        <div class="stat-number"><?php echo $totalRecords; ?></div>
-        <div class="stat-label">कुल रिकॉर्ड</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon"><?php echo $hasTodayRecord ? '✅' : '⏳'; ?></div>
-        <div class="stat-number"><?php echo $hasTodayRecord ? 'हाँ' : 'नहीं'; ?></div>
-        <div class="stat-label">आज का रिकॉर्ड</div>
-    </div>
-</div>
 
 <!-- ═══════ CALENDAR ═══════ -->
-<div class="calendar-container fade-in" style="animation-delay: 0.1s; margin-bottom: 24px;">
-    <div class="calendar-header">
-        <a href="../pages/swayamsevak_dashboard.php?month=<?php echo $prevMonth; ?>&year=<?php echo $prevYear; ?>" class="btn btn-outline btn-sm">◀ पिछला</a>
-        <h2><?php echo $hindiMonths[$month - 1] . ' ' . $year; ?></h2>
-        <a href="../pages/swayamsevak_dashboard.php?month=<?php echo $nextMonth; ?>&year=<?php echo $nextYear; ?>" class="btn btn-outline btn-sm">अगला ▶</a>
+<div class="glass-card fade-in" style="animation-delay: 0.2s; padding: 0; overflow: hidden;">
+    <div style="background: #3E2723; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+        <a href="../pages/swayamsevak_dashboard.php?month=<?php echo $prevMonth; ?>&year=<?php echo $prevYear; ?>" style="color: white; text-decoration: none; padding: 5px 10px; background: rgba(255,255,255,0.2); border-radius: 5px;">◀</a>
+        <h3 style="margin: 0; font-size: 18px; font-weight: normal;"><?php echo $hindiMonths[$month - 1] . ' ' . $year; ?></h3>
+        <a href="../pages/swayamsevak_dashboard.php?month=<?php echo $nextMonth; ?>&year=<?php echo $nextYear; ?>" style="color: white; text-decoration: none; padding: 5px 10px; background: rgba(255,255,255,0.2); border-radius: 5px;">▶</a>
     </div>
-    <div class="calendar-grid">
-        <?php foreach ($hindiDays as $dayName): ?>
-            <div class="calendar-day-header"><?php echo $dayName; ?></div>
-        <?php endforeach; ?>
-        <?php for ($i = 0; $i < $startDayOfWeek; $i++): ?>
-            <div class="calendar-day other-month"></div>
-        <?php endfor; ?>
-        <?php for ($d = 1; $d <= $daysInMonth; $d++):
-            $currentDate = sprintf('%04d-%02d-%02d', $year, $month, $d);
-            $isToday = ($currentDate === $today);
-            $hasRecord = isset($calRecords[$d]);
-            $classes = 'calendar-day';
-            if ($isToday) $classes .= ' today';
-            if ($hasRecord) $classes .= ' has-record';
-        ?>
-            <?php if ($hasRecord): ?>
-                <a href="../pages/record_detail.php?id=<?php echo $calRecords[$d]['id']; ?>" class="<?php echo $classes; ?>"
-                    title="<?php echo $calRecords[$d]['present_count']; ?> उपस्थित">
-                    <?php echo $d; ?>
-                    <?php
-                    $dateStr = sprintf('%04d-%02d-%02d', $year, $month, $d);
-                    $dow = date('w', strtotime($dateStr));
-                    if (in_array($dateStr, $ttOverrideDates) || in_array($dow, $ttDefaultDays)): ?>
-                        <span style="font-size: 0.5rem; display: block; margin-top: 1px;">📋</span>
-                    <?php endif; ?>
-                </a>
-            <?php else: ?>
-                <a href="../pages/timetable_view.php?date=<?php echo sprintf('%04d-%02d-%02d', $year, $month, $d); ?>" class="<?php echo $classes; ?>" style="text-decoration:none; color:inherit;">
-                    <?php echo $d; ?>
-                    <?php
-                    $dateStr = sprintf('%04d-%02d-%02d', $year, $month, $d);
-                    $dow = date('w', strtotime($dateStr));
-                    if (in_array($dateStr, $ttOverrideDates) || in_array($dow, $ttDefaultDays)): ?>
-                        <span style="font-size: 0.5rem; display: block; margin-top: 1px;">📋</span>
-                    <?php endif; ?>
-                </a>
-            <?php endif; ?>
-        <?php endfor; ?>
-        <?php
-        $totalCells = $startDayOfWeek + $daysInMonth;
-        $remaining = (7 - ($totalCells % 7)) % 7;
-        for ($i = 0; $i < $remaining; $i++): ?>
-            <div class="calendar-day other-month"></div>
-        <?php endfor; ?>
+    
+    <div style="padding: 15px;">
+        <div class="calendar-grid">
+            <?php foreach ($hindiDays as $dayName): ?>
+                <div class="calendar-day-header"><?php echo $dayName; ?></div>
+            <?php endforeach; ?>
+            <?php for ($i = 0; $i < $startDayOfWeek; $i++): ?>
+                <div class="calendar-day other-month"></div>
+            <?php endfor; ?>
+            <?php for ($d = 1; $d <= $daysInMonth; $d++):
+                $currentDate = sprintf('%04d-%02d-%02d', $year, $month, $d);
+                $isToday = ($currentDate === $today);
+                $hasRecord = isset($calRecords[$d]);
+                $classes = 'calendar-day';
+                if ($isToday) $classes .= ' today';
+                if ($hasRecord) $classes .= ' has-record';
+            ?>
+                <?php if ($hasRecord): ?>
+                    <a href="../pages/daily_flipbook.php?date=<?php echo $currentDate; ?>" class="<?php echo $classes; ?>" title="<?php echo $calRecords[$d]['present_count']; ?> उपस्थित">
+                        <?php echo $d; ?>
+                        <?php
+                        $dow = date('w', strtotime($currentDate));
+                        if (in_array($currentDate, $ttOverrideDates) || in_array($dow, $ttDefaultDays)): ?>
+                            <span style="font-size: 0.5rem; display: block; margin-top: 1px;">📋</span>
+                        <?php endif; ?>
+                    </a>
+                <?php else: ?>
+                    <div class="<?php echo $classes; ?>" style="color: inherit;">
+                        <?php echo $d; ?>
+                        <?php
+                        $dow = date('w', strtotime($currentDate));
+                        if (in_array($currentDate, $ttOverrideDates) || in_array($dow, $ttDefaultDays)): ?>
+                            <span style="font-size: 0.5rem; display: block; margin-top: 1px; color: #999;">📋</span>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+            <?php endfor; ?>
+            <?php
+            $totalCells = $startDayOfWeek + $daysInMonth;
+            $remaining = (7 - ($totalCells % 7)) % 7;
+            for ($i = 0; $i < $remaining; $i++): ?>
+                <div class="calendar-day other-month"></div>
+            <?php endfor; ?>
+        </div>
+        <div style="font-size: 12px; color: #666; text-align: center; margin-top: 15px;">
+            🟠 भगवा हाइलाइट वाले दिन पर क्लिक करके उस दिन का वृत्त (Flipbook) देखें।
+        </div>
     </div>
 </div>
 
 <!-- ═══════ RECENT NOTICES ═══════ -->
 <?php if (!empty($recentNotices)): ?>
-<div class="card fade-in" style="animation-delay: 0.15s; margin-bottom: 24px;">
-    <div class="card-header">📢 हाल की सूचनाएं</div>
+<div class="glass-card fade-in" style="animation-delay: 0.3s; border-color: rgba(33,150,243,0.2);">
+    <div class="glass-header">
+        <h3 style="color: #1976D2;">📢 सूचनाएं</h3>
+    </div>
     <?php foreach ($recentNotices as $notice): ?>
-        <div style="padding: 14px 0; border-bottom: 1px solid var(--border-color);">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
-                <div>
-                    <strong style="color: var(--saffron-light); font-size: 1.05rem;"><?php echo htmlspecialchars($notice['subject']); ?></strong>
-                    <?php if (!empty($notice['tithi'])): ?>
-                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">📿 <?php echo htmlspecialchars($notice['tithi']); ?></div>
-                    <?php endif; ?>
-                </div>
-                <span style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;"><?php echo date('d M Y', strtotime($notice['notice_date'])); ?></span>
+        <div style="padding: 10px; background: rgba(33,150,243,0.05); border-radius: 8px; margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <strong style="color: #1565C0;"><?php echo htmlspecialchars($notice['subject']); ?></strong>
+                <span style="font-size: 12px; color: #666;"><?php echo date('d M', strtotime($notice['notice_date'])); ?></span>
             </div>
-            <p style="color: var(--text-secondary); margin-top: 8px; font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap;"><?php echo htmlspecialchars($notice['message']); ?></p>
+            <div style="font-size: 14px; color: #333; line-height: 1.5; white-space: pre-wrap;"><?php echo htmlspecialchars($notice['message']); ?></div>
         </div>
     <?php endforeach; ?>
 </div>
 <?php endif; ?>
-
-<!-- ═══════ RECENT RECORDS ═══════ -->
-<div class="card fade-in" style="animation-delay: 0.2s;">
-    <div class="card-header">📋 हाल के रिकॉर्ड</div>
-    <?php if (empty($recentRecords)): ?>
-        <div class="empty-state">
-            <div class="icon">📭</div>
-            <p>अभी तक कोई रिकॉर्ड नहीं है।</p>
-        </div>
-    <?php else: ?>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>तारीख</th>
-                        <th>उपस्थिति</th>
-                        <th>गतिविधियाँ</th>
-                        <th>देखें</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($recentRecords as $rec): ?>
-                        <tr>
-                            <td><?php echo formatHindiDateDash($rec['record_date']); ?></td>
-                            <td><span class="badge badge-green"><?php echo $rec['present_count']; ?> उपस्थित</span></td>
-                            <td><span class="badge badge-saffron"><?php echo $rec['activities_done']; ?> पूर्ण</span></td>
-                            <td>
-                                <a href="../pages/record_detail.php?id=<?php echo $rec['id']; ?>" class="btn btn-sm btn-outline">👁️ देखें</a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    <?php endif; ?>
-</div>
-
-<div class="card fade-in" style="animation-delay: 0.25s; margin-top: 20px;">
-    <div class="card-header">ℹ️ कैलेंडर गाइड</div>
-    <p style="color: var(--text-secondary); font-size: 0.9rem;">
-        🟠 <strong>भगवा हाइलाइट</strong> = उस दिन का रिकॉर्ड है (क्लिक करें विवरण के लिए)<br>
-        🔶 <strong>बॉर्डर</strong> = आज की तारीख<br>
-        📋 <strong>छोटा आइकन</strong> = समय-सारणी मौजूद है (क्लिक करें देखने के लिए)
-    </p>
-</div>
 
 <?php require_once '../includes/footer.php'; ?>

@@ -83,6 +83,11 @@ foreach ($dailyActivities as $a) {
 <div class="record-detail">
     <div class="record-date">📅
         <?php echo $formattedDate; ?>
+        <?php if (!empty($record['utsav'])): ?>
+            <div style="font-size: 16px; color: #E65100; margin-top: 5px; font-weight: bold;">
+                🌺 उत्सव: <?php echo htmlspecialchars($record['utsav']); ?>
+            </div>
+        <?php endif; ?>
     </div>
 
     <!-- Stats -->

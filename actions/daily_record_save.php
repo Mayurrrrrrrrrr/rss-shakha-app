@@ -29,15 +29,22 @@ $attendanceData = $_POST['attendance'] ?? [];
 $activityDone = $_POST['activity_done'] ?? [];
 $conductedBy = $_POST['conducted_by'] ?? [];
 
+$utsav = trim($_POST['utsav'] ?? '');
+
 try {
     $pdo->beginTransaction();
+
+    // Auto-create utsav column if missing
+    try {
+        $pdo->exec("ALTER TABLE daily_records ADD COLUMN utsav VARCHAR(255) DEFAULT NULL AFTER tithi");
+    } catch (PDOException $e) { }
 
     $shakhaId = getCurrentShakhaId();
 
     // Create or update daily record
     if ($recordId) {
-        $stmt = $pdo->prepare("UPDATE daily_records SET yugabdh = ?, vikram_samvat = ?, shaka_samvat = ?, hindi_month = ?, paksh = ?, tithi = ?, custom_message = ? WHERE id = ? AND shakha_id = ?");
-        $stmt->execute([$yugabdh, $vikram_samvat, $shaka_samvat, $hindi_month, $paksh, $tithi, $customMessage, $recordId, $shakhaId]);
+        $stmt = $pdo->prepare("UPDATE daily_records SET yugabdh = ?, vikram_samvat = ?, shaka_samvat = ?, hindi_month = ?, paksh = ?, tithi = ?, utsav = ?, custom_message = ? WHERE id = ? AND shakha_id = ?");
+        $stmt->execute([$yugabdh, $vikram_samvat, $shaka_samvat, $hindi_month, $paksh, $tithi, $utsav, $customMessage, $recordId, $shakhaId]);
     } else {
         // Check if date already exists
         $stmt = $pdo->prepare("SELECT id FROM daily_records WHERE record_date = ? AND shakha_id = ?");
@@ -46,11 +53,11 @@ try {
 
         if ($existing) {
             $recordId = $existing['id'];
-            $stmt = $pdo->prepare("UPDATE daily_records SET yugabdh = ?, vikram_samvat = ?, shaka_samvat = ?, hindi_month = ?, paksh = ?, tithi = ?, custom_message = ? WHERE id = ?");
-            $stmt->execute([$yugabdh, $vikram_samvat, $shaka_samvat, $hindi_month, $paksh, $tithi, $customMessage, $recordId]);
+            $stmt = $pdo->prepare("UPDATE daily_records SET yugabdh = ?, vikram_samvat = ?, shaka_samvat = ?, hindi_month = ?, paksh = ?, tithi = ?, utsav = ?, custom_message = ? WHERE id = ?");
+            $stmt->execute([$yugabdh, $vikram_samvat, $shaka_samvat, $hindi_month, $paksh, $tithi, $utsav, $customMessage, $recordId]);
         } else {
-            $stmt = $pdo->prepare("INSERT INTO daily_records (record_date, yugabdh, vikram_samvat, shaka_samvat, hindi_month, paksh, tithi, custom_message, shakha_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$recordDate, $yugabdh, $vikram_samvat, $shaka_samvat, $hindi_month, $paksh, $tithi, $customMessage, $shakhaId]);
+            $stmt = $pdo->prepare("INSERT INTO daily_records (record_date, yugabdh, vikram_samvat, shaka_samvat, hindi_month, paksh, tithi, utsav, custom_message, shakha_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$recordDate, $yugabdh, $vikram_samvat, $shaka_samvat, $hindi_month, $paksh, $tithi, $utsav, $customMessage, $shakhaId]);
             $recordId = $pdo->lastInsertId();
         }
     }

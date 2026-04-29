@@ -197,6 +197,11 @@ $autoSs = ($mm >= 4) ? $yy - 78 : $yy - 79;
                 </select>
             </div>
 
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label>उत्सव (Festival) - वैकल्पिक</label>
+                <input type="text" name="utsav" class="form-control" placeholder="उदा. रक्षाबंधन, विजयादशमी..." value="<?php echo htmlspecialchars($existingRecord['utsav'] ?? ''); ?>">
+            </div>
+
         </div>
     </div>
         <div class="card-header">📅 तारीख चुनें</div>
@@ -284,9 +289,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const mappers = {
         month: {
-            'Chaitra': 'चैत्र', 'Vaisakha': 'वैशाख', 'Jyeshtha': 'ज्येष्ठ', 'Jyaistha': 'ज्येष्ठ', 
+            'Chaitra': 'चैत्र', 'Vaisakha': 'वैशाख', 'Vaishakha': 'वैशाख', 'Jyeshtha': 'ज्येष्ठ', 'Jyaistha': 'ज्येष्ठ', 
             'Ashadha': 'आषाढ़', 'Shravana': 'श्रावण', 'Sravana': 'श्रावण', 'Bhadrapada': 'भाद्रपद', 
-            'Ashwin': 'आश्विन', 'Asvina': 'आश्विन', 'Kartika': 'कार्तिक', 'Margashirsha': 'मार्गशीर्ष', 
+            'Ashwin': 'आश्विन', 'Asvina': 'आश्विन', 'Kartika': 'कार्तिक', 'Kartik': 'कार्तिक', 'Margashirsha': 'मार्गशीर्ष', 
             'Margasira': 'मार्गशीर्ष', 'Pausha': 'पौष', 'Pausa': 'पौष', 'Magha': 'माघ', 'Phalguna': 'फाल्गुन'
         },
         tithi: {

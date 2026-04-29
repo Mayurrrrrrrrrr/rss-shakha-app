@@ -8,7 +8,7 @@ require_once '../config/db.php';
 requireLogin();
 
 if (isSwayamsevak()) {
-    header('Location: swayamsevak_dashboard.php');
+    header('Location: daily_flipbook.php');
     exit;
 }
 
@@ -60,12 +60,16 @@ function formatHindiDate($dateStr)
     <h1>🙏 नमस्ते,
         <?php echo htmlspecialchars(getAdminName()); ?>
     </h1>
-    <?php if (!$hasTodayRecord): ?>
-        <a href="../pages/daily_record.php?date=<?php echo date('Y-m-d'); ?>" class="btn btn-primary">📝 आज का रिकॉर्ड बनाएँ</a>
-    <?php else: ?>
-        <a href="../pages/record_detail.php?id=<?php echo $hasTodayRecord['id']; ?>" class="btn btn-success">✅ आज का रिकॉर्ड
-            देखें</a>
-    <?php endif; ?>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a href="../pages/paper_shakha.php?date=<?php echo date('Y-m-d'); ?>" target="_blank" class="btn" style="background: #fff; color: #ff5722; border: 1px solid #ff5722;">🖨️ Paper Shakha (Zine)</a>
+        <a href="../pages/daily_flipbook.php?date=<?php echo date('Y-m-d'); ?>" target="_blank" class="btn" style="background: linear-gradient(135deg, #4CAF50, #2E7D32); color: white; border: none;">📱 डिजिटल वृत्त (Flipbook)</a>
+        <?php if (!$hasTodayRecord): ?>
+            <a href="../pages/daily_record.php?date=<?php echo date('Y-m-d'); ?>" class="btn btn-primary">📝 आज का रिकॉर्ड बनाएँ</a>
+        <?php else: ?>
+            <a href="../pages/record_detail.php?id=<?php echo $hasTodayRecord['id']; ?>" class="btn btn-success">✅ आज का रिकॉर्ड
+                देखें</a>
+        <?php endif; ?>
+    </div>
 </div>
 
 <!-- Stats -->

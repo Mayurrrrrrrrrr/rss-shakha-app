@@ -84,6 +84,7 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                                 <li><a href="../pages/mukhyashikshaks.php" class="<?php echo $currentPage === 'mukhyashikshaks' ? 'active' : ''; ?>">👤 मुख्य शिक्षक</a></li>
                                                 <li><a href="../pages/events.php" class="<?php echo $currentPage === 'events' ? 'active' : ''; ?>">📅 कार्यक्रम</a></li>
                                                 <li><a href="../pages/notice.php" class="<?php echo $currentPage === 'notice' ? 'active' : ''; ?>">📢 सूचना</a></li>
+                                                <li><a href="../pages/greetings.php" class="<?php echo $currentPage === 'greetings' ? 'active' : ''; ?>">🎨 शुभकामनाएं</a></li>
                                             </ul>
                                         </li>
                                         
@@ -101,7 +102,7 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                         <li><a href="../pages/dashboard.php" class="<?php echo $currentPage === 'dashboard' ? 'active' : ''; ?>">🏠 मुख्य पृष्ठ</a></li>
                                         <li><a href="../pages/swayamsevaks.php" class="<?php echo $currentPage === 'swayamsevaks' ? 'active' : ''; ?>">👥 स्वयंसेवक</a></li>
                                         
-                                        <?php $dailyOpsActive = in_array($currentPage, ['daily_record', 'activities', 'notice', 'subhashit']) ? 'open' : ''; ?>
+                                        <?php $dailyOpsActive = in_array($currentPage, ['daily_record', 'activities', 'notice', 'subhashit', 'geet', 'ghoshnayein', 'greetings']) ? 'open' : ''; ?>
                                         <li class="nav-group <?php echo $dailyOpsActive; ?>">
                                             <div class="nav-group-header"><span>📅 दैनिक कार्य (Daily Ops)</span> <span class="chevron">▼</span></div>
                                             <ul class="nav-group-items">
@@ -109,10 +110,13 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                                 <li><a href="../pages/activities.php" class="<?php echo $currentPage === 'activities' ? 'active' : ''; ?>">📋 गतिविधियाँ</a></li>
                                                 <li><a href="../pages/notice.php" class="<?php echo $currentPage === 'notice' ? 'active' : ''; ?>">📢 सूचना</a></li>
                                                 <li><a href="../pages/subhashit.php" class="<?php echo $currentPage === 'subhashit' ? 'active' : ''; ?>">📜 सुभाषित</a></li>
+                                                <li><a href="../pages/geet.php" class="<?php echo $currentPage === 'geet' ? 'active' : ''; ?>">🎵 गीत</a></li>
+                                                <li><a href="../pages/ghoshnayein.php" class="<?php echo $currentPage === 'ghoshnayein' ? 'active' : ''; ?>">🗣️ घोषणाएं</a></li>
+                                                <li><a href="../pages/greetings.php" class="<?php echo $currentPage === 'greetings' ? 'active' : ''; ?>">🎨 शुभकामनाएं</a></li>
                                             </ul>
                                         </li>
                                         
-                                        <?php $repActive = in_array($currentPage, ['records_list', 'records_calendar', 'monthly_report', 'analytics']) ? 'open' : ''; ?>
+                                        <?php $repActive = in_array($currentPage, ['records_list', 'records_calendar', 'monthly_report', 'analytics', 'insights']) ? 'open' : ''; ?>
                                         <li class="nav-group <?php echo $repActive; ?>">
                                             <div class="nav-group-header"><span>📊 रिपोर्ट्स (Reports)</span> <span class="chevron">▼</span></div>
                                             <ul class="nav-group-items">
@@ -120,6 +124,7 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                                 <li><a href="../pages/records_calendar.php" class="<?php echo $currentPage === 'records_calendar' ? 'active' : ''; ?>">📅 कैलेंडर</a></li>
                                                 <li><a href="../pages/monthly_report.php" class="<?php echo $currentPage === 'monthly_report' ? 'active' : ''; ?>">📊 मासिक रिपोर्ट</a></li>
                                                 <li><a href="../pages/analytics.php" class="<?php echo $currentPage === 'analytics' ? 'active' : ''; ?>">📈 एनालिटिक्स</a></li>
+                                                <li><a href="../pages/insights.php" class="<?php echo $currentPage === 'insights' ? 'active' : ''; ?>">🧠 AI Insights</a></li>
                                             </ul>
                                         </li>
                                         
@@ -198,6 +203,7 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                         <li><a href="../pages/daily_record.php" class="<?php echo $currentPage === 'daily_record' ? 'active' : ''; ?>"><span class="nav-icon">📝</span><span>रिकॉर्ड</span></a></li>
                                         <li><a href="../pages/events.php" class="<?php echo $currentPage === 'events' ? 'active' : ''; ?>"><span class="nav-icon">📅</span><span>कार्यक्रम</span></a></li>
                                         <li><a href="../pages/subhashit.php" class="<?php echo $currentPage === 'subhashit' ? 'active' : ''; ?>"><span class="nav-icon">📜</span><span>सुभाषित</span></a></li>
+                                        <li><a href="../pages/greetings.php" class="<?php echo $currentPage === 'greetings' ? 'active' : ''; ?>"><span class="nav-icon">🎨</span><span>बधाई</span></a></li>
                                         <li><a href="../pages/notice.php" class="<?php echo $currentPage === 'notice' ? 'active' : ''; ?>"><span class="nav-icon">📢</span><span>सूचना</span></a></li>
                                         <li><a href="javascript:void(0)" onclick="openSidebar()"><span class="nav-icon">☰</span><span>मेनू</span></a></li>
                                 <?php elseif (isSwayamsevak()): ?>

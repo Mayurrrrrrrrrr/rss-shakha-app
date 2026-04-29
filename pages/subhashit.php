@@ -404,8 +404,11 @@ require_once '../includes/header.php';
     }
 </style>
 
-<div class="page-header">
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
     <h1>📜 सुभाषित (Subhashit)</h1>
+    <?php if (isAdmin() && !empty($subhashitId)): ?>
+        <button class="btn btn-warning" onclick="openShareModal('subhashit', <?php echo $subhashitId; ?>)">🔗 Share across Shakhas</button>
+    <?php endif; ?>
 </div>
 
 <?php if ($success): ?>
@@ -445,7 +448,10 @@ require_once '../includes/header.php';
                 </div>
 
                 <div class="form-group" style="margin-bottom: 16px;">
-                    <label class="sub-form-label">हिंदी अर्थ</label>
+                    <label class="sub-form-label" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>हिंदी अर्थ</span>
+                        <button type="button" class="btn btn-sm" onclick="generateAiSubhashit()" id="btn-ai-subhashit" style="background: rgba(233, 30, 99, 0.1); color: #F48FB1; border: 1px dashed #E91E63; padding: 4px 8px; cursor: pointer;">✨ AI से अर्थ व शब्दार्थ निकालें</button>
+                    </label>
                     <textarea name="hindi_meaning" id="inp-hindi" class="sub-form-input" rows="3"
                         placeholder="हिंदी में अर्थ लिखें..."><?php echo htmlspecialchars($hindi_meaning ?? ''); ?></textarea>
                 </div>
@@ -568,16 +574,27 @@ require_once '../includes/header.php';
         return `${dayName}, ${day} ${monthName} ${year}`;
     }
 
-    function addShabdarthPair() {
+    function addShabdarthPair(shabd = '', arth = '') {
         const container = document.getElementById('shabdarth-container');
+        
+        // Remove empty placeholder if it exists and is empty
+        const pairs = container.querySelectorAll('.shabdarth-pair');
+        if (pairs.length === 1) {
+            const inputs = pairs[0].querySelectorAll('input');
+            if (!inputs[0].value && !inputs[1].value) {
+                pairs[0].remove();
+            }
+        }
+
         const pair = document.createElement('div');
         pair.className = 'shabdarth-pair';
         pair.innerHTML = `
-            <input type="text" name="shabd[]" placeholder="शब्द" oninput="updatePreview()">
-            <input type="text" name="arth[]" placeholder="अर्थ" oninput="updatePreview()">
+            <input type="text" name="shabd[]" placeholder="शब्द" oninput="updatePreview()" value="${shabd}">
+            <input type="text" name="arth[]" placeholder="अर्थ" oninput="updatePreview()" value="${arth}">
             <button type="button" class="remove-pair-btn" onclick="this.parentElement.remove(); updatePreview();">✕</button>
         `;
         container.appendChild(pair);
+        updatePreview();
     }
 
     function updatePreview() {
@@ -667,9 +684,9 @@ require_once '../includes/header.php';
 
         const mappers = {
             month: {
-                'Chaitra': 'चैत्र', 'Vaisakha': 'वैशाख', 'Jyeshtha': 'ज्येष्ठ', 'Jyaistha': 'ज्येष्ठ', 
+                'Chaitra': 'चैत्र', 'Vaisakha': 'वैशाख', 'Vaishakha': 'वैशाख', 'Jyeshtha': 'ज्येष्ठ', 'Jyaistha': 'ज्येष्ठ', 
                 'Ashadha': 'आषाढ़', 'Shravana': 'श्रावण', 'Sravana': 'श्रावण', 'Bhadrapada': 'भाद्रपद', 
-                'Ashwin': 'आश्विन', 'Asvina': 'आश्विन', 'Kartika': 'कार्तिक', 'Margashirsha': 'मार्गशीर्ष', 
+                'Ashwin': 'आश्विन', 'Asvina': 'आश्विन', 'Kartika': 'कार्तिक', 'Kartik': 'कार्तिक', 'Margashirsha': 'मार्गशीर्ष', 
                 'Margasira': 'मार्गशीर्ष', 'Pausha': 'पौष', 'Pausa': 'पौष', 'Magha': 'माघ', 'Phalguna': 'फाल्गुन'
             },
             tithi: {
@@ -743,6 +760,54 @@ require_once '../includes/header.php';
 
     // Initial call
     updatePreview();
+
+    async function generateAiSubhashit() {
+        const sanskrit = document.getElementById('inp-sanskrit').value.trim();
+        if (!sanskrit) {
+            alert("कृपया पहले संस्कृत सुभाषित दर्ज करें।");
+            return;
+        }
+
+        const btn = document.getElementById('btn-ai-subhashit');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '⏳ AI सोच रहा है...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch('../api/ai_content.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'subhashit_meaning', sanskrit: sanskrit })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('inp-hindi').value = data.result.hindi_meaning || '';
+                
+                // Clear existing shabdarth
+                document.getElementById('shabdarth-container').innerHTML = '';
+                
+                // Add new ones
+                if (data.result.shabdarth && data.result.shabdarth.length > 0) {
+                    data.result.shabdarth.forEach(item => {
+                        addShabdarthPair(item.shabd, item.arth);
+                    });
+                } else {
+                    addShabdarthPair(); // add empty
+                }
+                
+                updatePreview();
+            } else {
+                alert("त्रुटि: " + (data.message || "Unknown error"));
+            }
+        } catch (e) {
+            console.error(e);
+            alert("सर्वर से जुड़ने में त्रुटि।");
+        }
+
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
 
     // Generate High-Res Image
     async function generateImage() {
@@ -850,4 +915,5 @@ require_once '../includes/header.php';
     });
 </script>
 
+<?php require_once '../includes/share_modal.php'; ?>
 <?php require_once '../includes/footer.php'; ?>
