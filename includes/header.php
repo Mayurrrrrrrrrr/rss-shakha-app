@@ -226,10 +226,26 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                 body { top: 0px !important; }
                 /* Hide 'Original text' popup */
                 .goog-te-balloon-frame { display: none !important; }
-                #goog-gt-tt { display: none !important; visibility: hidden !important; }
-                .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
-                /* Ensure container has space */
-                #google_translate_element { min-height: 30px; min-width: 100px; display: inline-block !important; }
+                /* Ensure container has space and is visible */
+                #google_translate_element { 
+                    min-height: 30px; 
+                    min-width: 130px; 
+                    display: flex !important; 
+                    align-items: center;
+                    justify-content: center;
+                    border: 1px solid var(--saffron) !important;
+                    border-radius: 4px;
+                    padding: 2px 5px;
+                    background: rgba(255,107,0,0.1);
+                }
+                #google_translate_element::before {
+                    content: "🌐 Language: ";
+                    font-size: 10px;
+                    color: var(--saffron);
+                    margin-right: 5px;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }
         </style>
 
         <!-- Google Translate Widget Scripts -->
