@@ -1,29 +1,34 @@
 <?php
 session_start();
 
+// PHP Hardening
+ini_set('session.cookie_httponly', 1);
+ini_set('session.cookie_samesite', 'Strict');
+ini_set('session.use_strict_mode', 1);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
 // Security headers
 header("X-Frame-Options: DENY");
 header("X-Content-Type-Options: nosniff");
 header("Content-Security-Policy: default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' https://translate.google.com https://translate.googleapis.com https://cdn.jsdelivr.net; img-src 'self' data: https://translate.google.com; connect-src 'self' https://translate.googleapis.com;");
 header("Referrer-Policy: strict-origin-when-cross-origin");
 
-// Error Handling
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
-
 // CSRF Token Initialization
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Session idle timeout (30 minutes)
+// Idle session timeout
 if (isset($_SESSION['last_active']) && (time() - $_SESSION['last_active']) > 1800) {
     $_SESSION = [];
     session_destroy();
     header('Location: /index.php?timeout=1');
     exit;
 }
-$_SESSION['last_active'] = time();
+if (isset($_SESSION['user_id'])) {
+    $_SESSION['last_active'] = time();
+}
 
 /**
  * Enhanced check if user is logged in, redirect to login if not

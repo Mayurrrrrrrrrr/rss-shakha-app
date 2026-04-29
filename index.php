@@ -116,8 +116,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p>दैनिक गतिविधि एवं उपस्थिति प्रबंधन</p>
         </div>
 
+        <?php if (isset($_GET['timeout'])): ?>
+            <div class="alert alert-warning">
+                ⏱️ सत्र समाप्त हो गया। कृपया पुनः लॉगिन करें।
+            </div>
+        <?php endif; ?>
         <?php if ($error): ?>
-            <div class="alert alert-danger">?? <?php echo htmlspecialchars($error); ?></div>
+            <div class="alert alert-danger">⚠️ <?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
 
         <form method="POST" action="index.php">
