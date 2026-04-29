@@ -218,60 +218,12 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
             <div id="google_translate_element"></div>
         </div>
 
-        <style>
-                /* Hide Google Translate artifacts */
-                .goog-te-banner-frame.skiptranslate, 
-                .goog-te-gadget-icon,
-                .goog-te-balloon-frame,
-                #goog-gt-tt, 
-                .goog-gt-tt,
-                .skiptranslate iframe,
-                #google_translate_element img { 
-                    display: none !important; 
-                    visibility: hidden !important; 
-                }
-                body { top: 0px !important; }
-                .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
-
-                /* Floating Wrapper Styling */
-                #language-switcher-wrapper {
-                    position: fixed;
-                    bottom: 20px;
-                    right: 20px;
-                    z-index: 10000;
-                    background: #2a2a38;
-                    border: 2px solid var(--saffron);
-                    border-radius: 50px;
-                    padding: 5px 12px;
-                    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-                    display: flex;
-                    align-items: center;
-                    min-width: 150px;
-                }
-                #language-switcher-wrapper::before {
-                    content: "🌐";
-                    margin-right: 8px;
-                    font-size: 16px;
-                }
-
-                /* Style the inner Google select box */
-                .goog-te-gadget .goog-te-combo {
-                    background: transparent !important;
-                    color: #ffffff !important;
-                    border: none !important;
-                    font-size: 13px !important;
-                    outline: none !important;
-                    cursor: pointer !important;
-                    width: 110px !important;
-                }
-                .goog-te-gadget { font-size: 0 !important; }
-        </style>
-
         <script type="text/javascript">
                 function googleTranslateElementInit() {
                         new google.translate.TranslateElement({
                                 pageLanguage: 'hi',
                                 includedLanguages: 'hi,en,mr,gu,bn,te,ta,kn,ml,pa,ur,or,as,sa',
+                                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
                                 autoDisplay: false
                         }, 'google_translate_element');
                 }
