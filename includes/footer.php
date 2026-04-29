@@ -10,6 +10,9 @@
         </p>
     </div>
 </footer>
+<!-- Google Translate Scripts -->
+<?php include '../includes/translate_scripts.php'; ?>
+
 <script src="../assets/js/app.js"></script>
 </body>
 

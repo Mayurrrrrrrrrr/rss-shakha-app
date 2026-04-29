@@ -5,8 +5,7 @@ require_once __DIR__ . '/../config/db.php';
 
 // Fetch current shakha name if logged in
 $currentShakhaName = 'संघस्थान';
-if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
-        global $pdo;
+if ($pdo && isLoggedIn() && isset($_SESSION['shakha_id'])) {
         $stmt = $pdo->prepare("SELECT name FROM shakhas WHERE id = ?");
         $stmt->execute([$_SESSION['shakha_id']]);
         $res = $stmt->fetchColumn();
@@ -35,6 +34,9 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                 rel="stylesheet">
         <link rel="stylesheet" href="../assets/css/style.css?v=<?php echo APP_VERSION; ?>">
         <link rel="icon" href="../assets/images/favicon.png" type="image/png">
+        
+        <!-- Google Translate Header -->
+        <?php include '../includes/translate.php'; ?>
 </head>
 
 <body>
@@ -79,12 +81,12 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                 <?php if (isAdmin()): ?>
                                         <li><a href="../pages/admin_dashboard.php" class="<?php echo $currentPage === 'admin_dashboard' ? 'active' : ''; ?>">👑 एडमिन डैशबोर्ड</a></li>
                                         
-                                        <?php $adminOpsActive = in_array($currentPage, ['shakhas', 'mukhyashikshaks', 'events', 'notice']) ? 'open' : ''; ?>
+                                        <?php $adminOpsActive = in_array($currentPage, ['shakhas', 'mukhyashikshaks', 'events', 'notice', 'greetings']) ? 'open' : ''; ?>
                                         <li class="nav-group <?php echo $adminOpsActive; ?>">
                                             <div class="nav-group-header"><span>📊 प्रबंधन (Manage)</span> <span class="chevron">▼</span></div>
                                             <ul class="nav-group-items">
                                                 <li><a href="../pages/shakhas.php" class="<?php echo $currentPage === 'shakhas' ? 'active' : ''; ?>">🚩 शाखाएं</a></li>
-                                                <li><a href="../pages/mukhyashikshaks.php" class="<?php echo $currentPage === 'mukhyashikshaks' ? 'active' : ''; ?>">👤 मुख्य शिक्षक</a></li>
+                                                <li><a href="../pages/mukhyashikshaks.php" class="<?php echo $currentPage === 'mukhyashikshaks.php' ? 'active' : ''; ?>">👤 मुख्य शिक्षक</a></li>
                                                 <li><a href="../pages/events.php" class="<?php echo $currentPage === 'events' ? 'active' : ''; ?>">📅 कार्यक्रम</a></li>
                                                 <li><a href="../pages/notice.php" class="<?php echo $currentPage === 'notice' ? 'active' : ''; ?>">📢 सूचना</a></li>
                                                 <li><a href="../pages/greetings.php" class="<?php echo $currentPage === 'greetings' ? 'active' : ''; ?>">🎨 शुभकामनाएं</a></li>
@@ -154,7 +156,6 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                         </ul>
                 </aside>
 
-
                 <!-- MOBILE BOTTOM NAVIGATION -->
                 <nav class="bottom-nav">
                         <ul>
@@ -180,22 +181,5 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                         </ul>
                 </nav>
         <?php endif; ?>
-
-        <!-- Universal Floating Language Switcher -->
-        <div id="language-switcher-wrapper">
-            <div id="google_translate_element"></div>
-        </div>
-
-        <script type="text/javascript">
-                function googleTranslateElementInit() {
-                        new google.translate.TranslateElement({
-                                pageLanguage: 'hi',
-                                includedLanguages: 'hi,en,mr,gu,bn,te,ta,kn,ml,pa,ur,or,as,sa',
-                                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-                                autoDisplay: false
-                        }, 'google_translate_element');
-                }
-        </script>
-        <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
         <main class="main-content">
