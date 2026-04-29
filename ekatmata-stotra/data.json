@@ -664,6 +664,69 @@
         "link": "https://bharatdiscovery.org/india/रमण_महर्षि",
         "tithi": "रमण जयंती"
     },
+    "गोरक्ष": {
+        "name": "गोरखनाथ",
+        "summary": "हठयोग के प्रवर्तक और महान सिद्ध योगी, जिन्होंने योग परंपरा को जन-जन तक पहुँचाया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/गोरखनाथ",
+        "tithi": "गुरु पूर्णिमा"
+    },
+    "पाणिनि": {
+        "name": "महर्षि पाणिनि",
+        "summary": "विश्व के महानतम भाषाविद् और संस्कृत व्याकरण 'अष्टाध्यायी' के रचयिता।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/पाणिनी",
+        "tithi": "नित्य"
+    },
+    "पतञ्जलि": {
+        "name": "महर्षि पतञ्जलि",
+        "summary": "योग दर्शन के प्रणेता और 'योग सूत्र' के माध्यम से विश्व को योग का उपहार देने वाले ऋषि।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/पतंजलि",
+        "tithi": "नित्य"
+    },
+    "वल्लभ": {
+        "name": "वल्लभाचार्य",
+        "summary": "शुद्धाद्वैत दर्शन और पुष्टिमार्ग के प्रवर्तक, जिन्होंने कृष्ण भक्ति का प्रचार किया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/वल्लभाचार्य",
+        "tithi": "वल्लभ जयंती"
+    },
+    "झूलेलाल": {
+        "name": "झूलेलाल",
+        "summary": "वरुण देव के अवतार, जो सिंधी समाज के इष्ट देव और सांस्कृतिक एकता के प्रतीक हैं।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/झूलेलाल",
+        "tithi": "चेटी चंड"
+    },
+    "चैतन्य": {
+        "name": "चैतन्य महाप्रभु",
+        "summary": "भक्ति आंदोलन के प्रमुख संत, जिन्होंने संकीर्तन के माध्यम से कृष्ण प्रेम का प्रसार किया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/चैतन्य_महाप्रभु",
+        "tithi": "गौरांग पूर्णिमा"
+    },
+    "बिरसा": {
+        "name": "बिरसा मुंडा",
+        "summary": "जनजातीय स्वतंत्रता सेनानी और लोकनायक, जिन्होंने 'उलगुलान' के माध्यम से शोषण के विरुद्ध संघर्ष किया।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/बिरसा_मुण्डा",
+        "tithi": "बिरसा मुंडा जयंती"
+    },
+    "सहजानन्द": {
+        "name": "स्वामी सहजानन्द",
+        "summary": "भारत के प्रमुख किसान नेता और क्रांतिकारी, जिन्होंने किसानों के अधिकारों के लिए संघर्ष किया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/सहजानंद_सरस्वती",
+        "tithi": "नित्य"
+    },
+    "रामानन्द": {
+        "name": "स्वामी रामानन्द",
+        "summary": "मध्यकालीन भक्ति आंदोलन के महान संत, जिन्होंने समाज के सभी वर्गों के लिए भक्ति का द्वार खोला।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/रामानंद",
+        "tithi": "रामानंद जयंती"
+    },
     "मालवीय": {
         "name": "मदन मोहन मालवीय",
         "summary": "काशी हिंदू विश्वविद्यालय के संस्थापक और 'महामना' के नाम से प्रसिद्ध महान शिक्षाविद।",
