@@ -20,12 +20,25 @@
     }
 
     let translated = false;
+
     function toggleTranslate() {
+        // Wait up to 3 seconds for widget to be ready
+        waitForTranslate(0);
+    }
+
+    function waitForTranslate(attempts) {
         const select = document.querySelector('.goog-te-combo');
         if (!select) {
-            alert('अनुवाद लोड हो रहा है... कृपया 2 सेकंड बाद पुनः प्रयास करें।');
+            if (attempts < 15) {
+                setTimeout(() => waitForTranslate(attempts + 1), 200);
+            } else {
+                // Still not ready after 3s — show friendly message, no alert
+                const btn = document.getElementById('translate-btn');
+                btn.innerHTML = '🌐 <span style="color:red;font-size:11px">Reload page</span>';
+            }
             return;
         }
+        // Widget is ready — do the translation
         if (!translated) {
             select.value = 'en';
             select.dispatchEvent(new Event('change'));
