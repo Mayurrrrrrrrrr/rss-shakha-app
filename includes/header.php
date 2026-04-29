@@ -60,8 +60,6 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                                 <?php endif; ?>
                                         </div>
                                 </a>
-                                
-                                <div id="google_translate_element" class="nav-translate"></div>
                         </div>
                 </nav>
 
@@ -150,6 +148,15 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                         <li><a href="../pages/subhashit_view.php" class="<?php echo $currentPage === 'subhashit_view' ? 'active' : ''; ?>">📜 सुभाषित</a></li>
                                         <li><a href="../pages/change_password.php" class="<?php echo $currentPage === 'change_password' ? 'active' : ''; ?>">🔑 पासवर्ड बदलें</a></li>
                                 <?php endif; ?>
+                                
+                                <!-- Language Selection in Sidebar -->
+                                <li class="nav-group">
+                                    <div class="nav-group-header"><span>🌐 भाषा (Language)</span> <span class="chevron">▼</span></div>
+                                    <ul class="nav-group-items">
+                                        <li><div id="google_translate_element" style="padding: 10px;"></div></li>
+                                    </ul>
+                                </li>
+
                                 <li style="margin-top: 20px;"><a href="../logout.php" class="nav-logout">🚪 लॉग आउट</a></li>
                         </ul>
                 </aside>
@@ -219,9 +226,9 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                 </nav>
         <?php endif; ?>
 
-        <!-- Google Translate Final Fix -->
+        <!-- Google Translate Sidebar Styling -->
         <style>
-                /* Nuclear CSS to hide Google Translate artifacts */
+                /* Hide Google Translate top bar and artifacts */
                 .goog-te-banner-frame.skiptranslate, 
                 .goog-te-gadget-icon,
                 .goog-te-balloon-frame,
@@ -236,37 +243,17 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                 body { top: 0px !important; }
                 .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
 
-                /* Premium Button Styling */
-                #google_translate_element { 
-                    min-height: 40px; 
-                    min-width: 150px; 
-                    display: flex !important; 
-                    align-items: center;
-                    justify-content: center;
-                    border: 2px solid var(--saffron) !important;
-                    border-radius: 8px;
-                    padding: 0 10px;
-                    background: var(--bg-secondary);
-                    cursor: pointer !important;
-                    overflow: hidden;
-                    z-index: 10000;
-                }
-                
-                /* Style the inner Google select box */
-                .goog-te-gadget {
-                    font-family: inherit !important;
-                    color: transparent !important;
-                }
+                /* Style the inner Google select box for sidebar */
                 .goog-te-gadget .goog-te-combo {
-                    background: transparent !important;
+                    background: var(--bg-input) !important;
                     color: var(--text-primary) !important;
-                    border: none !important;
-                    font-size: 14px !important;
-                    font-weight: bold !important;
-                    cursor: pointer !important;
-                    width: 130px !important;
+                    border: 1px solid var(--border-color) !important;
+                    border-radius: 4px !important;
+                    padding: 8px !important;
+                    width: 100% !important;
                     outline: none !important;
                 }
+                .goog-te-gadget { font-size: 0 !important; } /* Hide 'Powered by' */
         </style>
 
         <!-- Google Translate Widget Scripts -->
