@@ -1,5 +1,15 @@
-# RSS Shakha Management Platform
+# RSS Shakha Management Platform - Advanced Security Configuration
+# Optimized for Google Translate Integration
+
 <IfModule mod_headers.c>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header set X-Content-Type-Options "nosniff"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com https://www.gstatic.com https://cdn.jsdelivr.net https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://translate.google.com https://translate.googleapis.com https://www.gstatic.com https://fonts.gstatic.com https://www.google.com; frame-src https://translate.googleapis.com https://translate.google.com; connect-src 'self' https://translate.googleapis.com https://translate-pa.googleapis.com https://translate.google.com"
 </IfModule>
+
+# Prevent directory listing
 Options -Indexes
+
+# Default index
 DirectoryIndex index.php
