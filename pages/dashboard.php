@@ -2,8 +2,7 @@
 /**
  * Dashboard - मुख्य पृष्ठ
  */
-$pageTitle = 'मुख्य पृष्ठ';
-require_once '../includes/header.php';
+require_once '../includes/auth.php';
 require_once '../config/db.php';
 requireLogin();
 
@@ -11,6 +10,9 @@ if (isSwayamsevak()) {
     header('Location: daily_flipbook.php');
     exit;
 }
+
+$pageTitle = 'मुख्य पृष्ठ';
+require_once '../includes/header.php';
 
 $shakhaId = getCurrentShakhaId();
 

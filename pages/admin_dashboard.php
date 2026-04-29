@@ -2,8 +2,7 @@
 /**
  * Admin Dashboard - एडमिन डैशबोर्ड
  */
-$pageTitle = 'एडमिन डैशबोर्ड';
-require_once '../includes/header.php';
+require_once '../includes/auth.php';
 require_once '../config/db.php';
 requireLogin();
 
@@ -11,6 +10,9 @@ if (!isAdmin()) {
     header('Location: index.php');
     exit;
 }
+
+$pageTitle = 'एडमिन डैशबोर्ड';
+require_once '../includes/header.php';
 
 // Stats
 $totalShakhas = $pdo->query("SELECT COUNT(*) FROM shakhas")->fetchColumn();

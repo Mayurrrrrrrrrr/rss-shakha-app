@@ -2,8 +2,7 @@
 /**
  * Swayamsevak Dashboard - स्वयंसेवक डैशबोर्ड (Modernized)
  */
-$pageTitle = 'मुख्य पृष्ठ';
-require_once '../includes/header.php';
+require_once '../includes/auth.php';
 require_once '../config/db.php';
 requireLogin();
 
@@ -11,6 +10,9 @@ if (!isSwayamsevak()) {
     header('Location: dashboard.php');
     exit;
 }
+
+$pageTitle = 'मुख्य पृष्ठ';
+require_once '../includes/header.php';
 
 $shakhaId = getCurrentShakhaId();
 
