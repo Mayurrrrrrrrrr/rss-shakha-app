@@ -5,6 +5,10 @@
 require_once 'includes/auth.php';
 require_once 'config/db.php';
 
+if (empty($_SESSION['csrf_token'])) {
+  $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // Already logged in? Redirect to dashboard
 if (isLoggedIn()) {
     if (isAdmin()) {
@@ -29,8 +33,6 @@ try {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    csrf_verify();
-    
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
     $ip = $_SERVER['REMOTE_ADDR'];
@@ -38,52 +40,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($username) || empty($password)) {
         $error = 'कृपया उपयोगकर्ता नाम और पासवर्ड दोनों भरें।';
     } else {
-        // Rate Limiting Check
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM login_attempts WHERE ip = ? AND attempted_at > (NOW() - INTERVAL 15 MINUTE)");
-        $stmt->execute([$ip]);
-        $attempts = $stmt->fetchColumn();
-
-        if ($attempts >= 5) {
-            $error = 'बहुत सारे असफल प्रयास। 15 मिनट बाद पुनः प्रयास करें।';
+        if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
+            $error = 'Invalid request. Please try again.';
         } else {
-            $login_success = false;
-            
-            // First check admin_users
-            $stmt = $pdo->prepare("SELECT id, name, role, shakha_id, password FROM admin_users WHERE username = ?");
-            $stmt->execute([$username]);
-            $user = $stmt->fetch();
+            // Rate Limiting Check
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM login_attempts WHERE ip = ? AND attempted_at > (NOW() - INTERVAL 15 MINUTE)");
+            $stmt->execute([$ip]);
+            $attempts = $stmt->fetchColumn();
 
-            if ($user && password_verify($password, $user['password'])) {
-                session_regenerate_id(true);
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['admin_id'] = $user['id']; // For backward compatibility if needed
-                $_SESSION['user_name'] = $user['name'];
-                $_SESSION['admin_name'] = $user['name']; // For backward compatibility
-                $_SESSION['user_type'] = $user['role'] ?? 'mukhyashikshak';
-                $_SESSION['shakha_id'] = $user['shakha_id'];
-                $login_success = true;
-
-                // Clear attempts on success
-                $stmt = $pdo->prepare("DELETE FROM login_attempts WHERE ip = ?");
-                $stmt->execute([$ip]);
-
-                if (isAdmin()) {
-                    header('Location: pages/admin_dashboard.php');
-                } else {
-                    header('Location: pages/dashboard.php');
-                }
-                exit;
+            if ($attempts >= 5) {
+                $error = 'बहुत सारे असफल प्रयास। 15 मिनट बाद पुनः प्रयास करें।';
             } else {
-                // Check swayamsevaks
-                $stmt = $pdo->prepare("SELECT id, name, shakha_id, password FROM swayamsevaks WHERE username = ? AND is_active = 1");
+                $login_success = false;
+                
+                // First check admin_users
+                $stmt = $pdo->prepare("SELECT id, name, role, shakha_id, password FROM admin_users WHERE username = ?");
                 $stmt->execute([$username]);
                 $user = $stmt->fetch();
 
-                if ($user && $user['password'] && password_verify($password, $user['password'])) {
+                if ($user && password_verify($password, $user['password'])) {
                     session_regenerate_id(true);
                     $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['admin_id'] = $user['id']; // For backward compatibility if needed
                     $_SESSION['user_name'] = $user['name'];
-                    $_SESSION['user_type'] = 'swayamsevak';
+                    $_SESSION['admin_name'] = $user['name']; // For backward compatibility
+                    $_SESSION['user_type'] = $user['role'] ?? 'mukhyashikshak';
                     $_SESSION['shakha_id'] = $user['shakha_id'];
                     $login_success = true;
 
@@ -91,17 +72,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = $pdo->prepare("DELETE FROM login_attempts WHERE ip = ?");
                     $stmt->execute([$ip]);
 
-                    header('Location: pages/swayamsevak_dashboard.php');
+                    if (isAdmin()) {
+                        header('Location: pages/admin_dashboard.php');
+                    } else {
+                        header('Location: pages/dashboard.php');
+                    }
                     exit;
+                } else {
+                    // Check swayamsevaks
+                    $stmt = $pdo->prepare("SELECT id, name, shakha_id, password FROM swayamsevaks WHERE username = ? AND is_active = 1");
+                    $stmt->execute([$username]);
+                    $user = $stmt->fetch();
+
+                    if ($user && $user['password'] && password_verify($password, $user['password'])) {
+                        session_regenerate_id(true);
+                        $_SESSION['user_id'] = $user['id'];
+                        $_SESSION['user_name'] = $user['name'];
+                        $_SESSION['user_type'] = 'swayamsevak';
+                        $_SESSION['shakha_id'] = $user['shakha_id'];
+                        $login_success = true;
+
+                        // Clear attempts on success
+                        $stmt = $pdo->prepare("DELETE FROM login_attempts WHERE ip = ?");
+                        $stmt->execute([$ip]);
+
+                        header('Location: pages/swayamsevak_dashboard.php');
+                        exit;
+                    }
                 }
-            }
-            
-            if (!$login_success) {
-                // Failed login attempt
-                $stmt = $pdo->prepare("INSERT INTO login_attempts (ip) VALUES (?)");
-                $stmt->execute([$ip]);
-                sleep(1);
-                $error = 'गलत उपयोगकर्ता नाम या पासवर्ड!';
+                
+                if (!$login_success) {
+                    // Failed login attempt
+                    $stmt = $pdo->prepare("INSERT INTO login_attempts (ip) VALUES (?)");
+                    $stmt->execute([$ip]);
+                    sleep(1);
+                    $error = 'गलत उपयोगकर्ता नाम या पासवर्ड!';
+                }
             }
         }
     }
@@ -137,7 +143,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
 
             <form method="POST" action="index.php">
-                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                <input type="hidden" name="csrf_token" 
+                       value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <div class="form-group">
                     <label for="username">उपयोगकर्ता नाम</label>
                     <input type="text" id="username" name="username" class="form-control"
