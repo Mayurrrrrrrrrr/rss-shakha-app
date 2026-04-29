@@ -11,6 +11,9 @@ if (!file_exists($envFile)) {
     die("Configuration file (.env) missing. Please create it from .env.example");
 }
 $env = parse_ini_file($envFile);
+if (isset($env['GEMINI_API_KEY'])) {
+    define('GEMINI_API_KEY', $env['GEMINI_API_KEY']);
+}
 
 try {
     $pdo = new PDO(

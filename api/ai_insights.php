@@ -9,14 +9,8 @@ requireLogin();
 
 header('Content-Type: application/json; charset=UTF-8');
 
-// =============================================
-// GEMINI API KEY — Get yours free at:
-// https://aistudio.google.com/apikey
-// =============================================
-define('GEMINI_API_KEY', 'AIzaSyAqlxUQP4H7Y6Gmu9RB8vh9n9mG-zKG8XM');
-
-if (GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
-    echo json_encode(['success' => false, 'message' => 'Gemini API Key not configured. Go to https://aistudio.google.com/apikey to get a free key, then set it in api/ai_insights.php']);
+if (!defined('GEMINI_API_KEY') || GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
+    echo json_encode(['success' => false, 'message' => 'Gemini API Key not configured. Please set GEMINI_API_KEY in your .env file.']);
     exit;
 }
 

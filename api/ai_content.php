@@ -3,14 +3,15 @@
  * AI Content API — Unified Gemini Endpoint for Content Generation
  */
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../config/db.php';
 requireLogin();
 
 header('Content-Type: application/json; charset=UTF-8');
 
-// =============================================
-// GEMINI API KEY
-// =============================================
-define('GEMINI_API_KEY', 'AIzaSyAqlxUQP4H7Y6Gmu9RB8vh9n9mG-zKG8XM');
+if (!defined('GEMINI_API_KEY')) {
+    echo json_encode(['success' => false, 'message' => 'Gemini API Key not configured in .env']);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Only POST requests allowed']);

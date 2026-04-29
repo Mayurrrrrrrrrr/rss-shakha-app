@@ -4,7 +4,7 @@ session_start();
 // Security headers
 header("X-Frame-Options: DENY");
 header("X-Content-Type-Options: nosniff");
-header("Content-Security-Policy: default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'");
+header("Content-Security-Policy: default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' https://translate.google.com https://translate.googleapis.com https://cdn.jsdelivr.net; img-src 'self' data: https://translate.google.com; connect-src 'self' https://translate.googleapis.com;");
 header("Referrer-Policy: strict-origin-when-cross-origin");
 
 // Error Handling
@@ -31,7 +31,7 @@ $_SESSION['last_active'] = time();
 function requireLogin()
 {
     if (!isset($_SESSION['user_id'])) {
-        header('Location: index.php');
+        header('Location: /index.php');
         exit;
     }
 }
