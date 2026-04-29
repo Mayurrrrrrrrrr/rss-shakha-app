@@ -16,6 +16,9 @@ if (file_exists($env_file)) {
     define('DB_USER', 'root');
     define('DB_PASS', '');
 }
+
+define('APP_VERSION', '1.2.1'); // Update this when styles change
+
 try {
     $pdo = new PDO(
         "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",

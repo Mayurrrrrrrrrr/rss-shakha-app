@@ -38,18 +38,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
         $error = 'अमान्य अनुरोध। पृष्ठ पुनः लोड करें।';
     } else {
-        $username = trim($_POST['username'] ?? '');
+        // EXPLICIT SANITIZATION
+        $username = filter_var(trim($_POST['username'] ?? ''), FILTER_SANITIZE_STRING);
         $password = $_POST['password'] ?? '';
         $ip = $_SERVER['REMOTE_ADDR'];
 
         if (empty($username) || empty($password)) {
             $error = 'कृपया उपयोगकर्ता नाम और पासवर्ड दोनों भरें।';
         } else {
-            // Rate limiting - check attempts
+            // ROBUST RATE LIMITING - check attempts in last 15 mins
             $stmt = $pdo->prepare("SELECT COUNT(*) FROM login_attempts WHERE ip = ? AND attempted_at > DATE_SUB(NOW(), INTERVAL 15 MINUTE)");
             $stmt->execute([$ip]);
-            if ($stmt->fetchColumn() >= 5) {
-                $error = 'बहुत अधिक प्रयास। 15 मिनट बाद पुनः प्रयास करें।';
+            $attempts = $stmt->fetchColumn();
+
+            if ($attempts >= 5) {
+                $error = 'सुरक्षा कारणों से आपका IP 15 मिनट के लिए ब्लॉक कर दिया गया है।';
+                // Log high-risk lockout
+                error_log("SECURITY ALERT: IP Lockout triggered for IP $ip after $attempts failed attempts.");
             } else {
                 // Check admin_users
                 $stmt = $pdo->prepare("SELECT id, name, role, shakha_id, password FROM admin_users WHERE username = ?");
@@ -86,9 +91,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         header('Location: pages/swayamsevak_dashboard.php');
                         exit;
                     } else {
-                        // Log failed attempt
-                        $pdo->prepare("INSERT INTO login_attempts (ip) VALUES (?)")->execute([$ip]);
-                        sleep(1);
+                        // Log failed attempt to database for rate limiting
+                        $pdo->prepare("INSERT INTO login_attempts (ip, attempted_at) VALUES (?, NOW())")->execute([$ip]);
                         $error = 'गलत उपयोगकर्ता नाम या पासवर्ड!';
                     }
                 }
@@ -106,7 +110,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=<?php echo substr(md5_file('assets/css/style.css'), 0, 8); ?>">
+    <link rel="stylesheet" href="assets/css/style.css?v=<?php echo APP_VERSION; ?>">
+    <link rel="icon" href="assets/images/favicon.png" type="image/png">
 </head>
 <body>
 <div class="login-wrapper">
