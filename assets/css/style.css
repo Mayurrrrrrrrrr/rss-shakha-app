@@ -188,8 +188,28 @@ a:hover {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    margin-right: 15px;
-    /* space between it and right edge */
+    flex-shrink: 0;
+    min-width: 100px;
+}
+
+/* Better Google Translate Styling */
+.goog-te-gadget-simple { 
+    background-color: var(--bg-secondary) !important; 
+    border: 1px solid var(--saffron) !important; 
+    padding: 6px 10px !important; 
+    border-radius: var(--radius-sm) !important; 
+    font-size: 0.85rem !important;
+    display: flex !important;
+    align-items: center !important;
+}
+.goog-te-gadget-simple .goog-te-menu-value { 
+    color: var(--text-primary) !important; 
+    font-weight: 500 !important;
+}
+.goog-te-gadget-simple .goog-te-menu-value span {
+    border-left: 1px solid var(--border-light) !important;
+    margin-left: 8px !important;
+    padding-left: 8px !important;
 }
 
 .nav-translate select {
