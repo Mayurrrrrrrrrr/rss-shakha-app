@@ -21,5 +21,5 @@ try {
          PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]
     );
 } catch (PDOException $e) {
-    die("Database Connection Failed");
+    die("Database Connection Failed: " . $e->getMessage() . " (Env: " . json_encode($env) . ")");
 }
