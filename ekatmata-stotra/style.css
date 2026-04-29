@@ -116,7 +116,7 @@ body {
 
 .verse {
     animation: fadeInUp 0.8s ease-out forwards;
-    opacity: 0;
+    opacity: 1; /* Fallback */
 }
 
 .verse:nth-child(1) { animation-delay: 0.1s; }
