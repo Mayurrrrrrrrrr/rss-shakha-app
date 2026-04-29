@@ -446,5 +446,229 @@
         "image": "https://images.unsplash.com/photo-1614583224978-f05ce51ef5fa?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/सीता",
         "tithi": "जानकी जयंती"
+    },
+    "सती": {
+        "name": "सती",
+        "summary": "माता सती, जो समर्पण और सतीत्व की प्रतिमूर्ति मानी जाती हैं।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/सती",
+        "tithi": "नित्य"
+    },
+    "द्रौपदी": {
+        "name": "द्रौपदी",
+        "summary": "महाभारत की मुख्य पात्र, पंचकन्याओं में से एक और पांडवों की धर्मपत्नी, जो आत्मसम्मान की प्रतीक हैं।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/द्रौपदी",
+        "tithi": "नित्य"
+    },
+    "मीरा": {
+        "name": "मीरा",
+        "summary": "कृष्ण भक्ति की अनन्य साधिका और कवयित्री, जिन्होंने अपने भजनों से प्रेम और भक्ति का मार्ग प्रशस्त किया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/मीरा_बाई",
+        "tithi": "शरद पूर्णिमा"
+    },
+    "लक्ष्मी": {
+        "name": "लक्ष्मी बाई",
+        "summary": "झांसी की रानी, जिन्होंने 1857 के प्रथम स्वतंत्रता संग्राम में अदम्य वीरता का परिचय देते हुए बलिदान दिया।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/रानी_लक्ष्मी_बाई",
+        "tithi": "18 जून (बलिदान दिवस)"
+    },
+    "अहल्या": {
+        "name": "अहल्या बाई",
+        "summary": "इंदौर की महारानी, जिन्होंने मंदिरों का पुनरुद्धार करवाया और सुशासन एवं धर्म का आदर्श प्रस्तुत किया।",
+        "image": "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/अहिल्याबाई_होल्कर",
+        "tithi": "अहिल्या जयंती"
+    },
+    "चन्नम्मा": {
+        "name": "कित्तूर चन्नम्मा",
+        "summary": "कर्नाटक की वीर रानी, जिन्होंने अंग्रेजों के विरुद्ध सशस्त्र विद्रोह का नेतृत्व किया।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/कित्तूर_चन्नम्मा",
+        "tithi": "किट्तूर उत्सव"
+    },
+    "तिलक": {
+        "name": "लोकमान्य तिलक",
+        "summary": "'स्वराज्य मेरा जन्मसिद्ध अधिकार है' का नारा देने वाले भारतीय स्वतंत्रता संग्राम के महान नेता।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/बाल_गंगाधर_तिलक",
+        "tithi": "तिलक जयंती"
+    },
+    "गान्धि": {
+        "name": "महात्मा गान्धी",
+        "summary": "सत्य और अहिंसा के मार्ग पर चलकर भारत को स्वतंत्रता दिलाने वाले राष्ट्रपिता।",
+        "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/महात्मा_गाँधी",
+        "tithi": "गाँधी जयंती"
+    },
+    "सुभाष": {
+        "name": "सुभाष चन्द्र बोस",
+        "summary": "आजाद हिंद फौज के संस्थापक 'नेताजी', जिन्होंने 'जय हिंद' और 'दिल्ली चलो' का उद्घोष किया।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/सुभाष_चन्द्र_बोस",
+        "tithi": "पराक्रम दिवस"
+    },
+    "विनायक": {
+        "name": "वीर सावरकर",
+        "summary": "महान क्रांतिकारी, विचारक और हिंदुत्व के प्रणेता, जिन्होंने अंडमान की सेल्युलर जेल में कठोर यातनाएं सहीं।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/विनायक_दामोदर_सावरकर",
+        "tithi": "सावरकर जयंती"
+    },
+    "केशव": {
+        "name": "डॉ. हेडगेवार",
+        "summary": "राष्ट्रीय स्वयंसेवक संघ के संस्थापक, जिन्होंने राष्ट्र के पुनर्निर्माण के लिए स्वयंसेवकों को संगठित किया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/केशव_बलिराम_हेडगेवार",
+        "tithi": "वर्ष प्रतिपदा"
+    },
+    "व्यास": {
+        "name": "महर्षि व्यास",
+        "summary": "वेदव्यास, जिन्होंने वेदों का वर्गीकरण किया और महाभारत एवं पुराणों की रचना की।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/वेदव्यास",
+        "tithi": "गुरु पूर्णिमा"
+    },
+    "वाल्मीकि": {
+        "name": "महर्षि वाल्मीकि",
+        "summary": "आदिकवि, जिन्होंने रामायण के माध्यम से श्री राम के आदर्श चरित्र को लोकमानस में प्रतिष्ठित किया।",
+        "image": "https://images.unsplash.com/photo-1614583224978-f05ce51ef5fa?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/वाल्मीकि",
+        "tithi": "वाल्मीकि जयंती"
+    },
+    "रविदास": {
+        "name": "संत रविदास",
+        "summary": "महान संत और समाज सुधारक, जिन्होंने भक्ति के माध्यम से सामाजिक समानता का संदेश दिया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/रविदास",
+        "tithi": "रविदास जयंती"
+    },
+    "कबीर": {
+        "name": "संत कबीर",
+        "summary": "निर्गुण भक्ति धारा के महान कवि और संत, जिन्होंने अपने दोहों के माध्यम से समाज की कुरीतियों पर प्रहार किया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/कबीर",
+        "tithi": "कबीर जयंती"
+    },
+    "गुरुनानक": {
+        "name": "गुरु नानक देव",
+        "summary": "सिख धर्म के प्रवर्तक और प्रथम गुरु, जिन्होंने एक ईश्वर और मानवता की सेवा का मार्ग दिखाया।",
+        "image": "https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/गुरु_नानक",
+        "tithi": "प्रकाश पर्व"
+    },
+    "तुलसीदास": {
+        "name": "गोस्वामी तुलसीदास",
+        "summary": "रामचरितमानस के रचयिता, जिन्होंने श्री राम की भक्ति को जन-जन तक पहुँचाया।",
+        "image": "https://images.unsplash.com/photo-1614583224978-f05ce51ef5fa?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/तुलसीदास",
+        "tithi": "तुलसी जयंती"
+    },
+    "ज्ञानेश्वर": {
+        "name": "संत ज्ञानेश्वर",
+        "summary": "महाराष्ट्र के महान संत और ज्ञानेश्वरी के रचयिता, जिन्होंने भक्ति मार्ग को सुलभ बनाया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/ज्ञानेश्वर",
+        "tithi": "कार्तिक वद्य एकादशी"
+    },
+    "तुकाराम": {
+        "name": "संत तुकाराम",
+        "summary": "वारकरी संप्रदाय के महान संत और अभंगों के रचयिता, जिन्होंने लोकमानस को जागृत किया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/तुकाराम",
+        "tithi": "तुकाराम बीज"
+    },
+    "रामदास": {
+        "name": "समर्थ रामदास",
+        "summary": "शिवाजी महाराज के गुरु और दासबोध के रचयिता, जिन्होंने शक्ति और भक्ति का समन्वय किया।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/समर्थ_रामदास",
+        "tithi": "दास नवमी"
+    },
+    "कालिदास": {
+        "name": "महाकवि कालिदास",
+        "summary": "संस्कृत साहित्य के महानतम कवि और नाटककार, जो अपनी उपमाओं के लिए विश्वप्रसिद्ध हैं।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/कालिदास",
+        "tithi": "आषाढ़स्य प्रथम दिवसे"
+    },
+    "कपिल": {
+        "name": "महर्षि कपिल",
+        "summary": "सांख्य दर्शन के प्रणेता और महान तत्वज्ञानी।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/कपिल_मुनि",
+        "tithi": "मकर संक्रांति"
+    },
+    "सुश्रुत": {
+        "name": "महर्षि सुश्रुत",
+        "summary": "प्राचीन भारत के महान शल्य चिकित्सक (Surgeon) और 'सुश्रुत संहिता' के रचयिता।",
+        "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/सुश्रुत",
+        "tithi": "नित्य"
+    },
+    "चरक": {
+        "name": "महर्षि चरक",
+        "summary": "आयुर्वेद के महान आचार्य और 'चरक संहिता' के माध्यम से चिकित्सा विज्ञान के प्रणेता।",
+        "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/चरक",
+        "tithi": "नित्य"
+    },
+    "भास्कराचार्य": {
+        "name": "भास्कराचार्य",
+        "summary": "महान गणितज्ञ और खगोलशास्त्री, जिन्होंने 'सिद्धांत शिरोमणि' की रचना की।",
+        "image": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/भास्कराचार्य",
+        "tithi": "नित्य"
+    },
+    "नागार्जुन": {
+        "name": "नागार्जुन",
+        "summary": "शून्यवादी दर्शन के प्रणेता और महान रसायन शास्त्री।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/नागार्जुन",
+        "tithi": "नित्य"
+    },
+    "रामकृष्ण": {
+        "name": "रामकृष्ण परमहंस",
+        "summary": "महान संत और स्वामी विवेकानंद के गुरु, जिन्होंने सभी धर्मों की एकता का अनुभव किया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/रामकृष्ण_परमहंस",
+        "tithi": "रामकृष्ण जयंती"
+    },
+    "दयानन्द": {
+        "name": "स्वामी दयानन्द सरस्वती",
+        "summary": "आर्य समाज के संस्थापक और 'वेदों की ओर लौटो' का नारा देने वाले महान समाज सुधारक।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/दयानन्द_सरस्वती",
+        "tithi": "ऋषि बोधोत्सव"
+    },
+    "रवीन्द्र": {
+        "name": "रवीन्द्रनाथ टैगोर",
+        "summary": "विश्वकवि और 'जन गण मन' के रचयिता, जिन्हें साहित्य के लिए नोबेल पुरस्कार प्राप्त हुआ।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/रवीन्द्रनाथ_ठाकुर",
+        "tithi": "रवीन्द्र जयंती"
+    },
+    "रामानुज": {
+        "name": "रामानुजाचार्य",
+        "summary": "विशिष्टाद्वैत वेदांत के प्रवर्तक और भक्ति आंदोलन के महान संत।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/रामानुजाचार्य",
+        "tithi": "रामानुज जयंती"
+    },
+    "रमण": {
+        "name": "रमण महर्षि",
+        "summary": "अरुणाचल पर्वत के महान संत, जिन्होंने 'मैं कौन हूँ?' की आत्म-खोज का मार्ग दिखाया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/रमण_महर्षि",
+        "tithi": "रमण जयंती"
+    },
+    "मालवीय": {
+        "name": "मदन मोहन मालवीय",
+        "summary": "काशी हिंदू विश्वविद्यालय के संस्थापक और 'महामना' के नाम से प्रसिद्ध महान शिक्षाविद।",
+        "image": "https://images.unsplash.com/photo-1523050335456-c70a84e6012e?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/मदन_मोहन_मालवीय",
+        "tithi": "मालवीय जयंती"
     }
 }
