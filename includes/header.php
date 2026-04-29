@@ -219,17 +219,28 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                 </nav>
         <?php endif; ?>
 
+        <!-- Google Translate Widget CSS Fix -->
+        <style>
+                /* Hide Google Translate top bar */
+                .goog-te-banner-frame.skiptranslate, .goog-te-gadget-icon { display: none !important; }
+                body { top: 0px !important; }
+                /* Hide 'Original text' popup */
+                .goog-te-balloon-frame { display: none !important; }
+                #goog-gt-tt { display: none !important; visibility: hidden !important; }
+                .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
+        </style>
+
         <!-- Google Translate Widget Scripts -->
         <script type="text/javascript">
                 function googleTranslateElementInit() {
                         new google.translate.TranslateElement({
                                 pageLanguage: 'hi',
-                                includedLanguages: 'hi,en,mr,gu,bn,te,ta,kn,ml,pa,ur,or,as,sa', // Add or remove languages here
+                                includedLanguages: 'hi,en,mr,gu,bn,te,ta,kn,ml,pa,ur,or,as,sa',
                                 layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
                                 autoDisplay: false
                         }, 'google_translate_element');
                 }
         </script>
-        <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+        <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
         <main class="main-content">

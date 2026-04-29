@@ -394,10 +394,6 @@ require_once '../includes/header.php';
                                 <span class="conductor">👤 <?php echo htmlspecialchars($da['conductor_name']); ?></span>
                             <?php endif; ?>
                         </div>
-                        <!-- Debug Log Container (Visible only when logging is triggered) -->
-    <div id="debug-log" style="display: none; margin: 20px; padding: 15px; background: #ffeeee; border: 2px solid #ff0000; color: #cc0000; font-family: monospace; font-size: 12px; white-space: pre-wrap; border-radius: 8px;">
-        <strong>🐞 Debug Log:</strong><br>
-    </div>
                     <?php endforeach; ?>
 
                     <?php if (!empty($record['custom_message'])): ?>
@@ -417,45 +413,20 @@ require_once '../includes/header.php';
 </div>
 
 <script>
-    function logDebug(msg, isError = false) {
-        const log = document.getElementById('debug-log');
-        if (!log) return;
-        log.style.display = 'block';
-        const span = document.createElement('div');
-        span.style.color = isError ? 'red' : 'black';
-        span.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
-        log.appendChild(span);
-        console.log(msg);
-    }
-
-    // Check if library is loaded
-    if (typeof html2canvas === 'undefined') {
-        logDebug("CRITICAL: html2canvas library failed to load! Please check your internet or refresh.", true);
-    } else {
-        logDebug("Library html2canvas loaded successfully.");
-    }
-
     // Helper function to convert base64 to Blob
     function dataURLtoBlob(dataurl) {
-        try {
-            var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-            while(n--){
-                u8arr[n] = bstr.charCodeAt(n);
-            }
-            return new Blob([u8arr], {type:mime});
-        } catch (e) {
-            logDebug("Blob Conversion Error: " + e.message, true);
-            throw e;
+        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
         }
+        return new Blob([u8arr], {type:mime});
     }
 
     // Generate High-Res Image using html2canvas
     async function generateImage() {
-        logDebug("Initializing image generation...");
         if (document.fonts) {
             await document.fonts.ready;
-            logDebug("Fonts ready");
         }
 
         const el = document.getElementById('capture-area');
@@ -463,7 +434,6 @@ require_once '../includes/header.php';
         const captureScale = isMobile ? 1.5 : 2;
 
         try {
-            logDebug(`Capturing canvas at scale ${captureScale}...`);
             const canvas = await html2canvas(el, {
                 scale: captureScale,
                 backgroundColor: '#FFF9F2',
@@ -477,10 +447,9 @@ require_once '../includes/header.php';
                     clonedEl.style.display = 'block';
                 }
             });
-            logDebug("Canvas generated successfully");
             return canvas;
         } catch (err) {
-            logDebug('html2canvas Error: ' + err.message, true);
+            console.error('html2canvas capture failed:', err);
             throw err;
         }
     }
@@ -497,14 +466,12 @@ require_once '../includes/header.php';
             const b64 = canvas.toDataURL('image/jpeg', 0.85);
 
             if (window.FlutterShareChannel) {
-                logDebug("Sending to Flutter Bridge...");
                 window.FlutterShareChannel.postMessage(JSON.stringify({
                     image: b64,
                     text: 'शाखा रिपोर्ट',
                     filename: 'shakha_report_<?php echo $record['record_date']; ?>.jpg'
                 }));
             } else {
-                logDebug("Triggering browser download...");
                 const a = document.createElement('a');
                 a.href = b64;
                 a.download = 'shakha_report_<?php echo $record['record_date']; ?>.jpg';
@@ -513,7 +480,7 @@ require_once '../includes/header.php';
                 document.body.removeChild(a);
             }
         } catch (e) {
-            logDebug('Download Handler Error: ' + e.message, true);
+            console.error('Download Error:', e);
             alert('स्नैपशॉट बनाने में त्रुटि हुई।');
         }
 
@@ -532,11 +499,9 @@ require_once '../includes/header.php';
             const canvas = await generateImage();
             const textStr = 'शाखा दैनिक रिपोर्ट — <?php echo preg_replace('/\s+/', ' ', $formattedDate); ?>';
             const b64 = canvas.toDataURL('image/jpeg', 0.85);
-            logDebug("Image data URL ready (" + Math.round(b64.length/1024) + " KB)");
 
             // Flutter / Mobile App Bridge
             if (window.FlutterShareChannel) {
-                logDebug("Using Mobile App Bridge...");
                 window.FlutterShareChannel.postMessage(JSON.stringify({
                     image: b64,
                     text: textStr,
@@ -548,35 +513,28 @@ require_once '../includes/header.php';
             }
 
             // Web Share API check
-            logDebug("Checking Web Share API...");
             if (navigator.share) {
                 try {
                     const blob = dataURLtoBlob(b64);
                     const file = new File([blob], 'shakha_report.jpg', { type: 'image/jpeg' });
                     
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        logDebug("Native file sharing supported. Sharing...");
                         await navigator.share({
                             title: 'शाखा रिपोर्ट',
                             text: textStr,
                             files: [file]
                         });
-                        logDebug("Share API call completed");
                     } else {
-                        logDebug("File sharing not supported by browser, using fallback");
                         runFallback(b64, textStr);
                     }
                 } catch (shareErr) {
-                    logDebug("Share Error: " + shareErr.message, true);
                     runFallback(b64, textStr);
                 }
             } else {
-                logDebug("Navigator.share not available, using fallback");
                 runFallback(b64, textStr);
             }
         } catch (e) {
             if (e.name !== 'AbortError') {
-                logDebug('Global Share Catch: ' + e.message, true);
                 alert('शेयर करने में समस्या हुई। कृपया इमेज डाउनलोड करके शेयर करें।');
             }
         }
@@ -585,7 +543,7 @@ require_once '../includes/header.php';
         btn.disabled = false;
     });
 
-    // Dedicated fallback function to avoid code duplication and errors
+    // Dedicated fallback function
     function runFallback(b64, textStr) {
         alert('आपका ब्राउज़र सीधे इमेज शेयरिंग सपोर्ट नहीं करता। इमेज डाउनलोड हो रही है, उसे व्हाट्सएप पर शेयर करें।');
         const a = document.createElement('a');
