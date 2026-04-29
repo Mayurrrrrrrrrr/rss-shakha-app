@@ -14,13 +14,18 @@ Options -Indexes
     ExpiresByType image/svg+xml "access plus 1 month"
 </IfModule>
 
-# Security Headers
-Header always set X-Frame-Options "DENY"
-Header always set X-Content-Type-Options "nosniff"
-Header always set X-XSS-Protection "1; mode=block"
-Header always set Referrer-Policy "strict-origin-when-cross-origin"
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "DENY"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
 
-# Opcache Settings (can be set here if allowed by hosting)
-# php_value opcache.enable 1
-# php_value opcache.memory_consumption 128
-# php_value opcache.max_accelerated_files 4000
+# Protect sensitive files
+<FilesMatch "^\.env|config/|includes/|actions/">
+  Require all denied
+</FilesMatch>
+
+# Error Handling
+ErrorDocument 403 /index.php
+ErrorDocument 404 /index.php
