@@ -1,4 +1,8 @@
 <?php
+// Force error display for CLI debugging
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 require_once __DIR__ . '/../config/db.php';
 
 try {
@@ -9,11 +13,6 @@ try {
     
     echo "Migration successful: Streak columns added.\n";
 } catch (PDOException $e) {
-    // Handle "Duplicate column" error if IF NOT EXISTS isn't supported or columns exist
-    if ($e->getCode() == '42S21') {
-        echo "Columns already exist.\n";
-    } else {
-        echo "Migration failed: " . $e->getMessage() . "\n";
-    }
+    echo "Migration failed: " . $e->getMessage() . "\n";
 }
 ?>

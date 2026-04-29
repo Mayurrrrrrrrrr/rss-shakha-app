@@ -22,5 +22,8 @@ try {
          PDO::ATTR_PERSISTENT => true]
     );
 } catch (PDOException $e) {
+    if (PHP_SAPI === 'cli') {
+        die("Database Connection Failed: " . $e->getMessage() . "\n");
+    }
     die("Database Connection Failed");
 }
