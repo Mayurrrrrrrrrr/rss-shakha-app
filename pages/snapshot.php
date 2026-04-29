@@ -84,8 +84,8 @@ $pageTitle = 'स्नैपशॉट';
 require_once '../includes/header.php';
 ?>
 
-<!-- html2canvas plugin -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- html2canvas plugin (Switched to jsDelivr for better reliability) -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <style>
     /* Scoped styles for the capture area to ensure it looks good when captured */
@@ -419,12 +419,20 @@ require_once '../includes/header.php';
 <script>
     function logDebug(msg, isError = false) {
         const log = document.getElementById('debug-log');
+        if (!log) return;
         log.style.display = 'block';
         const span = document.createElement('div');
         span.style.color = isError ? 'red' : 'black';
         span.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
         log.appendChild(span);
         console.log(msg);
+    }
+
+    // Check if library is loaded
+    if (typeof html2canvas === 'undefined') {
+        logDebug("CRITICAL: html2canvas library failed to load! Please check your internet or refresh.", true);
+    } else {
+        logDebug("Library html2canvas loaded successfully.");
     }
 
     // Helper function to convert base64 to Blob
@@ -591,7 +599,6 @@ require_once '../includes/header.php';
             window.open('https://wa.me/?text=' + encodeURIComponent(textStr), '_blank');
         }, 1000);
     }
-</script>
 </script>
 
 <?php require_once '../includes/footer.php'; ?>
