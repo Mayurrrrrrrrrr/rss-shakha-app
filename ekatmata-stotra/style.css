@@ -128,11 +128,10 @@ body {
 
 .verse {
     animation: fadeInUp 0.8s ease-out forwards;
-    opacity: 1; /* Fallback visibility */
+    opacity: 1;
     margin-bottom: 2rem;
 }
 
-.verse:nth-child(n) { opacity: 0; } /* Set back to 0 so animation takes over */
 .verse { animation-fill-mode: forwards; }
 
 .verse:nth-child(1) { animation-delay: 0.1s; }
