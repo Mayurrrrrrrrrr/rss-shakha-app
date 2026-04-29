@@ -6,12 +6,19 @@
  */
 ?>
 <style>
-    .goog-te-banner-frame {
-        display: none !important;
+    /* Prevent body shift when translate bar appears */
+    body { 
+        top: 0 !important; 
+        position: static !important; 
+    }
+    
+    .goog-te-banner-frame.skiptranslate { 
+        display: none !important; 
     }
 
-    body {
-        top: 0 !important;
+    /* Fix for dark theme apps — translate dropdown colors */
+    .goog-te-menu-frame { 
+        box-shadow: 0 4px 16px rgba(0,0,0,0.3) !important; 
     }
 
     #translate-btn {
@@ -30,10 +37,12 @@
         align-items: center;
         gap: 6px;
         font-family: inherit;
+        transition: all 0.2s ease;
     }
 
     #translate-btn:hover {
         background: #f5f5f5;
+        transform: translateY(-2px);
     }
 
     #google_translate_element {
