@@ -1,4 +1,5 @@
-﻿<?php
+<?php
+// RSS Shakha App - Encoding: UTF-8
 /**
  * Login Page - संघस्थान लॉगिन
  */
