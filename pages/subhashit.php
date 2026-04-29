@@ -60,6 +60,7 @@ if ($subhashitId) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify();
     $subhashitIdToSave = $_POST['subhashit_id'] ?? null;
     $sanskrit_text = trim($_POST['sanskrit_text'] ?? '');
     $hindi_meaning = trim($_POST['hindi_meaning'] ?? '');
@@ -424,6 +425,7 @@ require_once '../includes/header.php';
         <div class="sub-premium-card">
             <div class="card-header">📜 सुभाषित विवरण दर्ज करें</div>
             <form method="POST" action="subhashit.php" id="subhashit-form">
+                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                 <input type="hidden" name="subhashit_id" value="<?php echo htmlspecialchars($subhashitId ?? ''); ?>">
 
                 <div class="form-group" style="margin-bottom: 16px;">

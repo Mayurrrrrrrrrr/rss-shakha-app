@@ -5,7 +5,7 @@
 require_once '../includes/auth.php';
 require_once '../config/db.php';
 requireLogin();
-
+csrf_verify();
 if (isSwayamsevak()) {
     header('Location: ../pages/swayamsevak_dashboard.php');
     exit;

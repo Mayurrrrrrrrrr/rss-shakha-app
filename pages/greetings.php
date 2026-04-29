@@ -37,6 +37,7 @@ $error = '';
 
 // Handle Delete
 if (isset($_POST['delete_id'])) {
+    csrf_verify();
     $delId = $_POST['delete_id'];
     // Get image path to delete file
     $stmt = $pdo->prepare("SELECT image_path FROM greetings WHERE id = ? AND shakha_id = ?");
@@ -81,6 +82,7 @@ if ($greetingId) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['delete_id'])) {
+    csrf_verify();
     $title = trim($_POST['title'] ?? '');
     $tithi = trim($_POST['tithi'] ?? '');
     $message = trim($_POST['message'] ?? '');
@@ -549,6 +551,7 @@ require_once '../includes/header.php';
     <div class="col-inputs">
         <!-- Form -->
         <form method="POST" action="greetings.php" enctype="multipart/form-data" id="greeting-form">
+            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <input type="hidden" name="greeting_id" value="<?php echo htmlspecialchars($greetingId ?? ''); ?>">
             <input type="hidden" name="existing_image_path" value="<?php echo htmlspecialchars($image_path); ?>">
 
@@ -673,6 +676,7 @@ require_once '../includes/header.php';
                             </div>
                         </a>
                         <form method="POST" onsubmit="return confirm('हटाएं?');">
+                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                             <input type="hidden" name="delete_id" value="<?php echo $g['id']; ?>">
                             <button type="submit" class="btn-delete">🗑️</button>
                         </form>

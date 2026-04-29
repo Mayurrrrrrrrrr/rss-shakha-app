@@ -51,6 +51,7 @@ $allShakhas = $pdo->query("SELECT * FROM shakhas ORDER BY name")->fetchAll();
         <?php echo $editData ? '✏️ मुख्य शिक्षक संपादित करें' : '➕ नया मुख्य शिक्षक जोड़ें'; ?>
     </div>
     <form method="POST" action="../actions/mukhyashikshak_save.php">
+        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
         <?php if ($editData): ?>
             <input type="hidden" name="id" value="<?php echo $editData['id']; ?>">
         <?php endif; ?>

@@ -30,6 +30,7 @@ if ($noticeId) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify();
     $noticeIdToSave = $_POST['notice_id'] ?? null;
     $subject = trim($_POST['subject'] ?? '');
     $noticeDate = trim($_POST['notice_date'] ?? date('Y-m-d'));
@@ -264,6 +265,7 @@ require_once '../includes/header.php';
         <div class="card">
             <div class="card-header">सूचना विवरण दर्ज करें</div>
             <form method="POST" action="notice.php">
+                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                 <input type="hidden" name="notice_id" value="<?php echo htmlspecialchars($noticeId ?? ''); ?>">
                 <div class="form-group">
                     <label>विषय (Subject) <span class="required">*</span></label>

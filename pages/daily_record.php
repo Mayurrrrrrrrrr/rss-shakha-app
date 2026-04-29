@@ -77,6 +77,7 @@ $autoSs = ($mm >= 4) ? $yy - 78 : $yy - 79;
 <?php endif; ?>
 
 <form method="POST" action="../actions/daily_record_save.php">
+    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
     <?php if ($existingRecord): ?>
         <input type="hidden" name="record_id" value="<?php echo $existingRecord['id']; ?>">
     <?php endif; ?>

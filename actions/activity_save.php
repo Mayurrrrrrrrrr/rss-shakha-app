@@ -2,7 +2,7 @@
 require_once '../includes/auth.php';
 require_once '../config/db.php';
 requireLogin();
-
+csrf_verify();
 if (!isMukhyashikshak() && !isAdmin()) {
     header('Location: ../pages/dashboard.php');
     exit;

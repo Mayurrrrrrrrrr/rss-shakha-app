@@ -44,6 +44,7 @@ $swayamsevaks = $stmt->fetchAll();
         <?php echo $editData ? '✏️ स्वयंसेवक संपादित करें' : '➕ नया स्वयंसेवक जोड़ें'; ?>
     </div>
     <form method="POST" action="../actions/swayamsevak_save.php">
+        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
         <?php if ($editData): ?>
             <input type="hidden" name="id" value="<?php echo $editData['id']; ?>">
         <?php endif; ?>

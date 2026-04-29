@@ -47,6 +47,7 @@ if ($geetId) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify();
     $geetIdToSave = $_POST['geet_id'] ?? null;
     $title = trim($_POST['title'] ?? '');
     $geet_type = $_POST['geet_type'] ?? 'Sanghik';
@@ -110,6 +111,7 @@ require_once '../includes/header.php';
         <div class="card">
             <div class="card-header">गीत विवरण दर्ज करें</div>
             <form method="POST" action="geet.php">
+                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                 <input type="hidden" name="geet_id" value="<?php echo htmlspecialchars($geetId ?? ''); ?>">
                 
                 <div class="form-group">

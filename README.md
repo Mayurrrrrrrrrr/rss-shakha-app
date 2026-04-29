@@ -32,10 +32,7 @@ http://localhost/rss-shakha-app/
 ```
 
 ### 4. लॉगिन करें:
-| फ़ील्ड | मान |
-|--------|-----|
-| उपयोगकर्ता नाम | `admin` |
-| पासवर्ड | `admin123` |
+Set your credentials during first-run setup. See SETUP.md.
 
 ## 📂 फ़ाइल संरचना
 

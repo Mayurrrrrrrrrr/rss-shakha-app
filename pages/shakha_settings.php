@@ -20,6 +20,7 @@ $success = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify();
     if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
         die("Invalid CSRF token.");
     }
@@ -195,7 +196,7 @@ require_once '../includes/header.php';
 <div class="card">
     <div class="card-header">अपनी शाखा का विवरण अपडेट करें</div>
     <form method="POST" action="" enctype="multipart/form-data">
-        <input type="hidden" name="csrf_token" value="<?php echo generateCsrfToken(); ?>">
+        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
         <div class="form-group">
             <label for="name">शाखा का नाम</label>
             <input type="text" id="name" name="name" class="form-control"

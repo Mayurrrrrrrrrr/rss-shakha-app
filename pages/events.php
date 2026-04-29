@@ -72,6 +72,7 @@ if (isAdmin()) {
     <div class="card-header">✨ नया कार्यक्रम जोड़ें</div>
     <div class="card-body">
         <form action="../actions/add_event.php" method="POST" class="add-form">
+            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <?php if (isAdmin()): ?>
                 <div class="form-group mb-12">
                     <label class="form-label">शाखा (Shakha)</label>

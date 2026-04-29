@@ -1,29 +1,25 @@
 <?php
 /**
  * Database Configuration
- * ============================
- * FREE HOSTING (page.gd) - Update these values from your cPanel/phpMyAdmin
- * ============================
  */
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'sanghasthan');
-define('DB_USER', 'root');
-define('DB_PASS', 'asjhb5465%&55fss');
+$envFile = __DIR__ . '/../.env';
+if (!file_exists($envFile)) {
+    die("Configuration file (.env) missing. Please create it from .env.example");
+}
+$env = parse_ini_file($envFile);
 
 try {
     $pdo = new PDO(
-        "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
-        DB_USER,
-        DB_PASS,
-        array(
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        )
+        "mysql:host={$env['DB_HOST']};dbname={$env['DB_NAME']};charset=utf8mb4",
+        $env['DB_USER'],
+        $env['DB_PASS'],
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]
     );
 } catch (PDOException $e) {
-    die("Database Connection Failed: " . $e->getMessage());
+    die("Database Connection Failed");
 }

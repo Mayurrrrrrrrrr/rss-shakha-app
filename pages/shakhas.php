@@ -46,6 +46,7 @@ $shakhas = $pdo->query("SELECT s.*,
         <?php echo $editData ? '✏️ शाखा संपादित करें' : '➕ नई शाखा जोड़ें'; ?>
     </div>
     <form method="POST" action="../actions/shakha_save.php">
+        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
         <?php if ($editData): ?>
             <input type="hidden" name="id" value="<?php echo $editData['id']; ?>">
         <?php endif; ?>

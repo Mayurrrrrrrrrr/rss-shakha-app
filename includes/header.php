@@ -1,4 +1,9 @@
 <?php
+header("X-Frame-Options: DENY");
+header("X-Content-Type-Options: nosniff");
+header("Content-Security-Policy: default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com");
+header("Referrer-Policy: strict-origin-when-cross-origin");
+header("Permissions-Policy: geolocation=(), camera=(), microphone=()");
 require_once __DIR__ . '/auth.php';
 $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 require_once __DIR__ . '/../config/db.php';
@@ -29,7 +34,7 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap"
                 rel="stylesheet">
-        <link rel="stylesheet" href="../assets/css/style.css?v=<?php echo time(); ?>">
+        <link rel="stylesheet" href="../assets/css/style.css?v=<?php echo substr(md5_file(__DIR__.'/../assets/css/style.css'), 0, 8); ?>">
         <link rel="icon" href="../assets/images/favicon.png" type="image/png">
 </head>
 

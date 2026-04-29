@@ -1,6 +1,11 @@
 <?php
 session_start();
 
+if (isset($_SESSION['last_active']) && (time() - $_SESSION['last_active']) > 1800) {
+  session_unset(); session_destroy(); header('Location: /index.php?expired=1'); exit;
+}
+$_SESSION['last_active'] = time();
+
 /**
  * Enhanced check if user is logged in, redirect to login if not
  */
@@ -60,24 +65,12 @@ function getCurrentShakhaId()
     return $_SESSION['shakha_id'] ?? null;
 }
 
-/**
- * Generate CSRF Token
- */
-function generateCsrfToken()
-{
-    if (empty($_SESSION['csrf_token'])) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    }
-    return $_SESSION['csrf_token'];
+function csrf_token(): string { 
+  if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+  return $_SESSION['csrf_token'];
 }
 
-/**
- * Validate CSRF Token
- */
-function validateCsrfToken($token)
-{
-    if (empty($_SESSION['csrf_token']) || empty($token)) {
-        return false;
-    }
-    return hash_equals($_SESSION['csrf_token'], $token);
+function csrf_verify(): void {
+  if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? ''))
+    { http_response_code(403); die('CSRF validation failed'); }
 }

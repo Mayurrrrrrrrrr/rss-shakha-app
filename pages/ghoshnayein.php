@@ -44,6 +44,7 @@ if ($ghoshnaId) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify();
     $ghoshnaIdToSave = $_POST['ghoshna_id'] ?? null;
     $slogan_sanskrit = trim($_POST['slogan_sanskrit'] ?? '');
     $slogan_hindi = trim($_POST['slogan_hindi'] ?? '');
@@ -109,6 +110,7 @@ require_once '../includes/header.php';
                 <button type="button" class="btn btn-sm btn-info" onclick="suggestAiGhoshna()" id="btn-ai-ghoshna">✨ AI: उत्सव अनुसार सुझाव लें</button>
             </div>
             <form method="POST" action="ghoshnayein.php">
+                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                 <input type="hidden" name="ghoshna_id" value="<?php echo htmlspecialchars($ghoshnaId ?? ''); ?>">
                 
                 <div class="form-group">
