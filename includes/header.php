@@ -219,47 +219,53 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                 </nav>
         <?php endif; ?>
 
-        <!-- Google Translate Widget CSS Fix -->
+        <!-- Google Translate Final Fix -->
         <style>
-                /* Hide Google Translate top bar */
-                .goog-te-banner-frame.skiptranslate, .goog-te-gadget-icon { display: none !important; }
+                /* Nuclear CSS to hide Google Translate artifacts */
+                .goog-te-banner-frame.skiptranslate, 
+                .goog-te-gadget-icon,
+                .goog-te-balloon-frame,
+                #goog-gt-tt, 
+                .goog-gt-tt,
+                .goog-te-balloon-frame,
+                .skiptranslate iframe,
+                #google_translate_element img { 
+                    display: none !important; 
+                    visibility: hidden !important; 
+                }
                 body { top: 0px !important; }
-                /* Hide 'Original text' popup */
-                .goog-te-balloon-frame { display: none !important; }
-                /* Ensure container has space and is visible */
+                .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
+
+                /* Premium Button Styling */
                 #google_translate_element { 
-                    min-height: 38px; 
-                    min-width: 140px; 
+                    min-height: 40px; 
+                    min-width: 150px; 
                     display: flex !important; 
                     align-items: center;
                     justify-content: center;
-                    border: 1px solid var(--saffron) !important;
-                    border-radius: 4px;
-                    padding: 0 8px;
-                    background: rgba(255,107,0,0.1);
+                    border: 2px solid var(--saffron) !important;
+                    border-radius: 8px;
+                    padding: 0 10px;
+                    background: var(--bg-secondary);
                     cursor: pointer !important;
-                    position: relative;
+                    overflow: hidden;
+                    z-index: 10000;
                 }
-                #google_translate_element::before {
-                    content: "🌐 ";
-                    font-size: 14px;
-                    pointer-events: none; /* Allow clicks to pass through */
+                
+                /* Style the inner Google select box */
+                .goog-te-gadget {
+                    font-family: inherit !important;
+                    color: transparent !important;
                 }
-                /* Style the actual Google element to fill the container */
-                .goog-te-gadget-simple {
+                .goog-te-gadget .goog-te-combo {
                     background: transparent !important;
-                    border: none !important;
-                    padding: 0 !important;
-                    margin: 0 !important;
-                    width: 100%;
-                    height: 100%;
-                    display: flex !important;
-                    align-items: center;
-                }
-                .goog-te-menu-value {
                     color: var(--text-primary) !important;
-                    font-size: 12px !important;
-                    font-weight: bold;
+                    border: none !important;
+                    font-size: 14px !important;
+                    font-weight: bold !important;
+                    cursor: pointer !important;
+                    width: 130px !important;
+                    outline: none !important;
                 }
         </style>
 
@@ -269,7 +275,6 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                         new google.translate.TranslateElement({
                                 pageLanguage: 'hi',
                                 includedLanguages: 'hi,en,mr,gu,bn,te,ta,kn,ml,pa,ur,or,as,sa',
-                                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
                                 autoDisplay: false
                         }, 'google_translate_element');
                 }
