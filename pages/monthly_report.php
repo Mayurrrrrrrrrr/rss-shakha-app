@@ -144,7 +144,7 @@ if (file_exists($logoPath)) {
             <!-- Report Header -->
             <div style="background: #FF6B00; color: #FFF; padding: 20px; text-align: center;">
                 <?php if ($logoBase64): ?>
-                    <img src="<?php echo $logoBase64; ?>" alt="शाखा"
+                    <img src="<?php echo $logoBase64; ?>" alt="शाखा" loading="lazy"
                         style="width: 55px; height: 55px; border-radius: 50%; background: #FFF3E0; margin-bottom: 8px;">
                 <?php endif; ?>
                 <div style="font-size: 22px; font-weight: bold;">🚩

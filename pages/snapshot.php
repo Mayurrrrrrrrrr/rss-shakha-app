@@ -345,13 +345,13 @@ require_once '../includes/header.php';
                 }
                 ?>
                 <?php if ($logoBase64): ?>
-                    <img src="<?php echo $logoBase64; ?>" alt="शाखा"
+                    <img src="<?php echo $logoBase64; ?>" alt="शाखा" loading="lazy"
                         style="width: 60px; height: 60px; border-radius: 50%; background: #FFF3E0; margin-bottom: 4px; object-fit: cover;">
                 <?php endif; ?>
                 <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 20px;">
-                    <img src="../assets/images/flag_icon.png" style="height: 1.2em; width: auto;" alt="🚩">
+                    <img src="../assets/images/flag_icon.png" style="height: 1.2em; width: auto;" alt="🚩" loading="lazy">
                     <?php echo htmlspecialchars($shakhaName); ?>
-                    <img src="../assets/images/flag_icon.png" style="height: 1.2em; width: auto;" alt="🚩">
+                    <img src="../assets/images/flag_icon.png" style="height: 1.2em; width: auto;" alt="🚩" loading="lazy">
                 </div>
                 <div style="font-size: 16px; font-weight: normal; opacity: 0.9;">घाटकोपर पूर्व, मुंबई</div>
             </div>

@@ -47,9 +47,9 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                 
                                 <a href="../pages/dashboard.php" class="nav-brand">
                                         <?php if (!empty($shakhaLogoImg) && file_exists("../" . $shakhaLogoImg)): ?>
-                                                <img src="../<?php echo htmlspecialchars($shakhaLogoImg); ?>" alt="शाखा" class="nav-logo">
+                                                <img src="../<?php echo htmlspecialchars($shakhaLogoImg); ?>" alt="शाखा" class="nav-logo" loading="lazy">
                                         <?php else: ?>
-                                                <img src="../assets/images/logo.svg" alt="शाखा" class="nav-logo">
+                                                <img src="../assets/images/logo.svg" alt="शाखा" class="nav-logo" loading="lazy">
                                         <?php endif; ?>
                                         <div class="brand-text">
                                                 <div class="brand-title">संघस्थान</div>
@@ -72,7 +72,7 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                 <aside class="sidebar" id="sidebar">
                         <div class="sidebar-header">
                                 <div class="sidebar-brand">
-                                        <img src="../assets/images/flag_icon.png" class="brand-icon" alt="🚩"> संघस्थान
+                                        <img src="../assets/images/flag_icon.png" class="brand-icon" alt="🚩" loading="lazy"> संघस्थान
                                 </div>
                                 <button class="close-sidebar" id="closeSidebar">&times;</button>
                         </div>

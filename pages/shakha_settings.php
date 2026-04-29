@@ -207,10 +207,10 @@ require_once '../includes/header.php';
             <label>वर्तमान लोगो (स्नैपशॉट के लिए)</label>
             <div style="margin-bottom:10px;">
                 <?php if (!empty($shakha['logo']) && file_exists("../" . $shakha['logo'])): ?>
-                    <img src="../<?php echo htmlspecialchars($shakha['logo']); ?>" alt="Logo"
+                    <img src="../<?php echo htmlspecialchars($shakha['logo']); ?>" alt="Logo" loading="lazy"
                         style="max-height: 100px; border-radius: 8px;">
                 <?php else: ?>
-                    <img src="../assets/images/logo.svg" alt="Default Logo" style="max-height: 100px; border-radius: 8px;">
+                    <img src="../assets/images/logo.svg" alt="Default Logo" style="max-height: 100px; border-radius: 8px;" loading="lazy">
                     <p class="small-text">डिफ़ॉल्ट लोगो का उपयोग किया जा रहा है।</p>
                 <?php endif; ?>
             </div>

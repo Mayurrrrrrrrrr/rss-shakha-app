@@ -666,7 +666,7 @@ require_once '../includes/header.php';
                     <div class="g-recent-item">
                         <a href="greetings.php?id=<?php echo $g['id']; ?>">
                             <?php if ($g['image_path']): ?>
-                                <img src="../<?php echo $g['image_path']; ?>" class="g-recent-thumb">
+                                <img src="../<?php echo $g['image_path']; ?>" class="g-recent-thumb" loading="lazy">
                             <?php else: ?>
                                 <div style="width:40px;height:40px;background:#333;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">🚩</div>
                             <?php endif; ?>
@@ -703,7 +703,7 @@ require_once '../includes/header.php';
 
             <!-- Image -->
             <div class="g-el g-el-image" id="el-image" style="left:170px;top:170px;width:180px;height:180px;" data-default-x="170" data-default-y="170">
-                <img id="prev-img" src="" style="display:none;">
+                <img id="prev-img" src="" style="display:none;" loading="lazy">
                 <span id="prev-img-placeholder" class="g-placeholder">🙏</span>
                 <div class="g-resize-handle" id="img-resize-handle"></div>
             </div>
@@ -711,9 +711,9 @@ require_once '../includes/header.php';
             <!-- Shakha Logo (optional) -->
             <div class="g-el g-el-logo" id="el-logo" style="left:10px;top:30px;width:50px;height:50px;display:none;" data-default-x="10" data-default-y="30">
                 <?php if ($shakhaLogoImg && file_exists("../" . $shakhaLogoImg)): ?>
-                    <img src="../<?php echo htmlspecialchars($shakhaLogoImg); ?>" alt="Logo">
+                    <img src="../<?php echo htmlspecialchars($shakhaLogoImg); ?>" alt="Logo" loading="lazy">
                 <?php else: ?>
-                    <img src="../assets/images/logo.svg" alt="Logo">
+                    <img src="../assets/images/logo.svg" alt="Logo" loading="lazy">
                 <?php endif; ?>
                 <div class="g-resize-handle" id="logo-resize-handle"></div>
             </div>

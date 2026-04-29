@@ -361,7 +361,7 @@ require_once '../includes/header.php';
                     }
                     ?>
                     <?php if ($logoBase64): ?>
-                        <img src="<?php echo $logoBase64; ?>" alt="शाखा"
+                        <img src="<?php echo $logoBase64; ?>" alt="शाखा" loading="lazy"
                             style="width: 60px; height: 60px; border-radius: 50%; background: #FFF3E0; margin-bottom: 4px;">
                     <?php endif; ?>
                     <div

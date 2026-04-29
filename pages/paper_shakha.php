@@ -380,7 +380,7 @@ $dayName = $hindiDays[$dayOfWeek];
                 <div class="qr-section">
                     <h2>क्विक सिंक (Quick Sync)</h2>
                     <p class="small">शाखा के बाद हाजिरी भरने के लिए इस QR कोड को स्कैन करें।</p>
-                    <img src="<?php echo $qrUrl; ?>" class="qr-img" alt="Sync QR">
+                    <img src="<?php echo $qrUrl; ?>" class="qr-img" alt="Sync QR" loading="lazy">
                     <p class="small" style="margin-top: 2mm;"><b>दिनांक:</b> <?php echo date('d/m/Y', $ts); ?></p>
                     
                     <div style="margin-top: auto; padding-top: 10mm;">

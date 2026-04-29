@@ -29,7 +29,7 @@ $shakhas = $pdo->query("SELECT s.*,
 ?>
 
 <div class="page-header">
-    <h1><img src="../assets/images/flag_icon.png" class="brand-icon" style="height: 1.25em;" alt="🚩"> शाखा प्रबंधन</h1>
+    <h1><img src="../assets/images/flag_icon.png" class="brand-icon" style="height: 1.25em;" alt="🚩" loading="lazy"> शाखा प्रबंधन</h1>
 </div>
 
 <?php if ($msg === 'saved'): ?>
@@ -72,7 +72,7 @@ $shakhas = $pdo->query("SELECT s.*,
     </div>
     <?php if (empty($shakhas)): ?>
         <div class="empty-state">
-            <div class="icon"><img src="../assets/images/flag_icon.png" class="brand-icon" style="height: 1.5em; opacity: 0.5;" alt="🚩"></div>
+            <div class="icon"><img src="../assets/images/flag_icon.png" class="brand-icon" style="height: 1.5em; opacity: 0.5;" alt="🚩" loading="lazy"></div>
             <p>अभी तक कोई शाखा नहीं जोड़ी गई।</p>
         </div>
     <?php else: ?>
