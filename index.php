@@ -9,7 +9,6 @@ require_once 'config/db.php';
 header("X-Frame-Options: SAMEORIGIN");
 header("X-Content-Type-Options: nosniff");
 header("Referrer-Policy: strict-origin-when-cross-origin");
-header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://translate.google.com https://translate.googleapis.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://translate.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://translate.google.com https://www.gstatic.com; frame-src 'self' https://translate.google.com; connect-src 'self' https://translate.googleapis.com;");
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
