@@ -75,11 +75,6 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                 <button class="close-sidebar" id="closeSidebar">&times;</button>
                         </div>
                         
-                        <!-- Language Selection - TOP OF SIDEBAR -->
-                        <div style="padding: 10px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 10px;">
-                            <div id="google_translate_element"></div>
-                        </div>
-
                         <ul class="sidebar-menu">
                                 <?php if (isAdmin()): ?>
                                         <li><a href="../pages/admin_dashboard.php" class="<?php echo $currentPage === 'admin_dashboard' ? 'active' : ''; ?>">👑 एडमिन डैशबोर्ड</a></li>
@@ -187,16 +182,12 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                         navGroups.forEach(header => {
                                 header.addEventListener('click', () => {
                                         const parent = header.parentElement;
-                                        // Optional: Close others
-                                        // document.querySelectorAll('.nav-group').forEach(g => {
-                                        //         if(g !== parent) g.classList.remove('open');
-                                        // });
                                         parent.classList.toggle('open');
                                 });
                         });
                 </script>
 
-                <!-- MOBILE BOTTOM NAVIGATION (Quick Access) -->
+                <!-- MOBILE BOTTOM NAVIGATION -->
                 <nav class="bottom-nav">
                         <ul>
                                 <?php if (isAdmin()): ?>
@@ -212,8 +203,6 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                         <li><a href="../pages/daily_record.php" class="<?php echo $currentPage === 'daily_record' ? 'active' : ''; ?>"><span class="nav-icon">📝</span><span>रिकॉर्ड</span></a></li>
                                         <li><a href="../pages/events.php" class="<?php echo $currentPage === 'events' ? 'active' : ''; ?>"><span class="nav-icon">📅</span><span>कार्यक्रम</span></a></li>
                                         <li><a href="../pages/subhashit.php" class="<?php echo $currentPage === 'subhashit' ? 'active' : ''; ?>"><span class="nav-icon">📜</span><span>सुभाषित</span></a></li>
-                                        <li><a href="../pages/greetings.php" class="<?php echo $currentPage === 'greetings' ? 'active' : ''; ?>"><span class="nav-icon">🎨</span><span>बधाई</span></a></li>
-                                        <li><a href="../pages/notice.php" class="<?php echo $currentPage === 'notice' ? 'active' : ''; ?>"><span class="nav-icon">📢</span><span>सूचना</span></a></li>
                                         <li><a href="javascript:void(0)" onclick="openSidebar()"><span class="nav-icon">☰</span><span>मेनू</span></a></li>
                                 <?php elseif (isSwayamsevak()): ?>
                                         <li><a href="../pages/swayamsevak_dashboard.php" class="<?php echo $currentPage === 'swayamsevak_dashboard' ? 'active' : ''; ?>"><span class="nav-icon">🏠</span><span>मुख्य</span></a></li>
@@ -224,15 +213,18 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                 </nav>
         <?php endif; ?>
 
-        <!-- Google Translate Sidebar Styling -->
+        <!-- Universal Floating Language Switcher -->
+        <div id="language-switcher-wrapper">
+            <div id="google_translate_element"></div>
+        </div>
+
         <style>
-                /* Hide Google Translate top bar and artifacts */
+                /* Hide Google Translate artifacts */
                 .goog-te-banner-frame.skiptranslate, 
                 .goog-te-gadget-icon,
                 .goog-te-balloon-frame,
                 #goog-gt-tt, 
                 .goog-gt-tt,
-                .goog-te-balloon-frame,
                 .skiptranslate iframe,
                 #google_translate_element img { 
                     display: none !important; 
@@ -241,25 +233,40 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                 body { top: 0px !important; }
                 .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
 
-                /* Style the inner Google select box for sidebar */
-                .goog-te-gadget .goog-te-combo {
-                    background: #2a2a38 !important; /* Specific dark background */
-                    color: #ffffff !important;      /* Force white text */
-                    border: 1px solid var(--saffron) !important;
-                    border-radius: 4px !important;
-                    padding: 10px !important;
-                    width: 100% !important;
-                    font-size: 14px !important;
-                    font-family: 'Noto Sans Devanagari', sans-serif !important;
-                    outline: none !important;
+                /* Floating Wrapper Styling */
+                #language-switcher-wrapper {
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    z-index: 10000;
+                    background: #2a2a38;
+                    border: 2px solid var(--saffron);
+                    border-radius: 50px;
+                    padding: 5px 12px;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+                    display: flex;
+                    align-items: center;
+                    min-width: 150px;
                 }
-                .goog-te-gadget { 
-                    font-size: 11px !important; 
-                    color: var(--text-muted) !important;
-                } 
+                #language-switcher-wrapper::before {
+                    content: "🌐";
+                    margin-right: 8px;
+                    font-size: 16px;
+                }
+
+                /* Style the inner Google select box */
+                .goog-te-gadget .goog-te-combo {
+                    background: transparent !important;
+                    color: #ffffff !important;
+                    border: none !important;
+                    font-size: 13px !important;
+                    outline: none !important;
+                    cursor: pointer !important;
+                    width: 110px !important;
+                }
+                .goog-te-gadget { font-size: 0 !important; }
         </style>
 
-        <!-- Google Translate Widget Scripts -->
         <script type="text/javascript">
                 function googleTranslateElementInit() {
                         new google.translate.TranslateElement({
