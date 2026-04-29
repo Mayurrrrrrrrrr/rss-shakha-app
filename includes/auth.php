@@ -9,7 +9,7 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
 // Security headers
-header("X-Frame-Options: SAMEORIGIN");
+header("X-Frame-Options: DENY");
 header("X-Content-Type-Options: nosniff");
 header("Referrer-Policy: strict-origin-when-cross-origin");
 

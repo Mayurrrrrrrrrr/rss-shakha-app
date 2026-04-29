@@ -26,15 +26,14 @@ Options -MultiViews
 
 # ── Security headers ────────────────────────────────────────
 <IfModule mod_headers.c>
-    # SAMEORIGIN (not DENY) — Google Translate needs iframe access
-    Header always set X-Frame-Options            "SAMEORIGIN"
+    Header always set X-Frame-Options            "DENY"
     Header always set X-Content-Type-Options     "nosniff"
     Header always set X-XSS-Protection           "1; mode=block"
     Header always set Referrer-Policy            "strict-origin-when-cross-origin"
     Header always set Permissions-Policy         "geolocation=(), camera=(), microphone=()"
 
-    # Full CSP — all Google Translate domains whitelisted
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com https://www.gstatic.com https://cdn.jsdelivr.net https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://translate.google.com https://translate.googleapis.com https://www.gstatic.com https://fonts.gstatic.com https://www.google.com; frame-src https://translate.googleapis.com https://translate.google.com; connect-src 'self' https://translate.googleapis.com https://translate-pa.googleapis.com https://translate.google.com"
+    # Basic CSP - restrict to self for maximum security
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:;"
 
     Header unset X-Powered-By
 
@@ -83,10 +82,3 @@ ErrorDocument 500 /index.php
     php_value session.cookie_samesite Strict
     php_flag  session.use_strict_mode 1
 </IfModule>
-
-# ── Force HTTPS (uncomment when SSL cert is live) ────────────
-# <IfModule mod_rewrite.c>
-#     RewriteEngine On
-#     RewriteCond %{HTTPS} off
-#     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
-# </IfModule>

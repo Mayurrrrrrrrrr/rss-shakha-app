@@ -6,7 +6,7 @@ require_once 'includes/auth.php';
 require_once 'config/db.php';
 
 // Security headers
-header("X-Frame-Options: SAMEORIGIN");
+header("X-Frame-Options: DENY");
 header("X-Content-Type-Options: nosniff");
 header("Referrer-Policy: strict-origin-when-cross-origin");
 ini_set('display_errors', 0);
@@ -119,9 +119,6 @@ if (!$db_error && $_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css?v=<?php echo APP_VERSION; ?>">
     <link rel="icon" href="assets/images/favicon.png" type="image/png">
-    
-    <!-- Google Translate Header -->
-    <?php include 'includes/translate.php'; ?>
 </head>
 <body>
 <div class="login-wrapper">
@@ -166,9 +163,6 @@ if (!$db_error && $_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
     </div>
 </div>
-
-<!-- Google Translate Scripts -->
-<?php include 'includes/translate_scripts.php'; ?>
 
 </body>
 </html>

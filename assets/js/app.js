@@ -3,36 +3,43 @@
 // =============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Sidebar & Mobile Navigation
+    // Sidebar & Mobile Navigation selectors
     const sidebarToggle = document.getElementById('sidebarToggle');
     const closeSidebar = document.getElementById('closeSidebar');
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
 
-    function openSidebar() {
+    // Attach navigation functions to window for global access (needed for inline onclick)
+    window.openSidebar = function() {
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
         if (sidebar && sidebarOverlay) {
             sidebar.classList.add('open');
             sidebarOverlay.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            document.body.style.overflow = 'hidden';
         }
-    }
+    };
 
-    function closeSidebarFn() {
+    window.closeSidebarFn = function() {
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
         if (sidebar && sidebarOverlay) {
             sidebar.classList.remove('open');
             sidebarOverlay.classList.remove('active');
             document.body.style.overflow = '';
         }
-    }
+    };
 
-    if (sidebarToggle) sidebarToggle.addEventListener('click', openSidebar);
-    if (closeSidebar) closeSidebar.addEventListener('click', closeSidebarFn);
-    if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebarFn);
+    // Event Listeners
+    if (sidebarToggle) sidebarToggle.addEventListener('click', window.openSidebar);
+    if (closeSidebar) closeSidebar.addEventListener('click', window.closeSidebarFn);
+    if (sidebarOverlay) sidebarOverlay.addEventListener('click', window.closeSidebarFn);
 
     // Close on Escape Key
     document.addEventListener('keydown', (e) => {
+        const sidebar = document.getElementById('sidebar');
         if (e.key === 'Escape' && sidebar && sidebar.classList.contains('open')) {
-            closeSidebarFn();
+            window.closeSidebarFn();
         }
     });
 
@@ -76,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
  * Share snapshot on WhatsApp
  */
 async function shareOnWhatsApp(imageUrl, text) {
-    // Try native Web Share API first (works on mobile)
     if (navigator.share && navigator.canShare) {
         try {
             const response = await fetch(imageUrl);
@@ -95,12 +101,10 @@ async function shareOnWhatsApp(imageUrl, text) {
             if (err.name !== 'AbortError') {
                 console.log('Web Share API failed, falling back...');
             } else {
-                return; // User cancelled
+                return;
             }
         }
     }
-    
-    // Fallback: Open WhatsApp with text (image must be shared separately)
     const whatsappUrl = 'https://wa.me/?text=' + encodeURIComponent(text || 'शाखा दैनिक रिपोर्ट');
     window.open(whatsappUrl, '_blank');
 }

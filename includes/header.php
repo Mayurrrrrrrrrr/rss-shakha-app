@@ -34,9 +34,6 @@ if ($pdo && isLoggedIn() && isset($_SESSION['shakha_id'])) {
                 rel="stylesheet">
         <link rel="stylesheet" href="../assets/css/style.css?v=<?php echo APP_VERSION; ?>">
         <link rel="icon" href="../assets/images/favicon.png" type="image/png">
-        
-        <!-- Google Translate Header -->
-        <?php include '../includes/translate.php'; ?>
 </head>
 
 <body>
