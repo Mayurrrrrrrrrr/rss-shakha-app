@@ -1,205 +1,450 @@
 {
     "परमात्मने": {
         "name": "परमात्मने",
-        "summary": "The Supreme Soul or Universal Spirit, the ultimate reality that pervades everything.",
+        "summary": "परम सत्ता, सर्वोच्च आत्मा जो सम्पूर्ण ब्रह्मांड में व्याप्त है और सत्य, चित्त, आनंद का स्वरूप है।",
         "image": "https://images.unsplash.com/photo-1545191153-53bcaf3e9bf9?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/परमात्मा",
-        "tithi": "Eternal"
+        "tithi": "नित्य"
     },
     "विश्वमाङ्गल्यमूर्तये": {
         "name": "विश्वमाङ्गल्यमूर्तये",
-        "summary": "The embodiment of universal well-being and auspiciousness for the entire world.",
+        "summary": "सम्पूर्ण विश्व के कल्याण और मंगल के साक्षात स्वरूप, जो चराचर जगत का हित करते हैं।",
         "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/मंगल",
-        "tithi": "Daily"
+        "tithi": "नित्य"
     },
     "प्रकृतिः": {
         "name": "प्रकृतिः",
-        "summary": "The fundamental creative power or Nature, through which the universe is manifested.",
+        "summary": "सृष्टि की मूल शक्ति और प्रकृति, जो पंच तत्वों के माध्यम से जगत का सृजन करती है।",
         "image": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/प्रकृति",
-        "tithi": "Hariyali Teej"
+        "tithi": "हरियाली तीज"
     },
     "पञ्चभूतानि": {
         "name": "पञ्चभूतानि",
-        "summary": "The five great elements: Prithvi (Earth), Apas (Water), Agni (Fire), Vayu (Air), and Akasha (Ether).",
+        "summary": "सृष्टि के पांच मूल तत्व: पृथ्वी, जल, अग्नि, वायु और आकाश, जिनसे सम्पूर्ण ब्रह्मांड बना है।",
         "image": "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/पंचभूत",
-        "tithi": "All Tithis"
+        "tithi": "नित्य"
     },
     "हिमालय": {
         "name": "हिमालय",
-        "summary": "The 'King of Mountains', forming the northern crown of Bharat and the abode of gods.",
+        "summary": "भारत का मस्तक और पर्वतों का राजा, जिसे देवताओं का आवास और तपस्वियों की भूमि माना जाता है।",
         "image": "assets/himalaya.png",
         "link": "https://bharatdiscovery.org/india/हिमालय",
-        "tithi": "Shivaratri"
+        "tithi": "महाशिवरात्रि"
     },
     "भारतमातरम्": {
         "name": "भारतमातरम्",
-        "summary": "The personification of the Indian subcontinent as a divine Mother Goddess.",
+        "summary": "भारत राष्ट्र की देवी स्वरूप अभिव्यक्ति, जो अपनी संतानों का पालन करने वाली करुणामयी माँ है।",
         "image": "assets/bharat_mata.png",
         "link": "https://bharatdiscovery.org/india/भारत_माता",
-        "tithi": "Republic Day / Independence Day"
+        "tithi": "गणतंत्र दिवस / स्वतंत्रता दिवस"
     },
     "महेन्द्र": {
         "name": "महेन्द्र",
-        "summary": "A sacred mountain range in the East (Odisha), associated with Sage Parshurama.",
+        "summary": "ओडिशा में स्थित एक पवित्र पर्वत श्रृंखला, जिसका संबंध भगवान परशुराम की तपस्या से है।",
         "image": "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/महेन्द्र_पर्वत",
-        "tithi": "Parshurama Jayanti"
+        "tithi": "परशुराम जयंती"
     },
     "मलय": {
         "name": "मलय",
-        "summary": "The mountain range in the South known for its fragrant sandalwood forests.",
+        "summary": "दक्षिण भारत की पर्वत श्रेणी जो अपने सुगंधित चंदन के वनों और शीतल समीर के लिए प्रसिद्ध है।",
         "image": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/मलय_पर्वत",
-        "tithi": "Varalakshmi Vrat"
+        "tithi": "वरलक्ष्मी व्रत"
     },
     "सह्य": {
         "name": "सह्य",
-        "summary": "The Western Ghats, a vast mountain range parallel to the western coast of India.",
+        "summary": "पश्चिमी घाट की पर्वत श्रृंखला, जहाँ से अनेक पवित्र नदियाँ निकलती हैं और जो जैव विविधता का केंद्र है।",
         "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/सह्याद्रि",
-        "tithi": "Ganesh Chaturthi"
+        "tithi": "गणेश चतुर्थी"
     },
     "रैवतक": {
         "name": "रैवतक",
-        "summary": "Mount Girnar in Gujarat, sacred to Hindus and Jains, where Lord Krishna held many pastimes.",
+        "summary": "गुजरात के जूनागढ़ में स्थित गिरनार पर्वत, जो हिंदू और जैन धर्म का एक प्रमुख तीर्थ स्थल है।",
         "image": "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/रैवतक_पर्वत",
-        "tithi": "Kartik Purnima"
+        "tithi": "कार्तिक पूर्णिमा"
     },
     "विन्ध्य": {
         "name": "विन्ध्य",
-        "summary": "The central mountain range that traditionally divides North and South India.",
+        "summary": "मध्य भारत की पर्वत श्रृंखला जो उत्तर और दक्षिण भारत को सांस्कृतिक रूप से जोड़ती है।",
         "image": "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/विन्ध्याचल",
-        "tithi": "Navaratri"
+        "tithi": "नवरात्रि"
     },
     "आरावलि": {
         "name": "आरावलि",
-        "summary": "One of the world's oldest fold mountain systems, located in Western India.",
+        "summary": "विश्व की प्राचीनतम पर्वत श्रेणियों में से एक, जो राजस्थान के वैभव और वीरता का प्रतीक है।",
         "image": "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/अरावली_पर्वतमाला",
-        "tithi": "Makar Sankranti"
+        "tithi": "मकर संक्रांति"
     },
     "गङ्गा": {
         "name": "गङ्गा",
-        "summary": "The holiest river of Bharat, descending from the Himalayas to purify the land.",
+        "summary": "भारत की सर्वाधिक पवित्र नदी, जो हिमालय से निकलकर देश के विशाल भूभाग को पावन करती है।",
         "image": "assets/ganga.png",
         "link": "https://bharatdiscovery.org/india/गंगा",
-        "tithi": "Ganga Dashahara"
+        "tithi": "गंगा दशहरा"
     },
     "सरस्वती": {
         "name": "सरस्वती",
-        "summary": "The mythical and sacred river of knowledge and wisdom, now lost to the sands of time.",
+        "summary": "ज्ञान और विद्या की अधिष्ठात्री देवी के नाम पर प्रसिद्ध विलुप्त नदी, जो अंतःसलिला मानी जाती है।",
         "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/सरस्वती_नदी",
-        "tithi": "Vasant Panchami"
+        "tithi": "बसंत पंचमी"
     },
     "सिन्धु": {
         "name": "सिन्धु",
-        "summary": "The Indus River, which gave India its name and was the site of its earliest civilization.",
+        "summary": "भारत की प्राचीन सभ्यता का उद्गम स्थल, जिसके नाम से ही 'हिंदू' और 'इंडिया' शब्द निकले हैं।",
         "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/सिन्धु_नदी",
-        "tithi": "Sindhu Darshan"
+        "tithi": "सिंधु दर्शन"
     },
     "ब्रह्मपुत्र": {
         "name": "ब्रह्मपुत्र",
-        "summary": "The 'Son of Brahma', one of the largest rivers in Asia, flowing through Tibet, India, and Bangladesh.",
+        "summary": "ब्रह्मा का पुत्र मानी जाने वाली विशाल नदी, जो तिब्बत और उत्तर-पूर्व भारत की जीवनरेखा है।",
         "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/ब्रह्मपुत्र_नदी",
-        "tithi": "Ambubachi Mela"
+        "tithi": "अम्बुबाची मेला"
     },
     "गण्डकी": {
         "name": "गण्डकी",
-        "summary": "A sacred river in Nepal and India, known for producing the Shaligram stones.",
+        "summary": "नेपाल और भारत में बहने वाली पवित्र नदी, जहाँ से शालिग्राम के पत्थर प्राप्त होते हैं।",
         "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/गण्डकी_नदी",
-        "tithi": "Kartik Snan"
+        "tithi": "कार्तिक स्नान"
     },
     "कावेरी": {
         "name": "कावेरी",
-        "summary": "The 'Ganga of the South', a lifeline for the people of Karnataka and Tamil Nadu.",
+        "summary": "दक्षिण भारत की गंगा कही जाने वाली पवित्र नदी, जो कर्नाटक और तमिलनाडु को समृद्ध करती है।",
         "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/कावेरी_नदी",
-        "tithi": "Kaveri Pushkaram"
+        "tithi": "कावेरी पुष्करम"
     },
     "यमुना": {
         "name": "यमुना",
-        "summary": "The sacred river of devotion, flowing past Mathura and Vrindavan, associated with Lord Krishna.",
+        "summary": "सूर्य पुत्री और भगवान कृष्ण की लीलाओं की साक्षी, ब्रज मंडल की अत्यंत पावन नदी।",
         "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/यमुना_नदी",
-        "tithi": "Bhai Dooj / Yama Dwitiya"
+        "tithi": "यमि द्वितीया / भाई दूज"
     },
     "रेवा": {
         "name": "रेवा",
-        "summary": "Another name for the Narmada River, which flows through the heart of India.",
+        "summary": "नर्मदा नदी का दूसरा नाम, जो अमरकंटक से निकलकर भारत के मध्य भाग को सिंचित करती है।",
         "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/नर्मदा_नदी",
-        "tithi": "Narmada Jayanti"
+        "tithi": "नर्मदा जयंती"
     },
     "कृष्णा": {
         "name": "कृष्णा",
-        "summary": "One of the major rivers of South India, originating in the Sahyadri mountains.",
+        "summary": "दक्षिण भारत की प्रमुख नदी, जो महाबलेश्वर से निकलकर विशाल क्षेत्र को उपजाऊ बनाती है।",
         "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/कृष्णा_नदी",
-        "tithi": "Krishna Pushkaralu"
+        "tithi": "कृष्णा पुष्करम"
     },
     "गोदा": {
         "name": "गोदा",
-        "summary": "The Godavari River, often called the 'Gautami' or 'Vriddha Ganga' in South India.",
+        "summary": "गोदावरी नदी, जिसे 'दक्षिण गंगा' या 'वृद्ध गंगा' भी कहा जाता है, नासिक जिसका मुख्य तीर्थ है।",
         "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/गोदावरी_नदी",
-        "tithi": "Godavari Pushkaram"
+        "tithi": "गोदावरी पुष्करम"
     },
     "महानदी": {
         "name": "महानदी",
-        "summary": "A major river in East Central India, flowing through Chhattisgarh and Odisha.",
+        "summary": "छत्तीसगढ़ और ओडिशा की प्रमुख नदी, जिसके तट पर हीराकुंड जैसा विशाल बाँध स्थित है।",
         "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/महानदी",
-        "tithi": "Bali Jatra"
+        "tithi": "बाली जात्रा"
     },
-    "रत्नाकर": {
-        "name": "रत्नाकर",
-        "summary": "The Indian Ocean, which surrounds the Indian peninsula on three sides.",
-        "image": "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&q=80&w=800",
-        "link": "https://bharatdiscovery.org/india/हिन्द_महासागर",
-        "tithi": "Sagari Purnima"
+    "अयोध्या": {
+        "name": "अयोध्या",
+        "summary": "भगवान श्री राम की जन्मभूमि और सरयू नदी के तट पर स्थित सप्त पुरियों में से एक अत्यंत प्राचीन नगर।",
+        "image": "https://images.unsplash.com/photo-1614583224978-f05ce51ef5fa?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/अयोध्या",
+        "tithi": "राम नवमी"
     },
-    "ग्रहा": {
-        "name": "ग्रहा",
-        "summary": "The nine celestial influencers (Navagrahas) in Indian astrology and cosmology.",
-        "image": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=800",
-        "link": "https://bharatdiscovery.org/india/ग्रह",
-        "tithi": "Surya Sankranti"
+    "मथुरा": {
+        "name": "मथुरा",
+        "summary": "भगवान श्रीकृष्ण की जन्मस्थली और यमुना तट पर स्थित ब्रज संस्कृति का मुख्य केंद्र।",
+        "image": "https://images.unsplash.com/photo-1560611568-7c8a67015099?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/मथुरा",
+        "tithi": "कृष्ण जन्माष्टमी"
     },
-    "लोकाः": {
-        "name": "लोकाः",
-        "summary": "The fourteen planes of existence (worlds) mentioned in the Puranas.",
-        "image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800",
-        "link": "https://bharatdiscovery.org/india/लोक",
-        "tithi": "Daily"
+    "माया": {
+        "name": "माया",
+        "summary": "हरिद्वार का प्राचीन नाम, जहाँ गंगा मैदानी भाग में प्रवेश करती हैं और कुंभ का आयोजन होता है।",
+        "image": "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/हरिद्वार",
+        "tithi": "गंगा दशहरा / कुंभ"
     },
-    "स्वराः": {
-        "name": "स्वराः",
-        "summary": "The seven primary notes (Saptaswara) of Indian classical music: Sa Re Ga Ma Pa Dha Ni.",
+    "काशी": {
+        "name": "काशी",
+        "summary": "वाराणसी, जो भगवान शिव की नगरी और विश्व का प्राचीनतम जीवित शहर माना जाता है।",
+        "image": "https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/वाराणसी",
+        "tithi": "देव दीपावली"
+    },
+    "काञ्ची": {
+        "name": "काञ्ची",
+        "summary": "कांचीपुरम, दक्षिण भारत का स्वर्ण नगर, जो मंदिरों और रेशम के लिए प्रसिद्ध एक मोक्षदायिनी पुरी है।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/कांचीपुरम",
+        "tithi": "कामाक्षी अम्मन उत्सव"
+    },
+    "अवन्तिका": {
+        "name": "अवन्तिका",
+        "summary": "उज्जैन, महाकाल की नगरी, जहाँ से प्रधान मध्याह्न रेखा गुजरती है और कुंभ का पर्व मनाया जाता है।",
+        "image": "https://images.unsplash.com/photo-1623946025232-094770e0a5e8?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/उज्जैन",
+        "tithi": "महाशिवरात्रि / सिंहस्थ कुंभ"
+    },
+    "वैशाली": {
+        "name": "वैशाली",
+        "summary": "विश्व के प्रथम गणराज्य की राजधानी और भगवान महावीर की जन्मस्थली एवं बुद्ध की प्रिय नगरी।",
+        "image": "https://images.unsplash.com/photo-1523474253046-7cd2ad074432?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/वैशाली",
+        "tithi": "महावीर जयंती"
+    },
+    "द्वारिका": {
+        "name": "द्वारिका",
+        "summary": "भगवान श्रीकृष्ण की राजधानी, जो गुजरात के समुद्र तट पर स्थित चार धामों में से एक है।",
+        "image": "https://images.unsplash.com/photo-1590492485513-41c3029f268b?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/द्वारका",
+        "tithi": "जन्माष्टमी"
+    },
+    "पुरी": {
+        "name": "पुरी",
+        "summary": "जगन्नाथ पुरी, जहाँ भगवान जगन्नाथ, सुभद्रा और बलभद्र की विश्वप्रसिद्ध रथयात्रा निकाली जाती है।",
+        "image": "https://images.unsplash.com/photo-1524440529402-985f95200f68?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/पुरी",
+        "tithi": "रथ यात्रा"
+    },
+    "तक्षशिला": {
+        "name": "तक्षशिला",
+        "summary": "प्राचीन भारत का विश्वप्रसिद्ध विश्वविद्यालय और शिक्षा का महान केंद्र, जहाँ आचार्य चाणक्य ने शिक्षा दी थी।",
+        "image": "https://images.unsplash.com/photo-1523050335456-c70a84e6012e?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/तक्षशिला",
+        "tithi": "गुरु पूर्णिमा"
+    },
+    "गया": {
+        "name": "गया",
+        "summary": "पितरों की मुक्ति के लिए प्रसिद्ध तीर्थस्थल और समीप ही बोधगया में भगवान बुद्ध को ज्ञान प्राप्त हुआ था।",
+        "image": "https://images.unsplash.com/photo-1517303650219-83c8b1788c4c?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/गया",
+        "tithi": "पितृ पक्ष"
+    },
+    "प्रयाग": {
+        "name": "प्रयाग",
+        "summary": "प्रयागराज, जहाँ गंगा, यमुना और सरस्वती का पावन संगम होता है और कुंभ का महापर्व मनाया जाता है।",
+        "image": "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/इलाहाबाद",
+        "tithi": "माघ मेला / कुंभ"
+    },
+    "पाटलीपुत्र": {
+        "name": "पाटलीपुत्र",
+        "summary": "पटना का प्राचीन नाम, जो मौर्य और गुप्त साम्राज्य की राजधानी एवं वैभवशाली शक्ति का केंद्र था।",
+        "image": "https://images.unsplash.com/photo-1524440529402-985f95200f68?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/पाटलिपुत्र",
+        "tithi": "नित्य"
+    },
+    "विजयानगर": {
+        "name": "विजयानगर",
+        "summary": "हम्पी, जो दक्षिण भारत के महान हिंदू साम्राज्य विजयनगर की राजधानी और वैभव का प्रतीक थी।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/विजयनगर_साम्राज्य",
+        "tithi": "हम्पी उत्सव"
+    },
+    "इन्द्रप्रस्थ": {
+        "name": "इन्द्रप्रस्थ",
+        "summary": "पांडवों द्वारा निर्मित भव्य राजधानी, जो वर्तमान दिल्ली के ऐतिहासिक गौरव का आधार है।",
+        "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/इन्द्रप्रस्थ",
+        "tithi": "नित्य"
+    },
+    "सोमनाथ": {
+        "name": "सोमनाथ",
+        "summary": "गुजरात तट पर स्थित प्रथम ज्योतिर्लिंग, जो भारतीय आस्था के पुनरुत्थान का भव्य प्रतीक है।",
+        "image": "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/सोमनाथ_मंदिर",
+        "tithi": "महाशिवरात्रि"
+    },
+    "अमृतसर": {
+        "name": "अमृतसर",
+        "summary": "स्वर्ण मंदिर (हरमंदिर साहिब) के लिए प्रसिद्ध पवित्र नगर, जो सिख धर्म की आस्था का सर्वोच्च केंद्र है।",
+        "image": "https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/अमृतसर",
+        "tithi": "बैसाखी / प्रकाश पर्व"
+    },
+    "चतुर्वेदाः": {
+        "name": "चतुर्वेदाः",
+        "summary": "ऋग्वेद, यजुर्वेद, सामवेद और अथर्ववेद; जो भारतीय ज्ञान परंपरा के मूल आधार और प्राचीनतम ग्रंथ हैं।",
         "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
-        "link": "https://bharatdiscovery.org/india/स्वर",
-        "tithi": "Vasant Panchami"
+        "link": "https://bharatdiscovery.org/india/वेद",
+        "tithi": "गुरु पूर्णिमा"
     },
-    "दिशः": {
-        "name": "दिशः",
-        "summary": "The ten directions, including the eight cardinal points and Zenit/Nadir.",
-        "image": "https://images.unsplash.com/photo-1526510747491-58f928ec870f?auto=format&fit=crop&q=80&w=800",
-        "link": "https://bharatdiscovery.org/india/दिशा",
-        "tithi": "Daily"
+    "पुराणानि": {
+        "name": "पुराणानि",
+        "summary": "18 महापुराण, जिनमें प्राचीन इतिहास, वंशावली और सांस्कृतिक शिक्षाओं का संग्रह है।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/पुराण",
+        "tithi": "नित्य"
     },
-    "कालः": {
-        "name": "कालः",
-        "summary": "Time, the eternal witness and the foundation of the Indian calendar (Panchang).",
-        "image": "https://images.unsplash.com/photo-1508921340878-ba53e1f016ec?auto=format&fit=crop&q=80&w=800",
-        "link": "https://bharatdiscovery.org/india/काल",
-        "tithi": "Ugadi / Gudi Padwa"
+    "उपनिषद": {
+        "name": "उपनिषद",
+        "summary": "वेदों के दार्शनिक निष्कर्ष, जो ब्रह्मविद्या और आत्मज्ञान की शिक्षा देने वाले महान ग्रंथ हैं।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/उपनिषद",
+        "tithi": "नित्य"
+    },
+    "रामायणं": {
+        "name": "रामायणं",
+        "summary": "महर्षि वाल्मीकि रचित आदिकाव्य, जो मर्यादा पुरुषोत्तम श्री राम के आदर्श जीवन की गाथा है।",
+        "image": "https://images.unsplash.com/photo-1614583224978-f05ce51ef5fa?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/रामायण",
+        "tithi": "विजयदशमी"
+    },
+    "भारतं": {
+        "name": "भारतं",
+        "summary": "महाभारत, जो विश्व का सबसे बड़ा महाकाव्य है और धर्म-अधर्म के संघर्ष की महान गाथा है।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/महाभारत",
+        "tithi": "गीता जयंती"
+    },
+    "गीता": {
+        "name": "गीता",
+        "summary": "श्रीमद्भगवद्गीता, जो कुरुक्षेत्र के युद्ध मैदान में भगवान कृष्ण द्वारा अर्जुन को दिया गया कर्मयोग का उपदेश है।",
+        "image": "https://images.unsplash.com/photo-1560611568-7c8a67015099?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/भगवद्गीता",
+        "tithi": "गीता जयंती"
+    },
+    "दर्शन": {
+        "name": "दर्शन",
+        "summary": "भारतीय दर्शन की छह शाखाएं (षड्दर्शन) - न्याय, वैशेषिक, सांख्य, योग, मीमांसा और वेदांत।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/भारतीय_दर्शन",
+        "tithi": "नित्य"
+    },
+    "जैनागमा": {
+        "name": "जैनागमा",
+        "summary": "जैन धर्म के पवित्र शास्त्र, जिनमें तीर्थंकरों के उपदेश और जीवन दर्शन संकलित हैं।",
+        "image": "https://images.unsplash.com/photo-1523474253046-7cd2ad074432?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/जैन_दर्शन",
+        "tithi": "पर्युषण पर्व"
+    },
+    "त्रिपिटकाः": {
+        "name": "त्रिपिटकाः",
+        "summary": "बौद्ध धर्म के मुख्य ग्रंथ - विनयपिटक, सुत्तपिटक और अभिधम्मपिटक, जो बुद्ध की शिक्षाओं का आधार हैं।",
+        "image": "https://images.unsplash.com/photo-1517303650219-83c8b1788c4c?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/त्रिपिटक",
+        "tithi": "बुद्ध पूर्णिमा"
+    },
+    "गुरुग्रन्थः": {
+        "name": "गुरुग्रन्थः",
+        "summary": "सिख धर्म का परम पावन ग्रंथ गुरु ग्रंथ साहिब, जिसे जीवित गुरु का दर्जा प्राप्त है।",
+        "image": "https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/गुरु_ग्रन्थ_साहिब",
+        "tithi": "प्रकाश पर्व"
+    },
+    "श्रीरामो": {
+        "name": "श्रीरामो",
+        "summary": "मर्यादा पुरुषोत्तम, जिन्होंने सत्य और धर्म के पथ पर चलते हुए आदर्श राज्य 'रामराज्य' की स्थापना की।",
+        "image": "https://images.unsplash.com/photo-1614583224978-f05ce51ef5fa?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/राम",
+        "tithi": "राम नवमी"
+    },
+    "कृष्णो": {
+        "name": "कृष्णो",
+        "summary": "लीला पुरुषोत्तम और गीता के उपदेशक, जिन्होंने अधर्म का नाश कर धर्म की पुनर्स्थापना की।",
+        "image": "https://images.unsplash.com/photo-1560611568-7c8a67015099?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/कृष्ण",
+        "tithi": "जन्माष्टमी"
+    },
+    "बुद्ध": {
+        "name": "बुद्ध",
+        "summary": "अहिंसा और शांति के अग्रदूत, जिन्होंने मध्य मार्ग का उपदेश देकर सम्पूर्ण विश्व को प्रकाश दिखाया।",
+        "image": "https://images.unsplash.com/photo-1517303650219-83c8b1788c4c?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/महात्मा_बुद्ध",
+        "tithi": "बुद्ध पूर्णिमा"
+    },
+    "शङ्कर": {
+        "name": "शङ्कर",
+        "summary": "आदि शंकराचार्य, जिन्होंने अद्वैत वेदांत का प्रचार किया और भारत के चारों कोनों में चार मठों की स्थापना की।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/आदि_शंकराचार्य",
+        "tithi": "शंकर जयंती"
+    },
+    "शिवि": {
+        "name": "शिवि",
+        "summary": "अपनी शरणागत वत्सलता के लिए प्रसिद्ध राजा, जिन्होंने एक कपोत की रक्षा के लिए अपना मांस दान कर दिया था।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/शिबि",
+        "tithi": "नित्य"
+    },
+    "प्रताप": {
+        "name": "प्रताप",
+        "summary": "मेवाड़ के वीर शिरोमणि महाराणा प्रताप, जिन्होंने मातृभूमि की स्वतंत्रता के लिए कभी हार नहीं मानी।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/महाराणा_प्रताप",
+        "tithi": "प्रताप जयंती"
+    },
+    "शिवभूपति": {
+        "name": "शिवभूपति",
+        "summary": "छत्रपति शिवाजी महाराज, जिन्होंने हिंदवी स्वराज्य की स्थापना की और अदम्य साहस का परिचय दिया।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/शिवाजी",
+        "tithi": "शिव जयंती"
+    },
+    "विवेकानन्द": {
+        "name": "विवेकानन्द",
+        "summary": "स्वामी विवेकानंद, जिन्होंने भारतीय अध्यात्म का डंका सम्पूर्ण विश्व में बजाया और युवाओं के प्रेरणास्रोत बने।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/स्वामी_विवेकानन्द",
+        "tithi": "राष्ट्रीय युवा दिवस"
+    },
+    "अशोक": {
+        "name": "अशोक",
+        "summary": "सम्राट अशोक, जिन्होंने कलिंग युद्ध के बाद धम्म का मार्ग अपनाया और शांति का संदेश फैलाया।",
+        "image": "https://images.unsplash.com/photo-1523474253046-7cd2ad074432?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/अशोक",
+        "tithi": "अशोक जयंती"
+    },
+    "चाणक्य": {
+        "name": "चाणक्य",
+        "summary": "महान कूटनीतिज्ञ और अर्थशास्त्री, जिन्होंने चंद्रगुप्त मौर्य को सम्राट बनाकर अखंड भारत का निर्माण किया।",
+        "image": "https://images.unsplash.com/photo-1523050335456-c70a84e6012e?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/चाणक्य",
+        "tithi": "नित्य"
+    },
+    "आर्यभट्ट": {
+        "name": "आर्यभट्ट",
+        "summary": "प्राचीन भारत के महान गणितज्ञ और खगोलशास्त्री, जिन्होंने शून्य की खोज की और खगोल विज्ञान में क्रांति लाई।",
+        "image": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/आर्यभट्ट",
+        "tithi": "नित्य"
+    },
+    "भीमराव": {
+        "name": "भीमराव",
+        "summary": "डॉ. बी.आर. अंबेडकर, भारतीय संविधान के शिल्पकार और सामाजिक न्याय के प्रबल योद्धा।",
+        "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/भीमराव_अम्बेडकर",
+        "tithi": "अंबेडकर जयंती"
+    },
+    "हनुमान्": {
+        "name": "हनुमान्",
+        "summary": "श्री राम के अनन्य भक्त, शक्ति और सेवा के साक्षात अवतार, जिन्होंने अतुलनीय साहस का परिचय दिया।",
+        "image": "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/हनुमान",
+        "tithi": "हनुमान जयंती"
+    },
+    "जानकी": {
+        "name": "जानकी",
+        "summary": "माता सीता, जो त्याग, धैर्य और पवित्रता का आदर्श स्वरूप हैं और भगवान राम की अर्धांगिनी हैं।",
+        "image": "https://images.unsplash.com/photo-1614583224978-f05ce51ef5fa?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/सीता",
+        "tithi": "जानकी जयंती"
     }
 }

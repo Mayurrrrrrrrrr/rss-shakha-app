@@ -11,6 +11,7 @@ body {
     background-image: 
         radial-gradient(circle at 50% 50%, rgba(255, 249, 242, 0.8) 0%, rgba(255, 249, 242, 0.9) 100%),
         url('https://www.transparenttextures.com/patterns/natural-paper.png');
+    overflow-x: hidden;
 }
 
 /* Noun styling */
@@ -22,6 +23,7 @@ body {
     cursor: help;
     display: inline-block;
     font-weight: 700;
+    position: relative;
 }
 
 .entity-link:hover {
@@ -34,12 +36,18 @@ body {
 .tippy-box[data-theme~='indic'] {
     background-color: white;
     color: var(--dark);
-    border-radius: 1.5rem;
+    border-radius: 1rem;
     padding: 0;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     border: 1px solid var(--gold);
     overflow: hidden;
-    max-width: 320px !important;
+    max-width: 300px !important;
+}
+
+@media (max-width: 640px) {
+    .tippy-box[data-theme~='indic'] {
+        max-width: 260px !important;
+    }
 }
 
 .tippy-content {
@@ -53,21 +61,21 @@ body {
 
 .preview-image {
     width: 100%;
-    height: 160px;
+    height: 140px;
     object-fit: cover;
     background-color: #f3f4f6;
 }
 
 .preview-body {
-    padding: 1.25rem;
+    padding: 1rem;
 }
 
 .preview-title {
     font-family: 'Mukta', sans-serif;
-    font-size: 1.25rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: var(--saffron);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
 }
 
 .preview-text {
@@ -75,31 +83,35 @@ body {
     line-height: 1.5;
     color: #4b5563;
     margin-bottom: 0.75rem;
+    font-family: 'Mukta', sans-serif;
 }
 
 .preview-tithi {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    color: var(--gold);
+    color: #92400e;
     background-color: #fef3c7;
-    padding: 0.25rem 0.75rem;
+    padding: 0.15rem 0.5rem;
     border-radius: 9999px;
     display: inline-block;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
+    font-family: 'Mukta', sans-serif;
 }
 
-.preview-link {
+.preview-link-btn {
     font-size: 0.85rem;
     font-weight: 600;
-    color: var(--saffron);
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
+    color: white;
+    background-color: var(--saffron);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    text-align: center;
     text-decoration: none;
+    transition: background 0.3s;
 }
 
-.preview-link:hover {
-    text-decoration: underline;
+.preview-link-btn:hover {
+    background-color: var(--gold);
 }
 
 /* Animations */
@@ -116,11 +128,28 @@ body {
 
 .verse {
     animation: fadeInUp 0.8s ease-out forwards;
-    opacity: 1; /* Fallback */
+    opacity: 1; /* Fallback visibility */
+    margin-bottom: 2rem;
 }
+
+.verse:nth-child(n) { opacity: 0; } /* Set back to 0 so animation takes over */
+.verse { animation-fill-mode: forwards; }
 
 .verse:nth-child(1) { animation-delay: 0.1s; }
 .verse:nth-child(2) { animation-delay: 0.2s; }
 .verse:nth-child(3) { animation-delay: 0.3s; }
 .verse:nth-child(4) { animation-delay: 0.4s; }
 .verse:nth-child(5) { animation-delay: 0.5s; }
+/* ... up to 33 ... */
+.verse:nth-child(n+6) { animation-delay: 0.6s; }
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+    #stotra-content {
+        font-size: 1.25rem;
+        line-height: 1.8;
+    }
+    .entity-link {
+        text-underline-offset: 2px;
+    }
+}

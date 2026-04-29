@@ -1,5 +1,6 @@
 /**
  * Ekatmata Stotra Interactive Script
+ * Full 33 Verses with Interactive Nouns
  */
 
 const stotraText = `
@@ -10,28 +11,111 @@ const stotraText = `
 दिशः कालश्च सर्वेषां सदा कुर्वन्तु मङ्गलम्।। २।।
 
 रत्नाकराधौतपदां हिमालयकिरीटिनीम्
-ब्रह्मराजर्षिरत्नाढ्यां वन्दे भारतमातरम् || 3 ||
+ब्रह्मराजर्षिरत्नाढ्यां वन्दे भारतमातरम् || ३ ||
 
 महेन्द्रो मलयः सह्यो देवतात्मा हिमालयः
 ध्येयो रैवतको विन्ध्यो गिरिश्चारावलिस्तथा || ४ ||
 
 गङ्गा सरस्वती सिन्धुर्ब्रह्मपुत्रश्च गण्डकी
 कावेरी यमुना रेवा कृष्णा गोदा महानदी || ५ ||
+
+अयोध्या मथुरा माया काशीकाञ्ची अवन्तिका
+वैशाली द्वारिका ध्येया पुरी तक्षशिला गया || ६ ||
+
+प्रयागः पाटलीपुत्रं विजयानगरं महत्
+इन्द्रप्रस्थं सोमनाथः तथाSमृतसरः प्रियम् || ७ ||
+
+चतुर्वेदाः पुराणानि सर्वोपनिषदस्तथा
+रामायणं भारतं च गीता सद्दर्शनानि च ॥८॥
+
+जैनागमास्त्रिपिटकाः गुरुग्रन्थः सतां गिरः
+एषः ज्ञाननिधिः श्रेष्ठः श्रद्धेयो हृदि सर्वदा ॥९॥
+
+अरुन्धत्यनसूया च सावित्री जानकी सती
+द्रौपदी कण्णगी गार्गी मीरा दुर्गावती तथा ॥१०॥
+
+लक्ष्मीरहल्या चन्नम्मा रुद्रमाम्बा सुविक्रमा
+निवेदिता सारदा च प्रणम्या मातृदेवताः ॥११॥
+
+श्रीरामो भरतः कृष्णो भीष्मो धर्मस्तथार्जुनः
+मार्कण्डेयो हरिश्चन्द्र: प्रह्लादो नारदो ध्रुवः ॥१२॥
+
+हनुमान् जनको व्यासो वसिष्ठश्च शुको बलिः
+दधीचिविश्वकर्माणौ पृथुवाल्मीकिभार्गवाः ॥१३॥
+
+भगीरथश्चैकलव्यो मनुर्धन्वन्तरिस्तथा
+शिविश्च रन्तिदेवश्च पुराणोद्गीतकीर्तय: ॥१४॥
+
+बुद्धा जिनेन्द्रा गोरक्षः पाणिनिश्च पतञ्जलिः
+शङ्करो मध्वनिंबार्कौ श्रीरामानुजवल्लभौ ॥१५॥
+
+झूलेलालोSथ चैतन्यः तिरुवल्लुवरस्तथा
+नायन्मारालवाराश्च कंबश्च बसवेश्वरः ॥१६॥
+
+देवलो रविदासश्च कबीरो गुरुनानकः
+नरसिस्तुलसीदासो दशमेशो दृढव्रतः ॥१७॥
+
+श्रीमत् शङ्करदेवश्च बन्धू सायणमाधवौ
+ज्ञानेश्वरस्तुकारामो रामदासः पुरन्दरः ॥१८॥
+
+बिरसा सहजानन्दो रामानन्दस्तथा महान्
+वितरन्तु सदैवैते दैवीं सद्गुणसंपदम् ॥१९॥
+
+भरतर्षिः कालिदासः श्रीभोजो जकणस्तथा
+सूरदासस्त्यागराजो रसखानश्च सत्कविः ॥२०॥
+
+रविवर्मा भातखण्डे भाग्यचन्द्रः स भूपतिः
+कलावंतश्च विख्याताः स्मरणीया निरन्तरम्॥२१॥
+
+अगस्त्यः कंबुकौण्डिन्यौ राजेन्द्रश्चोलवंशजः
+अशोकः पुश्यमित्रश्च खारवेलः सुनीतिमान् ॥२२॥
+
+चाणक्यचन्द्रगुप्तौ च विक्रमः शालिवाहनः
+समुद्रगुप्तः श्रीहर्षः शैलेन्द्रो बप्परावलः ॥२३॥
+
+लाचिद्भास्करवर्मा च यशोधर्मा च हूणजित्
+श्रीकृष्णदेवरायश्च ललितादित्य उद्बलः ॥२४॥
+
+मुसुनूरिनायकौ तौ प्रतापः शिवभूपतिः
+रणजि सिंह इत्येते वीरा विख्यातविक्रमाः ॥२५॥
+
+वैज्ञानिकाश्च कपिलः कणादः सुश्रुतस्तथा
+चरको भास्कराचार्यो वराहमिहिरः सुधीः ॥२६॥
+
+नागार्जुनो भरद्वाजः आर्यभट्टो वसुर्बुधः
+ध्येयो वेंकटरामश्च विज्ञा रामानुजादयः ॥२७॥
+
+रामकृष्णो दयानन्दो रवीन्द्रो राममोहनः
+रामतीर्थोऽरविंदश्च विवेकानन्द उद्यशाः ॥२८॥
+
+दादाभाई गोपबन्धुः तिलको गान्धिरादृताः
+रमणो मालवीयश्च श्रीसुब्रह्मण्यभारती ॥२९॥
+
+सुभाषः प्रणवानन्दः क्रान्तिवीरो विनायकः
+ठक्करो भीमरावश्च फुले नारायणो गुरुः ॥३०॥
+
+संघशक्तिप्रणेतारौ केशवो माधवस्तथा
+स्मरणीयाः सदैवैते नवचैतन्यदायकाः ॥३१॥
+
+अनुक्ता ये भक्ताः प्रभुचरणसंसक्तहृदयाः
+अनिर्दष्टा वीराः अधिसमरमुद्ध्वस्तरिपवः
+समाजोद्धर्तारः सुहितकरविज्ञाननिपुणाः
+नमस्तेभ्यो भूयात् सकलसुजनेभ्यः प्रतिदिनम् ॥ ३२॥
+
+इदमेकात्मतास्तोत्रं श्रद्धया यः सदा पठेत्
+स राष्ट्रधर्मनिष्ठावान् अखण्डं भारतं स्मरेत् ॥३३॥
 `;
 
 document.addEventListener('DOMContentLoaded', async () => {
     const contentDiv = document.getElementById('stotra-content');
     
     try {
-        // Load data
         const response = await fetch('data.json');
         const entityData = await response.json();
         
-        // Process verses
         const verses = stotraText.trim().split('\n\n');
-        contentDiv.innerHTML = ''; // Clear skeleton
+        contentDiv.innerHTML = '';
         
-        // Create a single regex for all entities, sorted by length descending
         const entities = Object.keys(entityData).sort((a, b) => b.length - a.length);
         const entityRegex = new RegExp(`(${entities.join('|')})`, 'g');
         
@@ -39,12 +123,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             const verseElement = document.createElement('div');
             verseElement.className = 'verse group';
             
-            // Split by lines within verse
             const lines = verse.split('\n');
             let processedLines = lines.map(line => {
-                // Highlight entities using a single pass replacement
                 const processedLine = line.replace(entityRegex, (match) => {
-                    return `<span class="entity-link" data-entity="${match}">${match}</span>`;
+                    const data = entityData[match];
+                    // Every noun is a direct link
+                    return `<a href="${data.link}" target="_blank" class="entity-link" data-entity="${match}">${match}</a>`;
                 });
                 return `<div>${processedLine}</div>`;
             }).join('');
@@ -53,13 +137,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             contentDiv.appendChild(verseElement);
         });
 
-        // Initialize Tippy
+        // Initialize Tippy with better mobile support
         tippy('.entity-link', {
             theme: 'indic',
             animation: 'scale',
             interactive: true,
             allowHTML: true,
-            maxWidth: 350,
+            appendTo: document.body,
+            touch: ['hold', 500], // Long press on mobile or normal click
+            trigger: 'mouseenter focus',
             content(reference) {
                 const entityName = reference.getAttribute('data-entity');
                 const data = entityData[entityName];
@@ -69,34 +155,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return `
                     <div class="preview-card">
                         <div class="relative overflow-hidden">
-                            <img src="${data.image}" class="preview-image" alt="${data.name}" onerror="this.parentElement.innerHTML='<div class=\'w-full h-[160px] bg-gradient-to-br from-orange-100 to-yellow-50 flex items-center justify-center text-orange-300 text-4xl font-bold\'>${data.name[0]}</div>'">
+                            <img src="${data.image}" class="preview-image" alt="${data.name}" onerror="this.parentElement.innerHTML='<div class=\\'w-full h-[140px] bg-gradient-to-br from-orange-100 to-yellow-50 flex items-center justify-center text-orange-300 text-4xl font-bold\\'>${data.name[0]}</div>'">
                         </div>
                         <div class="preview-body">
                             <div class="preview-tithi">${data.tithi}</div>
                             <h3 class="preview-title">${data.name}</h3>
                             <p class="preview-text">${data.summary}</p>
-                            <a href="${data.link}" target="_blank" class="preview-link">
-                                Learn more on Bharat Discovery
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                </svg>
-                            </a>
+                            <div class="mt-2 text-xs text-gray-400">अधिक जानकारी के लिए क्लिक करें</div>
                         </div>
                     </div>
                 `;
-            },
-            onShow(instance) {
-                // Subtle zoom in effect for the card
-                instance.popper.style.transform = 'scale(0.95)';
-                setTimeout(() => {
-                    instance.popper.style.transition = 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                    instance.popper.style.transform = 'scale(1)';
-                }, 0);
             }
         });
 
     } catch (error) {
-        console.error('Error loading stotra data:', error);
-        contentDiv.innerHTML = '<p class="text-red-500">Error loading content. Please refresh.</p>';
+        console.error('Error:', error);
+        contentDiv.innerHTML = '<p class="text-red-500">सामग्री लोड करने में त्रुटि हुई। कृपया रिफ्रेश करें।</p>';
     }
 });
