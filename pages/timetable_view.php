@@ -1,9 +1,9 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Timetable View - समय-सारणी दृश्य (Read-only, for a specific date)
  * Accessible by Mukhyashikshak AND Swayamsevak
  */
-require_once '../includes/auth.php';
 require_once '../config/db.php';
 requireLogin();
 

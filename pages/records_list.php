@@ -1,4 +1,5 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Records List - रिकॉर्ड सूची
  */

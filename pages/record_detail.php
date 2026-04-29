@@ -1,4 +1,5 @@
-﻿<?php
+<?php
+require_once '../includes/auth.php';
 /**
  * Record Detail - रिकॉर्ड विवरण
  */

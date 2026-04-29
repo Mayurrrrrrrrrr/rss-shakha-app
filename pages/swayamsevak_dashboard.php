@@ -1,8 +1,8 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Swayamsevak Dashboard - स्वयंसेवक डैशबोर्ड (Modernized)
  */
-require_once '../includes/auth.php';
 require_once '../config/db.php';
 requireLogin();
 

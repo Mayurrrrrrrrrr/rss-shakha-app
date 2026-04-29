@@ -1,4 +1,5 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Subhashit View - Swayamsevak Read-Only View
  * Shows the latest subhashit posted by their Mukhyashikshak

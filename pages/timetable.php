@@ -1,8 +1,8 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Timetable Management - समय-सारणी प्रबंधन (Mukhyashikshak)
  */
-require_once '../includes/auth.php';
 require_once '../config/db.php';
 requireLogin();
 

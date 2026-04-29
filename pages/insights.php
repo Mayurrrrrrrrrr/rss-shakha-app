@@ -1,4 +1,5 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * AI Insights Page — शाखा अंतर्दृष्टि
  * Uses Gemini AI to analyze shakha data over a selected date range

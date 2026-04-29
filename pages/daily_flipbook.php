@@ -1,9 +1,9 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Daily Flipbook
  * An 8-page digital booklet for Swayamsevaks to view daily content post-shakha.
  */
-require_once '../includes/auth.php';
 require_once '../config/db.php';
 requireLogin();
 

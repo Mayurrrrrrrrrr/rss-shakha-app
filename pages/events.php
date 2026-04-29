@@ -1,4 +1,5 @@
 <?php
+require_once '../includes/auth.php';
 $pageTitle = 'कार्यक्रम (Events)';
 require_once '../includes/header.php';
 require_once '../config/db.php';

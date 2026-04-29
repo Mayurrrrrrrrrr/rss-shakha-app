@@ -1,4 +1,5 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Shakhas Management - शाखाएँ प्रबंधन
  */

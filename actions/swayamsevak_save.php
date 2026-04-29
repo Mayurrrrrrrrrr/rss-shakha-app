@@ -1,8 +1,8 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Save Swayamsevak - स्वयंसेवक सहेजें
  */
-require_once '../includes/auth.php';
 require_once '../config/db.php';
 requireLogin();
 csrf_verify();

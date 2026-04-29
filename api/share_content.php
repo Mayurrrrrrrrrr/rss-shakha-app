@@ -1,4 +1,5 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Share Content API
  * Allows Super Admin to share content (Subhashit, Geet, Ghoshnayein) across multiple Shakhas.

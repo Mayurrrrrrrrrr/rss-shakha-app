@@ -1,4 +1,5 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Swayamsevak Management - स्वयंसेवक प्रबंधन
  */

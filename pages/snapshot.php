@@ -1,9 +1,9 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Snapshot Generator - स्नैपशॉट जनरेटर
  * Generates report using HTML & html2canvas for accurate Hindi & Emoji rendering
  */
-require_once '../includes/auth.php';
 require_once '../config/db.php';
 requireLogin();
 

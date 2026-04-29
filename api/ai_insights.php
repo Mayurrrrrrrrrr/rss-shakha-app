@@ -1,9 +1,9 @@
 <?php
+require_once __DIR__ . '/../includes/auth.php';
 /**
  * AI Insights API — Gemini Free Tier
  * Collects shakha data for a date range and sends to Gemini for analysis
  */
-require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../config/db.php';
 requireLogin();
 

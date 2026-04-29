@@ -1,9 +1,9 @@
 <?php
+require_once '../includes/auth.php';
 // RSS Shakha App - Encoding: UTF-8
 /**
  * Dashboard - मुख्य पृष्ठ
  */
-require_once '../includes/auth.php';
 require_once '../config/db.php';
 requireLogin();
 

@@ -1,4 +1,5 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Calendar View - कैलेंडर दृश्य
  */

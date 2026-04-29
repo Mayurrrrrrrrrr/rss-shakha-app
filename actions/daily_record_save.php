@@ -1,8 +1,8 @@
-﻿<?php
+<?php
+require_once '../includes/auth.php';
 /**
  * Save Daily Record - दैनिक रिकॉर्ड सहेजें
  */
-require_once '../includes/auth.php';
 require_once '../config/db.php';
 requireLogin();
 csrf_verify();

@@ -1,4 +1,5 @@
-﻿<?php
+<?php
+require_once '../includes/auth.php';
 /**
  * Daily Record Form - दैनिक रिकॉर्ड
  */

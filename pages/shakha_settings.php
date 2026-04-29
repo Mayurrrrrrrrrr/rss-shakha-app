@@ -1,8 +1,8 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Shakha Settings - शाखा सेटिंग्स
  */
-require_once '../includes/auth.php';
 require_once '../config/db.php';
 requireLogin();
 

@@ -1,8 +1,8 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Delete Swayamsevak (soft delete)
  */
-require_once '../includes/auth.php';
 require_once '../config/db.php';
 requireLogin();
 csrf_verify();

@@ -1,9 +1,9 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Shakha Timer - Automated Whistle Tool
  * Accessible by Mukhyashikshak and Admin
  */
-require_once '../includes/auth.php';
 require_once '../config/db.php';
 requireLogin();
 

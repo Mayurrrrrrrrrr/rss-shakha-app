@@ -1,10 +1,10 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Paper Shakha (Sanghasthan Printout)
  * 8-Panel Zine Fold Layout (A4 Landscape)
  */
 require_once '../config/db.php';
-require_once '../includes/auth.php';
 require_once '../includes/PanchangCalculator.php';
 
 requireLogin();

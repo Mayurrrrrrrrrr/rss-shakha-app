@@ -1,4 +1,5 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * AI Content API — Unified Gemini Endpoint for Content Generation
  */

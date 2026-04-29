@@ -1,4 +1,5 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Mukhyashikshak Management - मुख्य शिक्षक प्रबंधन
  */

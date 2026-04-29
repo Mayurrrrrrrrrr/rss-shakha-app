@@ -1,7 +1,13 @@
-# PHP
-api/config.php
-# Flutter
-.dart_tool/
-build/
 .env
-
+.env.*
+config/db_credentials.php
+*.log
+*.bak
+*.backup
+*.old
+*.tmp
+*.swp
+/vendor/
+node_modules/
+.DS_Store
+Thumbs.db

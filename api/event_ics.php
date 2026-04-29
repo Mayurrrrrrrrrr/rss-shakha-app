@@ -1,4 +1,5 @@
 <?php
+require_once '../includes/auth.php';
 require_once '../config/db.php';
 
 if (!isset($_GET['id'])) {

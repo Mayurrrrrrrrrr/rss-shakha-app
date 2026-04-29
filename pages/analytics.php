@@ -1,4 +1,5 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Analytics Dashboard - एनालिटिक्स डैशबोर्ड
  * Compact, fixed-height, single-viewport layout

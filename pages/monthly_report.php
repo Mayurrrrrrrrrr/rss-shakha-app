@@ -1,4 +1,5 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Monthly Report - मासिक रिपोर्ट
  * Date range selection + downloadable report

@@ -1,8 +1,8 @@
 <?php
+require_once '../includes/auth.php';
 /**
  * Admin Dashboard - एडमिन डैशबोर्ड
  */
-require_once '../includes/auth.php';
 require_once '../config/db.php';
 requireLogin();
 
