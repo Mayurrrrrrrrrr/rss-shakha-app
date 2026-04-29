@@ -32,6 +32,5 @@ try {
     );
 } catch (PDOException $e) {
     error_log('DB Connection failed: ' . $e->getMessage());
-    http_response_code(500);
-    die('सेवा अनुपलब्ध है। कृपया बाद में प्रयास करें।');
+    $pdo = null;
 }
