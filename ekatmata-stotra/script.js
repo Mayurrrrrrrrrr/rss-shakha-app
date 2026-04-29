@@ -31,6 +31,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const verses = stotraText.trim().split('\n\n');
         contentDiv.innerHTML = ''; // Clear skeleton
         
+        // Create a single regex for all entities, sorted by length descending
+        const entities = Object.keys(entityData).sort((a, b) => b.length - a.length);
+        const entityRegex = new RegExp(`(${entities.join('|')})`, 'g');
+        
         verses.forEach((verse, index) => {
             const verseElement = document.createElement('div');
             verseElement.className = 'verse group';
@@ -38,11 +42,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Split by lines within verse
             const lines = verse.split('\n');
             let processedLines = lines.map(line => {
-                // Highlight entities
-                let processedLine = line;
-                Object.keys(entityData).forEach(entity => {
-                    const regex = new RegExp(entity, 'g');
-                    processedLine = processedLine.replace(regex, `<span class="entity-link" data-entity="${entity}">${entity}</span>`);
+                // Highlight entities using a single pass replacement
+                const processedLine = line.replace(entityRegex, (match) => {
+                    return `<span class="entity-link" data-entity="${match}">${match}</span>`;
                 });
                 return `<div>${processedLine}</div>`;
             }).join('');
@@ -66,7 +68,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 return `
                     <div class="preview-card">
-                        <img src="${data.image}" class="preview-image" alt="${data.name}" onerror="this.src='https://via.placeholder.com/320x160?text=${data.name}'">
+                        <div class="relative overflow-hidden">
+                            <img src="${data.image}" class="preview-image" alt="${data.name}" onerror="this.parentElement.innerHTML='<div class=\'w-full h-[160px] bg-gradient-to-br from-orange-100 to-yellow-50 flex items-center justify-center text-orange-300 text-4xl font-bold\'>${data.name[0]}</div>'">
+                        </div>
                         <div class="preview-body">
                             <div class="preview-tithi">${data.tithi}</div>
                             <h3 class="preview-title">${data.name}</h3>
