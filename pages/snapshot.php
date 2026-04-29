@@ -344,14 +344,30 @@ require_once '../includes/header.php';
                     $logoBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($logoPath));
                 }
                 ?>
+                <?php
+                // Pre-encode static icons to Base64 to avoid html2canvas loading/CORS issues
+                $flagIconPath = dirname(__DIR__) . '/assets/images/flag_icon.png';
+                $flagBase64 = '';
+                if (file_exists($flagIconPath)) {
+                    $flagBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($flagIconPath));
+                }
+                ?>
                 <?php if ($logoBase64): ?>
-                    <img src="<?php echo $logoBase64; ?>" alt="शाखा" loading="lazy"
+                    <img src="<?php echo $logoBase64; ?>" alt="शाखा" 
                         style="width: 60px; height: 60px; border-radius: 50%; background: #FFF3E0; margin-bottom: 4px; object-fit: cover;">
                 <?php endif; ?>
                 <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 20px;">
-                    <img src="../assets/images/flag_icon.png" style="height: 1.2em; width: auto;" alt="🚩" loading="lazy">
+                    <?php if ($flagBase64): ?>
+                        <img src="<?php echo $flagBase64; ?>" style="height: 1.2em; width: auto;" alt="🚩">
+                    <?php else: ?>
+                        🚩
+                    <?php endif; ?>
                     <?php echo htmlspecialchars($shakhaName); ?>
-                    <img src="../assets/images/flag_icon.png" style="height: 1.2em; width: auto;" alt="🚩" loading="lazy">
+                    <?php if ($flagBase64): ?>
+                        <img src="<?php echo $flagBase64; ?>" style="height: 1.2em; width: auto;" alt="🚩">
+                    <?php else: ?>
+                        🚩
+                    <?php endif; ?>
                 </div>
                 <div style="font-size: 16px; font-weight: normal; opacity: 0.9;">घाटकोपर पूर्व, मुंबई</div>
             </div>
@@ -403,11 +419,18 @@ require_once '../includes/header.php';
     // Generate High-Res Image using html2canvas
     async function generateImage() {
         const el = document.getElementById('capture-area');
+        
+        // Use lower scale for mobile to prevent memory issues, 2x for desktop
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const captureScale = isMobile ? 1.5 : 2;
+
         const canvas = await html2canvas(el, {
-            scale: 2, // 2x resolution for better quality
-            backgroundColor: '#0F0F14',
+            scale: captureScale,
+            backgroundColor: '#FFF9F2',
             useCORS: true,
-            logging: false
+            allowTaint: true,
+            logging: false,
+            imageTimeout: 10000
         });
         return canvas;
     }
@@ -423,7 +446,7 @@ require_once '../includes/header.php';
             const canvas = await generateImage();
 
             if (window.FlutterShareChannel) {
-                const b64 = canvas.toDataURL('image/jpeg', 0.95);
+                const b64 = canvas.toDataURL('image/jpeg', 0.9);
                 window.FlutterShareChannel.postMessage(JSON.stringify({
                     image: b64,
                     text: 'शाखा रिपोर्ट',
@@ -435,14 +458,14 @@ require_once '../includes/header.php';
             }
 
             const a = document.createElement('a');
-            a.href = canvas.toDataURL('image/jpeg', 0.95);
+            a.href = canvas.toDataURL('image/jpeg', 0.9);
             a.download = 'shakha_report_<?php echo $record['record_date']; ?>.jpg';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
         } catch (e) {
-            console.error(e);
-            alert('स्नैपशॉट बनाने में तकनीकी त्रुटि हुई।');
+            console.error('Download Error:', e);
+            alert('स्नैपशॉट बनाने में तकनीकी त्रुटि हुई। कृपया दोबारा प्रयास करें।');
         }
 
         btn.innerHTML = originalText;
@@ -458,24 +481,33 @@ require_once '../includes/header.php';
 
         try {
             const canvas = await generateImage();
-            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95));
-
-            const file = new File([blob], 'shakha_report.jpg', { type: 'image/jpeg' });
             const textStr = 'शाखा दैनिक रिपोर्ट — <?php echo preg_replace('/\s+/', ' ', $formattedDate); ?>';
 
+            // Flutter / Mobile App Bridge
             if (window.FlutterShareChannel) {
-                const b64 = canvas.toDataURL('image/jpeg', 0.95);
-                window.FlutterShareChannel.postMessage(JSON.stringify({
-                    image: b64,
-                    text: textStr,
-                    filename: 'shakha_report_<?php echo $record['record_date']; ?>.jpg'
-                }));
+                try {
+                    const b64 = canvas.toDataURL('image/jpeg', 0.85); // Lower quality for faster bridge transfer
+                    window.FlutterShareChannel.postMessage(JSON.stringify({
+                        image: b64,
+                        text: textStr,
+                        filename: 'shakha_report_<?php echo $record['record_date']; ?>.jpg'
+                    }));
+                } catch (b64err) {
+                    console.error('Base64 Error:', b64err);
+                    throw b64err;
+                }
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 return;
             }
 
-            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            // Web Share API
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+            const file = new File([blob], 'shakha_report.jpg', { type: 'image/jpeg' });
+
+            const canShareFiles = navigator.canShare && typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] });
+
+            if (navigator.share && canShareFiles) {
                 await navigator.share({
                     title: 'शाखा रिपोर्ट',
                     text: textStr,
@@ -483,7 +515,7 @@ require_once '../includes/header.php';
                 });
             } else {
                 // Fallback for desktop/unsupported browsers
-                alert('आपका ब्राउज़र सीधे इमेज शेयरिंग सपोर्ट नहीं करता। इमेज डाउनलोड हो रही है... उसके बाद व्हाट्सएप पर भेजें।');
+                alert('आपका ब्राउज़र सीधे इमेज शेयरिंग सपोर्ट नहीं करता। इमेज डाउनलोड हो रही है, उसे शेयर करें।');
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(blob);
                 a.download = 'shakha_report_<?php echo $record['record_date']; ?>.jpg';
@@ -496,8 +528,8 @@ require_once '../includes/header.php';
             }
         } catch (e) {
             if (e.name !== 'AbortError') {
-                console.error(e);
-                alert('शेयर करने में तकनीकी त्रुटि हुई।');
+                console.error('Share Error:', e);
+                alert('शेयर करने में तकनीकी त्रुटि हुई। कृपया स्नैपशॉट डाउनलोड करके शेयर करें।');
             }
         }
 
