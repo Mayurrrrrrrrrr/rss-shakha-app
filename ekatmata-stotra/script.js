@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             let processedLines = lines.map(line => {
                 // Highlight entities using a single pass replacement
                 const processedLine = line.replace(entityRegex, (match) => {
+                    console.log('Match found:', match);
                     return `<span class="entity-link" data-entity="${match}">${match}</span>`;
                 });
                 return `<div>${processedLine}</div>`;

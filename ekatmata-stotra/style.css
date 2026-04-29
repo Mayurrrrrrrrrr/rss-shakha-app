@@ -115,7 +115,7 @@ body {
 }
 
 .verse {
-    animation: fadeInUp 0.8s ease out forwards;
+    animation: fadeInUp 0.8s ease-out forwards;
     opacity: 0;
 }
 
