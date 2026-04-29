@@ -113,7 +113,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await fetch('data.json');
         const entityData = await response.json();
         
-        const verses = stotraText.trim().split('\n\n');
+        const verses = stotraText.trim().split(/\n\s*\n/);
+        console.log('Total verses found:', verses.length);
         contentDiv.innerHTML = '';
         
         const entities = Object.keys(entityData).sort((a, b) => b.length - a.length);
