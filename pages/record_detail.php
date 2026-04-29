@@ -66,7 +66,24 @@ foreach ($dailyActivities as $a) {
 }
 ?>
 
-<?php if (isset($_GET['msg']) && $_GET['msg'] === 'saved'): ?>
+<?php if (isset($_GET['success'])): ?>
+    <div id="success-overlay" class="success-overlay">
+        <div class="success-content">
+            <div class="checkmark-circle">
+                <div class="checkmark draw"></div>
+            </div>
+            <h2>शाखा पूर्ण!</h2>
+            <p>आज का रिकॉर्ड सहेज लिया गया है।</p>
+        </div>
+    </div>
+    <script>
+        setTimeout(() => {
+            window.location.href = 'dashboard.php';
+        }, 3000);
+    </script>
+<?php endif; ?>
+
+<?php if (isset($_GET['msg']) && $_GET['msg'] === 'saved' && !isset($_GET['success'])): ?>
     <div class="alert alert-success">✅ रिकॉर्ड सफलतापूर्वक सहेजा गया!</div>
 <?php endif; ?>
 

@@ -66,15 +66,32 @@ try {
     $pdo->prepare("DELETE FROM attendance WHERE daily_record_id = ?")->execute([$recordId]);
     $pdo->prepare("DELETE FROM daily_activities WHERE daily_record_id = ?")->execute([$recordId]);
 
-    // Save attendance
-    $stmt = $pdo->prepare("SELECT id FROM swayamsevaks WHERE is_active = 1 AND shakha_id = ?");
+    // Save attendance & Calculate Streaks
+    $stmt = $pdo->prepare("SELECT id, current_streak, longest_streak FROM swayamsevaks WHERE is_active = 1 AND shakha_id = ?");
     $stmt->execute([$shakhaId]);
     $allSwayamsevaks = $stmt->fetchAll();
 
     $attStmt = $pdo->prepare("INSERT INTO attendance (daily_record_id, swayamsevak_id, is_present) VALUES (?, ?, ?)");
+    $streakUpdateStmt = $pdo->prepare("UPDATE swayamsevaks SET current_streak = ?, longest_streak = ? WHERE id = ?");
+
     foreach ($allSwayamsevaks as $s) {
         $isPresent = isset($attendanceData[$s['id']]) ? 1 : 0;
         $attStmt->execute([$recordId, $s['id'], $isPresent]);
+
+        // Streak logic
+        $currentStreak = $s['current_streak'];
+        $longestStreak = $s['longest_streak'];
+
+        if ($isPresent) {
+            $currentStreak++;
+            if ($currentStreak > $longestStreak) {
+                $longestStreak = $currentStreak;
+            }
+        } else {
+            $currentStreak = 0;
+        }
+
+        $streakUpdateStmt->execute([$currentStreak, $longestStreak, $s['id']]);
     }
 
     // Save activities
@@ -90,7 +107,7 @@ try {
     }
 
     $pdo->commit();
-    header("Location: ../pages/record_detail.php?id=$recordId&msg=saved");
+    header("Location: ../pages/record_detail.php?id=$recordId&msg=saved&success=1");
     exit;
 
 } catch (Exception $e) {

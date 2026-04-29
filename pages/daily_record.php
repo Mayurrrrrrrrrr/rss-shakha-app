@@ -362,10 +362,56 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // 2. Existing auto-calculate logic for Yugabdh/Vikram Samvat on date change
-    <?php if (!$existingRecord): ?>
-    // ... logic already updated in previous turn ...
-    <?php endif; ?>
+    // 3. Auto-save Draft Logic
+    const form = document.querySelector('form');
+    const storageKey = 'shakha_draft_' + dateInput.value;
+
+    function saveDraft() {
+        const formData = new FormData(form);
+        const data = {};
+        formData.forEach((value, key) => {
+            if (key.includes('attendance') || key.includes('activity_done')) {
+                if (!data[key]) data[key] = [];
+                data[key].push(value);
+            } else {
+                data[key] = value;
+            }
+        });
+        localStorage.setItem(storageKey, JSON.stringify(data));
+        console.log('Draft saved to localStorage');
+    }
+
+    // Save every 30 seconds
+    setInterval(saveDraft, 30000);
+
+    // Check for existing draft on load
+    const savedData = localStorage.getItem(storageKey);
+    if (savedData && !window.location.search.includes('msg=saved')) {
+        if (confirm('अधूरा डेटा (Draft) मिला। क्या आप उसे पुनर्स्थापित करना चाहते हैं?')) {
+            const data = JSON.parse(savedData);
+            Object.keys(data).forEach(key => {
+                const elements = form.querySelectorAll(`[name="${key}"]`);
+                if (elements.length > 0) {
+                    if (elements[0].type === 'checkbox') {
+                        // Checkboxes are trickier with multiple values
+                        elements.forEach(el => {
+                            if (Array.isArray(data[key]) && data[key].includes(el.value)) {
+                                el.checked = true;
+                            }
+                        });
+                    } else {
+                        elements[0].value = data[key];
+                    }
+                }
+            });
+        } else {
+            localStorage.removeItem(storageKey);
+        }
+    }
+
+    form.addEventListener('submit', function() {
+        localStorage.removeItem(storageKey);
+    });
 });
 </script>
 

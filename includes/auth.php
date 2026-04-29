@@ -1,8 +1,27 @@
 <?php
 session_start();
 
+// Security headers
+header("X-Frame-Options: DENY");
+header("X-Content-Type-Options: nosniff");
+header("Content-Security-Policy: default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'");
+header("Referrer-Policy: strict-origin-when-cross-origin");
+
+// Error Handling
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
+// CSRF Token Initialization
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// Session idle timeout (30 minutes)
 if (isset($_SESSION['last_active']) && (time() - $_SESSION['last_active']) > 1800) {
-  session_unset(); session_destroy(); header('Location: /index.php?expired=1'); exit;
+    $_SESSION = [];
+    session_destroy();
+    header('Location: /index.php?timeout=1');
+    exit;
 }
 $_SESSION['last_active'] = time();
 
@@ -66,11 +85,12 @@ function getCurrentShakhaId()
 }
 
 function csrf_token(): string { 
-  if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-  return $_SESSION['csrf_token'];
+  return $_SESSION['csrf_token'] ?? '';
 }
 
 function csrf_verify(): void {
-  if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? ''))
-    { http_response_code(403); die('CSRF validation failed'); }
+  if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+      http_response_code(403);
+      die('CSRF validation failed');
+  }
 }

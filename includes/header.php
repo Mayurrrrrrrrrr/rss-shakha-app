@@ -27,6 +27,10 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="आर.एस.एस. संघस्थान - दैनिक गतिविधि एवं उपस्थिति प्रबंधन">
+        <meta property="og:title" content="संघस्थान दैनिक रिपोर्ट">
+        <meta property="og:image" content="https://sanghasthan.yuktaa.com/assets/images/shakha_preview.jpg">
+        <meta property="og:description" content="आज की शाखा की जानकारी एवं उपस्थिति">
+        <meta property="og:type" content="website">
         <title>संघस्थान
                 <?php echo isset($pageTitle) ? ' - ' . $pageTitle : ''; ?>
         </title>
@@ -196,25 +200,20 @@ if (isLoggedIn() && isset($_SESSION['shakha_id'])) {
                 <nav class="bottom-nav">
                         <ul>
                                 <?php if (isAdmin()): ?>
-                                        <li><a href="../pages/admin_dashboard.php" class="<?php echo $currentPage === 'admin_dashboard' ? 'active' : ''; ?>"><span class="nav-icon">👑</span><span>मुख्य</span></a></li>
+                                        <li><a href="../pages/admin_dashboard.php" class="<?php echo $currentPage === 'admin_dashboard' ? 'active' : ''; ?>"><span class="nav-icon">🏠</span><span>मुख्य</span></a></li>
                                         <li><a href="../pages/shakhas.php" class="<?php echo $currentPage === 'shakhas' ? 'active' : ''; ?>"><span class="nav-icon">🚩</span><span>शाखाएं</span></a></li>
-                                        <li><a href="../pages/mukhyashikshaks.php" class="<?php echo $currentPage === 'mukhyashikshaks' ? 'active' : ''; ?>"><span class="nav-icon">👤</span><span>शिक्षक</span></a></li>
-                                        <li><a href="../pages/events.php" class="<?php echo $currentPage === 'events' ? 'active' : ''; ?>"><span class="nav-icon">📅</span><span>कार्यक्रम</span></a></li>
                                         <li><a href="../pages/notice.php" class="<?php echo $currentPage === 'notice' ? 'active' : ''; ?>"><span class="nav-icon">📢</span><span>सूचना</span></a></li>
-                                        <li><a href="../pages/shakha_settings.php" class="<?php echo $currentPage === 'shakha_settings' ? 'active' : ''; ?>"><span class="nav-icon">⚙️</span><span>सेटिंग्स</span></a></li>
+                                        <li><a href="javascript:void(0)" onclick="openSidebar()"><span class="nav-icon">☰</span><span>मेनू</span></a></li>
                                 <?php elseif (isMukhyashikshak()): ?>
                                         <li><a href="../pages/dashboard.php" class="<?php echo $currentPage === 'dashboard' ? 'active' : ''; ?>"><span class="nav-icon">🏠</span><span>मुख्य</span></a></li>
-                                        <li><a href="../pages/activities.php" class="<?php echo $currentPage === 'activities' ? 'active' : ''; ?>"><span class="nav-icon">📋</span><span>गतिविधियाँ</span></a></li>
                                         <li><a href="../pages/daily_record.php" class="<?php echo $currentPage === 'daily_record' ? 'active' : ''; ?>"><span class="nav-icon">📝</span><span>रिकॉर्ड</span></a></li>
-                                        <li><a href="../pages/events.php" class="<?php echo $currentPage === 'events' ? 'active' : ''; ?>"><span class="nav-icon">📅</span><span>कार्यक्रम</span></a></li>
-                                        <li><a href="../pages/subhashit.php" class="<?php echo $currentPage === 'subhashit' ? 'active' : ''; ?>"><span class="nav-icon">📜</span><span>सुभाषित</span></a></li>
-                                        <li><a href="../pages/greetings.php" class="<?php echo $currentPage === 'greetings' ? 'active' : ''; ?>"><span class="nav-icon">🎨</span><span>बधाई</span></a></li>
-                                        <li><a href="../pages/notice.php" class="<?php echo $currentPage === 'notice' ? 'active' : ''; ?>"><span class="nav-icon">📢</span><span>सूचना</span></a></li>
+                                        <li><a href="../pages/activities.php" class="<?php echo $currentPage === 'activities' ? 'active' : ''; ?>"><span class="nav-icon">📋</span><span>गतिविधि</span></a></li>
                                         <li><a href="javascript:void(0)" onclick="openSidebar()"><span class="nav-icon">☰</span><span>मेनू</span></a></li>
                                 <?php elseif (isSwayamsevak()): ?>
                                         <li><a href="../pages/swayamsevak_dashboard.php" class="<?php echo $currentPage === 'swayamsevak_dashboard' ? 'active' : ''; ?>"><span class="nav-icon">🏠</span><span>मुख्य</span></a></li>
-                                        <li><a href="../pages/timetable_view.php" class="<?php echo $currentPage === 'timetable_view' ? 'active' : ''; ?>"><span class="nav-icon">📋</span><span>समय-सारणी</span></a></li>
+                                        <li><a href="../pages/timetable_view.php" class="<?php echo $currentPage === 'timetable_view' ? 'active' : ''; ?>"><span class="nav-icon">📋</span><span>सारणी</span></a></li>
                                         <li><a href="../pages/subhashit_view.php" class="<?php echo $currentPage === 'subhashit_view' ? 'active' : ''; ?>"><span class="nav-icon">📜</span><span>सुभाषित</span></a></li>
+                                        <li><a href="javascript:void(0)" onclick="openSidebar()"><span class="nav-icon">☰</span><span>मेनू</span></a></li>
                                 <?php endif; ?>
                         </ul>
                 </nav>

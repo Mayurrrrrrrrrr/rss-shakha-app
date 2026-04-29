@@ -5,10 +5,6 @@
 require_once 'includes/auth.php';
 require_once 'config/db.php';
 
-if (empty($_SESSION['csrf_token'])) {
-  $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-
 // Already logged in? Redirect to dashboard
 if (isLoggedIn()) {
     if (isAdmin()) {
@@ -21,12 +17,13 @@ if (isLoggedIn()) {
     exit;
 }
 
-// Ensure login_attempts table exists
+// Ensure login_attempts table exists with index
 try {
     $pdo->exec("CREATE TABLE IF NOT EXISTS login_attempts (
         id INT AUTO_INCREMENT PRIMARY KEY,
         ip VARCHAR(45),
-        attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_ip_time (ip, attempted_at)
     )");
 } catch (PDOException $e) {}
 
@@ -41,15 +38,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'कृपया उपयोगकर्ता नाम और पासवर्ड दोनों भरें।';
     } else {
         if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
-            $error = 'Invalid request. Please try again.';
+            $error = 'Invalid request.';
+            goto render;
         } else {
             // Rate Limiting Check
-            $stmt = $pdo->prepare("SELECT COUNT(*) FROM login_attempts WHERE ip = ? AND attempted_at > (NOW() - INTERVAL 15 MINUTE)");
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM login_attempts WHERE ip = ? AND attempted_at > DATE_SUB(NOW(), INTERVAL 15 MINUTE)");
             $stmt->execute([$ip]);
-            $attempts = $stmt->fetchColumn();
-
-            if ($attempts >= 5) {
-                $error = 'बहुत सारे असफल प्रयास। 15 मिनट बाद पुनः प्रयास करें।';
+            if ($stmt->fetchColumn() >= 5) {
+                $error = 'बहुत प्रयास हो गए। 15 मिनट बाद पुनः प्रयास करें।';
+                goto render;
             } else {
                 $login_success = false;
                 
@@ -69,8 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $login_success = true;
 
                     // Clear attempts on success
-                    $stmt = $pdo->prepare("DELETE FROM login_attempts WHERE ip = ?");
-                    $stmt->execute([$ip]);
+                    $pdo->prepare("DELETE FROM login_attempts WHERE ip = ?")->execute([$ip]);
 
                     if (isAdmin()) {
                         header('Location: pages/admin_dashboard.php');
@@ -93,8 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $login_success = true;
 
                         // Clear attempts on success
-                        $stmt = $pdo->prepare("DELETE FROM login_attempts WHERE ip = ?");
-                        $stmt->execute([$ip]);
+                        $pdo->prepare("DELETE FROM login_attempts WHERE ip = ?")->execute([$ip]);
 
                         header('Location: pages/swayamsevak_dashboard.php');
                         exit;
@@ -103,8 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 if (!$login_success) {
                     // Failed login attempt
-                    $stmt = $pdo->prepare("INSERT INTO login_attempts (ip) VALUES (?)");
-                    $stmt->execute([$ip]);
+                    $pdo->prepare("INSERT INTO login_attempts (ip) VALUES (?)")->execute([$ip]);
                     sleep(1);
                     $error = 'गलत उपयोगकर्ता नाम या पासवर्ड!';
                 }
@@ -112,6 +106,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
+render:
 ?>
 <!DOCTYPE html>
 <html lang="hi">
@@ -128,36 +124,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
-    <div class="login-wrapper">
-        <div class="login-card">
-            <div class="login-logo">
-                <img src="assets/images/flag_icon.png" class="brand-icon" style="height: 1.5em; margin-bottom: 8px;" alt="🚩">
+    <div class="login-split-container">
+        <div class="login-left">
+            <div class="login-brand-hero">
+                <span class="hero-icon">🚩</span>
                 <h1>संघस्थान</h1>
-                <p>दैनिक गतिविधि एवं उपस्थिति प्रबंधन</p>
+                <p class="hero-motto">संगठित शक्ति, सुरक्षित राष्ट्र</p>
             </div>
+        </div>
+        <div class="login-right">
+            <div class="login-card">
+                <div class="login-logo mobile-only">
+                    <img src="assets/images/flag_icon.png" class="brand-icon" style="height: 1.5em; margin-bottom: 8px;" alt="🚩">
+                    <h1>संघस्थान</h1>
+                </div>
 
-            <?php if ($error): ?>
-                <div class="alert alert-danger">⚠️
-                    <?php echo htmlspecialchars($error); ?>
-                </div>
-            <?php endif; ?>
+                <?php 
+                if (isset($_GET['timeout'])) {
+                    echo '<div class="alert alert-info">सत्र समाप्त हो गया। कृपया पुनः लॉगिन करें।</div>';
+                }
+                if ($error): 
+                ?>
+                    <div class="alert alert-danger">⚠️
+                        <?php echo htmlspecialchars($error); ?>
+                    </div>
+                <?php endif; ?>
 
-            <form method="POST" action="index.php">
-                <input type="hidden" name="csrf_token" 
-                       value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                <div class="form-group">
-                    <label for="username">उपयोगकर्ता नाम</label>
-                    <input type="text" id="username" name="username" class="form-control"
-                        placeholder="उपयोगकर्ता नाम दर्ज करें" required
-                        value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>">
-                </div>
-                <div class="form-group">
-                    <label for="password">पासवर्ड</label>
-                    <input type="password" id="password" name="password" class="form-control"
-                        placeholder="पासवर्ड दर्ज करें" required>
-                </div>
-                <button type="submit" class="btn btn-primary">🔑 लॉगिन करें</button>
-            </form>
+                <form method="POST" action="index.php">
+                    <input type="hidden" name="csrf_token" 
+                           value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                    <div class="form-group">
+                        <label for="username">उपयोगकर्ता नाम</label>
+                        <input type="text" id="username" name="username" class="form-control"
+                            placeholder="उपयोगकर्ता नाम दर्ज करें" required
+                            value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">पासवर्ड</label>
+                        <input type="password" id="password" name="password" class="form-control"
+                            placeholder="पासवर्ड दर्ज करें" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">🔑 लॉगिन करें</button>
+                </form>
+            </div>
         </div>
     </div>
 </body>

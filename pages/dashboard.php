@@ -58,20 +58,45 @@ function formatHindiDate($dateStr)
 }
 ?>
 
-<div class="page-header">
-    <h1>🙏 नमस्ते,
-        <?php echo htmlspecialchars(getAdminName()); ?>
-    </h1>
-    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <a href="../pages/paper_shakha.php?date=<?php echo date('Y-m-d'); ?>" target="_blank" class="btn" style="background: #fff; color: #ff5722; border: 1px solid #ff5722;">🖨️ Paper Shakha (Zine)</a>
-        <a href="../pages/daily_flipbook.php?date=<?php echo date('Y-m-d'); ?>" target="_blank" class="btn" style="background: linear-gradient(135deg, #4CAF50, #2E7D32); color: white; border: none;">📱 डिजिटल वृत्त (Flipbook)</a>
+<?php
+// Phase 3: Dashboard Hero Component
+require_once '../includes/PanchangCalculator.php';
+$calc = new PanchangCalculator();
+$panchang = $calc->getPanchang(date('Y-m-d'));
+$tithiDisplay = $panchang['tithi'] . ' ' . $panchang['paksha'] . ', ' . $panchang['maah'] . ' ' . $panchang['vikram_samvat'];
+
+// Fetch today's attendance count if record exists
+$todayPresentCount = 0;
+if ($hasTodayRecord) {
+    $stmtA = $pdo->prepare("SELECT COUNT(*) FROM attendance WHERE daily_record_id = ? AND is_present = 1");
+    $stmtA->execute([$hasTodayRecord['id']]);
+    $todayPresentCount = $stmtA->fetchColumn();
+}
+?>
+
+<div class="dashboard-hero">
+    <div class="hero-date-box">
+        <div class="hero-label">आज का पंचांग</div>
+        <div class="hero-vikram"><?php echo "वि. सं. " . $panchang['vikram_samvat']; ?></div>
+        <div class="hero-tithi"><?php echo $tithiDisplay; ?></div>
+    </div>
+    
+    <div class="hero-stats-box">
+        <div class="hero-label">आज की उपस्थिति</div>
+        <div class="hero-count"><?php echo $todayPresentCount; ?></div>
+    </div>
+
+    <div class="hero-cta">
         <?php if (!$hasTodayRecord): ?>
-            <a href="../pages/daily_record.php?date=<?php echo date('Y-m-d'); ?>" class="btn btn-primary">📝 आज का रिकॉर्ड बनाएँ</a>
+            <a href="../pages/daily_record.php?date=<?php echo date('Y-m-d'); ?>" class="btn-cta-green">आज की शाखा दर्ज करें →</a>
         <?php else: ?>
-            <a href="../pages/record_detail.php?id=<?php echo $hasTodayRecord['id']; ?>" class="btn btn-success">✅ आज का रिकॉर्ड
-                देखें</a>
+            <span class="badge-completed">✓ आज पूर्ण</span>
         <?php endif; ?>
     </div>
+</div>
+
+<div class="page-header">
+    <h1>🙏 नमस्ते, <?php echo htmlspecialchars(getAdminName()); ?></h1>
 </div>
 
 <!-- Stats -->
