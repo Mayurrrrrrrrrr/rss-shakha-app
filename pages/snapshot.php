@@ -285,12 +285,6 @@ require_once '../includes/header.php';
 <div class="card">
     <div class="card-header">रिपोर्ट स्नैपशॉट प्रीव्यू</div>
 
-    <div class="alert alert-info"
-        style="text-align: center; background: rgba(66, 165, 245, 0.1); border: 1px solid rgba(66, 165, 245, 0.3);">
-        ℹ️ <strong>नोट:</strong> बेहतर क्वालिटी के लिए स्नैपशॉट अब सीधे आपके डिवाइस पर बनता है, जिससे हिंदी और एमुजी
-        एकदम सही दिखते हैं।
-    </div>
-
     <div class="share-actions" style="justify-content: center; margin-bottom: 30px; gap: 16px;">
         <button id="btn-download" class="btn btn-success" style="font-size: 1.1rem; padding: 12px 24px;">⬇️ डाउनलोड करें
             (JPG)</button>
@@ -298,117 +292,120 @@ require_once '../includes/header.php';
             भेजें</button>
     </div>
 
-    <div style="overflow-x: auto; padding-bottom: 40px;">
-        <!-- Area to capture -->
-        <div id="capture-area" class="capture-container"
-            style="transform-origin: top left; transform: scale(min(1, calc((100vw - 60px) / 480))); width: 480px; margin: 0 auto;">
-            <?php if (!empty($record['yugabdh']) || !empty($record['tithi'])): ?>
-                <div
-                    style="background: #FFE0B2; color: #D84315; text-align: center; padding: 12px 20px; font-weight: bold; font-size: 16px; border-bottom: 2px solid #FFB74D; line-height: 1.4;">
-                    <?php if (!empty($record['yugabdh']))
-                        echo "युगाब्द: " . htmlspecialchars($record['yugabdh']) . " | "; ?>
-                    <?php if (!empty($record['vikram_samvat']))
-                        echo "विक्रम संवत्: " . htmlspecialchars($record['vikram_samvat']) . "<br>"; ?>
-                    <span style="font-size: 18px;">
-                        <?php
-                        $tithiStr = [];
-                        if (!empty($record['hindi_month']))
-                            $tithiStr[] = $record['hindi_month'];
-                        if (!empty($record['paksh']))
-                            $tithiStr[] = $record['paksh'];
-                        if (!empty($record['tithi']))
-                            $tithiStr[] = $record['tithi'];
-                        echo htmlspecialchars(implode(' ', $tithiStr));
-                        ?>
-                    </span>
-                    <div style="font-size: 14px; color: #8D6E63; margin-top: 5px; font-weight: normal;">
-                        (<?php echo $formattedDate; ?>)</div>
-                </div>
-            <?php else: ?>
-                <div
-                    style="background: #FFE0B2; color: #D84315; text-align: center; padding: 10px; font-weight: bold; border-bottom: 2px solid #FFB74D;">
-                    <?php echo $formattedDate; ?>
-                </div>
-            <?php endif; ?>
-
-            <div class="capture-header" style="flex-direction: column; gap: 4px; padding: 15px 20px;">
-                <?php
-                if ($shakhaLogo && file_exists("../" . $shakhaLogo)) {
-                    $logoPath = "../" . $shakhaLogo;
-                } else {
-                    $logoPath = dirname(__DIR__) . '/assets/images/logo.svg';
-                }
-                $logoBase64 = '';
-                if (file_exists($logoPath)) {
-                    $mime = mime_content_type($logoPath);
-                    $logoBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($logoPath));
-                }
-                ?>
-                <?php
-                // Pre-encode static icons to Base64 to avoid html2canvas loading/CORS issues
-                $flagIconPath = dirname(__DIR__) . '/assets/images/flag_icon.png';
-                $flagBase64 = '';
-                if (file_exists($flagIconPath)) {
-                    $flagBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($flagIconPath));
-                }
-                ?>
-                <?php if ($logoBase64): ?>
-                    <img src="<?php echo $logoBase64; ?>" alt="शाखा" 
-                        style="width: 60px; height: 60px; border-radius: 50%; background: #FFF3E0; margin-bottom: 4px; object-fit: cover;">
-                <?php endif; ?>
-                <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 20px;">
-                    <?php if ($flagBase64): ?>
-                        <img src="<?php echo $flagBase64; ?>" style="height: 1.2em; width: auto;" alt="🚩">
-                    <?php else: ?>
-                        🚩
-                    <?php endif; ?>
-                    <?php echo htmlspecialchars($shakhaName); ?>
-                    <?php if ($flagBase64): ?>
-                        <img src="<?php echo $flagBase64; ?>" style="height: 1.2em; width: auto;" alt="🚩">
-                    <?php else: ?>
-                        🚩
-                    <?php endif; ?>
-                </div>
-                <div style="font-size: 16px; font-weight: normal; opacity: 0.9;">घाटकोपर पूर्व, मुंबई</div>
-            </div>
-
-            <div class="capture-body-inner">
-
-                <div class="capture-attendance-summary" style="justify-content: center; flex-direction: column; text-align: center;">
-                    <div style="font-size: 18px; margin-bottom: 5px;">✅ कुल उपस्थित: <?php echo $presentCount; ?></div>
-                    <div style="font-size: 14px; color: #E65100;">
-                        बाल-<?php echo $catCounts['Baal']; ?>, 
-                        तरुण-<?php echo $catCounts['Tarun']; ?>, 
-                        प्रौढ़-<?php echo $catCounts['Praudh']; ?>, 
-                        अभ्यागत-<?php echo $catCounts['Abhyagat']; ?>
+    <!-- Preview Wrapper: Handles the scaling for display ONLY -->
+    <div style="overflow-x: auto; width: 100%; display: flex; justify-content: center; padding-bottom: 40px;">
+        <div id="preview-scaler" style="transform-origin: top center; transform: scale(min(1, calc((100vw - 40px) / 480))); width: 480px;">
+            
+            <!-- Capture Area: NO TRANSFORMS HERE (for html2canvas reliability) -->
+            <div id="capture-area" class="capture-container" style="width: 480px; margin: 0; transform: none !important; box-shadow: none;">
+                <?php if (!empty($record['yugabdh']) || !empty($record['tithi'])): ?>
+                    <div
+                        style="background: #FFE0B2; color: #D84315; text-align: center; padding: 12px 20px; font-weight: bold; font-size: 16px; border-bottom: 2px solid #FFB74D; line-height: 1.4;">
+                        <?php if (!empty($record['yugabdh']))
+                            echo "युगाब्द: " . htmlspecialchars($record['yugabdh']) . " | "; ?>
+                        <?php if (!empty($record['vikram_samvat']))
+                            echo "विक्रम संवत्: " . htmlspecialchars($record['vikram_samvat']) . "<br>"; ?>
+                        <span style="font-size: 18px;">
+                            <?php
+                            $tithiStr = [];
+                            if (!empty($record['hindi_month']))
+                                $tithiStr[] = $record['hindi_month'];
+                            if (!empty($record['paksh']))
+                                $tithiStr[] = $record['paksh'];
+                            if (!empty($record['tithi']))
+                                $tithiStr[] = $record['tithi'];
+                            echo htmlspecialchars(implode(' ', $tithiStr));
+                            ?>
+                        </span>
+                        <div style="font-size: 14px; color: #8D6E63; margin-top: 5px; font-weight: normal;">
+                            (<?php echo $formattedDate; ?>)</div>
                     </div>
-                </div>
+                <?php else: ?>
+                    <div
+                        style="background: #FFE0B2; color: #D84315; text-align: center; padding: 10px; font-weight: bold; border-bottom: 2px solid #FFB74D;">
+                        <?php echo $formattedDate; ?>
+                    </div>
+                <?php endif; ?>
 
-                <div class="capture-section-title">📋 दैनिक गतिविधियाँ</div>
-                <?php foreach ($dailyActivities as $da): ?>
-                    <?php if (!$da['is_done'])
-                        continue; ?>
-                    <div class="capture-item <?php echo $da['is_done'] ? 'done' : ''; ?>">
-                        <div class="item-main">
-                            <span>✅</span> <span
-                                style="color: #2E7D32;"><?php echo htmlspecialchars($da['activity_name']); ?></span>
-                        </div>
-
-                        <?php if ($da['conductor_name']): ?>
-                            <span class="conductor">👤 <?php echo htmlspecialchars($da['conductor_name']); ?></span>
+                <div class="capture-header" style="flex-direction: column; gap: 4px; padding: 15px 20px; background-color: #FF6B00;">
+                    <?php
+                    if ($shakhaLogo && file_exists("../" . $shakhaLogo)) {
+                        $logoPath = "../" . $shakhaLogo;
+                    } else {
+                        $logoPath = dirname(__DIR__) . '/assets/images/logo.svg';
+                    }
+                    $logoBase64 = '';
+                    if (file_exists($logoPath)) {
+                        $mime = mime_content_type($logoPath);
+                        $logoBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($logoPath));
+                    }
+                    ?>
+                    <?php
+                    // Pre-encode static icons to Base64 to avoid html2canvas loading/CORS issues
+                    $flagIconPath = dirname(__DIR__) . '/assets/images/flag_icon.png';
+                    $flagBase64 = '';
+                    if (file_exists($flagIconPath)) {
+                        $flagBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($flagIconPath));
+                    }
+                    ?>
+                    <?php if ($logoBase64): ?>
+                        <img src="<?php echo $logoBase64; ?>" alt="शाखा" 
+                            style="width: 60px; height: 60px; border-radius: 50%; background: #FFF3E0; margin-bottom: 4px; object-fit: cover;">
+                    <?php endif; ?>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 20px; color: white;">
+                        <?php if ($flagBase64): ?>
+                            <img src="<?php echo $flagBase64; ?>" style="height: 1.2em; width: auto;" alt="🚩">
+                        <?php else: ?>
+                            🚩
+                        <?php endif; ?>
+                        <?php echo htmlspecialchars($shakhaName); ?>
+                        <?php if ($flagBase64): ?>
+                            <img src="<?php echo $flagBase64; ?>" style="height: 1.2em; width: auto;" alt="🚩">
+                        <?php else: ?>
+                            🚩
                         <?php endif; ?>
                     </div>
-                <?php endforeach; ?>
+                    <div style="font-size: 16px; font-weight: normal; opacity: 0.9; color: white;">घाटकोपर पूर्व, मुंबई</div>
+                </div>
 
-                <?php if (!empty($record['custom_message'])): ?>
-                    <div class="capture-section-title">💬 विशेष संदेश</div>
-                    <div class="custom-msg">
-                        <?php echo nl2br(htmlspecialchars($record['custom_message'])); ?>
+                <div class="capture-body-inner" style="background-color: #FFF9F2;">
+
+                    <div class="capture-attendance-summary" style="justify-content: center; flex-direction: column; text-align: center;">
+                        <div style="font-size: 18px; margin-bottom: 5px;">✅ कुल उपस्थित: <?php echo $presentCount; ?></div>
+                        <div style="font-size: 14px; color: #E65100;">
+                            बाल-<?php echo $catCounts['Baal']; ?>, 
+                            तरुण-<?php echo $catCounts['Tarun']; ?>, 
+                            प्रौढ़-<?php echo $catCounts['Praudh']; ?>, 
+                            अभ्यागत-<?php echo $catCounts['Abhyagat']; ?>
+                        </div>
                     </div>
-                <?php endif; ?>
 
-                <div class="capture-footer">
-                    <div class="jai-shri-ram">जय श्री राम 🏹</div>
+                    <div class="capture-section-title">📋 दैनिक गतिविधियाँ</div>
+                    <?php foreach ($dailyActivities as $da): ?>
+                        <?php if (!$da['is_done'])
+                            continue; ?>
+                        <div class="capture-item <?php echo $da['is_done'] ? 'done' : ''; ?>">
+                            <div class="item-main">
+                                <span>✅</span> <span
+                                    style="color: #2E7D32;"><?php echo htmlspecialchars($da['activity_name']); ?></span>
+                            </div>
+
+                            <?php if ($da['conductor_name']): ?>
+                                <span class="conductor">👤 <?php echo htmlspecialchars($da['conductor_name']); ?></span>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+
+                    <?php if (!empty($record['custom_message'])): ?>
+                        <div class="capture-section-title">💬 विशेष संदेश</div>
+                        <div class="custom-msg">
+                            <?php echo nl2br(htmlspecialchars($record['custom_message'])); ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="capture-footer">
+                        <div class="jai-shri-ram">जय श्री राम 🏹</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -416,23 +413,47 @@ require_once '../includes/header.php';
 </div>
 
 <script>
+    // Helper function to convert base64 to Blob
+    function dataURLtoBlob(dataurl) {
+        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], {type:mime});
+    }
+
     // Generate High-Res Image using html2canvas
     async function generateImage() {
+        if (document.fonts) {
+            await document.fonts.ready;
+        }
+
         const el = document.getElementById('capture-area');
-        
-        // Use lower scale for mobile to prevent memory issues, 2x for desktop
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         const captureScale = isMobile ? 1.5 : 2;
 
-        const canvas = await html2canvas(el, {
-            scale: captureScale,
-            backgroundColor: '#FFF9F2',
-            useCORS: true,
-            allowTaint: true,
-            logging: false,
-            imageTimeout: 10000
-        });
-        return canvas;
+        try {
+            console.log("Starting canvas capture at scale:", captureScale);
+            const canvas = await html2canvas(el, {
+                scale: captureScale,
+                backgroundColor: '#FFF9F2',
+                useCORS: true,
+                allowTaint: true,
+                logging: false,
+                imageTimeout: 15000,
+                onclone: (clonedDoc) => {
+                    const clonedEl = clonedDoc.getElementById('capture-area');
+                    clonedEl.style.transform = 'none';
+                    clonedEl.style.display = 'block';
+                }
+            });
+            console.log("Capture successful");
+            return canvas;
+        } catch (err) {
+            console.error('html2canvas capture failed:', err);
+            throw err;
+        }
     }
 
     // Download Button
@@ -444,28 +465,25 @@ require_once '../includes/header.php';
 
         try {
             const canvas = await generateImage();
+            const b64 = canvas.toDataURL('image/jpeg', 0.85);
 
             if (window.FlutterShareChannel) {
-                const b64 = canvas.toDataURL('image/jpeg', 0.9);
                 window.FlutterShareChannel.postMessage(JSON.stringify({
                     image: b64,
                     text: 'शाखा रिपोर्ट',
                     filename: 'shakha_report_<?php echo $record['record_date']; ?>.jpg'
                 }));
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                return;
+            } else {
+                const a = document.createElement('a');
+                a.href = b64;
+                a.download = 'shakha_report_<?php echo $record['record_date']; ?>.jpg';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
             }
-
-            const a = document.createElement('a');
-            a.href = canvas.toDataURL('image/jpeg', 0.9);
-            a.download = 'shakha_report_<?php echo $record['record_date']; ?>.jpg';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
         } catch (e) {
             console.error('Download Error:', e);
-            alert('स्नैपशॉट बनाने में तकनीकी त्रुटि हुई। कृपया दोबारा प्रयास करें।');
+            alert('स्नैपशॉट बनाने में तकनीकी त्रुटि हुई। कृपया पेज रिफ्रेश करके दोबारा प्रयास करें।');
         }
 
         btn.innerHTML = originalText;
@@ -482,54 +500,37 @@ require_once '../includes/header.php';
         try {
             const canvas = await generateImage();
             const textStr = 'शाखा दैनिक रिपोर्ट — <?php echo preg_replace('/\s+/', ' ', $formattedDate); ?>';
+            const b64 = canvas.toDataURL('image/jpeg', 0.85);
 
             // Flutter / Mobile App Bridge
             if (window.FlutterShareChannel) {
-                try {
-                    const b64 = canvas.toDataURL('image/jpeg', 0.85); // Lower quality for faster bridge transfer
-                    window.FlutterShareChannel.postMessage(JSON.stringify({
-                        image: b64,
-                        text: textStr,
-                        filename: 'shakha_report_<?php echo $record['record_date']; ?>.jpg'
-                    }));
-                } catch (b64err) {
-                    console.error('Base64 Error:', b64err);
-                    throw b64err;
-                }
+                window.FlutterShareChannel.postMessage(JSON.stringify({
+                    image: b64,
+                    text: textStr,
+                    filename: 'shakha_report_<?php echo $record['record_date']; ?>.jpg'
+                }));
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 return;
             }
 
             // Web Share API
-            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+            const blob = dataURLtoBlob(b64);
             const file = new File([blob], 'shakha_report.jpg', { type: 'image/jpeg' });
 
             const canShareFiles = navigator.canShare && typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] });
 
             if (navigator.share && canShareFiles) {
-                await navigator.share({
-                    title: 'शाखा रिपोर्ट',
-                    text: textStr,
-                    files: [file]
-                });
-            } else {
-                // Fallback for desktop/unsupported browsers
-                alert('आपका ब्राउज़र सीधे इमेज शेयरिंग सपोर्ट नहीं करता। इमेज डाउनलोड हो रही है, उसे शेयर करें।');
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = 'shakha_report_<?php echo $record['record_date']; ?>.jpg';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
 
-                // Open WhatsApp Web with pre-filled text
                 window.open('https://wa.me/?text=' + encodeURIComponent(textStr), '_blank');
             }
         } catch (e) {
             if (e.name !== 'AbortError') {
                 console.error('Share Error:', e);
-                alert('शेयर करने में तकनीकी त्रुटि हुई। कृपया स्नैपशॉट डाउनलोड करके शेयर करें।');
+                alert('शेयर करने में तकनीकी त्रुटि हुई। कृपया डाउनलोड करके शेयर करें।');
             }
         }
 
