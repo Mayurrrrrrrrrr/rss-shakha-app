@@ -45,6 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Auto-format dates
+    document.querySelectorAll('.hindi-date-js').forEach(el => {
+        const rawDate = el.dataset.date;
+        if (rawDate) {
+            el.textContent = formatDateHindi(rawDate);
+        }
+    });
+
     // Auto-dismiss alerts after 4 seconds
     document.querySelectorAll('.alert').forEach(alert => {
         setTimeout(() => {
@@ -119,10 +127,19 @@ const HINDI_MONTHS = [
 
 const HINDI_DAYS = ['रवि', 'सोम', 'मंगल', 'बुध', 'गुरु', 'शुक्र', 'शनि'];
 
+function toHindiNumeralsJS(num) {
+    const hindiNumerals = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+    return num.toString().split('').map(digit => isNaN(digit) ? digit : hindiNumerals[parseInt(digit)]).join('');
+}
+
 /**
  * Format date in Hindi
  */
 function formatDateHindi(dateStr) {
     const d = new Date(dateStr);
-    return d.getDate() + ' ' + HINDI_MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+    if (isNaN(d.getTime())) return dateStr;
+    const day = toHindiNumeralsJS(d.getDate());
+    const month = HINDI_MONTHS[d.getMonth()];
+    const year = toHindiNumeralsJS(d.getFullYear());
+    return `${day} ${month} ${year}`;
 }

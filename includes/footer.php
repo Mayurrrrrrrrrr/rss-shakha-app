@@ -2,7 +2,7 @@
 <footer class="footer">
     <div class="container">
         <p>🚩 संघस्थान &copy;
-            <?php echo date('Y'); ?>
+            <?php echo toHindiNumerals(date('Y')); ?>
         </p>
         <p style="margin-top: 10px; font-size: 0.9em;">
             <a href="../privacy-policy.html" style="color: #666; text-decoration: none; margin-right: 15px;">Privacy Policy</a>

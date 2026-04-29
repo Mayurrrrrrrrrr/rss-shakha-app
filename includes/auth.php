@@ -99,3 +99,33 @@ function csrf_verify(): void {
       die('CSRF validation failed');
   }
 }
+ 
+/**
+ * Localization Helpers
+ */
+function toHindiNumerals($number) {
+    $hindi_numerals = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+    $str = (string)$number;
+    $res = '';
+    for ($i = 0; $i < strlen($str); $i++) {
+        $char = $str[$i];
+        if (is_numeric($char)) {
+            $res .= $hindi_numerals[$char];
+        } else {
+            $res .= $char;
+        }
+    }
+    return $res;
+}
+
+function getHindiDate() {
+    $months = [
+        1 => 'जनवरी', 2 => 'फ़रवरी', 3 => 'मार्च', 4 => 'अप्रैल',
+        5 => 'मई', 6 => 'जून', 7 => 'जुलाई', 8 => 'अगस्त',
+        9 => 'सितंबर', 10 => 'अक्टूबर', 11 => 'नवंबर', 12 => 'दिसंबर'
+    ];
+    $day = date('j');
+    $month = $months[(int)date('n')];
+    $year = date('Y');
+    return toHindiNumerals($day) . ' ' . $month . ' ' . toHindiNumerals($year);
+}
