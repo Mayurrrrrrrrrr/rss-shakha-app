@@ -1,6 +1,6 @@
 /**
- * Ekatmata Stotra Interactive Script - UI Overhaul Edition
- * Side Panels for Desktop, Bottom Sheets for Mobile
+ * Ekatmata Stotra Interactive Script
+ * Alternating layout: Left / Center / Right
  */
 
 const stotraText = `
@@ -117,20 +117,69 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let entityData = {};
 
+    // Layout pattern for 33 verses: L=left, C=center, R=right
+    // Creates a flowing, manuscript-like rhythm
+    const alignments = [
+        'center', // 1 - ॐ invocation
+        'center', // 2 - प्रकृतिः
+        'center', // 3 - भारत माता वंदना
+        'left',   // 4 - पर्वत
+        'right',  // 5 - नदियाँ
+        'left',   // 6 - नगर (1)
+        'right',  // 7 - नगर (2)
+        'center', // 8 - ग्रन्थ
+        'center', // 9 - आगम
+        'left',   // 10 - नारी (1)
+        'right',  // 11 - नारी (2)
+        'left',   // 12 - पुरुष (1)
+        'right',  // 13 - पुरुष (2)
+        'left',   // 14 - पुरुष (3)
+        'right',  // 15 - संत (1)
+        'left',   // 16 - संत (2)
+        'right',  // 17 - संत (3)
+        'left',   // 18 - संत (4)
+        'right',  // 19 - संत (5)
+        'left',   // 20 - कवि
+        'right',  // 21 - कलाकार
+        'left',   // 22 - सम्राट (1)
+        'right',  // 23 - सम्राट (2)
+        'left',   // 24 - सम्राट (3)
+        'right',  // 25 - वीर
+        'left',   // 26 - वैज्ञानिक (1)
+        'right',  // 27 - वैज्ञानिक (2)
+        'left',   // 28 - आधुनिक (1)
+        'right',  // 29 - आधुनिक (2)
+        'left',   // 30 - आधुनिक (3)
+        'center', // 31 - संघ
+        'center', // 32 - अनुक्त
+        'center', // 33 - फल श्रुति
+    ];
+
     try {
         const response = await fetch('data.json');
         entityData = await response.json();
-        
+
         const verses = stotraText.trim().split(/\n\s*\n/);
         contentDiv.innerHTML = '';
-        
+
         const entities = Object.keys(entityData).sort((a, b) => b.length - a.length);
         const entityRegex = new RegExp(`(${entities.join('|')})`, 'g');
-        
+
         verses.forEach((verse, index) => {
             const verseElement = document.createElement('div');
-            verseElement.className = 'verse group';
-            
+            const alignment = alignments[index] || 'center';
+            verseElement.className = `verse align-${alignment}`;
+
+            // Verse number label
+            const verseNum = document.createElement('div');
+            verseNum.className = 'verse-number';
+            verseNum.textContent = `श्लोक ${index + 1}`;
+            verseElement.appendChild(verseNum);
+
+            // Verse text
+            const verseTextDiv = document.createElement('div');
+            verseTextDiv.className = 'verse-text';
+
             const lines = verse.split('\n');
             let processedLines = lines.map(line => {
                 const processedLine = line.replace(entityRegex, (match) => {
@@ -138,8 +187,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
                 return `<div>${processedLine}</div>`;
             }).join('');
-            
-            verseElement.innerHTML = processedLines;
+
+            verseTextDiv.innerHTML = processedLines;
+            verseElement.appendChild(verseTextDiv);
+
             contentDiv.appendChild(verseElement);
         });
 
@@ -153,7 +204,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     } catch (error) {
         console.error('Error:', error);
-        contentDiv.innerHTML = '<p class="text-red-500">सामग्री लोड करने में त्रुटि हुई।</p>';
+        contentDiv.innerHTML = '<p style="color:#8B2500; text-align:center; padding:2rem;">सामग्री लोड करने में त्रुटि हुई।</p>';
     }
 
     function showEntityDetails(name) {
@@ -161,20 +212,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!data) return;
 
         const html = `
-            <div class="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                <div class="detail-tithi">${data.tithi}</div>
-                <h2 class="detail-title">${data.name}</h2>
-                <div class="overflow-hidden rounded-2xl mb-6">
-                    <img src="${data.image}" class="detail-image hover:scale-105 transition-transform duration-700" alt="${data.name}" onerror="this.src='https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800'">
-                </div>
-                <p class="detail-summary">${data.summary}</p>
-                <a href="${data.link}" target="_blank" class="detail-link-btn">अधिक जानकारी (Bharat Discovery)</a>
-            </div>
+            <div class="detail-tithi">${data.tithi}</div>
+            <h2 class="detail-title">${data.name}</h2>
+            <img src="${data.image}" class="detail-image" alt="${data.name}" onerror="this.style.display='none'">
+            <p class="detail-summary">${data.summary}</p>
+            <a href="${data.link}" target="_blank" rel="noopener" class="detail-link-btn">अधिक जानकारी →</a>
         `;
 
         sideContent.innerHTML = html;
         bottomContent.innerHTML = html;
-
         document.body.classList.add('panel-open');
     }
 
@@ -185,12 +231,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     closeSide.addEventListener('click', closePanels);
     backdrop.addEventListener('click', closePanels);
 
-    // Escape key to close
+    // Escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closePanels();
     });
 
-    // Handle touch swipe down for bottom sheet
+    // Touch swipe down to close bottom sheet
     let touchStartY = 0;
     bottomSheet.addEventListener('touchstart', (e) => {
         touchStartY = e.touches[0].clientY;
@@ -198,7 +244,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     bottomSheet.addEventListener('touchend', (e) => {
         const touchEndY = e.changedTouches[0].clientY;
-        if (touchEndY - touchStartY > 100) { // Swipe down more than 100px
+        if (touchEndY - touchStartY > 80) {
             closePanels();
         }
     });

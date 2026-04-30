@@ -1,236 +1,508 @@
-/* Ancient Book Theme - Ekatmata Stotra */
+/* ═══════════════════════════════════════════════
+   Ancient Manuscript Theme - Ekatmata Stotra
+   "A real book on a real desk"
+   ═══════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Eczar:wght@400;600;700&family=Martel:wght@300;400;700&display=swap');
 
 :root {
-    --saffron: #E67E22;
-    --gold: #D4AF37;
-    --parchment: #FFF9F2;
-    --deep-purple: #8E44AD;
-    --dark: #2C3E50;
-    --accent: #B03A2E;
+    --saffron: #C0601A;
+    --gold: #B8962E;
+    --gold-light: #D4AF37;
+    --parchment: #F5E6C8;
+    --parchment-dark: #E8D5B0;
+    --deep-maroon: #6B1D1D;
+    --ink: #2A1A0A;
+    --accent: #8B2500;
+    --wood-shadow: rgba(15, 8, 2, 0.7);
 }
 
-/* Background Texture - Immersive Desk Feel */
-.manuscript-bg {
-    background: 
-        radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%),
-        url('https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&q=80&w=2000'); /* Dark wood texture */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ─── The Desk ─── */
+body {
+    font-family: 'Martel', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    background: #1A0E05;
+    overflow-x: hidden;
+}
+
+.desk-surface {
+    background-image: url('assets/wood.png');
+    background-size: cover;
     background-attachment: fixed;
-    background-size: cover;
-}
-
-.parchment-bg {
-    background-image: url('assets/parchment.png');
-    background-size: cover;
-    background-color: #FFF9F2;
-}
-
-/* Typography & Decorations */
-h1 {
-    text-shadow: 2px 4px 8px rgba(142, 68, 173, 0.2);
-    letter-spacing: -1px;
-}
-
-.ornament {
-    text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
-}
-
-/* Manuscript Container */
-.manuscript-container {
-    background-image: url('assets/parchment.png');
-    background-size: cover;
-    background-color: var(--parchment);
-    border: 2px solid var(--gold);
-    box-shadow: 
-        0 40px 100px rgba(0,0,0,0.5),
-        inset 0 0 100px rgba(212, 175, 55, 0.1);
-    border-radius: 4px;
+    background-position: center;
+    min-height: 100vh;
     position: relative;
 }
 
-/* Decorative Corners for the Container */
-.manuscript-container::before,
-.manuscript-container::after {
+/* Subtle vignette on the desk */
+.desk-surface::before {
     content: '';
-    position: absolute;
-    width: 60px;
-    height: 60px;
-    border: 3px solid var(--gold);
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(10, 5, 0, 0.55) 100%);
     pointer-events: none;
-    z-index: 10;
+    z-index: 1;
 }
 
-.manuscript-container::before {
-    top: 15px;
-    left: 15px;
-    border-right: 0;
-    border-bottom: 0;
+/* ─── Header ─── */
+.stotra-header {
+    position: relative;
+    z-index: 2;
+    padding: 3rem 1.5rem 2rem;
+    text-align: center;
 }
 
-.manuscript-container::after {
-    bottom: 15px;
-    right: 15px;
-    border-left: 0;
-    border-top: 0;
-}
-
-/* Noun styling */
-.entity-link {
-    color: var(--accent);
-    text-decoration: none;
-    border-bottom: 2px solid transparent;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-    font-weight: 700;
-    padding: 0 2px;
-}
-
-.entity-link:hover {
-    color: var(--deep-purple);
-    border-bottom-color: var(--gold);
-    background: rgba(212, 175, 55, 0.1);
-    transform: scale(1.05);
-}
-
-/* Detail Panels Content */
-.detail-title {
+.stotra-header h1 {
     font-family: 'Eczar', serif;
-    font-size: 2.5rem;
-    color: var(--deep-purple);
-    line-height: 1.1;
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    font-weight: 700;
+    color: var(--gold-light);
+    text-shadow:
+        0 0 40px rgba(212, 175, 55, 0.3),
+        0 2px 4px rgba(0,0,0,0.8);
+    letter-spacing: 2px;
     margin-bottom: 0.5rem;
 }
 
-.detail-tithi {
-    font-family: 'Eczar', serif;
-    color: var(--accent);
-    font-weight: 600;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    border-bottom: 1px solid var(--gold);
-    padding-bottom: 0.5rem;
-    margin-bottom: 1.5rem;
-    display: inline-block;
+.stotra-header .subtitle {
+    font-family: 'Martel', serif;
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    color: #B8A080;
+    font-weight: 300;
+    max-width: 600px;
+    margin: 0 auto;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
 }
 
-.detail-image {
-    width: 100%;
-    aspect-ratio: 16/9;
-    object-fit: cover;
-    border-radius: 16px;
-    border: 4px solid var(--gold);
-    margin-bottom: 1.5rem;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+.header-ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
 }
 
-.detail-summary {
-    font-size: 1.3rem;
-    line-height: 1.7;
-    color: var(--dark);
+.header-ornament .line {
+    height: 1px;
+    width: 60px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.header-ornament .om {
+    font-size: 2rem;
+    color: var(--gold-light);
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+}
+
+/* ─── Manuscript Page ─── */
+.manuscript-scroll {
+    position: relative;
+    z-index: 2;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1rem 4rem;
+}
+
+.manuscript-page {
+    position: relative;
+    background-image: url('assets/paper.png');
+    background-size: cover;
+    background-color: var(--parchment);
+    padding: 3rem 2.5rem;
+    border-radius: 2px;
+
+    /* Realistic page shadow on desk */
+    box-shadow:
+        0 1px 1px rgba(0,0,0,0.15),
+        0 4px 6px rgba(0,0,0,0.15),
+        0 12px 20px rgba(0,0,0,0.2),
+        0 30px 60px var(--wood-shadow),
+        /* Page edge highlight */
+        inset 0 0 0 1px rgba(255,255,255,0.08);
+}
+
+/* Aged edge effect */
+.manuscript-page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 2px;
+    background:
+        linear-gradient(to right, rgba(139,100,50,0.15) 0%, transparent 3%, transparent 97%, rgba(139,100,50,0.15) 100%),
+        linear-gradient(to bottom, rgba(139,100,50,0.1) 0%, transparent 2%, transparent 98%, rgba(139,100,50,0.12) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Gold rule at top of page */
+.page-rule-top {
+    height: 3px;
+    background: linear-gradient(90deg, transparent 5%, var(--gold) 25%, var(--gold-light) 50%, var(--gold) 75%, transparent 95%);
     margin-bottom: 2rem;
+    border-radius: 2px;
+    opacity: 0.7;
 }
 
-.detail-link-btn {
-    display: block;
-    width: 100%;
-    background: linear-gradient(135deg, var(--accent), #7B241C);
-    color: white;
-    text-align: center;
-    padding: 1.25rem;
-    border-radius: 12px;
-    font-weight: 700;
-    text-decoration: none;
-    transition: all 0.3s;
-    font-size: 1.15rem;
-    box-shadow: 0 4px 15px rgba(176, 58, 46, 0.3);
-}
-
-.detail-link-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(176, 58, 46, 0.4);
-    filter: brightness(1.1);
-}
-
-/* Animations */
-@keyframes verseFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(40px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* ─── Verse Layout ─── */
+.verses-container {
+    position: relative;
+    z-index: 2;
 }
 
 .verse {
-    animation: verseFadeIn 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    padding: 1.5rem 0;
+    padding: 1.8rem 0.5rem;
+    position: relative;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: verseFadeIn 0.8s ease-out forwards;
 }
 
-.verse:nth-child(1) { animation-delay: 0.1s; }
-.verse:nth-child(2) { animation-delay: 0.2s; }
-.verse:nth-child(3) { animation-delay: 0.3s; }
-.verse:nth-child(4) { animation-delay: 0.4s; }
-.verse:nth-child(5) { animation-delay: 0.5s; }
-.verse:nth-child(n+6) { animation-delay: 0.6s; }
-
-/* Title Shimmer Effect */
-.title-shimmer {
-    background: linear-gradient(
-        90deg, 
-        var(--deep-purple) 0%, 
-        var(--accent) 50%, 
-        var(--deep-purple) 100%
-    );
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shimmer 6s linear infinite;
+.verse + .verse {
+    border-top: 1px solid rgba(139, 100, 50, 0.15);
 }
 
-@keyframes shimmer {
-    to { background-position: 200% center; }
+/* Verse number */
+.verse-number {
+    font-family: 'Eczar', serif;
+    font-size: 0.75rem;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    opacity: 0.6;
 }
 
-/* Backdrop */
-#backdrop.active {
-    display: block;
+/* Verse text */
+.verse-text {
+    font-size: clamp(1.15rem, 2.8vw, 1.65rem);
+    line-height: 2;
+    font-weight: 400;
+    color: var(--ink);
+}
+
+/* ── Alternating verse alignment ── */
+.verse.align-left {
+    text-align: left;
+    padding-left: 0;
+    padding-right: 2rem;
+}
+
+.verse.align-right {
+    text-align: right;
+    padding-right: 0;
+    padding-left: 2rem;
+}
+
+.verse.align-center {
+    text-align: center;
+}
+
+/* Animation delays */
+.verse:nth-child(1) { animation-delay: 0.05s; }
+.verse:nth-child(2) { animation-delay: 0.1s; }
+.verse:nth-child(3) { animation-delay: 0.15s; }
+.verse:nth-child(4) { animation-delay: 0.2s; }
+.verse:nth-child(5) { animation-delay: 0.25s; }
+.verse:nth-child(6) { animation-delay: 0.3s; }
+.verse:nth-child(7) { animation-delay: 0.35s; }
+.verse:nth-child(8) { animation-delay: 0.4s; }
+.verse:nth-child(n+9) { animation-delay: 0.45s; }
+
+@keyframes verseFadeIn {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Interactive Entity Links ─── */
+.entity-link {
+    color: var(--accent);
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 700;
+    position: relative;
+    transition: color 0.3s ease;
+    border-bottom: 1.5px dotted rgba(139, 37, 0, 0.3);
+    padding-bottom: 1px;
+}
+
+.entity-link:hover {
+    color: var(--deep-maroon);
+    border-bottom-color: var(--gold);
+    border-bottom-style: solid;
+}
+
+/* ─── Gold rule at bottom ─── */
+.page-rule-bottom {
+    height: 3px;
+    background: linear-gradient(90deg, transparent 5%, var(--gold) 25%, var(--gold-light) 50%, var(--gold) 75%, transparent 95%);
+    margin-top: 2rem;
+    border-radius: 2px;
+    opacity: 0.7;
+}
+
+/* Bottom colophon on the page */
+.page-colophon {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-family: 'Eczar', serif;
+    font-size: 1rem;
+    color: var(--gold);
+    letter-spacing: 4px;
+    opacity: 0.5;
+}
+
+/* ─── Side Panel (Desktop) ─── */
+.side-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 420px;
+    height: 100%;
+    background-image: url('assets/paper.png');
+    background-size: cover;
+    background-color: var(--parchment);
+    z-index: 100;
+    transform: translateX(100%);
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: -10px 0 40px rgba(0,0,0,0.5);
+    border-left: 3px solid var(--gold);
+    overflow-y: auto;
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .side-panel { display: block; }
+}
+
+body.panel-open .side-panel {
+    transform: translateX(0);
+}
+
+.side-panel-inner {
+    padding: 2rem 1.8rem 3rem;
+}
+
+.close-btn {
+    position: sticky;
+    top: 0;
+    display: flex;
+    justify-content: flex-end;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(to bottom, var(--parchment) 60%, transparent);
+    z-index: 5;
+}
+
+.close-btn button {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    background: var(--parchment);
+    color: var(--accent);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-btn button:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    transform: rotate(90deg);
+}
+
+/* ─── Bottom Sheet (Mobile) ─── */
+.bottom-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-height: 85vh;
+    background-image: url('assets/paper.png');
+    background-size: cover;
+    background-color: var(--parchment);
+    z-index: 100;
+    transform: translateY(100%);
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+    border-top: 3px solid var(--gold);
+    border-radius: 24px 24px 0 0;
+    overflow-y: auto;
+}
+
+@media (min-width: 1024px) {
+    .bottom-sheet { display: none; }
+}
+
+body.panel-open .bottom-sheet {
+    transform: translateY(0);
+}
+
+.sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: var(--gold);
+    opacity: 0.4;
+    border-radius: 4px;
+    margin: 12px auto 0;
+}
+
+.bottom-sheet-inner {
+    padding: 1rem 1.5rem 3rem;
+}
+
+/* ─── Backdrop ─── */
+.backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 5, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 90;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+body.panel-open .backdrop {
     opacity: 1;
-}
-
-/* Panel/Sheet Open State */
-body.panel-open #side-panel,
-body.panel-open #bottom-sheet {
-    transform: translate(0);
-}
-
-body.panel-open #backdrop {
-    display: block;
-    opacity: 1;
+    pointer-events: auto;
 }
 
 body.panel-open {
     overflow: hidden;
 }
 
-/* Mobile Adjustments */
+/* ─── Detail Card Content ─── */
+.detail-tithi {
+    font-family: 'Eczar', serif;
+    color: var(--saffron);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    border-bottom: 1px solid var(--gold);
+    padding-bottom: 0.4rem;
+    margin-bottom: 1.2rem;
+    display: inline-block;
+}
+
+.detail-title {
+    font-family: 'Eczar', serif;
+    font-size: 2rem;
+    color: var(--deep-maroon);
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
+
+.detail-image {
+    width: 100%;
+    aspect-ratio: 3/2;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 3px solid var(--gold);
+    margin-bottom: 1.2rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+.detail-summary {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+}
+
+.detail-link-btn {
+    display: block;
+    width: 100%;
+    background: var(--accent);
+    color: #F5E6C8;
+    text-align: center;
+    padding: 1rem;
+    border-radius: 4px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-size: 1rem;
+    border: 1px solid var(--gold);
+}
+
+.detail-link-btn:hover {
+    background: var(--deep-maroon);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+/* ─── Footer ─── */
+.stotra-footer {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 2rem 1rem 3rem;
+    color: #806040;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.stotra-footer .jai {
+    font-family: 'Eczar', serif;
+    font-size: 1.6rem;
+    color: var(--gold-light);
+    letter-spacing: 3px;
+    margin-top: 0.5rem;
+    text-shadow: 0 0 20px rgba(212,175,55,0.3);
+}
+
+/* ─── Loading skeleton ─── */
+.skeleton-line {
+    height: 1.2rem;
+    background: linear-gradient(90deg, rgba(139,100,50,0.1) 25%, rgba(139,100,50,0.2) 50%, rgba(139,100,50,0.1) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite;
+    border-radius: 4px;
+    margin: 0.8rem auto;
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ─── Responsive ─── */
 @media (max-width: 768px) {
-    .manuscript-container {
+    .manuscript-page {
+        padding: 2rem 1.2rem;
+        margin: 0 0.25rem;
         border-radius: 0;
-        border-left: 0;
-        border-right: 0;
-        padding: 4rem 1.5rem;
     }
-    
-    .manuscript-container::before,
-    .manuscript-container::after {
-        width: 30px;
-        height: 30px;
-    }
-    
+
     .verse {
-        font-size: 1.5rem;
-        line-height: 1.8;
+        padding: 1.2rem 0;
     }
+
+    .verse.align-left,
+    .verse.align-right {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .verse-text {
+        line-height: 1.9;
+    }
+
+    .stotra-header {
+        padding: 2rem 1rem 1.5rem;
+    }
+
+    .side-panel {
+        display: none;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1023px) {
+    .bottom-sheet { display: block; }
+    .side-panel { display: none; }
 }
