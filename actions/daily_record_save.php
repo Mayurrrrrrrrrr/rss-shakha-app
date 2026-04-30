@@ -94,7 +94,10 @@ try {
     exit;
 
 } catch (Exception $e) {
-    $pdo->rollBack();
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    error_log("Save Daily Record Error: " . $e->getMessage());
     $errMsg = urlencode($e->getMessage());
     header("Location: ../pages/daily_record.php?date=$recordDate&error=1&msg=" . $errMsg);
     exit;
