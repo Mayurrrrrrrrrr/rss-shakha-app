@@ -27,11 +27,11 @@ if (empty($_SESSION['csrf_token'])) {
 // Already logged in? Redirect (if DB is up)
 if (!$db_error && isLoggedIn()) {
     if (isAdmin()) {
-        header('Location: pages/admin_dashboard.php');
+        header('Location: /pages/admin_dashboard.php');
     } elseif (isSwayamsevak()) {
-        header('Location: pages/swayamsevak_dashboard.php');
+        header('Location: /pages/swayamsevak_dashboard.php');
     } else {
-        header('Location: pages/dashboard.php');
+        header('Location: /pages/dashboard.php');
     }
     exit;
 }
@@ -76,7 +76,7 @@ if (!$db_error && $_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION['user_type']  = $user['role'] ?? 'mukhyashikshak';
                         $_SESSION['shakha_id']  = $user['shakha_id'];
                         $_SESSION['last_active'] = time();
-                        header('Location: ' . (isAdmin() ? 'pages/admin_dashboard.php' : 'pages/dashboard.php'));
+                        header('Location: ' . (isAdmin() ? '/pages/admin_dashboard.php' : '/pages/dashboard.php'));
                         exit;
                     } else {
                         // Check swayamsevaks
@@ -92,7 +92,7 @@ if (!$db_error && $_SERVER['REQUEST_METHOD'] === 'POST') {
                             $_SESSION['user_type']   = 'swayamsevak';
                             $_SESSION['shakha_id']   = $user['shakha_id'];
                             $_SESSION['last_active'] = time();
-                            header('Location: pages/swayamsevak_dashboard.php');
+                            header('Location: /pages/swayamsevak_dashboard.php');
                             exit;
                         } else {
                             $pdo->prepare("INSERT INTO login_attempts (ip, attempted_at) VALUES (?, NOW())")->execute([$ip]);

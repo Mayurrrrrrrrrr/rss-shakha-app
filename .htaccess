@@ -65,7 +65,6 @@ Options -MultiViews
     RewriteEngine On
     RewriteRule ^config/         - [F,L]
     RewriteRule ^includes/       - [F,L]
-    RewriteRule ^actions/        - [F,L]
     RewriteRule ^scripts/        - [F,L]
     RewriteRule ^sql/            - [F,L]
 </IfModule>
