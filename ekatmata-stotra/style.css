@@ -9,9 +9,11 @@
     --accent: #B03A2E;
 }
 
-/* Background Texture */
+/* Background Texture - Immersive Desk Feel */
 .manuscript-bg {
-    background-image: url('assets/parchment.png');
+    background: 
+        radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%),
+        url('https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&q=80&w=2000'); /* Dark wood texture */
     background-attachment: fixed;
     background-size: cover;
 }
@@ -19,6 +21,7 @@
 .parchment-bg {
     background-image: url('assets/parchment.png');
     background-size: cover;
+    background-color: #FFF9F2;
 }
 
 /* Typography & Decorations */
@@ -33,13 +36,14 @@ h1 {
 
 /* Manuscript Container */
 .manuscript-container {
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(12px);
+    background-image: url('assets/parchment.png');
+    background-size: cover;
+    background-color: var(--parchment);
     border: 2px solid var(--gold);
     box-shadow: 
-        0 30px 60px rgba(0,0,0,0.12),
-        inset 0 0 100px rgba(212, 175, 55, 0.05);
-    border-radius: 8px;
+        0 40px 100px rgba(0,0,0,0.5),
+        inset 0 0 100px rgba(212, 175, 55, 0.1);
+    border-radius: 4px;
     position: relative;
 }
 
