@@ -1428,8 +1428,8 @@
         "tithi": "नित्य"
     },
     "जैनागमास्त्रिपिटकाः": {
-        "name": "जैनागम-त्रिपिटकाः",
-        "summary": "जैन धर्म के आगम और बौद्ध धर्म के त्रिपिटक — दो महान भारतीय श्रमण परंपराओं के पवित्र ग्रंथ, जो अहिंसा और करुणा का पाठ पढ़ाते हैं।",
+        "name": "जैनागम एवं त्रिपिटक",
+        "summary": "जैन धर्म के 'आगम' और बौद्ध धर्म के 'त्रिपिटक' — ये दोनों ही श्रमण परंपरा के महान ग्रंथ हैं, जो अहिंसा, संयम और करुणा का मार्ग प्रशस्त करते हैं।",
         "image": "https://images.unsplash.com/photo-1517303650219-83c8b1788c4c?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/जैन_दर्शन",
         "tithi": "पर्युषण / बुद्ध पूर्णिमा"
@@ -1531,5 +1531,82 @@
         "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/केशव_बलिराम_हेडगेवार",
         "tithi": "संघ स्थापना दिवस"
+    },
+    "रत्नाकरा": {
+        "name": "रत्नाकर (सागर)",
+        "summary": "रत्नाकर का अर्थ है 'रत्नों की खान', जो समुद्र का पर्यायवाची है। भारतीय संस्कृति में समुद्र को रत्नों और अमृत का उद्गम माना गया है।",
+        "image": "https://images.unsplash.com/photo-1505118380757-91f5f45d8de4?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/समुद्र",
+        "tithi": "नित्य"
+    },
+    "रत्नाकराधौतपदां": {
+        "name": "रत्नाकर (सागर)",
+        "summary": "भारत माता के चरणों को पखारने वाला विशाल समुद्र (हिंद महासागर), जिसे रत्नों का भंडार माना जाता है।",
+        "image": "https://images.unsplash.com/photo-1505118380757-91f5f45d8de4?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/समुद्र",
+        "tithi": "नित्य"
+    },
+    "तथाSमृतसरः": {
+        "name": "अमृतसर",
+        "summary": "पंजाब का वह पवित्र नगर जहाँ स्वर्ण मंदिर (हरमंदिर साहिब) स्थित है। यह सिख धर्म का आध्यात्मिक केंद्र और भारत की गौरवशाली परंपरा का प्रतीक है।",
+        "image": "https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/अमृतसर",
+        "tithi": "प्रकाश पर्व"
+    },
+    "सर्वोपनिषद": {
+        "name": "सर्वोपनिषद",
+        "summary": "समस्त उपनिषद ग्रंथ, जो वेदों का अंतिम भाग और सर्वोच्च दार्शनिक ज्ञान के स्रोत हैं। इनमें ब्रह्म, आत्मा और जगत के रहस्यों का विवेचन है।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/उपनिषद",
+        "tithi": "नित्य"
+    },
+    "अरुन्धत्यनसूया": {
+        "name": "अरुन्धती और अनसूया",
+        "summary": "अरुन्धती (ऋषि वशिष्ठ की पत्नी) और अनसूया (ऋषि अत्रि की पत्नी) — ये दोनों महान विदुषी और सती स्त्रियां भारतीय स्त्री शक्ति और तपस्या की प्रतीक हैं।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/सती",
+        "tithi": "नित्य"
+    },
+    "रहल्या": {
+        "name": "अहिल्या बाई",
+        "summary": "इंदौर की लोकमाता महारानी, जिन्होंने भारत भर के मंदिरों और घाटों का पुनरुद्धार करवाया और सुशासन का आदर्श स्थापित किया।",
+        "image": "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/अहिल्याबाई_होल्कर",
+        "tithi": "अहिल्या जयंती"
+    },
+    "थार्जुनः": {
+        "name": "अर्जुन",
+        "summary": "पांडवों के महान धनुर्धर और भगवान कृष्ण के सखा, जिन्हें कुरुक्षेत्र में 'गीता' का दिव्य उपदेश प्राप्त हुआ।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/अर्जुन",
+        "tithi": "नित्य"
+    },
+    "कलव्यो": {
+        "name": "एकलव्य",
+        "summary": "निषाद राज का पुत्र, जिसकी गुरुभक्ति और एकाग्रता के कारण वह स्वयं गुरु द्रोणाचार्य की अनुपस्थिति में भी अद्वितीय धनुर्धर बना।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/एकलव्य",
+        "tithi": "नित्य"
+    },
+    "माधवौ": {
+        "name": "माधवाचार्य (विद्यारण्य)",
+        "summary": "विजयनगर साम्राज्य की स्थापना के पीछे मुख्य आध्यात्मिक प्रेरणा और महान विद्वान, जिन्होंने वेदों पर भाष्य लिखे।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/माधवाचार्य",
+        "tithi": "नित्य"
+    },
+    "रणजि सिंह": {
+        "name": "महाराजा रणजीत सिंह",
+        "summary": "'शेर-ए-पंजाब', जिन्होंने एक शक्तिशाली सिख साम्राज्य की स्थापना की और अफगान आक्रमणों से देश की रक्षा की।",
+        "image": "https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/रणजीत_सिंह",
+        "tithi": "13 नवंबर"
+    },
+    "ऽरविंदश्च": {
+        "name": "महर्षि अरविंद",
+        "summary": "महान क्रांतिकारी, योगी और दार्शनिक, जिन्होंने 'पूर्ण योग' का मार्ग दिखाया और पुडुचेरी में आश्रम की स्थापना की।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/अरविन्द_घोष",
+        "tithi": "15 अगस्त"
     }
 }
