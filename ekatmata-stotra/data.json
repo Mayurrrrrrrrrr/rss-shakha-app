@@ -727,6 +727,657 @@
         "link": "https://bharatdiscovery.org/india/रामानंद",
         "tithi": "रामानंद जयंती"
     },
+    "अरुन्धती": {
+        "name": "अरुन्धती",
+        "summary": "महर्षि वशिष्ठ की पत्नी, जो अपने सतीत्व और ज्ञान के लिए सप्तऋषि मंडल में प्रतिष्ठित हैं।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/अरुन्धती",
+        "tithi": "नित्य"
+    },
+    "अनसूया": {
+        "name": "अनसूया",
+        "summary": "महर्षि अत्रि की पत्नी और सतीत्व की प्रतिमूर्ति, जिन्होंने ब्रह्मा, विष्णु और महेश को शिशु बना दिया था।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/अनसूया",
+        "tithi": "नित्य"
+    },
+    "सावित्री": {
+        "name": "सावित्री",
+        "summary": "अपने पति सत्यवान के प्राण यमराज से वापस लाने वाली महान पतिव्रता नारी।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/सावित्री",
+        "tithi": "वट सावित्री"
+    },
+    "कण्णगी": {
+        "name": "कण्णगी",
+        "summary": "दक्षिण भारत के 'शिल्पादिकारम' महाकाव्य की नायिका, जो न्याय और सतीत्व का प्रतीक हैं।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/कण्णगी",
+        "tithi": "नित्य"
+    },
+    "गार्गी": {
+        "name": "गार्गी",
+        "summary": "प्राचीन भारत की महान विदुषी, जिन्होंने राजा जनक की सभा में याज्ञवल्क्य के साथ शास्त्रार्थ किया था।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/गार्गी",
+        "tithi": "नित्य"
+    },
+    "दुर्गावती": {
+        "name": "रानी दुर्गावती",
+        "summary": "गोंडवाना की वीरांगना रानी, जिन्होंने मुगलों के विरुद्ध साहसपूर्वक युद्ध करते हुए बलिदान दिया।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/रानी_दुर्गावती",
+        "tithi": "24 जून (बलिदान दिवस)"
+    },
+    "रुद्रमाम्बा": {
+        "name": "रानी रुद्रमा देवी",
+        "summary": "काकतीय वंश की प्रतापी शासिका, जिन्होंने अपनी वीरता और सुशासन से इतिहास में अमिट छाप छोड़ी।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/रुद्रमा_देवी",
+        "tithi": "नित्य"
+    },
+    "निवेदिता": {
+        "name": "भगिनी निवेदिता",
+        "summary": "स्वामी विवेकानंद की शिष्या (मार्गरेट नोबल), जिन्होंने अपना जीवन भारत की सेवा और शिक्षा के लिए समर्पित किया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/भगिनी_निवेदिता",
+        "tithi": "28 अक्टूबर"
+    },
+    "सारदा": {
+        "name": "सारदा देवी",
+        "summary": "श्री रामकृष्ण परमहंस की आध्यात्मिक सहधर्मिणी और रामकृष्ण मिशन की आध्यात्मिक जननी।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/सारदा_देवी",
+        "tithi": "नित्य"
+    },
+    "भरतः": {
+        "name": "सम्राट भरत",
+        "summary": "दुष्यंत और शकुंतला के पुत्र, जिनके नाम पर हमारे देश का नाम 'भारत' पड़ा।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/भरत",
+        "tithi": "नित्य"
+    },
+    "भीष्मो": {
+        "name": "भीष्म पितामह",
+        "summary": "महाभारत के महान योद्धा जिन्होंने 'इच्छा मृत्यु' का वरदान पाया था और अपनी भीषण प्रतिज्ञा के लिए प्रसिद्ध हैं।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/भीष्म",
+        "tithi": "भीष्म अष्टमी"
+    },
+    "धर्म": {
+        "name": "युधिष्ठिर",
+        "summary": "पांडवों में सबसे बड़े भाई, जिन्हें सत्यनिष्ठा और धर्मपरायणता के कारण 'धर्मराज' कहा जाता है।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/युधिष्ठिर",
+        "tithi": "नित्य"
+    },
+    "अर्जुन": {
+        "name": "अर्जुन",
+        "summary": "पांडवों के श्रेष्ठ धनुर्धर जिन्हें भगवान कृष्ण ने कुरुक्षेत्र के मैदान में 'गीता' का उपदेश दिया था।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/अर्जुन",
+        "tithi": "नित्य"
+    },
+    "मार्कण्डेय": {
+        "name": "मार्कण्डेय ऋषि",
+        "summary": "महान शिव भक्त ऋषि, जिन्होंने अल्पायु होने पर भी महामृत्युंजय मंत्र की साधना से काल को जीत लिया था।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/मार्कण्डेय",
+        "tithi": "नित्य"
+    },
+    "हरिश्चन्द्र": {
+        "name": "सत्यवादी हरिश्चन्द्र",
+        "summary": "अपनी सत्यनिष्ठा के लिए सब कुछ त्याग देने वाले राजा, जिनका नाम सत्य का पर्याय बन गया है।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/हरिश्चन्द्र",
+        "tithi": "नित्य"
+    },
+    "प्रह्लाद": {
+        "name": "भक्त प्रह्लाद",
+        "summary": "हिरण्यकशिपु के पुत्र और भगवान विष्णु के अनन्य भक्त, जिनकी रक्षा के लिए भगवान ने नरसिंह अवतार लिया।",
+        "image": "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/प्रह्लाद",
+        "tithi": "नृसिंह जयंती / होली"
+    },
+    "नारद": {
+        "name": "देवर्षि नारद",
+        "summary": "देवताओं के संदेशवाहक और भगवान विष्णु के परम भक्त, जो लोक कल्याण के लिए तीनों लोकों में भ्रमण करते हैं।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/नारद",
+        "tithi": "नारद जयंती"
+    },
+    "ध्रुव": {
+        "name": "ध्रुव",
+        "summary": "बाल भक्त ध्रुव, जिन्होंने अपनी कठोर तपस्या से भगवान को प्रसन्न किया और आकाश में अटल स्थान पाया।",
+        "image": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/ध्रुव",
+        "tithi": "नित्य"
+    },
+    "जनक": {
+        "name": "राजा जनक",
+        "summary": "मिथिला के विदेह राज और माता सीता के पिता, जो राजा होते हुए भी महान आत्मज्ञानी और योगी थे।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/जनक",
+        "tithi": "नित्य"
+    },
+    "वसिष्ठ": {
+        "name": "महर्षि वसिष्ठ",
+        "summary": "सप्तऋषियों में से एक और भगवान राम के कुलगुरु, जिन्होंने वशिष्ठ संहिता और योगवाशिष्ठ की रचना की।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/वशिष्ठ",
+        "tithi": "नित्य"
+    },
+    "शुक": {
+        "name": "शुकदेव",
+        "summary": "महर्षि व्यास के पुत्र, जिन्होंने राजा परीक्षित को श्रीमद्भागवत का उपदेश देकर मोक्ष प्रदान किया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/शुकदेव",
+        "tithi": "नित्य"
+    },
+    "बलि": {
+        "name": "राजा बलि",
+        "summary": "अत्यंत दानी दैत्यराज, जिन्होंने वामन अवतार भगवान विष्णु को तीन पग भूमि दान कर दी थी।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/बलि",
+        "tithi": "ओणम / बलि प्रतिपदा"
+    },
+    "दधीचि": {
+        "name": "महर्षि दधीचि",
+        "summary": "त्याग के सर्वोच्च आदर्श, जिन्होंने असुरों के विनाश के लिए वज्र बनाने हेतु अपनी अस्थियों का दान कर दिया था।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/दधीचि",
+        "tithi": "नित्य"
+    },
+    "विश्वकर्मा": {
+        "name": "विश्वकर्मा",
+        "summary": "देवताओं के महान शिल्पी और वास्तुकार, जिन्होंने द्वारका, लंका और अनेक दिव्य अस्त्रों का निर्माण किया।",
+        "image": "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/विश्वकर्मा",
+        "tithi": "विश्वकर्मा पूजा"
+    },
+    "पृथु": {
+        "name": "राजा पृथु",
+        "summary": "महान चक्रवर्ती सम्राट, जिन्होंने धरती को रहने योग्य बनाया और कृषि का प्रारंभ किया।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/पृथु",
+        "tithi": "नित्य"
+    },
+    "भार्गव": {
+        "name": "परशुराम",
+        "summary": "भगवान विष्णु के अवतार, जिन्होंने अत्याचारी राजाओं का नाश किया और समाज में धर्म की स्थापना की।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/परशुराम",
+        "tithi": "परशुराम जयंती"
+    },
+    "भगीरथ": {
+        "name": "भगीरथ",
+        "summary": "अयोध्या के राजा, जिन्होंने अपनी घोर तपस्या से गंगा को स्वर्ग से धरती पर लाने का महान कार्य किया।",
+        "image": "assets/ganga.png",
+        "link": "https://bharatdiscovery.org/india/भगीरथ",
+        "tithi": "गंगा सप्तमी"
+    },
+    "एकलव्य": {
+        "name": "एकलव्य",
+        "summary": "निश्रय और गुरुभक्ति का महान उदाहरण, जिन्होंने द्रोणाचार्य की प्रतिमा को गुरु मानकर धनुर्विद्या में निपुणता पाई।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/एकलव्य",
+        "tithi": "नित्य"
+    },
+    "मनु": {
+        "name": "मनु",
+        "summary": "प्रथम मानव और विधि-निर्माता, जिन्होंने समाज के मार्गदर्शन के लिए 'मनुस्मृति' की रचना की।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/मनु",
+        "tithi": "नित्य"
+    },
+    "धन्वन्तरि": {
+        "name": "धन्वन्तरि",
+        "summary": "आयुर्वेद के देवता, जो समुद्र मंथन के समय अमृत कलश लेकर प्रकट हुए थे।",
+        "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/धन्वन्तरि",
+        "tithi": "धनतेरस"
+    },
+    "रन्तिदेव": {
+        "name": "राजा रन्तिदेव",
+        "summary": "अपनी दानशीलता और परोपकार के लिए प्रसिद्ध राजा, जिन्होंने भूख प्यास सहते हुए भी अपना भोजन याचक को दे दिया।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/रन्तिदेव",
+        "tithi": "नित्य"
+    },
+    "जिनेन्द्र": {
+        "name": "जिनेन्द्र",
+        "summary": "जैन धर्म के तीर्थंकर (भगवान महावीर), जिन्होंने अहिंसा और अपरिग्रह का मार्ग दिखाया।",
+        "image": "https://images.unsplash.com/photo-1523474253046-7cd2ad074432?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/महावीर_स्वामी",
+        "tithi": "महावीर जयंती"
+    },
+    "मध्व": {
+        "name": "मध्वाचार्य",
+        "summary": "द्वैत वेदांत के प्रवर्तक और भक्ति आंदोलन के महान दार्शनिक।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/मध्वाचार्य",
+        "tithi": "मध्व नवमी"
+    },
+    "निंबार्क": {
+        "name": "निंबार्काचार्य",
+        "summary": "द्वैताद्वैत दर्शन के प्रवर्तक और राधा-कृष्ण की युगल उपासना के प्रणेता।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/निम्बार्काचार्य",
+        "tithi": "नित्य"
+    },
+    "तिरुवल्लुवर": {
+        "name": "तिरुवल्लुवर",
+        "summary": "महान तमिल संत-कवि, जिन्होंने 'तिरुक्कुरल' के माध्यम से मानवता को नीति और नैतिकता की शिक्षा दी।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/तिरुवल्लुवर",
+        "tithi": "तिरुवल्लुवर दिवस"
+    },
+    "नायन्मार": {
+        "name": "नायन्मार",
+        "summary": "दक्षिण भारत के 63 शैव संत, जिन्होंने शिव भक्ति और तमिल भक्ति साहित्य को समृद्ध किया।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/नायनार_संत",
+        "tithi": "नित्य"
+    },
+    "आलवार": {
+        "name": "आलवार",
+        "summary": "दक्षिण भारत के 12 वैष्णव संत, जिन्होंने भगवान विष्णु की भक्ति का प्रचार किया और दिव्य प्रबंधम की रचना की।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/आलवार_संत",
+        "tithi": "नित्य"
+    },
+    "कंब": {
+        "name": "कंबन",
+        "summary": "महान तमिल कवि, जिन्होंने 'कंब रामायण' (इरामावतारम) की रचना की।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/कम्ब",
+        "tithi": "नित्य"
+    },
+    "बसवेश्वर": {
+        "name": "बसवेश्वर",
+        "summary": "कर्नाटक के महान दार्शनिक और समाज सुधारक, जिन्होंने 'अनुभव मंटप' के माध्यम से सामाजिक समानता का संदेश दिया।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/बसवेश्वर",
+        "tithi": "बसवा जयंती"
+    },
+    "देवल": {
+        "name": "देवल ऋषि",
+        "summary": "प्राचीन ऋषि और स्मृतिकार, जिन्होंने 'देवल स्मृति' की रचना की।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/देवल_ऋषि",
+        "tithi": "नित्य"
+    },
+    "नरसि": {
+        "name": "नरसी मेहता",
+        "summary": "गुजरात के प्रसिद्ध भक्त कवि, जिन्होंने 'वैष्णव जन तो' जैसे कालजयी भजनों की रचना की।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/नरसी_मेहता",
+        "tithi": "नित्य"
+    },
+    "दशमेश": {
+        "name": "गुरु गोबिंद सिंह",
+        "summary": "सिखों के दसवें गुरु, जिन्होंने खालसा पंथ की स्थापना की और धर्म की रक्षा के लिए अपना सर्वस्व बलिदान किया।",
+        "image": "https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/गुरु_गोबिन्द_सिंह",
+        "tithi": "प्रकाश पर्व"
+    },
+    "शङ्करदेव": {
+        "name": "शङ्करदेव",
+        "summary": "असम के महान संत, कवि और समाज सुधारक, जिन्होंने 'एकशरण धर्म' और अंकिया नाट का प्रवर्तन किया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/शंकरदेव",
+        "tithi": "शंकरदेव जयंती"
+    },
+    "सायण": {
+        "name": "सायणाचार्य",
+        "summary": "विजयनगर साम्राज्य के महान विद्वान, जिन्होंने चारों वेदों पर प्रमाणिक भाष्य (टीका) लिखा।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/सायणाचार्य",
+        "tithi": "नित्य"
+    },
+    "भरतर्षि": {
+        "name": "भरत मुनि",
+        "summary": "नाट्यशास्त्र के प्रणेता, जिन्होंने भारतीय कला और अभिनय के सिद्धांतों का प्रतिपादन किया।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/भरत_मुनि",
+        "tithi": "नित्य"
+    },
+    "श्रीभोज": {
+        "name": "राजा भोज",
+        "summary": "मालवा के प्रतापी राजा और महान विद्वान, जिन्होंने कला, साहित्य और विज्ञान को संरक्षण दिया।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/भोज",
+        "tithi": "नित्य"
+    },
+    "जकण": {
+        "name": "जकणचार्य",
+        "summary": "प्रसिद्ध होयसल वास्तुकार, जिन्होंने बेलूर और हलेबीड के विश्वविख्यात मंदिरों का निर्माण किया।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/जकणाचारी",
+        "tithi": "नित्य"
+    },
+    "सूरदास": {
+        "name": "सूरदास",
+        "summary": "महान कृष्ण भक्त कवि, जिन्होंने 'सूरसागर' के माध्यम से बाल कृष्ण की लीलाओं का अद्भुत वर्णन किया।",
+        "image": "https://images.unsplash.com/photo-1560611568-7c8a67015099?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/सूरदास",
+        "tithi": "सूरदास जयंती"
+    },
+    "त्यागराज": {
+        "name": "संत त्यागराज",
+        "summary": "कर्नाटक संगीत के महानतम रचनाकार और राम भक्त संत।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/त्यागराज",
+        "tithi": "त्यागराज आराधना"
+    },
+    "रसखान": {
+        "name": "रसखान",
+        "summary": "महान कृष्ण भक्त मुस्लिम कवि, जिनके सवैये आज भी कृष्ण भक्ति के सर्वोच्च शिखर माने जाते हैं।",
+        "image": "https://images.unsplash.com/photo-1560611568-7c8a67015099?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/रसखान",
+        "tithi": "नित्य"
+    },
+    "रविवर्मा": {
+        "name": "राजा रवि वर्मा",
+        "summary": "आधुनिक भारतीय चित्रकला के जनक, जिन्होंने भारतीय देवी-देवताओं और पौराणिक कथाओं को नया रूप दिया।",
+        "image": "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/राजा_रवि_वर्मा",
+        "tithi": "नित्य"
+    },
+    "भातखण्डे": {
+        "name": "पंडित भातखण्डे",
+        "summary": "भारतीय शास्त्रीय संगीत के महान पुनरुद्धारक और स्वरलिपि पद्धति के प्रणेता।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/विष्णु_नारायण_भातखण्डे",
+        "tithi": "नित्य"
+    },
+    "भाग्यचन्द्र": {
+        "name": "भाग्यचन्द्र",
+        "summary": "मणिपुर के राजा, जिन्होंने मणिपुरी वैष्णव धर्म और रासलीला नृत्य शैली को विकसित किया।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/भाग्यचन्द्र",
+        "tithi": "नित्य"
+    },
+    "अगस्त्य": {
+        "name": "अगस्त्य",
+        "summary": "महान वैदिक ऋषि, जिन्होंने विन्ध्याचल पर्वत को पार कर दक्षिण भारत में संस्कृति और ज्ञान का प्रसार किया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/अगस्त्य",
+        "tithi": "नित्य"
+    },
+    "कम्बुकौण्डिन्य": {
+        "name": "कम्बुकौण्डिन्य",
+        "summary": "वे प्रतापी भारतीय, जिन्होंने दक्षिण-पूर्व एशिया (कंबोडिया) में भारतीय संस्कृति और साम्राज्य की नींव रखी।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/कौण्डिन्य_राजवंश",
+        "tithi": "नित्य"
+    },
+    "राजेन्द्र": {
+        "name": "राजेन्द्र चोल",
+        "summary": "चोल वंश के महान सम्राट, जिनकी नौसेना ने दक्षिण-पूर्व एशिया तक विजय प्राप्त की और गंगा तक साम्राज्य फैलाया।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/राजेन्द्र_चोल_प्रथम",
+        "tithi": "नित्य"
+    },
+    "पुष्यमित्र": {
+        "name": "पुष्यमित्र शुंग",
+        "summary": "शुंग राजवंश के संस्थापक, जिन्होंने यवन आक्रमणकारियों को परास्त कर वैदिक धर्म का पुनरुद्धार किया।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/पुष्यमित्र_शुंग",
+        "tithi": "नित्य"
+    },
+    "खारवेल": {
+        "name": "खारवेल",
+        "summary": "कलिंग के प्रतापी महामेघवाहन सम्राट, जो अपनी अजेय वीरता और शिलालेखों के लिए प्रसिद्ध हैं।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/खारवेल",
+        "tithi": "नित्य"
+    },
+    "चन्द्रगुप्त": {
+        "name": "चन्द्रगुप्त मौर्य",
+        "summary": "मौर्य साम्राज्य के संस्थापक, जिन्होंने आचार्य चाणक्य के मार्गदर्शन में अखंड भारत का निर्माण किया।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/चन्द्रगुप्त_मौर्य",
+        "tithi": "नित्य"
+    },
+    "विक्रम": {
+        "name": "विक्रमादित्य",
+        "summary": "उज्जैन के प्रतापी राजा, जिन्होंने शकों को परास्त किया और जिनके नाम से 'विक्रम संवत' प्रारंभ हुआ।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/विक्रमादित्य",
+        "tithi": "वर्ष प्रतिपदा"
+    },
+    "शालिवाहन": {
+        "name": "शालिवाहन",
+        "summary": "सातवाहन वंश के प्रतापी सम्राट, जिनके नाम से 'शालिवाहन शक संवत' प्रचलित है।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/शालिवाहन",
+        "tithi": "नित्य"
+    },
+    "समुद्रगुप्त": {
+        "name": "समुद्रगुप्त",
+        "summary": "गुप्त वंश के महान विजेता सम्राट, जिन्हें उनकी अजेय शक्ति और कला-प्रेम के लिए जाना जाता है।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/समुद्रगुप्त",
+        "tithi": "नित्य"
+    },
+    "श्रीहर्ष": {
+        "name": "हर्षवर्धन",
+        "summary": "पुष्यभूति वंश के अंतिम महान हिंदू सम्राट, जो अपनी दानशीलता और कन्नौज के वैभव के लिए प्रसिद्ध थे।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/हर्षवर्धन",
+        "tithi": "नित्य"
+    },
+    "शैलेन्द्र": {
+        "name": "शैलेंद्र साम्राज्य",
+        "summary": "दक्षिण-पूर्व एशिया में भारतीय संस्कृति का प्रसार करने वाले शक्तिशाली शैलेंद्र वंश के शासक।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/शैलेंद्र_राजवंश",
+        "tithi": "नित्य"
+    },
+    "बप्परावल": {
+        "name": "बप्परावल",
+        "summary": "मेवाड़ के गुहिल वंश के संस्थापक, जिन्होंने अरबों के आक्रमण को विफल कर भारत की रक्षा की।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/बप्पा_रावल",
+        "tithi": "नित्य"
+    },
+    "लाचिद्": {
+        "name": "लाचित बोरफुकन",
+        "summary": "असम के अहोम साम्राज्य के वीर सेनापति, जिन्होंने सरायघाट के युद्ध में मुगलों को करारी शिकस्त दी।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/लाचित_बोरफुकन",
+        "tithi": "लाचित दिवस"
+    },
+    "भास्करवर्मा": {
+        "name": "भास्करवर्मा",
+        "summary": "कामरूप (असम) के प्रतापी राजा, जो सम्राट हर्षवर्धन के घनिष्ठ मित्र और सहयोगी थे।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/भास्कर_वर्मा",
+        "tithi": "नित्य"
+    },
+    "यशोधर्मा": {
+        "name": "यशोधर्मा",
+        "summary": "मालवा के प्रतापी राजा, जिन्होंने अत्याचारी हूण शासक मिहिरकुल को परास्त कर भारत को हूणों से मुक्त किया।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/यशोधर्मन",
+        "tithi": "नित्य"
+    },
+    "हूणजित्": {
+        "name": "हूणजित्",
+        "summary": "हूणों को जीतने वाले वीर योद्धा, जो विदेशी आक्रांताओं के विरुद्ध भारतीय विजय का प्रतीक हैं।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/हूण",
+        "tithi": "नित्य"
+    },
+    "श्रीकृष्णदेवराय": {
+        "name": "श्रीकृष्णदेवराय",
+        "summary": "विजयनगर साम्राज्य के महानतम सम्राट, जिनके शासनकाल में दक्षिण भारत कला और साहित्य के चरमोत्कर्ष पर पहुँचा।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/कृष्णदेव_राय",
+        "tithi": "नित्य"
+    },
+    "ललितादित्य": {
+        "name": "ललितादित्य मुक्तापीड़",
+        "summary": "कश्मीर के प्रतापी कार्कोट सम्राट, जिन्होंने विशाल साम्राज्य की स्थापना की और मार्तंड सूर्य मंदिर बनवाया।",
+        "image": "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/ललितादित्य_मुक्तापीड़",
+        "tithi": "नित्य"
+    },
+    "मुसुनूरिनायक": {
+        "name": "मुसुनूरी नायक",
+        "summary": "दक्षिण भारत के वे वीर जिन्होंने वारंगल के पतन के बाद विदेशी सत्ता को उखाड़ फेंकने के लिए महासंघ बनाया।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/मुसुनूरी_नायक",
+        "tithi": "नित्य"
+    },
+    "रणजितसिंह": {
+        "name": "महाराजा रणजितसिंह",
+        "summary": "सिख साम्राज्य के संस्थापक 'शेर-ए-पंजाब', जिन्होंने विदेशी आक्रांताओं को भारत की सीमा से बाहर रखा।",
+        "image": "https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/रणजीत_सिंह",
+        "tithi": "13 नवंबर"
+    },
+    "कणाद": {
+        "name": "महर्षि कणाद",
+        "summary": "वैशेषिक दर्शन के प्रणेता और परमाणु सिद्धांत के जनक, जिन्होंने 'कण' की अवधारणा दी।",
+        "image": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/कणाद",
+        "tithi": "नित्य"
+    },
+    "वराहमिहिर": {
+        "name": "वराहमिहिर",
+        "summary": "प्राचीन भारत के महान खगोलशास्त्री और गणितज्ञ, जिन्होंने 'पंचसिद्धांतिका' और 'बृहत्संहिता' की रचना की।",
+        "image": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/वराहमिहिर",
+        "tithi": "नित्य"
+    },
+    "भरद्वाज": {
+        "name": "महर्षि भरद्वाज",
+        "summary": "सप्तऋषियों में से एक और 'यंत्र सर्वस्व' के रचयिता, जिन्हें विमान शास्त्र का ज्ञान था।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/भरद्वाज",
+        "tithi": "नित्य"
+    },
+    "वसु": {
+        "name": "जगदीश चन्द्र बसु",
+        "summary": "महान भारतीय वैज्ञानिक जिन्होंने पौधों में जीवन की खोज की और बेतार संचार के क्षेत्र में कार्य किया।",
+        "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/जगदीश_चन्द्र_बोस",
+        "tithi": "30 नवंबर"
+    },
+    "वेंकटराम": {
+        "name": "सी.वी. रमन",
+        "summary": "महान भौतिकशास्त्री और नोबेल पुरस्कार विजेता, जिन्होंने प्रकाश के प्रकीर्णन (रमन प्रभाव) की खोज की।",
+        "image": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/सी._वी._रमन",
+        "tithi": "राष्ट्रीय विज्ञान दिवस"
+    },
+    "राममोहन": {
+        "name": "राजा राममोहन राय",
+        "summary": "आधुनिक भारत के पुनर्जागरण के अग्रदूत और ब्रह्म समाज के संस्थापक।",
+        "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/राजा_राममोहन_राय",
+        "tithi": "22 मई"
+    },
+    "रामतीर्थ": {
+        "name": "स्वामी रामतीर्थ",
+        "summary": "महान वेदांती संत, जिन्होंने सम्पूर्ण विश्व में वेदांत का संदेश फैलाया और 'व्यावहारिक वेदांत' पर बल दिया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/स्वामी_रामतीर्थ",
+        "tithi": "दिवाली"
+    },
+    "अरविंद": {
+        "name": "महर्षि अरविंद",
+        "summary": "महान क्रांतिकारी, योगी और दार्शनिक, जिन्होंने 'पूर्ण योग' का मार्ग दिखाया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/अरविन्द_घोष",
+        "tithi": "15 अगस्त"
+    },
+    "दादाभाई": {
+        "name": "दादाभाई नौरोजी",
+        "summary": "'भारत के वयोवृद्ध पुरुष' (Grand Old Man of India), जिन्होंने ब्रिटिश शासन की आर्थिक शोषण नीति को उजागर किया।",
+        "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/दादाभाई_नौरोजी",
+        "tithi": "4 सितम्बर"
+    },
+    "गोपबन्धु": {
+        "name": "गोपबन्धु दास",
+        "summary": "ओडिशा के महान नेता और समाजसेवी, जिन्हें 'उत्कलमणि' के नाम से जाना जाता है।",
+        "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/गोपबन्धु_दास",
+        "tithi": "नित्य"
+    },
+    "सुब्रह्मण्यभारती": {
+        "name": "सुब्रह्मण्य भारती",
+        "summary": "महान तमिल राष्ट्रवादी कवि और स्वतंत्रता सेनानी, जिन्हें 'महाकवि भारती' कहा जाता है।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/सुब्रह्मण्य_भारती",
+        "tithi": "11 सितम्बर"
+    },
+    "प्रणवानन्द": {
+        "name": "स्वामी प्रणवानन्द",
+        "summary": "भारत सेवाश्रम संघ के संस्थापक, जिन्होंने हिंदू समाज की सेवा और संगठन के लिए कार्य किया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/स्वामी_प्रणवानंद",
+        "tithi": "माघ पूर्णिमा"
+    },
+    "ठक्कर": {
+        "name": "ठक्कर बापा",
+        "summary": "महान समाज सुधारक, जिन्होंने आदिवासियों और पिछड़ों के उत्थान के लिए अपना जीवन समर्पित किया।",
+        "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/अमृतलाल_विट्ठलदास_ठक्कर",
+        "tithi": "29 नवम्बर"
+    },
+    "फुले": {
+        "name": "महात्मा ज्योतिराव फुले",
+        "summary": "महान समाज सुधारक और सत्यशोधक समाज के संस्थापक, जिन्होंने स्त्री शिक्षा और समानता के लिए क्रांति की।",
+        "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/ज्योतिबा_फुले",
+        "tithi": "ज्योतिबा फुले जयंती"
+    },
+    "नारायण गुरु": {
+        "name": "नारायण गुरु",
+        "summary": "केरल के महान संत और समाज सुधारक, जिन्होंने 'एक जाति, एक धर्म, एक ईश्वर' का संदेश दिया।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/नारायण_गुरु",
+        "tithi": "नारायण गुरु जयंती"
+    },
+    "लोकाः": {
+        "name": "लोकाः",
+        "summary": "सम्पूर्ण चराचर जगत और विभिन्न लोकों की अवधारणा, जो ब्रह्मांड की व्यापकता को दर्शाती है।",
+        "image": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/लोक",
+        "tithi": "नित्य"
+    },
+    "स्वरा": {
+        "name": "स्वरा",
+        "summary": "संगीत के सात स्वर, जो भारतीय कला और संस्कृति की मधुरता के आधार हैं।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/स्वर",
+        "tithi": "नित्य"
+    },
+    "दिशः": {
+        "name": "दिशः",
+        "summary": "दसों दिशाएं, जो ब्रह्मांड के विस्तार और भारतीय वास्तु एवं खगोल का मुख्य अंग हैं।",
+        "image": "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/दिशा",
+        "tithi": "नित्य"
+    },
+    "काल": {
+        "name": "काल",
+        "summary": "समय की अवधारणा, जो अनंत और अविनाशी है, भारतीय दर्शन में काल को ईश्वर का स्वरूप माना गया है।",
+        "image": "https://images.unsplash.com/photo-1501139083538-0139583c060f?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/काल",
+        "tithi": "नित्य"
+    },
+    "ब्रह्मराजर्षि": {
+        "name": "ब्रह्मराजर्षि",
+        "summary": "ब्रह्मर्षि और राजर्षि; वे महान ऋषि और राजा जो आत्मज्ञान और सुशासन के आदर्श संगम हैं।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/ऋषि",
+        "tithi": "नित्य"
+    },
     "मालवीय": {
         "name": "मदन मोहन मालवीय",
         "summary": "काशी हिंदू विश्वविद्यालय के संस्थापक और 'महामना' के नाम से प्रसिद्ध महान शिक्षाविद।",
