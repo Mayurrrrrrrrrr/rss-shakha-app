@@ -108,9 +108,7 @@ body {
 
 .manuscript-page {
     position: relative;
-    background-image: url('assets/paper.png');
-    background-size: cover;
-    background-color: var(--parchment);
+    background-color: #F8F0E3;
     padding: 3rem 2.5rem;
     border-radius: 2px;
 
@@ -120,7 +118,6 @@ body {
         0 4px 6px rgba(0,0,0,0.15),
         0 12px 20px rgba(0,0,0,0.2),
         0 30px 60px var(--wood-shadow),
-        /* Page edge highlight */
         inset 0 0 0 1px rgba(255,255,255,0.08);
 }
 
