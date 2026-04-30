@@ -1398,5 +1398,138 @@
         "image": "https://images.unsplash.com/photo-1523050335456-c70a84e6012e?auto=format&fit=crop&q=80&w=800",
         "link": "https://bharatdiscovery.org/india/मदन_मोहन_मालवीय",
         "tithi": "मालवीय जयंती"
+    },
+    "काशीकाञ्ची": {
+        "name": "काशी-काञ्ची",
+        "summary": "काशी (वाराणसी) - भगवान शिव की नगरी, और काञ्ची (कांचीपुरम) - दक्षिण का स्वर्ण नगर; दोनों मिलकर सप्त मोक्षदायिनी पुरियों का गौरव हैं।",
+        "image": "https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/सप्त_पुरी",
+        "tithi": "देव दीपावली"
+    },
+    "चतुर्वेदाश्च": {
+        "name": "चतुर्वेदाः",
+        "summary": "ऋग्वेद, यजुर्वेद, सामवेद और अथर्ववेद; जो भारतीय ज्ञान परंपरा के मूल आधार और प्राचीनतम ग्रंथ हैं।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/वेद",
+        "tithi": "गुरु पूर्णिमा"
+    },
+    "पुराणानि च": {
+        "name": "पुराणानि",
+        "summary": "18 महापुराण, जिनमें सृष्टि, वंशावली, देवताओं की लीलाएं और धर्म की शिक्षाओं का विशाल संग्रह है।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/पुराण",
+        "tithi": "नित्य"
+    },
+    "सद्दर्शनानि": {
+        "name": "सद्दर्शनानि",
+        "summary": "भारतीय दर्शन की छह शाखाएं - न्याय, वैशेषिक, सांख्य, योग, मीमांसा और वेदांत; जो जीवन और ब्रह्मांड को समझने के महान मार्ग हैं।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/भारतीय_दर्शन",
+        "tithi": "नित्य"
+    },
+    "जैनागमास्त्रिपिटकाः": {
+        "name": "जैनागम-त्रिपिटकाः",
+        "summary": "जैन धर्म के आगम और बौद्ध धर्म के त्रिपिटक — दो महान भारतीय श्रमण परंपराओं के पवित्र ग्रंथ, जो अहिंसा और करुणा का पाठ पढ़ाते हैं।",
+        "image": "https://images.unsplash.com/photo-1517303650219-83c8b1788c4c?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/जैन_दर्शन",
+        "tithi": "पर्युषण / बुद्ध पूर्णिमा"
+    },
+    "श्रीराम": {
+        "name": "श्रीराम",
+        "summary": "मर्यादा पुरुषोत्तम, जिन्होंने सत्य और धर्म के पथ पर चलते हुए आदर्श राज्य 'रामराज्य' की स्थापना की।",
+        "image": "https://images.unsplash.com/photo-1614583224978-f05ce51ef5fa?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/राम",
+        "tithi": "राम नवमी"
+    },
+    "भरत": {
+        "name": "भरत (अयोध्यापति)",
+        "summary": "श्रीराम के अनुज और आदर्श भ्रातृप्रेम के प्रतीक, जिन्होंने वन गए भाई की पादुकाएं सिंहासन पर रख कर राज्य किया।",
+        "image": "https://images.unsplash.com/photo-1614583224978-f05ce51ef5fa?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/भरत_(रामायण)",
+        "tithi": "राम नवमी"
+    },
+    "कृष्ण": {
+        "name": "श्रीकृष्ण",
+        "summary": "लीला पुरुषोत्तम और गीता के उपदेशक, जिन्होंने अधर्म का नाश कर धर्म की पुनर्स्थापना की।",
+        "image": "https://images.unsplash.com/photo-1560611568-7c8a67015099?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/कृष्ण",
+        "tithi": "जन्माष्टमी"
+    },
+    "भीष्म": {
+        "name": "भीष्म",
+        "summary": "प्रतिज्ञापालन और पितृभक्ति के सर्वोच्च प्रतीक, जिन्होंने आजीवन ब्रह्मचर्य की भीष्म प्रतिज्ञा ली और इच्छामृत्यु का वरदान पाया।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/भीष्म",
+        "tithi": "भीष्म अष्टमी"
+    },
+    "निम्बार्क": {
+        "name": "निम्बार्काचार्य",
+        "summary": "वैष्णव संप्रदाय के 'द्वैताद्वैत' दर्शन के प्रवर्तक, जिन्होंने राधाकृष्ण की उपासना को केंद्र में रखा।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/निम्बार्काचार्य",
+        "tithi": "नित्य"
+    },
+    "माधवस्तथा": {
+        "name": "माधव",
+        "summary": "विद्यारण्य स्वामी (माधवाचार्य), जिन्होंने विजयनगर साम्राज्य की स्थापना में आध्यात्मिक मार्गदर्शन किया और 'सर्वदर्शनसंग्रह' की रचना की।",
+        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/माधवाचार्य",
+        "tithi": "नित्य"
+    },
+    "पुरन्दर": {
+        "name": "पुरन्दरदास",
+        "summary": "कर्नाटक संगीत के पितामह, जिन्होंने 4.75 लाख से अधिक कीर्तनों की रचना की और भक्ति संगीत की एक अखंड धारा बहाई।",
+        "image": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/पुरंदरदास",
+        "tithi": "पुरन्दर दास जयंती"
+    },
+    "कंबुकौण्डिन्यौ": {
+        "name": "कंबु-कौण्डिन्य",
+        "summary": "भारतीय सांस्कृतिक विस्तार के दूत — कंबु और कौण्डिन्य, जिन्होंने कंबोडिया और दक्षिण-पूर्व एशिया में भारतीय सभ्यता का प्रकाश फैलाया।",
+        "image": "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/कौण्डिन्य",
+        "tithi": "नित्य"
+    },
+    "राजेन्द्रश्चोलवंशजः": {
+        "name": "राजेन्द्र चोल",
+        "summary": "महान चोल सम्राट, जिन्होंने 'गंगैकोण्डचोल' की उपाधि धारण की और समुद्री मार्ग से दक्षिण-पूर्व एशिया तक भारतीय विजय पताका फहराई।",
+        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/राजेन्द्र_प्रथम",
+        "tithi": "नित्य"
+    },
+    "पुश्यमित्र": {
+        "name": "पुष्यमित्र शुंग",
+        "summary": "शुंग वंश के संस्थापक, जिन्होंने मौर्य साम्राज्य के पश्चात भारत में वैदिक धर्म और संस्कृति का पुनरुद्धार किया।",
+        "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/पुष्यमित्र_शुंग",
+        "tithi": "नित्य"
+    },
+    "लाचित": {
+        "name": "लाचित बरफुकन",
+        "summary": "असम के अहोम साम्राज्य के वीर सेनापति, जिन्होंने सराईघाट के युद्ध (1671) में मुगल सेना को परास्त कर उत्तर-पूर्व भारत की रक्षा की।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/लाचित_बरफुकन",
+        "tithi": "लाचित दिवस"
+    },
+    "शिवाजी": {
+        "name": "छत्रपति शिवाजी महाराज",
+        "summary": "हिंदवी स्वराज्य के संस्थापक, जिन्होंने अदम्य साहस, कुशल रणनीति और प्रजाहित से एक स्वतंत्र मराठा साम्राज्य की नींव रखी।",
+        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/शिवाजी",
+        "tithi": "शिव जयंती"
+    },
+    "रणजीत सिंह": {
+        "name": "महाराजा रणजीत सिंह",
+        "summary": "पंजाब के 'शेर-ए-पंजाब', जिन्होंने सिख साम्राज्य की स्थापना की और अफगान आक्रमणों से भारत की पश्चिमी सीमाओं की रक्षा की।",
+        "image": "https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/रणजीत_सिंह",
+        "tithi": "नित्य"
+    },
+    "केशवो": {
+        "name": "केशव बलिराम हेडगेवार",
+        "summary": "राष्ट्रीय स्वयंसेवक संघ के संस्थापक, जिन्होंने हिंदू समाज को संगठित करने के लिए अपना समस्त जीवन समर्पित किया।",
+        "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=800",
+        "link": "https://bharatdiscovery.org/india/केशव_बलिराम_हेडगेवार",
+        "tithi": "संघ स्थापना दिवस"
     }
 }
