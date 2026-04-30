@@ -1,6 +1,6 @@
 /**
- * Ekatmata Stotra Interactive Script
- * Full 33 Verses with Interactive Nouns
+ * Ekatmata Stotra Interactive Script - UI Overhaul Edition
+ * Side Panels for Desktop, Bottom Sheets for Mobile
  */
 
 const stotraText = `
@@ -108,13 +108,20 @@ const stotraText = `
 
 document.addEventListener('DOMContentLoaded', async () => {
     const contentDiv = document.getElementById('stotra-content');
-    
+    const backdrop = document.getElementById('backdrop');
+    const sidePanel = document.getElementById('side-panel');
+    const bottomSheet = document.getElementById('bottom-sheet');
+    const sideContent = document.getElementById('side-panel-content');
+    const bottomContent = document.getElementById('bottom-sheet-content');
+    const closeSide = document.getElementById('close-side-panel');
+
+    let entityData = {};
+
     try {
         const response = await fetch('data.json');
-        const entityData = await response.json();
+        entityData = await response.json();
         
         const verses = stotraText.trim().split(/\n\s*\n/);
-        console.log('Total verses found:', verses.length);
         contentDiv.innerHTML = '';
         
         const entities = Object.keys(entityData).sort((a, b) => b.length - a.length);
@@ -127,9 +134,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const lines = verse.split('\n');
             let processedLines = lines.map(line => {
                 const processedLine = line.replace(entityRegex, (match) => {
-                    const data = entityData[match];
-                    // Every noun is a direct link
-                    return `<a href="${data.link}" target="_blank" class="entity-link" data-entity="${match}">${match}</a>`;
+                    return `<span class="entity-link" data-entity="${match}">${match}</span>`;
                 });
                 return `<div>${processedLine}</div>`;
             }).join('');
@@ -138,39 +143,63 @@ document.addEventListener('DOMContentLoaded', async () => {
             contentDiv.appendChild(verseElement);
         });
 
-        // Initialize Tippy with better mobile support
-        tippy('.entity-link', {
-            theme: 'indic',
-            animation: 'scale',
-            interactive: true,
-            allowHTML: true,
-            appendTo: document.body,
-            touch: ['hold', 500], // Long press on mobile or normal click
-            trigger: 'mouseenter focus',
-            content(reference) {
-                const entityName = reference.getAttribute('data-entity');
-                const data = entityData[entityName];
-                
-                if (!data) return entityName;
-
-                return `
-                    <div class="preview-card">
-                        <div class="relative overflow-hidden">
-                            <img src="${data.image}" class="preview-image" alt="${data.name}" onerror="this.parentElement.innerHTML='<div class=\\'w-full h-[140px] bg-gradient-to-br from-orange-100 to-yellow-50 flex items-center justify-center text-orange-300 text-4xl font-bold\\'>${data.name[0]}</div>'">
-                        </div>
-                        <div class="preview-body">
-                            <div class="preview-tithi">${data.tithi}</div>
-                            <h3 class="preview-title">${data.name}</h3>
-                            <p class="preview-text">${data.summary}</p>
-                            <div class="mt-2 text-xs text-gray-400">अधिक जानकारी के लिए क्लिक करें</div>
-                        </div>
-                    </div>
-                `;
-            }
+        // Click Handler for Entities
+        document.querySelectorAll('.entity-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const entityName = e.target.getAttribute('data-entity');
+                showEntityDetails(entityName);
+            });
         });
 
     } catch (error) {
         console.error('Error:', error);
-        contentDiv.innerHTML = '<p class="text-red-500">सामग्री लोड करने में त्रुटि हुई। कृपया रिफ्रेश करें।</p>';
+        contentDiv.innerHTML = '<p class="text-red-500">सामग्री लोड करने में त्रुटि हुई।</p>';
     }
+
+    function showEntityDetails(name) {
+        const data = entityData[name];
+        if (!data) return;
+
+        const html = `
+            <div class="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div class="detail-tithi">${data.tithi}</div>
+                <h2 class="detail-title">${data.name}</h2>
+                <div class="overflow-hidden rounded-2xl mb-6">
+                    <img src="${data.image}" class="detail-image hover:scale-105 transition-transform duration-700" alt="${data.name}" onerror="this.src='https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800'">
+                </div>
+                <p class="detail-summary">${data.summary}</p>
+                <a href="${data.link}" target="_blank" class="detail-link-btn">अधिक जानकारी (Bharat Discovery)</a>
+            </div>
+        `;
+
+        sideContent.innerHTML = html;
+        bottomContent.innerHTML = html;
+
+        document.body.classList.add('panel-open');
+    }
+
+    function closePanels() {
+        document.body.classList.remove('panel-open');
+    }
+
+    closeSide.addEventListener('click', closePanels);
+    backdrop.addEventListener('click', closePanels);
+
+    // Escape key to close
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closePanels();
+    });
+
+    // Handle touch swipe down for bottom sheet
+    let touchStartY = 0;
+    bottomSheet.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+    });
+
+    bottomSheet.addEventListener('touchend', (e) => {
+        const touchEndY = e.changedTouches[0].clientY;
+        if (touchEndY - touchStartY > 100) { // Swipe down more than 100px
+            closePanels();
+        }
+    });
 });

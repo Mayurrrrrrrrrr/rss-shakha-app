@@ -1,124 +1,157 @@
-/* Custom Styles for Ekatmata Stotra */
+/* Ancient Book Theme - Ekatmata Stotra */
 
 :root {
     --saffron: #E67E22;
     --gold: #D4AF37;
-    --cream: #FFF9F2;
+    --parchment: #FFF9F2;
+    --deep-purple: #8E44AD;
     --dark: #2C3E50;
+    --accent: #B03A2E;
 }
 
-body {
-    background-image: 
-        radial-gradient(circle at 50% 50%, rgba(255, 249, 242, 0.8) 0%, rgba(255, 249, 242, 0.9) 100%),
-        url('https://www.transparenttextures.com/patterns/natural-paper.png');
-    overflow-x: hidden;
+/* Background Texture */
+.manuscript-bg {
+    background-image: url('assets/parchment.png');
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+.parchment-bg {
+    background-image: url('assets/parchment.png');
+    background-size: cover;
+}
+
+/* Typography & Decorations */
+h1 {
+    text-shadow: 2px 4px 8px rgba(142, 68, 173, 0.2);
+    letter-spacing: -1px;
+}
+
+.ornament {
+    text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+}
+
+/* Manuscript Container */
+.manuscript-container {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(12px);
+    border: 2px solid var(--gold);
+    box-shadow: 
+        0 30px 60px rgba(0,0,0,0.12),
+        inset 0 0 100px rgba(212, 175, 55, 0.05);
+    border-radius: 8px;
+    position: relative;
+}
+
+/* Decorative Corners for the Container */
+.manuscript-container::before,
+.manuscript-container::after {
+    content: '';
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border: 3px solid var(--gold);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.manuscript-container::before {
+    top: 15px;
+    left: 15px;
+    border-right: 0;
+    border-bottom: 0;
+}
+
+.manuscript-container::after {
+    bottom: 15px;
+    right: 15px;
+    border-left: 0;
+    border-top: 0;
 }
 
 /* Noun styling */
 .entity-link {
-    color: var(--saffron);
-    text-decoration: underline decoration-thickness 2px;
-    text-underline-offset: 4px;
-    transition: all 0.3s ease;
-    cursor: help;
-    display: inline-block;
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
     font-weight: 700;
-    position: relative;
+    padding: 0 2px;
 }
 
 .entity-link:hover {
-    color: var(--gold);
-    transform: translateY(-2px);
-    text-shadow: 0 4px 12px rgba(230, 126, 34, 0.2);
+    color: var(--deep-purple);
+    border-bottom-color: var(--gold);
+    background: rgba(212, 175, 55, 0.1);
+    transform: scale(1.05);
 }
 
-/* Tippy Custom Theme */
-.tippy-box[data-theme~='indic'] {
-    background-color: white;
-    color: var(--dark);
-    border-radius: 1rem;
-    padding: 0;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    border: 1px solid var(--gold);
-    overflow: hidden;
-    max-width: 300px !important;
-}
-
-@media (max-width: 640px) {
-    .tippy-box[data-theme~='indic'] {
-        max-width: 260px !important;
-    }
-}
-
-.tippy-content {
-    padding: 0 !important;
-}
-
-.preview-card {
-    display: flex;
-    flex-direction: column;
-}
-
-.preview-image {
-    width: 100%;
-    height: 140px;
-    object-fit: cover;
-    background-color: #f3f4f6;
-}
-
-.preview-body {
-    padding: 1rem;
-}
-
-.preview-title {
-    font-family: 'Mukta', sans-serif;
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--saffron);
-    margin-bottom: 0.25rem;
-}
-
-.preview-text {
-    font-size: 0.9rem;
-    line-height: 1.5;
-    color: #4b5563;
-    margin-bottom: 0.75rem;
-    font-family: 'Mukta', sans-serif;
-}
-
-.preview-tithi {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #92400e;
-    background-color: #fef3c7;
-    padding: 0.15rem 0.5rem;
-    border-radius: 9999px;
-    display: inline-block;
+/* Detail Panels Content */
+.detail-title {
+    font-family: 'Eczar', serif;
+    font-size: 2.5rem;
+    color: var(--deep-purple);
+    line-height: 1.1;
     margin-bottom: 0.5rem;
-    font-family: 'Mukta', sans-serif;
 }
 
-.preview-link-btn {
-    font-size: 0.85rem;
+.detail-tithi {
+    font-family: 'Eczar', serif;
+    color: var(--accent);
     font-weight: 600;
-    color: white;
-    background-color: var(--saffron);
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-    text-align: center;
-    text-decoration: none;
-    transition: background 0.3s;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-bottom: 1px solid var(--gold);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    display: inline-block;
 }
 
-.preview-link-btn:hover {
-    background-color: var(--gold);
+.detail-image {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    border-radius: 16px;
+    border: 4px solid var(--gold);
+    margin-bottom: 1.5rem;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+}
+
+.detail-summary {
+    font-size: 1.3rem;
+    line-height: 1.7;
+    color: var(--dark);
+    margin-bottom: 2rem;
+}
+
+.detail-link-btn {
+    display: block;
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), #7B241C);
+    color: white;
+    text-align: center;
+    padding: 1.25rem;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-size: 1.15rem;
+    box-shadow: 0 4px 15px rgba(176, 58, 46, 0.3);
+}
+
+.detail-link-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(176, 58, 46, 0.4);
+    filter: brightness(1.1);
 }
 
 /* Animations */
-@keyframes fadeInUp {
+@keyframes verseFadeIn {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(40px);
     }
     to {
         opacity: 1;
@@ -127,28 +160,73 @@ body {
 }
 
 .verse {
-    animation: fadeInUp 0.8s ease-out forwards;
-    opacity: 1;
-    margin-bottom: 2rem;
+    animation: verseFadeIn 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    padding: 1.5rem 0;
 }
-
-.verse { animation-fill-mode: forwards; }
 
 .verse:nth-child(1) { animation-delay: 0.1s; }
 .verse:nth-child(2) { animation-delay: 0.2s; }
 .verse:nth-child(3) { animation-delay: 0.3s; }
 .verse:nth-child(4) { animation-delay: 0.4s; }
 .verse:nth-child(5) { animation-delay: 0.5s; }
-/* ... up to 33 ... */
 .verse:nth-child(n+6) { animation-delay: 0.6s; }
 
-/* Mobile Optimizations */
+/* Title Shimmer Effect */
+.title-shimmer {
+    background: linear-gradient(
+        90deg, 
+        var(--deep-purple) 0%, 
+        var(--accent) 50%, 
+        var(--deep-purple) 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 6s linear infinite;
+}
+
+@keyframes shimmer {
+    to { background-position: 200% center; }
+}
+
+/* Backdrop */
+#backdrop.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Panel/Sheet Open State */
+body.panel-open #side-panel,
+body.panel-open #bottom-sheet {
+    transform: translate(0);
+}
+
+body.panel-open #backdrop {
+    display: block;
+    opacity: 1;
+}
+
+body.panel-open {
+    overflow: hidden;
+}
+
+/* Mobile Adjustments */
 @media (max-width: 768px) {
-    #stotra-content {
-        font-size: 1.25rem;
-        line-height: 1.8;
+    .manuscript-container {
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+        padding: 4rem 1.5rem;
     }
-    .entity-link {
-        text-underline-offset: 2px;
+    
+    .manuscript-container::before,
+    .manuscript-container::after {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .verse {
+        font-size: 1.5rem;
+        line-height: 1.8;
     }
 }

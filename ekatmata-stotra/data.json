@@ -100,126 +100,126 @@
     "सिन्धु": {
         "name": "सिन्धु",
         "summary": "भारत की प्राचीन सभ्यता का उद्गम स्थल, जिसके नाम से ही 'हिंदू' और 'इंडिया' शब्द निकले हैं।",
-        "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/river.png",
         "link": "https://bharatdiscovery.org/india/सिन्धु_नदी",
         "tithi": "सिंधु दर्शन"
     },
     "ब्रह्मपुत्र": {
         "name": "ब्रह्मपुत्र",
         "summary": "ब्रह्मा का पुत्र मानी जाने वाली विशाल नदी, जो तिब्बत और उत्तर-पूर्व भारत की जीवनरेखा है।",
-        "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/river.png",
         "link": "https://bharatdiscovery.org/india/ब्रह्मपुत्र_नदी",
         "tithi": "अम्बुबाची मेला"
     },
     "गण्डकी": {
         "name": "गण्डकी",
         "summary": "नेपाल और भारत में बहने वाली पवित्र नदी, जहाँ से शालिग्राम के पत्थर प्राप्त होते हैं।",
-        "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/river.png",
         "link": "https://bharatdiscovery.org/india/गण्डकी_नदी",
         "tithi": "कार्तिक स्नान"
     },
     "कावेरी": {
         "name": "कावेरी",
         "summary": "दक्षिण भारत की गंगा कही जाने वाली पवित्र नदी, जो कर्नाटक और तमिलनाडु को समृद्ध करती है।",
-        "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/river.png",
         "link": "https://bharatdiscovery.org/india/कावेरी_नदी",
         "tithi": "कावेरी पुष्करम"
     },
     "यमुना": {
         "name": "यमुना",
         "summary": "सूर्य पुत्री और भगवान कृष्ण की लीलाओं की साक्षी, ब्रज मंडल की अत्यंत पावन नदी।",
-        "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/river.png",
         "link": "https://bharatdiscovery.org/india/यमुना_नदी",
         "tithi": "यमि द्वितीया / भाई दूज"
     },
     "रेवा": {
         "name": "रेवा",
         "summary": "नर्मदा नदी का दूसरा नाम, जो अमरकंटक से निकलकर भारत के मध्य भाग को सिंचित करती है।",
-        "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/river.png",
         "link": "https://bharatdiscovery.org/india/नर्मदा_नदी",
         "tithi": "नर्मदा जयंती"
     },
     "कृष्णा": {
         "name": "कृष्णा",
         "summary": "दक्षिण भारत की प्रमुख नदी, जो महाबलेश्वर से निकलकर विशाल क्षेत्र को उपजाऊ बनाती है।",
-        "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/river.png",
         "link": "https://bharatdiscovery.org/india/कृष्णा_नदी",
         "tithi": "कृष्णा पुष्करम"
     },
     "गोदा": {
         "name": "गोदा",
         "summary": "गोदावरी नदी, जिसे 'दक्षिण गंगा' या 'वृद्ध गंगा' भी कहा जाता है, नासिक जिसका मुख्य तीर्थ है।",
-        "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/river.png",
         "link": "https://bharatdiscovery.org/india/गोदावरी_नदी",
         "tithi": "गोदावरी पुष्करम"
     },
     "महानदी": {
         "name": "महानदी",
         "summary": "छत्तीसगढ़ और ओडिशा की प्रमुख नदी, जिसके तट पर हीराकुंड जैसा विशाल बाँध स्थित है।",
-        "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/river.png",
         "link": "https://bharatdiscovery.org/india/महानदी",
         "tithi": "बाली जात्रा"
     },
     "अयोध्या": {
         "name": "अयोध्या",
         "summary": "भगवान श्री राम की जन्मभूमि और सरयू नदी के तट पर स्थित सप्त पुरियों में से एक अत्यंत प्राचीन नगर।",
-        "image": "https://images.unsplash.com/photo-1614583224978-f05ce51ef5fa?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/city.png",
         "link": "https://bharatdiscovery.org/india/अयोध्या",
         "tithi": "राम नवमी"
     },
     "मथुरा": {
         "name": "मथुरा",
         "summary": "भगवान श्रीकृष्ण की जन्मस्थली और यमुना तट पर स्थित ब्रज संस्कृति का मुख्य केंद्र।",
-        "image": "https://images.unsplash.com/photo-1560611568-7c8a67015099?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/city.png",
         "link": "https://bharatdiscovery.org/india/मथुरा",
         "tithi": "कृष्ण जन्माष्टमी"
     },
     "माया": {
         "name": "माया",
         "summary": "हरिद्वार का प्राचीन नाम, जहाँ गंगा मैदानी भाग में प्रवेश करती हैं और कुंभ का आयोजन होता है।",
-        "image": "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/city.png",
         "link": "https://bharatdiscovery.org/india/हरिद्वार",
         "tithi": "गंगा दशहरा / कुंभ"
     },
     "काशी": {
         "name": "काशी",
         "summary": "वाराणसी, जो भगवान शिव की नगरी और विश्व का प्राचीनतम जीवित शहर माना जाता है।",
-        "image": "https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/city.png",
         "link": "https://bharatdiscovery.org/india/वाराणसी",
         "tithi": "देव दीपावली"
     },
     "काञ्ची": {
         "name": "काञ्ची",
         "summary": "कांचीपुरम, दक्षिण भारत का स्वर्ण नगर, जो मंदिरों और रेशम के लिए प्रसिद्ध एक मोक्षदायिनी पुरी है।",
-        "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/city.png",
         "link": "https://bharatdiscovery.org/india/कांचीपुरम",
         "tithi": "कामाक्षी अम्मन उत्सव"
     },
     "अवन्तिका": {
         "name": "अवन्तिका",
         "summary": "उज्जैन, महाकाल की नगरी, जहाँ से प्रधान मध्याह्न रेखा गुजरती है और कुंभ का पर्व मनाया जाता है।",
-        "image": "https://images.unsplash.com/photo-1623946025232-094770e0a5e8?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/city.png",
         "link": "https://bharatdiscovery.org/india/उज्जैन",
         "tithi": "महाशिवरात्रि / सिंहस्थ कुंभ"
     },
     "वैशाली": {
         "name": "वैशाली",
         "summary": "विश्व के प्रथम गणराज्य की राजधानी और भगवान महावीर की जन्मस्थली एवं बुद्ध की प्रिय नगरी।",
-        "image": "https://images.unsplash.com/photo-1523474253046-7cd2ad074432?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/city.png",
         "link": "https://bharatdiscovery.org/india/वैशाली",
         "tithi": "महावीर जयंती"
     },
     "द्वारिका": {
         "name": "द्वारिका",
         "summary": "भगवान श्रीकृष्ण की राजधानी, जो गुजरात के समुद्र तट पर स्थित चार धामों में से एक है।",
-        "image": "https://images.unsplash.com/photo-1590492485513-41c3029f268b?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/city.png",
         "link": "https://bharatdiscovery.org/india/द्वारका",
         "tithi": "जन्माष्टमी"
     },
     "पुरी": {
         "name": "पुरी",
         "summary": "जगन्नाथ पुरी, जहाँ भगवान जगन्नाथ, सुभद्रा और बलभद्र की विश्वप्रसिद्ध रथयात्रा निकाली जाती है।",
-        "image": "https://images.unsplash.com/photo-1524440529402-985f95200f68?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/city.png",
         "link": "https://bharatdiscovery.org/india/पुरी",
         "tithi": "रथ यात्रा"
     },
@@ -1500,28 +1500,28 @@
     "पुश्यमित्र": {
         "name": "पुष्यमित्र शुंग",
         "summary": "शुंग वंश के संस्थापक, जिन्होंने मौर्य साम्राज्य के पश्चात भारत में वैदिक धर्म और संस्कृति का पुनरुद्धार किया।",
-        "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/warrior.png",
         "link": "https://bharatdiscovery.org/india/पुष्यमित्र_शुंग",
         "tithi": "नित्य"
     },
     "लाचित": {
         "name": "लाचित बरफुकन",
         "summary": "असम के अहोम साम्राज्य के वीर सेनापति, जिन्होंने सराईघाट के युद्ध (1671) में मुगल सेना को परास्त कर उत्तर-पूर्व भारत की रक्षा की।",
-        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/warrior.png",
         "link": "https://bharatdiscovery.org/india/लाचित_बरफुकन",
         "tithi": "लाचित दिवस"
     },
     "शिवाजी": {
         "name": "छत्रपति शिवाजी महाराज",
         "summary": "हिंदवी स्वराज्य के संस्थापक, जिन्होंने अदम्य साहस, कुशल रणनीति और प्रजाहित से एक स्वतंत्र मराठा साम्राज्य की नींव रखी।",
-        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/warrior.png",
         "link": "https://bharatdiscovery.org/india/शिवाजी",
         "tithi": "शिव जयंती"
     },
     "रणजीत सिंह": {
         "name": "महाराजा रणजीत सिंह",
         "summary": "पंजाब के 'शेर-ए-पंजाब', जिन्होंने सिख साम्राज्य की स्थापना की और अफगान आक्रमणों से भारत की पश्चिमी सीमाओं की रक्षा की।",
-        "image": "https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/warrior.png",
         "link": "https://bharatdiscovery.org/india/रणजीत_सिंह",
         "tithi": "नित्य"
     },
@@ -1535,14 +1535,14 @@
     "रत्नाकरा": {
         "name": "रत्नाकर (सागर)",
         "summary": "रत्नाकर का अर्थ है 'रत्नों की खान', जो समुद्र का पर्यायवाची है। भारतीय संस्कृति में समुद्र को रत्नों और अमृत का उद्गम माना गया है।",
-        "image": "https://images.unsplash.com/photo-1505118380757-91f5f45d8de4?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/parchment.png",
         "link": "https://bharatdiscovery.org/india/समुद्र",
         "tithi": "नित्य"
     },
     "रत्नाकराधौतपदां": {
         "name": "रत्नाकर (सागर)",
         "summary": "भारत माता के चरणों को पखारने वाला विशाल समुद्र (हिंद महासागर), जिसे रत्नों का भंडार माना जाता है।",
-        "image": "https://images.unsplash.com/photo-1505118380757-91f5f45d8de4?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/parchment.png",
         "link": "https://bharatdiscovery.org/india/समुद्र",
         "tithi": "नित्य"
     },
@@ -1563,7 +1563,7 @@
     "अरुन्धत्यनसूया": {
         "name": "अरुन्धती और अनसूया",
         "summary": "अरुन्धती (ऋषि वशिष्ठ की पत्नी) और अनसूया (ऋषि अत्रि की पत्नी) — ये दोनों महान विदुषी और सती स्त्रियां भारतीय स्त्री शक्ति और तपस्या की प्रतीक हैं।",
-        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/saint.png",
         "link": "https://bharatdiscovery.org/india/सती",
         "tithi": "नित्य"
     },
@@ -1577,35 +1577,35 @@
     "थार्जुनः": {
         "name": "अर्जुन",
         "summary": "पांडवों के महान धनुर्धर और भगवान कृष्ण के सखा, जिन्हें कुरुक्षेत्र में 'गीता' का दिव्य उपदेश प्राप्त हुआ।",
-        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/warrior.png",
         "link": "https://bharatdiscovery.org/india/अर्जुन",
         "tithi": "नित्य"
     },
     "कलव्यो": {
         "name": "एकलव्य",
         "summary": "निषाद राज का पुत्र, जिसकी गुरुभक्ति और एकाग्रता के कारण वह स्वयं गुरु द्रोणाचार्य की अनुपस्थिति में भी अद्वितीय धनुर्धर बना।",
-        "image": "https://images.unsplash.com/photo-1544735745-b89b57c51bf6?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/warrior.png",
         "link": "https://bharatdiscovery.org/india/एकलव्य",
         "tithi": "नित्य"
     },
     "माधवौ": {
         "name": "माधवाचार्य (विद्यारण्य)",
         "summary": "विजयनगर साम्राज्य की स्थापना के पीछे मुख्य आध्यात्मिक प्रेरणा और महान विद्वान, जिन्होंने वेदों पर भाष्य लिखे।",
-        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/saint.png",
         "link": "https://bharatdiscovery.org/india/माधवाचार्य",
         "tithi": "नित्य"
     },
     "रणजि सिंह": {
         "name": "महाराजा रणजीत सिंह",
         "summary": "'शेर-ए-पंजाब', जिन्होंने एक शक्तिशाली सिख साम्राज्य की स्थापना की और अफगान आक्रमणों से देश की रक्षा की।",
-        "image": "https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/warrior.png",
         "link": "https://bharatdiscovery.org/india/रणजीत_सिंह",
         "tithi": "13 नवंबर"
     },
     "ऽरविंदश्च": {
         "name": "महर्षि अरविंद",
         "summary": "महान क्रांतिकारी, योगी और दार्शनिक, जिन्होंने 'पूर्ण योग' का मार्ग दिखाया और पुडुचेरी में आश्रम की स्थापना की।",
-        "image": "https://images.unsplash.com/photo-1561059488-916d69792237?auto=format&fit=crop&q=80&w=800",
+        "image": "assets/saint.png",
         "link": "https://bharatdiscovery.org/india/अरविन्द_घोष",
         "tithi": "15 अगस्त"
     }
