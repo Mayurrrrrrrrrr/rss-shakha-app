@@ -211,6 +211,28 @@ $ghoshnayein = [
 ];
 
 try {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS amrit_vachan (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        shakha_id INT NOT NULL,
+        content TEXT NOT NULL,
+        author VARCHAR(255),
+        vachan_date DATE NOT NULL,
+        created_by INT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (shakha_id) REFERENCES shakhas(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS ghoshnayein (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        shakha_id INT NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        ghoshnayein_date DATE NOT NULL,
+        created_by INT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (shakha_id) REFERENCES shakhas(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
     $pdo->beginTransaction();
 
     // Insert Subhashits
@@ -220,9 +242,9 @@ try {
     }
 
     // Insert Amrit Vachan
-    $stmtA = $pdo->prepare("INSERT INTO amrit_vachan (shakha_id, content, amrit_vachan_date, created_by) VALUES (?, ?, CURDATE(), ?)");
+    $stmtA = $pdo->prepare("INSERT INTO amrit_vachan (shakha_id, content, author, vachan_date, created_by) VALUES (?, ?, ?, CURDATE(), ?)");
     foreach ($amritVachans as $v) {
-        $stmtA->execute([$shakhaId, $v, $userId]);
+        $stmtA->execute([$shakhaId, $v, 'स्वामी विवेकानंद', $userId]);
     }
 
     // Insert Geets
@@ -241,6 +263,6 @@ try {
     echo "Data population successful!\n";
 
 } catch (Exception $e) {
-    $pdo->rollBack();
+    if ($pdo->inTransaction()) $pdo->rollBack();
     echo "Error: " . $e->getMessage() . "\n";
 }
