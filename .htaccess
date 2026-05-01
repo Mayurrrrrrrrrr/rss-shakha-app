@@ -70,6 +70,10 @@ Options -MultiViews
     # Allow public content directories
     RewriteRule ^ekatmata-stotra/ - [L]
     RewriteRule ^prarthna/ - [L]
+    RewriteRule ^subhashit/ - [L]
+    RewriteRule ^geet/ - [L]
+    RewriteRule ^ghoshnayein/ - [L]
+    RewriteRule ^amrit-vachan/ - [L]
 
     # Block sensitive directories
     RewriteRule ^config/         - [F,L]

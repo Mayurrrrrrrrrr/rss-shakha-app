@@ -473,15 +473,6 @@ body {
     border: 1px solid rgba(230, 81, 0, 0.15);
 }
 
-.content-card-coming {
-    opacity: 0;
-}
-.content-card-coming.animate-in {
-    opacity: 0.7;
-}
-.content-card-coming:hover {
-    opacity: 1;
-}
 
 /* === SEARCH === */
 .search-section {
@@ -763,28 +754,47 @@ body {
     border: 1px solid rgba(188, 143, 95, 0.12);
     border-radius: 8px;
     text-align: center;
-    padding: 10px 4px;
-    min-height: 44px;
+    padding: 8px 4px;
+    min-height: 56px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 2px;
     transition: var(--transition);
+    cursor: pointer;
+    user-select: none;
 }
 
 .cal-day:hover {
     background: var(--saffron-glow);
-    border-color: rgba(230, 81, 0, 0.15);
+    border-color: rgba(230, 81, 0, 0.2);
+    transform: scale(1.05);
 }
 
 .cal-day-empty {
     background: transparent;
     border-color: transparent;
+    cursor: default;
 }
+.cal-day-empty:hover { transform: none; }
 
 .cal-day-num {
     font-size: 0.95rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--ink-light);
+    line-height: 1;
+}
+
+.cal-day-tithi {
+    font-size: 0.58rem;
+    color: var(--ink-muted);
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .cal-day-today {
@@ -795,6 +805,32 @@ body {
 .cal-day-today .cal-day-num {
     color: white;
     font-weight: 700;
+}
+
+.cal-day-today .cal-day-tithi {
+    color: rgba(255,255,255,0.8);
+}
+
+/* Tithi popup */
+.cal-tithi-popup {
+    display: none;
+    position: absolute;
+    z-index: 100;
+    background: white;
+    border: 1px solid var(--border-warm);
+    border-radius: var(--radius-sm);
+    padding: 12px 18px;
+    box-shadow: 0 8px 24px rgba(44,24,16,0.15);
+    font-size: 0.9rem;
+    color: var(--ink);
+    text-align: center;
+    min-width: 160px;
+    animation: popIn 0.2s ease;
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* Calendar Festivals */

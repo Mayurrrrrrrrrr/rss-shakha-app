@@ -7,6 +7,10 @@ User-agent: *
 Allow: /home.php
 Allow: /prarthna/
 Allow: /ekatmata-stotra/
+Allow: /subhashit/
+Allow: /geet/
+Allow: /ghoshnayein/
+Allow: /amrit-vachan/
 Allow: /assets/css/home.css
 Allow: /assets/images/
 Allow: /robots.txt

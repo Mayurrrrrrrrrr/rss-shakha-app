@@ -1,0 +1,181 @@
+/* Public Content Pages — Shared Styles */
+
+.public-main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 80px 20px 40px;
+    min-height: 70vh;
+}
+
+.public-header {
+    text-align: center;
+    padding: 32px 0 24px;
+}
+
+.public-header h1 {
+    font-size: 2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--saffron) 0%, var(--saffron-deep) 60%, var(--gold-accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 1px;
+}
+
+.public-header p {
+    color: var(--ink-muted);
+    font-size: 0.95rem;
+    margin-top: 6px;
+}
+
+.public-count {
+    display: inline-block;
+    background: var(--saffron-glow);
+    color: var(--saffron);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 3px 12px;
+    border-radius: 20px;
+    margin-top: 10px;
+}
+
+/* Content Items */
+.content-item {
+    background: white;
+    border: 1px solid var(--border-warm);
+    border-radius: var(--radius);
+    padding: 28px 28px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 10px rgba(44,24,16,0.04);
+    transition: var(--transition);
+}
+
+.content-item:hover {
+    box-shadow: var(--shadow-warm);
+    border-color: rgba(230,81,0,0.12);
+}
+
+.content-item-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+}
+
+.content-item-meta {
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+    margin-bottom: 12px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.content-item-meta span {
+    background: rgba(188,143,95,0.08);
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.content-item-sanskrit {
+    font-family: 'Tiro Devanagari Sanskrit', 'Noto Sans Devanagari', serif;
+    font-size: 1.2rem;
+    line-height: 2;
+    color: var(--green-deep);
+    margin-bottom: 12px;
+    text-align: center;
+    padding: 16px;
+    background: var(--parchment);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--gold-accent);
+}
+
+.content-item-meaning {
+    font-size: 0.92rem;
+    color: var(--ink-light);
+    line-height: 1.8;
+    padding: 12px 16px;
+    background: rgba(188,143,95,0.04);
+    border-radius: var(--radius-sm);
+}
+
+.content-item-meaning .label {
+    font-weight: 700;
+    color: var(--saffron);
+    font-size: 0.8rem;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.content-item-lyrics {
+    font-size: 1rem;
+    line-height: 2;
+    color: var(--ink);
+    white-space: pre-line;
+    padding: 16px;
+    background: var(--parchment);
+    border-radius: var(--radius-sm);
+}
+
+.content-item-type {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 20px;
+    background: var(--saffron-glow);
+    color: var(--saffron);
+    border: 1px solid rgba(230,81,0,0.1);
+}
+
+.content-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--ink-muted);
+}
+
+.content-empty .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.4;
+}
+
+.content-empty p {
+    font-size: 1rem;
+}
+
+.footer-back {
+    color: var(--ink-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: var(--transition);
+}
+.footer-back:hover { color: var(--saffron); }
+
+/* Shabdarth table */
+.shabdarth-table {
+    width: 100%;
+    margin-top: 10px;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+.shabdarth-table th {
+    background: var(--saffron-glow);
+    color: var(--saffron);
+    padding: 6px 12px;
+    text-align: right;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+.shabdarth-table td {
+    padding: 6px 12px;
+    border-bottom: 1px solid rgba(188,143,95,0.1);
+    text-align: right;
+}
+
+@media (max-width: 600px) {
+    .public-main { padding: 72px 14px 30px; }
+    .public-header h1 { font-size: 1.6rem; }
+    .content-item { padding: 20px 18px; }
+    .content-item-sanskrit { font-size: 1.05rem; padding: 12px; }
+}

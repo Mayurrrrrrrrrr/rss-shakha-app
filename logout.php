@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once 'includes/auth.php';
 $_SESSION = [];
 if (ini_get("session.use_cookies")) {
@@ -7,5 +7,5 @@ if (ini_get("session.use_cookies")) {
 }
 session_regenerate_id(true);
 session_destroy();
-header('Location: index.php');
+header('Location: home.php');
 exit;

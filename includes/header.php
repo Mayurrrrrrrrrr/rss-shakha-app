@@ -86,6 +86,7 @@ if ($pdo && isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                                 <li><a href="../pages/mukhyashikshaks.php" class="<?php echo $currentPage === 'mukhyashikshaks.php' ? 'active' : ''; ?>">👤 मुख्य शिक्षक</a></li>
                                                 <li><a href="../pages/events.php" class="<?php echo $currentPage === 'events' ? 'active' : ''; ?>">📅 कार्यक्रम</a></li>
                                                 <li><a href="../pages/notice.php" class="<?php echo $currentPage === 'notice' ? 'active' : ''; ?>">📢 सूचना</a></li>
+                                                <li><a href="../pages/amrit_vachan.php" class="<?php echo $currentPage === 'amrit_vachan' ? 'active' : ''; ?>">💎 अमृत वचन</a></li>
                                                 <li><a href="../pages/greetings.php" class="<?php echo $currentPage === 'greetings' ? 'active' : ''; ?>">🎨 शुभकामनाएं</a></li>
                                             </ul>
                                         </li>
@@ -114,6 +115,7 @@ if ($pdo && isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                                 <li><a href="../pages/subhashit.php" class="<?php echo $currentPage === 'subhashit' ? 'active' : ''; ?>">📜 सुभाषित</a></li>
                                                 <li><a href="../pages/geet.php" class="<?php echo $currentPage === 'geet' ? 'active' : ''; ?>">🎵 गीत</a></li>
                                                 <li><a href="../pages/ghoshnayein.php" class="<?php echo $currentPage === 'ghoshnayein' ? 'active' : ''; ?>">🗣️ घोषणाएं</a></li>
+                                                <li><a href="../pages/amrit_vachan.php" class="<?php echo $currentPage === 'amrit_vachan' ? 'active' : ''; ?>">💎 अमृत वचन</a></li>
                                                 <li><a href="../pages/greetings.php" class="<?php echo $currentPage === 'greetings' ? 'active' : ''; ?>">🎨 शुभकामनाएं</a></li>
                                             </ul>
                                         </li>
