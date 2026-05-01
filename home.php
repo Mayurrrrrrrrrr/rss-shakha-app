@@ -237,18 +237,23 @@ require_once __DIR__ . '/includes/public_header.php';
             const grid = document.getElementById('cal-grid');
             if (!grid) return;
             const popup = document.getElementById('cal-tithi-popup');
-            document.getElementById('cal-month-hindi').textContent = hindiMonths[calMonth] + ' ' + calYear;
+            const hMonthName = hindiMonths[calMonth];
+            document.getElementById('cal-month-hindi').textContent = hMonthName + ' ' + calYear;
             document.getElementById('cal-month-eng').textContent = engMonths[calMonth] + ' ' + calYear;
+            
             const vSamvat = calYear + 56 + (calMonth >= 2 ? 1 : 0);
             const sSamvat = calYear - 79 + (calMonth >= 2 ? 1 : 0);
             document.getElementById('cal-vikram-samvat').textContent = `विक्रम संवत ${vSamvat}`;
             document.getElementById('cal-shaka-samvat').textContent = `शालिवाहन शक ${sSamvat}`;
+            
             let firstDay = new Date(calYear, calMonth, 1).getDay();
             firstDay = (firstDay + 6) % 7;
             const days = new Date(calYear, calMonth + 1, 0).getDate();
             const today = new Date();
             const isCur = calMonth === today.getMonth() && calYear === today.getFullYear();
+            
             const fests = festivalsByMonth[calMonth + 1] || [];
+            
             let html = '';
             for (let i = 0; i < firstDay; i++) html += '<div class="cal-day cal-day-empty"></div>';
             for (let d = 1; d <= days; d++) {
@@ -264,6 +269,10 @@ require_once __DIR__ . '/includes/public_header.php';
                 </div>`;
             }
             grid.innerHTML = html;
+            
+            const fTitle = document.querySelector('.cal-festivals-title');
+            if (fTitle) fTitle.textContent = `${hMonthName} माह के प्रमुख पर्व एवं जयंतियाँ`;
+
             const fDiv = document.getElementById('cal-festivals-list');
             if (!fests.length) { fDiv.innerHTML = '<p class="cal-no-festivals">इस माह कोई विशेष पर्व चिह्नित नहीं है।</p>'; }
             else fDiv.innerHTML = fests.map(f => {

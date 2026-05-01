@@ -36,6 +36,7 @@
     const closeBtn = document.getElementById('close-side-panel');
 
     window.openSidePanel = function(title, contentHtml) {
+        if (!sidePanel || !sidePanelContent) return;
         sidePanelTitle.innerHTML = title;
         sidePanelContent.innerHTML = contentHtml;
         sidePanel.classList.add('open');
@@ -43,18 +44,29 @@
         document.body.style.overflow = 'hidden';
     };
 
-    function closeSidePanel() {
+    window.closeSidePanel = function() {
+        if (!sidePanel) return;
         sidePanel.classList.remove('open');
         backdrop.classList.remove('visible');
         document.body.style.overflow = '';
-    }
+    };
 
-    if (closeBtn) closeBtn.onclick = closeSidePanel;
-    if (backdrop) backdrop.onclick = closeSidePanel;
+    if (closeBtn) closeBtn.onclick = window.closeSidePanel;
+    if (backdrop) backdrop.onclick = window.closeSidePanel;
+
+    // Handle global click for data-attributes (Better than inline onclick)
+    document.addEventListener('click', (e) => {
+        const trigger = e.target.closest('[data-side-title]');
+        if (trigger) {
+            const title = trigger.getAttribute('data-side-title');
+            const content = trigger.getAttribute('data-side-content');
+            window.openSidePanel(title, content);
+        }
+    });
 
     // Handle Esc key
     window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeSidePanel();
+        if (e.key === 'Escape') window.closeSidePanel();
     });
     </script>
 </body>

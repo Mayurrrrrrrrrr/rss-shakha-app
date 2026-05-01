@@ -53,7 +53,8 @@ function getGhoshnaHtml($item) {
             $isLatest = ($index === 0);
         ?>
             <div class="list-item" style="<?php echo $isLatest ? 'border-left:4px solid var(--saffron); background:var(--saffron-glow);' : ''; ?>" 
-                 onclick="openSidePanel('घोषणा', <?php echo htmlspecialchars(json_encode($itemHtml)); ?>)">
+                 data-side-title="घोषणा" 
+                 data-side-content='<?php echo htmlspecialchars($itemHtml, ENT_QUOTES, 'UTF-8'); ?>'>
                 <div class="list-item-title">
                     <?php if($isLatest): ?><span style="color:var(--saffron); font-size:0.7rem; display:block; margin-bottom:4px;">नवीनतम</span><?php endif; ?>
                     <?php echo htmlspecialchars($title); ?>

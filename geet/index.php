@@ -52,7 +52,8 @@ function getGeetHtml($item) {
             $isLatest = ($index === 0);
         ?>
             <div class="list-item" style="<?php echo $isLatest ? 'border-left:4px solid var(--green-deep); background:rgba(46,125,50,0.03);' : ''; ?>" 
-                 onclick="openSidePanel('गीत', <?php echo htmlspecialchars(json_encode($itemHtml)); ?>)">
+                 data-side-title="गीत" 
+                 data-side-content='<?php echo htmlspecialchars($itemHtml, ENT_QUOTES, 'UTF-8'); ?>'>
                 <div class="list-item-title">
                     <?php if($isLatest): ?><span style="color:var(--green-deep); font-size:0.7rem; display:block; margin-bottom:4px;">नवीनतम</span><?php endif; ?>
                     <?php echo htmlspecialchars($item['title']); ?>

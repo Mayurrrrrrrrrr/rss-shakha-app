@@ -28,8 +28,8 @@ require_once __DIR__ . '/../config/db.php';
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700;800;900&family=Tiro+Devanagari+Sanskrit:ital@0;1&display=swap" rel="stylesheet">
     <link rel="icon" href="/assets/images/favicon.png" type="image/png">
-    <link rel="stylesheet" href="/assets/css/home.css?v=20260501b">
-    <link rel="stylesheet" href="/assets/css/public-content.css?v=20260501">
+    <link rel="stylesheet" href="/assets/css/home.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="/assets/css/public-content.css?v=<?php echo time(); ?>">
 </head>
 <body>
     <nav class="home-nav <?php echo isset($isHome) && !$isHome ? 'scrolled' : ''; ?>" id="home-nav">
