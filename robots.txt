@@ -1,0 +1,29 @@
+# Sanghasthan — robots.txt
+# Allow search engines and AI crawlers to index public content only
+
+User-agent: *
+
+# Public pages — ALLOW
+Allow: /home.php
+Allow: /prarthna/
+Allow: /ekatmata-stotra/
+Allow: /assets/css/home.css
+Allow: /assets/images/
+Allow: /robots.txt
+Allow: /sitemap.xml
+
+# Login & Dashboard — BLOCK
+Disallow: /index.php
+Disallow: /pages/
+Disallow: /api/
+Disallow: /config/
+Disallow: /includes/
+Disallow: /scripts/
+Disallow: /sql/
+Disallow: /actions/
+Disallow: /logout.php
+Disallow: /flutter_app/
+Disallow: /scratch/
+
+# Sitemap
+Sitemap: https://sanghasthan.yuktaa.com/sitemap.xml

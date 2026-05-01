@@ -63,6 +63,15 @@ Options -MultiViews
 # ── Block direct folder access ───────────────────────────────
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
+    # Public homepage: root goes to home.php
+    RewriteRule ^$ /home.php [L]
+
+    # Allow public content directories
+    RewriteRule ^ekatmata-stotra/ - [L]
+    RewriteRule ^prarthna/ - [L]
+
+    # Block sensitive directories
     RewriteRule ^config/         - [F,L]
     RewriteRule ^includes/       - [F,L]
     RewriteRule ^scripts/        - [F,L]
@@ -70,9 +79,9 @@ Options -MultiViews
 </IfModule>
 
 # ── Error pages ─────────────────────────────────────────────
-ErrorDocument 403 /index.php
-ErrorDocument 404 /index.php
-ErrorDocument 500 /index.php
+ErrorDocument 403 /home.php
+ErrorDocument 404 /home.php
+ErrorDocument 500 /home.php
 
 # ── PHP hardening ────────────────────────────────────────────
 <IfModule mod_php.c>
