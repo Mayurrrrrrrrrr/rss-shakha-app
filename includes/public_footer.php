@@ -35,13 +35,13 @@
     const backdrop = document.getElementById('backdrop');
     const closeBtn = document.getElementById('close-side-panel');
 
-    function openSidePanel(title, contentHtml) {
+    window.openSidePanel = function(title, contentHtml) {
         sidePanelTitle.innerHTML = title;
         sidePanelContent.innerHTML = contentHtml;
         sidePanel.classList.add('open');
         backdrop.classList.add('visible');
         document.body.style.overflow = 'hidden';
-    }
+    };
 
     function closeSidePanel() {
         sidePanel.classList.remove('open');

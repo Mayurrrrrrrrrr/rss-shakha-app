@@ -190,57 +190,111 @@
 }
 
 .side-panel.open {
-    right: 0;
+    transform: translateX(0);
 }
 
 .side-panel-header {
-    padding: 24px;
+    position: sticky;
+    top: 0;
+    background: rgba(250, 243, 232, 0.95);
+    backdrop-filter: blur(8px);
+    padding: 16px 24px;
     border-bottom: 1px solid var(--border-warm);
     display: flex;
     align-items: center;
-    gap: 16px;
-    background: white;
+    justify-content: space-between;
+    z-index: 10;
 }
 
 .side-panel-title {
+    font-family: 'Tiro Devanagari Sanskrit', serif;
     font-size: 1.2rem;
-    font-weight: 800;
+    font-weight: 700;
     color: var(--saffron);
 }
 
 .close-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid var(--gold-accent);
+    background: transparent;
+    color: var(--saffron);
     cursor: pointer;
-    color: var(--ink-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: var(--transition);
 }
 
 .close-btn:hover {
-    color: var(--saffron);
+    background: var(--saffron);
+    color: white;
+    transform: rotate(90deg);
 }
 
 .side-panel-inner {
-    flex: 1;
-    overflow-y: auto;
-    padding: 32px 24px;
+    padding: 32px 28px;
+    flex-grow: 1;
 }
 
+/* --- Backdrop --- */
 .backdrop {
     position: fixed;
     inset: 0;
     background: rgba(44, 24, 16, 0.4);
     backdrop-filter: blur(4px);
-    z-index: 1500;
+    z-index: 1900;
     opacity: 0;
-    visibility: hidden;
-    transition: var(--transition);
+    pointer-events: none;
+    transition: opacity 0.4s ease;
 }
 
 .backdrop.visible {
     opacity: 1;
-    visibility: visible;
+    pointer-events: auto;
+}
+
+/* --- Mobile Bottom Sheet Behavior --- */
+@media (max-width: 1023px) {
+    .side-panel {
+        top: auto;
+        bottom: 0;
+        right: 0;
+        width: 100%;
+        height: auto;
+        max-height: 85vh;
+        border-left: none;
+        border-top: 3px solid var(--gold-accent);
+        border-radius: 24px 24px 0 0;
+        transform: translateY(100%);
+    }
+
+    .side-panel.open {
+        transform: translateY(0);
+    }
+}
+
+/* --- Shared Detail Styles inside Panel --- */
+.detail-tithi {
+    font-family: 'Tiro Devanagari Sanskrit', serif;
+    color: var(--saffron);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-bottom: 1px solid var(--border-warm);
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    display: inline-block;
+}
+
+.detail-title {
+    font-family: 'Tiro Devanagari Sanskrit', serif;
+    font-size: 1.8rem;
+    color: var(--ink);
+    line-height: 1.3;
+    margin-bottom: 20px;
 }
 
 /* List Item Styles */
@@ -314,6 +368,28 @@
     font-size: 0.85rem;
     font-weight: 700;
     opacity: 0.6;
+}
+
+.shabdarth-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+}
+
+.shabdarth-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-warm);
+    font-size: 0.9rem;
+}
+
+.shabdarth-table td:first-child {
+    font-weight: 700;
+    color: var(--saffron);
+    width: 35%;
+}
+
+.shabdarth-table td:last-child {
+    color: var(--ink-light);
 }
 
 @media (max-width: 600px) {

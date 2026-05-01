@@ -58,25 +58,7 @@ body { background: #1A0E05; }
     </main>
 </div>
 
-<!-- Side Panel (Desktop ≥1024px) -->
-<aside class="side-panel" id="side-panel">
-    <div class="side-panel-header">
-        <button id="close-side-panel" class="close-btn" aria-label="बंद करें">✕</button>
-        <div id="side-panel-title" class="side-panel-title"></div>
-    </div>
-    <div class="side-panel-inner" id="side-panel-content">
-    </div>
-</aside>
-
-<!-- Bottom Sheet (Mobile/Tablet) -->
-<div class="bottom-sheet" id="bottom-sheet">
-    <div class="sheet-handle"></div>
-    <div class="bottom-sheet-inner" id="bottom-sheet-content">
-    </div>
-</div>
-
-<!-- Backdrop -->
-<div class="backdrop" id="backdrop"></div>
+<!-- Global Side Panel is provided by public_footer.php -->
 
 <script src="script.js?v=20260501c" charset="UTF-8"></script>
 

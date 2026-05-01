@@ -108,51 +108,15 @@ const stotraText = `
 
 document.addEventListener('DOMContentLoaded', async () => {
     const contentDiv = document.getElementById('stotra-content');
-    const backdrop = document.getElementById('backdrop');
-    const sidePanel = document.getElementById('side-panel');
-    const bottomSheet = document.getElementById('bottom-sheet');
-    const sideContent = document.getElementById('side-panel-content');
-    const bottomContent = document.getElementById('bottom-sheet-content');
-    const closeSide = document.getElementById('close-side-panel');
+    if (!contentDiv) return;
 
     let entityData = {};
 
-    // Layout pattern for 33 verses: L=left, C=center, R=right
-    // Creates a flowing, manuscript-like rhythm
     const alignments = [
-        'center', // 1 - ॐ invocation
-        'center', // 2 - प्रकृतिः
-        'center', // 3 - भारत माता वंदना
-        'left',   // 4 - पर्वत
-        'right',  // 5 - नदियाँ
-        'left',   // 6 - नगर (1)
-        'right',  // 7 - नगर (2)
-        'center', // 8 - ग्रन्थ
-        'center', // 9 - आगम
-        'left',   // 10 - नारी (1)
-        'right',  // 11 - नारी (2)
-        'left',   // 12 - पुरुष (1)
-        'right',  // 13 - पुरुष (2)
-        'left',   // 14 - पुरुष (3)
-        'right',  // 15 - संत (1)
-        'left',   // 16 - संत (2)
-        'right',  // 17 - संत (3)
-        'left',   // 18 - संत (4)
-        'right',  // 19 - संत (5)
-        'left',   // 20 - कवि
-        'right',  // 21 - कलाकार
-        'left',   // 22 - सम्राट (1)
-        'right',  // 23 - सम्राट (2)
-        'left',   // 24 - सम्राट (3)
-        'right',  // 25 - वीर
-        'left',   // 26 - वैज्ञानिक (1)
-        'right',  // 27 - वैज्ञानिक (2)
-        'left',   // 28 - आधुनिक (1)
-        'right',  // 29 - आधुनिक (2)
-        'left',   // 30 - आधुनिक (3)
-        'center', // 31 - संघ
-        'center', // 32 - अनुक्त
-        'center', // 33 - फल श्रुति
+        'center', 'center', 'center', 'left', 'right', 'left', 'right', 'center', 'center',
+        'left', 'right', 'left', 'right', 'left', 'right', 'left', 'right', 'left', 'right',
+        'left', 'right', 'left', 'right', 'left', 'right', 'left', 'right', 'left', 'right',
+        'left', 'center', 'center', 'center'
     ];
 
     try {
@@ -170,36 +134,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             const alignment = alignments[index] || 'center';
             verseElement.className = `verse align-${alignment}`;
 
-            // Verse number label
             const verseNum = document.createElement('div');
             verseNum.className = 'verse-number';
             verseNum.textContent = `श्लोक ${index + 1}`;
             verseElement.appendChild(verseNum);
 
-            // Verse text
             const verseTextDiv = document.createElement('div');
             verseTextDiv.className = 'verse-text';
 
             const lines = verse.split('\n');
             let processedLines = lines.map(line => {
                 const processedLine = line.replace(entityRegex, (match) => {
-                    return `<span class="entity-link" data-entity="${match}">${match}</span>`;
+                    return `<span class="entity-link" style="color:var(--accent); cursor:pointer; font-weight:700; border-bottom:1.5px dotted rgba(139,37,0,0.3);" data-entity="${match}">${match}</span>`;
                 });
                 return `<div>${processedLine}</div>`;
             }).join('');
 
             verseTextDiv.innerHTML = processedLines;
             verseElement.appendChild(verseTextDiv);
-
             contentDiv.appendChild(verseElement);
         });
 
         // Click Handler for Entities
-        document.querySelectorAll('.entity-link').forEach(link => {
-            link.addEventListener('click', (e) => {
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('entity-link')) {
                 const entityName = e.target.getAttribute('data-entity');
                 showEntityDetails(entityName);
-            });
+            }
         });
 
     } catch (error) {
@@ -214,38 +175,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const html = `
             <div class="detail-tithi">${data.tithi}</div>
             <h2 class="detail-title">${data.name}</h2>
-            <img src="${data.image}" class="detail-image" alt="${data.name}" onerror="this.style.display='none'">
-            <p class="detail-summary">${data.summary}</p>
-            <a href="${data.link}" target="_blank" rel="noopener" class="detail-link-btn">अधिक जानकारी →</a>
+            <img src="${data.image}" class="detail-image" alt="${data.name}" style="width:100%; border-radius:8px; margin-bottom:16px;" onerror="this.style.display='none'">
+            <p class="detail-summary" style="line-height:1.7; color:var(--ink-light);">${data.summary}</p>
+            <a href="${data.link}" target="_blank" rel="noopener" class="detail-link-btn" style="display:block; text-align:center; background:var(--saffron); color:white; padding:12px; border-radius:8px; text-decoration:none; margin-top:20px; font-weight:700;">अधिक जानकारी →</a>
         `;
 
-        sideContent.innerHTML = html;
-        bottomContent.innerHTML = html;
-        document.body.classList.add('panel-open');
-    }
-
-    function closePanels() {
-        document.body.classList.remove('panel-open');
-    }
-
-    closeSide.addEventListener('click', closePanels);
-    backdrop.addEventListener('click', closePanels);
-
-    // Escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closePanels();
-    });
-
-    // Touch swipe down to close bottom sheet
-    let touchStartY = 0;
-    bottomSheet.addEventListener('touchstart', (e) => {
-        touchStartY = e.touches[0].clientY;
-    });
-
-    bottomSheet.addEventListener('touchend', (e) => {
-        const touchEndY = e.changedTouches[0].clientY;
-        if (touchEndY - touchStartY > 80) {
-            closePanels();
+        if (typeof window.openSidePanel === 'function') {
+            window.openSidePanel(data.name, html);
         }
-    });
+    }
 });
