@@ -26,7 +26,11 @@ function getSubhashitHtml($item) {
         if ($shabdarth && is_array($shabdarth) && count($shabdarth)) {
             $contentHtml .= '<div style="margin-top:20px;"><span class="label" style="font-weight:700; color:var(--saffron); font-size:0.8rem;">शब्दार्थ:</span><table class="shabdarth-table"><tbody>';
             foreach ($shabdarth as $s) {
-                $contentHtml .= '<tr><td>' . htmlspecialchars($s['word'] ?? '') . '</td><td>' . htmlspecialchars($s['meaning'] ?? '') . '</td></tr>';
+                $word = $s['shabd'] ?? $s['word'] ?? '';
+                $meaning = $s['arth'] ?? $s['meaning'] ?? '';
+                if ($word || $meaning) {
+                    $contentHtml .= '<tr><td>' . htmlspecialchars($word) . '</td><td>' . htmlspecialchars($meaning) . '</td></tr>';
+                }
             }
             $contentHtml .= '</tbody></table></div>';
         }
