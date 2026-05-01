@@ -254,7 +254,7 @@ try {
     }
 
     // Insert Ghoshnayein
-    $stmtGh = $pdo->prepare("INSERT INTO ghoshnayein (shakha_id, title, content, ghoshnayein_date, created_by) VALUES (?, ?, ?, CURDATE(), ?)");
+    $stmtGh = $pdo->prepare("INSERT INTO ghoshnayein (shakha_id, slogan_sanskrit, slogan_hindi, ghoshna_date, created_by) VALUES (?, ?, ?, CURDATE(), ?)");
     foreach ($ghoshnayein as $gh) {
         $stmtGh->execute([$shakhaId, $gh['title'], $gh['content'], $userId]);
     }
