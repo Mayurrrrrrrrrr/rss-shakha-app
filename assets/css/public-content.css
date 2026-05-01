@@ -396,6 +396,95 @@
     color: var(--ink-light);
 }
 
+/* Ghoshnayein Grid Layout */
+.ghoshna-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.ghoshna-card {
+    background: white;
+    border: 1px solid var(--border-warm);
+    border-radius: var(--radius);
+    padding: 24px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transition: var(--transition);
+    box-shadow: 0 4px 15px rgba(44,24,16,0.03);
+}
+
+.ghoshna-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(44,24,16,0.08);
+}
+
+.ghoshna-content {
+    text-align: center;
+    flex-grow: 1;
+}
+
+.ghoshna-call {
+    font-family: 'Tiro Devanagari Sanskrit', serif;
+    font-size: 1.4rem;
+    color: var(--saffron);
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.ghoshna-sep {
+    color: var(--gold-accent);
+    opacity: 0.5;
+    margin: 4px 0;
+}
+
+.ghoshna-response {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--green-deep);
+    margin-bottom: 16px;
+}
+
+.ghoshna-context {
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    background: var(--parchment);
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    line-height: 1.5;
+    margin-top: 12px;
+}
+
+.ghoshna-footer {
+    margin-top: 20px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-warm);
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+    text-align: center;
+}
+
+.latest-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--saffron-glow);
+    color: var(--saffron);
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+}
+
+@media (max-width: 600px) {
+    .ghoshna-grid { grid-template-columns: 1fr; gap: 16px; }
+    .ghoshna-call { font-size: 1.2rem; }
+    .ghoshna-response { font-size: 1.1rem; }
+}
+
 @media (max-width: 600px) {
     .public-main { padding: 72px 14px 30px; }
     .public-header h1 { font-size: 1.6rem; }

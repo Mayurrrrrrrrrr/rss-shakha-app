@@ -46,20 +46,25 @@ function getGhoshnaHtml($item) {
         <p>अभी तक कोई घोषणा प्रकाशित नहीं हुआ है।</p>
     </div>
 <?php else: ?>
-    <div class="list-container">
+    <div class="ghoshna-grid">
         <?php foreach ($items as $index => $item): 
-            $title = !empty($item['slogan_sanskrit']) ? mb_substr($item['slogan_sanskrit'], 0, 80) . '...' : 'घोषणा';
-            $itemHtml = getGhoshnaHtml($item);
+            $sanskrit = $item['slogan_sanskrit'];
+            $hindi = $item['slogan_hindi'];
             $isLatest = ($index === 0);
         ?>
-            <div class="list-item" style="<?php echo $isLatest ? 'border-left:4px solid var(--saffron); background:var(--saffron-glow);' : ''; ?>" 
-                 data-side-title="घोषणा" 
-                 data-side-content='<?php echo htmlspecialchars($itemHtml, ENT_QUOTES, 'UTF-8'); ?>'>
-                <div class="list-item-title">
-                    <?php if($isLatest): ?><span style="color:var(--saffron); font-size:0.7rem; display:block; margin-bottom:4px;">नवीनतम</span><?php endif; ?>
-                    <?php echo htmlspecialchars($title); ?>
+            <div class="ghoshna-card" <?php echo $isLatest ? 'style="border-top:4px solid var(--saffron);"' : ''; ?>>
+                <?php if($isLatest): ?><span class="latest-badge">नवीनतम</span><?php endif; ?>
+                <div class="ghoshna-content">
+                    <div class="ghoshna-call"><?php echo htmlspecialchars($sanskrit); ?></div>
+                    <div class="ghoshna-sep">————</div>
+                    <div class="ghoshna-response"><?php echo htmlspecialchars($hindi); ?></div>
+                    <?php if(!empty($item['context'])): ?>
+                        <div class="ghoshna-context"><?php echo htmlspecialchars($item['context']); ?></div>
+                    <?php endif; ?>
                 </div>
-                <div class="list-item-arrow"> विस्तार से देखें →</div>
+                <div class="ghoshna-footer">
+                    📅 <?php echo date('d M Y', strtotime($item['ghoshna_date'])); ?>
+                </div>
             </div>
         <?php endforeach; ?>
     </div>
