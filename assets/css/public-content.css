@@ -277,10 +277,107 @@
     opacity: 1;
 }
 
+/* Featured Item */
+.featured-item {
+    background: linear-gradient(135deg, white 0%, var(--parchment) 100%);
+    border: 2px solid var(--saffron);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow-warm);
+    position: relative;
+    overflow: hidden;
+}
+
+.featured-badge {
+    position: absolute;
+    top: 12px;
+    right: -30px;
+    background: var(--saffron);
+    color: white;
+    padding: 4px 40px;
+    transform: rotate(45deg);
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.featured-content {
+    font-family: 'Tiro Devanagari Sanskrit', serif;
+    font-size: 1.4rem;
+    line-height: 1.8;
+    color: var(--green-deep);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Grid Layout */
+.archive-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.grid-item {
+    background: white;
+    padding: 24px;
+    border: 1px solid var(--border-warm);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.grid-item:hover {
+    transform: translateY(-4px);
+    border-color: var(--saffron);
+    box-shadow: var(--shadow-warm);
+}
+
+.grid-item-title {
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 12px;
+    flex-grow: 1;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.grid-item-meta {
+    font-size: 0.7rem;
+    color: var(--ink-muted);
+    border-top: 1px solid rgba(188,143,95,0.1);
+    padding-top: 12px;
+    margin-top: auto;
+}
+
+/* Premium Share Format Styling */
+.share-card-preview {
+    background: var(--parchment);
+    padding: 24px;
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    margin-top: 24px;
+    text-align: center;
+    position: relative;
+}
+
+.share-card-preview::before {
+    content: '॥';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    opacity: 0.2;
+    font-size: 2rem;
+}
+
 @media (max-width: 600px) {
     .public-main { padding: 72px 14px 30px; }
     .public-header h1 { font-size: 1.6rem; }
     .content-item { padding: 20px 18px; }
     .content-item-sanskrit { font-size: 1.05rem; padding: 12px; }
     .side-panel { width: 100%; }
+    .archive-grid { grid-template-columns: 1fr; }
 }

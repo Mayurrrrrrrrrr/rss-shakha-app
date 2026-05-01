@@ -265,9 +265,9 @@ require_once __DIR__ . '/includes/public_header.php';
         document.getElementById('cal-month-hindi').textContent = hindiMonths[calMonth] + ' ' + calYear;
         document.getElementById('cal-month-eng').textContent = engMonths[calMonth] + ' ' + calYear;
 
-        // Samvat Update
-        const vSamvat = calYear + 57 + (calMonth > 2 ? 1 : 0);
-        const sSamvat = calYear - 78 + (calMonth > 2 ? 1 : 0);
+        // Samvat Update (Approximation based on Chaitra start)
+        const vSamvat = calYear + 56 + (calMonth >= 2 ? 1 : 0);
+        const sSamvat = calYear - 79 + (calMonth >= 2 ? 1 : 0);
         document.getElementById('cal-vikram-samvat').textContent = `विक्रम संवत ${vSamvat}`;
         document.getElementById('cal-shaka-samvat').textContent = `शालिवाहन शक ${sSamvat}`;
 

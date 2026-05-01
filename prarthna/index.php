@@ -1,6 +1,6 @@
 <?php
-$pageTitle = 'राष्ट्रीय स्वयंसेवक संघ प्रार्थना | संघस्थान';
-$pageDesc = 'नमस्ते सदा वत्सले मातृभूमे — आरएसएस प्रार्थना, संस्कृत बोल, हिंदी अर्थ एवं भावार्थ के साथ।';
+$pageTitle = 'प्रार्थना — नमस्ते सदा वत्सले मातृभूमे | संघस्थान';
+$pageDesc = 'नमस्ते सदा वत्सले मातृभूमे — प्रार्थना, संस्कृत बोल, हिंदी अर्थ एवं भावार्थ के साथ।';
 $pageCanonical = 'https://sanghasthan.yuktaa.com/prarthna/';
 require_once __DIR__ . '/../includes/public_header.php';
 ?>
@@ -9,7 +9,7 @@ require_once __DIR__ . '/../includes/public_header.php';
 
 <div class="prarthna-container" style="max-width: 800px; margin: 0 auto; padding: 40px 20px;">
     <header class="prarthna-header" style="text-align: center; margin-bottom: 40px;">
-        <h1 style="color: var(--saffron); font-size: 2.5rem; margin-bottom: 10px;">आर. एस. एस. प्रार्थना</h1>
+        <h1 style="color: var(--saffron); font-size: 2.5rem; margin-bottom: 10px;">प्रार्थना</h1>
         <p style="color: var(--ink-muted); font-style: italic;">नमस्ते सदा वत्सले मातृभूमे</p>
     </header>
 

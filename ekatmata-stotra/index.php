@@ -13,9 +13,9 @@ require_once __DIR__ . '/../includes/public_header.php';
         <div class="manuscript-page">
             <div class="page-rule-top"></div>
             
-            <header class="stotra-header" style="text-align: center; margin-bottom: 2rem;">
-                <h1 style="background:none; -webkit-text-fill-color: var(--ink); color: var(--ink); font-family: 'Tiro Devanagari Sanskrit', serif; font-size: 2.8rem;">एकात्मता स्तोत्र</h1>
-                <p class="subtitle" style="color: var(--ink-muted); font-style: italic;">भारत की सांस्कृतिक और आध्यात्मिक एकता का अनुपम सूत्र</p>
+            <header class="stotra-header">
+                <h1>एकात्मता स्तोत्र</h1>
+                <p class="subtitle">भारत की सांस्कृतिक और आध्यात्मिक एकता का अनुपम सूत्र</p>
                 <div class="header-ornament">
                     <span class="line"></span>
                     <span class="om">ॐ</span>
