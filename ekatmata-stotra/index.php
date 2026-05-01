@@ -5,7 +5,26 @@ $pageCanonical = 'https://sanghasthan.yuktaa.com/ekatmata-stotra/';
 require_once __DIR__ . '/../includes/public_header.php';
 ?>
 
-<link rel="stylesheet" href="style.css?v=20260501">
+<link rel="stylesheet" href="style.css?v=20260501c">
+
+<style>
+/* Override public-main to allow full-width desk surface */
+.public-main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+.desk-surface {
+    background-image: url('assets/wood.png');
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    min-height: 100vh;
+    padding-top: 100px; /* Adjust for nav */
+    padding-bottom: 60px;
+}
+body { background: #1A0E05; }
+</style>
 
 <div class="desk-surface">
     <!-- Manuscript -->
@@ -59,6 +78,6 @@ require_once __DIR__ . '/../includes/public_header.php';
 <!-- Backdrop -->
 <div class="backdrop" id="backdrop"></div>
 
-<script src="script.js?v=20260501" charset="UTF-8"></script>
+<script src="script.js?v=20260501c" charset="UTF-8"></script>
 
 <?php require_once __DIR__ . '/../includes/public_footer.php'; ?>
