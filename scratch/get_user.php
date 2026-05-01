@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
-$stmt = $pdo->prepare("SELECT id, shakha_id FROM users WHERE username = ?");
+$stmt = $pdo->prepare("SELECT id, shakha_id FROM admin_users WHERE username = ?");
 $stmt->execute(['aadiguru.ghatkopar']);
 $user = $stmt->fetch();
 if ($user) {
