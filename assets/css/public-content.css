@@ -189,6 +189,8 @@
     display: flex;
     flex-direction: column;
     border-left: 2px solid var(--gold-accent);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .side-panel.open {
