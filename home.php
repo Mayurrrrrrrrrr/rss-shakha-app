@@ -1,57 +1,10 @@
 <?php
-session_start();
-$isLoggedIn = isset($_SESSION['user_id']);
-$userType = $_SESSION['user_type'] ?? null;
-$dashUrl = '/pages/dashboard.php';
-if ($userType === 'admin') $dashUrl = '/pages/admin_dashboard.php';
-elseif ($userType === 'swayamsevak') $dashUrl = '/pages/swayamsevak_dashboard.php';
+$isHome = true;
+$pageTitle = 'संघस्थान — सनातन ज्ञान एवं शाखा प्रबंधन';
+$pageDesc = 'संघस्थान - प्रार्थना, एकात्मता स्तोत्र, सुभाषित, गीत, घोषणाओं का सार्वजनिक संग्रह। RSS Shakha Management Portal.';
+$pageCanonical = 'https://sanghasthan.yuktaa.com/';
+require_once __DIR__ . '/includes/public_header.php';
 ?>
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>संघस्थान — सनातन ज्ञान एवं शाखा प्रबंधन</title>
-    <meta name="description" content="संघस्थान - प्रार्थना, एकात्मता स्तोत्र, सुभाषित, गीत, घोषणाओं का सार्वजनिक संग्रह। RSS Shakha Management Portal.">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://sanghasthan.yuktaa.com/">
-    <meta property="og:title" content="संघस्थान — सनातन ज्ञान का अमृत कोश">
-    <meta property="og:description" content="प्रार्थना, एकात्मता स्तोत्र, सुभाषित, गीत और घोषणाओं का सुंदर संग्रह।">
-    <meta property="og:type" content="website">
-    <script type="application/ld+json">
-    {"@context":"https://schema.org","@type":"WebSite","name":"संघस्थान","url":"https://sanghasthan.yuktaa.com","description":"सनातन ज्ञान एवं भारतीय संस्कृति का सार्वजनिक मंच","inLanguage":"hi"}
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700;800;900&family=Tiro+Devanagari+Sanskrit:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="icon" href="assets/images/favicon.png" type="image/png">
-    <link rel="stylesheet" href="assets/css/home.css?v=20260501b">
-</head>
-<body>
-
-    <nav class="home-nav" id="home-nav">
-        <div class="nav-inner">
-            <a href="/home.php" class="nav-logo-link">
-                <img src="assets/images/flag_icon.png" alt="ध्वज" class="nav-flag">
-                <span class="nav-title">संघस्थान</span>
-            </a>
-            <div class="nav-links" id="nav-links">
-                <a href="#sanskriti" class="nav-link">संस्कृति</a>
-                <a href="#panchang" class="nav-link">पंचांग</a>
-                <a href="#search-section" class="nav-link">खोजें</a>
-                <a href="/ekatmata-stotra/" class="nav-link">एकात्मता स्तोत्र</a>
-                <a href="/prarthna/" class="nav-link">प्रार्थना</a>
-                <?php if ($isLoggedIn): ?>
-                    <a href="<?php echo $dashUrl; ?>" class="nav-link nav-link-cta">🚩 डैशबोर्ड</a>
-                <?php else: ?>
-                    <a href="/index.php" class="nav-link nav-link-cta">🔑 स्वयंसेवक लॉगिन</a>
-                <?php endif; ?>
-            </div>
-            <button class="nav-hamburger" id="nav-hamburger" aria-label="मेनू">
-                <span></span><span></span><span></span>
-            </button>
-        </div>
-    </nav>
 
     <!-- Hero -->
     <section class="hero" id="hero">
@@ -139,6 +92,10 @@ elseif ($userType === 'swayamsevak') $dashUrl = '/pages/swayamsevak_dashboard.ph
                 <div class="section-ornament-right"></div>
             </div>
             <p class="section-subtitle">भारतीय तिथि पंचांग — एकात्मता स्तोत्र में वर्णित पर्व एवं जयंतियाँ</p>
+            
+            <div class="cal-samvat-display" style="text-align: center; margin-bottom: 20px; color: var(--ink-muted); font-size: 0.9rem; font-weight: 500;">
+                <span id="cal-vikram-samvat">विक्रम संवत २०८३</span> | <span id="cal-shaka-samvat">शालिवाहन शक १९४८</span>
+            </div>
             <div class="cal-controls">
                 <button class="cal-nav-btn" id="cal-prev">← पिछला</button>
                 <div class="cal-month-display">
@@ -192,22 +149,7 @@ elseif ($userType === 'swayamsevak') $dashUrl = '/pages/swayamsevak_dashboard.ph
 
     <script>
     const nav = document.getElementById('home-nav');
-    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 50));
-
-    const hamburger = document.getElementById('nav-hamburger');
-    const navLinks = document.getElementById('nav-links');
-    hamburger.addEventListener('click', () => {
-        navLinks.classList.toggle('open');
-        hamburger.classList.toggle('active');
-    });
-
-    document.querySelectorAll('a[href^="#"]').forEach(a => {
-        a.addEventListener('click', function(e) {
-            e.preventDefault();
-            const t = document.querySelector(this.getAttribute('href'));
-            if (t) { t.scrollIntoView({ behavior: 'smooth', block: 'start' }); navLinks.classList.remove('open'); hamburger.classList.remove('active'); }
-        });
-    });
+    if (nav) window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 50));
 
     // Search
     const searchInput = document.getElementById('search-input');
@@ -257,10 +199,30 @@ elseif ($userType === 'swayamsevak') $dashUrl = '/pages/swayamsevak_dashboard.ph
         const diff = (date.getTime() - ref.getTime()) / 86400000;
         const age = ((diff % syn) + syn) % syn;
         const num = Math.floor(age / (syn / 30)) + 1;
+        
+        // Month approximation
+        const hMonths = ['चैत्र','वैशाख','ज्येष्ठ','आषाढ़','श्रावण','भाद्रपद','आश्विन','कार्तिक','मार्गशीर्ष','पौष','माघ','फाल्गुन'];
+        // Chaitra starts around March 22
+        const march22 = new Date(date.getFullYear(), 2, 22);
+        let mDiff = (date - march22) / (86400000 * 29.53);
+        let mIdx = Math.floor(mDiff) % 12;
+        if (mIdx < 0) mIdx += 12;
+        const hMonth = hMonths[mIdx];
+
         const shukla = ['प्रतिपदा','द्वितीया','तृतीया','चतुर्थी','पंचमी','षष्ठी','सप्तमी','अष्टमी','नवमी','दशमी','एकादशी','द्वादशी','त्रयोदशी','चतुर्दशी','पूर्णिमा'];
         const krishna = ['प्रतिपदा','द्वितीया','तृतीया','चतुर्थी','पंचमी','षष्ठी','सप्तमी','अष्टमी','नवमी','दशमी','एकादशी','द्वादशी','त्रयोदशी','चतुर्दशी','अमावस्या'];
-        if (num <= 15) return { paksha: 'शुक्ल', name: shukla[num-1], full: 'शुक्ल ' + shukla[num-1] };
-        return { paksha: 'कृष्ण', name: krishna[num-16], full: 'कृष्ण ' + krishna[num-16] };
+        
+        let res = { month: hMonth };
+        if (num <= 15) {
+            res.paksha = 'शुक्ल';
+            res.name = shukla[num-1];
+            res.full = hMonth + ' शुक्ल ' + shukla[num-1];
+        } else {
+            res.paksha = 'कृष्ण';
+            res.name = krishna[num-16];
+            res.full = hMonth + ' कृष्ण ' + krishna[num-16];
+        }
+        return res;
     }
 
     // ========== CALENDAR ==========
@@ -284,17 +246,38 @@ elseif ($userType === 'swayamsevak') $dashUrl = '/pages/swayamsevak_dashboard.ph
 
     let calMonth = new Date().getMonth(), calYear = new Date().getFullYear();
 
+    const utsavLinks = {
+        'वर्ष प्रतिपदा': '/utsav/details.php?id=varsh-pratipada',
+        'राम नवमी': '/utsav/details.php?id=ram-navmi',
+        'हनुमान जयंती': '/utsav/details.php?id=hanuman-jayanti',
+        'हिंदू साम्राज्य दिवस': '/utsav/details.php?id=hindu-samrajya-diwas',
+        'गुरु पूर्णिमा': '/utsav/details.php?id=guru-purnima',
+        'रक्षाबंधन': '/utsav/details.php?id=raksha-bandhan',
+        'विजयदशमी': '/utsav/details.php?id=vijayadashami',
+        'दीपावली': '/utsav/details.php?id=diwali',
+        'मकर संक्रांति': '/utsav/details.php?id=makar-sankranti',
+        'नव संवत्सर': '/utsav/details.php?id=varsh-pratipada'
+    };
+
     function renderCalendar() {
         const grid = document.getElementById('cal-grid');
         const popup = document.getElementById('cal-tithi-popup');
         document.getElementById('cal-month-hindi').textContent = hindiMonths[calMonth] + ' ' + calYear;
         document.getElementById('cal-month-eng').textContent = engMonths[calMonth] + ' ' + calYear;
 
+        // Samvat Update
+        const vSamvat = calYear + 57 + (calMonth > 2 ? 1 : 0);
+        const sSamvat = calYear - 78 + (calMonth > 2 ? 1 : 0);
+        document.getElementById('cal-vikram-samvat').textContent = `विक्रम संवत ${vSamvat}`;
+        document.getElementById('cal-shaka-samvat').textContent = `शालिवाहन शक ${sSamvat}`;
+
         let firstDay = new Date(calYear, calMonth, 1).getDay();
         firstDay = (firstDay + 6) % 7; // Monday=0
         const days = new Date(calYear, calMonth + 1, 0).getDate();
         const today = new Date();
         const isCur = calMonth === today.getMonth() && calYear === today.getFullYear();
+
+        const fests = festivalsByMonth[calMonth + 1] || [];
 
         let html = '';
         for (let i = 0; i < firstDay; i++) html += '<div class="cal-day cal-day-empty"></div>';
@@ -303,34 +286,48 @@ elseif ($userType === 'swayamsevak') $dashUrl = '/pages/swayamsevak_dashboard.ph
             const dt = new Date(calYear, calMonth, d, 12);
             const t = getTithi(dt);
             const isToday = isCur && d === today.getDate();
-            html += `<div class="cal-day${isToday ? ' cal-day-today' : ''}" data-tithi="${t.full}" onclick="showTithi(this)">
+            
+            // Check if festival
+            let festInfo = null;
+            fests.forEach(f => {
+                if (f.tithi.includes(d + ' ' + hindiMonths[calMonth]) || f.tithi.includes(t.full) || f.tithi.includes(t.name)) {
+                    festInfo = f;
+                }
+            });
+
+            html += `<div class="cal-day${isToday ? ' cal-day-today' : ''}${festInfo ? ' cal-day-festival' : ''}" data-tithi="${t.full}" data-fest="${festInfo?festInfo.name:''}" onclick="showTithi(this)">
                 <span class="cal-day-num">${d}</span>
                 <span class="cal-day-tithi">${t.paksha === 'शुक्ल' ? 'शु' : 'कृ'} ${t.name.substring(0,3)}</span>
+                ${festInfo ? `<div class="cal-fest-dot"></div>` : ''}
             </div>`;
         }
         grid.innerHTML = html;
         popup.style.display = 'none';
 
-        const fests = festivalsByMonth[calMonth + 1] || [];
         const fDiv = document.getElementById('cal-festivals-list');
         if (!fests.length) { fDiv.innerHTML = '<p class="cal-no-festivals">इस माह कोई विशेष पर्व चिह्नित नहीं है।</p>'; return; }
         fDiv.innerHTML = fests.map(f => {
+            const uLink = utsavLinks[f.name];
+            const nameHtml = uLink ? `<a href="${uLink}" class="festival-name-link">${f.name}</a>` : `<div class="festival-name">${f.name}</div>`;
+            
             const links = f.related.map(r => stotraData && stotraData[r]
                 ? `<a href="/ekatmata-stotra/#${encodeURIComponent(r)}" class="festival-person-link">${stotraData[r].name||r}</a>`
                 : `<span class="festival-person">${r}</span>`).join(' ');
-            return `<div class="festival-item"><div class="festival-name">${f.name}</div><div class="festival-tithi">${f.tithi}</div>${links?`<div class="festival-related">${links}</div>`:''}</div>`;
+            return `<div class="festival-item">${nameHtml}<div class="festival-tithi">${f.tithi}</div>${links?`<div class="festival-related">${links}</div>`:''}</div>`;
         }).join('');
     }
 
     window.showTithi = function(el) {
         const popup = document.getElementById('cal-tithi-popup');
         const day = el.querySelector('.cal-day-num').textContent;
-        popup.innerHTML = `<strong>${day} ${hindiMonths[calMonth]}</strong><br>${el.dataset.tithi}`;
+        const fest = el.dataset.fest;
+        popup.innerHTML = `<strong>${day} ${hindiMonths[calMonth]}</strong><br>${el.dataset.tithi}${fest ? `<br><span style="color:var(--saffron);font-weight:700;">🚩 ${fest}</span>` : ''}`;
         popup.style.display = 'block';
         const rect = el.getBoundingClientRect();
         popup.style.top = (rect.bottom + window.scrollY + 8) + 'px';
         popup.style.left = Math.max(10, rect.left + rect.width/2 - 80) + 'px';
-        setTimeout(() => popup.style.display = 'none', 3000);
+        
+        if (!fest) setTimeout(() => popup.style.display = 'none', 3000);
     };
 
     document.getElementById('cal-prev').addEventListener('click', () => { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); });

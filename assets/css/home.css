@@ -797,6 +797,30 @@ body {
     max-width: 100%;
 }
 
+.cal-day-festival {
+    background: var(--saffron-glow);
+    border-color: var(--saffron);
+}
+
+.cal-fest-dot {
+    width: 4px;
+    height: 4px;
+    background: var(--saffron);
+    border-radius: 50%;
+    margin-top: 2px;
+}
+
+.festival-name-link {
+    color: var(--saffron);
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.festival-name-link:hover {
+    text-decoration: underline;
+}
+
 .cal-day-today {
     background: linear-gradient(135deg, var(--saffron) 0%, var(--saffron-deep) 100%);
     border-color: var(--saffron);

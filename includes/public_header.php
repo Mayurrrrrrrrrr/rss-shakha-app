@@ -32,7 +32,7 @@ require_once __DIR__ . '/../config/db.php';
     <link rel="stylesheet" href="/assets/css/public-content.css?v=20260501">
 </head>
 <body>
-    <nav class="home-nav scrolled">
+    <nav class="home-nav <?php echo isset($isHome) && !$isHome ? 'scrolled' : ''; ?>" id="home-nav">
         <div class="nav-inner">
             <a href="/home.php" class="nav-logo-link">
                 <img src="/assets/images/flag_icon.png" alt="ध्वज" class="nav-flag">
