@@ -5,7 +5,7 @@ $pageCanonical = 'https://sanghasthan.yuktaa.com/ekatmata-stotra/';
 require_once __DIR__ . '/../includes/public_header.php';
 ?>
 
-<link rel="stylesheet" href="style.css?v=20260501c">
+<link rel="stylesheet" href="style.css?v=<?php echo filemtime(__DIR__ . '/style.css'); ?>">
 
 <style>
 /* Override public-main to allow full-width desk surface */
@@ -60,6 +60,6 @@ body { background: #1A0E05; }
 
 <!-- Global Side Panel is provided by public_footer.php -->
 
-<script src="script.js?v=20260501c" charset="UTF-8"></script>
+<script src="script.js?v=<?php echo filemtime(__DIR__ . '/script.js'); ?>" charset="UTF-8"></script>
 
 <?php require_once __DIR__ . '/../includes/public_footer.php'; ?>
