@@ -34,6 +34,16 @@ if ($pdo && isLoggedIn() && isset($_SESSION['shakha_id'])) {
                 rel="stylesheet">
         <link rel="stylesheet" href="../assets/css/style.css?v=<?php echo APP_VERSION; ?>">
         <link rel="icon" href="../assets/images/favicon.png" type="image/png">
+        <link rel="manifest" href="/manifest.json">
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js').catch(err => {
+                        console.error('ServiceWorker registration failed: ', err);
+                    });
+                });
+            }
+        </script>
 </head>
 
 <body>

@@ -92,15 +92,37 @@ class _WebViewScreenState extends State<WebViewScreen> {
           },
           onWebResourceError: (WebResourceError error) {},
           onNavigationRequest: (NavigationRequest request) async {
-            if (request.url.startsWith('whatsapp://') || 
-                request.url.startsWith('mailto:') || 
-                request.url.startsWith('tel:')) {
-              final uri = Uri.parse(request.url);
-              if (await canLaunchUrl(uri)) {
-                await launchUrl(uri);
+            final uri = Uri.parse(request.url);
+
+            // 1. Handle app-specific schemes (WhatsApp, Email, Phone)
+            if (uri.scheme == 'whatsapp' || 
+                uri.scheme == 'mailto' || 
+                uri.scheme == 'tel') {
+              try {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              } catch (e) {
+                debugPrint('Could not launch $uri: $e');
               }
               return NavigationDecision.prevent;
             }
+
+            // 2. Handle HTTP/HTTPS links
+            if (uri.scheme == 'http' || uri.scheme == 'https') {
+              // Define the internal domain
+              final isInternal = uri.host == 'sanghasthan.yuktaa.com' || uri.host.isEmpty;
+
+              // If it's an external link (like Wikipedia, YouTube, Google Meet, WhatsApp Web)
+              if (!isInternal) {
+                try {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                } catch (e) {
+                  debugPrint('Could not launch external URL: $e');
+                }
+                return NavigationDecision.prevent;
+              }
+            }
+
+            // 3. Allow internal navigation
             return NavigationDecision.navigate;
           },
         ),
@@ -110,19 +132,27 @@ class _WebViewScreenState extends State<WebViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPop) async {
+        if (didPop) return;
         if (await controller.canGoBack()) {
           controller.goBack();
-          return false;
+        } else {
+          SystemNavigator.pop();
         }
-        return true;
       },
       child: Scaffold(
         body: SafeArea(
           child: Stack(
             children: [
-              WebViewWidget(controller: controller),
+              RefreshIndicator(
+                onRefresh: () async {
+                  await controller.reload();
+                },
+                color: const Color(0xFFFF6B00),
+                child: WebViewWidget(controller: controller),
+              ),
               if (isLoading)
                 Align(
                   alignment: Alignment.topCenter,
