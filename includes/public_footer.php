@@ -19,6 +19,10 @@
                 <span class="ornament-line"></span>
             </div>
             <p class="footer-text">॥ भारत माता की जय ॥</p>
+            <div style="margin-bottom: 15px; font-size: 0.75rem; opacity: 0.6;">
+                <a href="/terms.php" style="color: inherit; text-decoration: none;">नियम और शर्तें</a> | 
+                <a href="/privacy.php" style="color: inherit; text-decoration: none;">गोपनीयता नीति</a>
+            </div>
             <a href="/home.php" class="footer-back">← संघस्थान मुख्य पृष्ठ</a>
         </div>
     </footer>

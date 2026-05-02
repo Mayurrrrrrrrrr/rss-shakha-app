@@ -13,6 +13,8 @@ Allow: /ghoshnayein/
 Allow: /amrit-vachan/
 Allow: /assets/css/home.css
 Allow: /assets/images/
+Allow: /terms.php
+Allow: /privacy.php
 Allow: /robots.txt
 Allow: /sitemap.xml
 
