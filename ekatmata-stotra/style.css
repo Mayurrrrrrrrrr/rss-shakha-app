@@ -250,129 +250,37 @@ body {
     opacity: 0.5;
 }
 
-/* ─── Side Panel (Desktop) ─── */
+/* ─── Custom Side Panel Theme for Ekatmata ─── */
 .side-panel {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 420px;
-    height: 100%;
     background-image: url('assets/paper.png');
     background-size: cover;
     background-color: var(--parchment);
-    z-index: 100;
-    transform: translateX(100%);
-    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-    box-shadow: -10px 0 40px rgba(0,0,0,0.5);
-    border-left: 3px solid var(--gold);
-    overflow-y: auto;
-    display: none;
+    border-left-color: var(--gold);
 }
 
-@media (min-width: 1024px) {
-    .side-panel { display: block; }
+@media (max-width: 1023px) {
+    .side-panel {
+        border-top-color: var(--gold);
+        border-left: none;
+    }
 }
 
-body.panel-open .side-panel {
-    transform: translateX(0);
-}
-
-.side-panel-inner {
-    padding: 2rem 1.8rem 3rem;
+.side-panel-header {
+    background: rgba(245, 230, 200, 0.95);
+    border-bottom: 1px solid rgba(184, 150, 46, 0.3);
 }
 
 .close-btn {
-    position: sticky;
-    top: 0;
-    display: flex;
-    justify-content: flex-end;
-    padding: 1rem 1.5rem;
-    background: linear-gradient(to bottom, var(--parchment) 60%, transparent);
-    z-index: 5;
-}
-
-.close-btn button {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 2px solid var(--gold);
-    background: var(--parchment);
+    border-color: var(--gold);
     color: var(--accent);
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
-.close-btn button:hover {
+.close-btn:hover {
     background: var(--accent);
     color: white;
     border-color: var(--accent);
-    transform: rotate(90deg);
 }
 
-/* ─── Bottom Sheet (Mobile) ─── */
-.bottom-sheet {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    max-height: 85vh;
-    background-image: url('assets/paper.png');
-    background-size: cover;
-    background-color: var(--parchment);
-    z-index: 100;
-    transform: translateY(100%);
-    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-    box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
-    border-top: 3px solid var(--gold);
-    border-radius: 24px 24px 0 0;
-    overflow-y: auto;
-}
-
-@media (min-width: 1024px) {
-    .bottom-sheet { display: none; }
-}
-
-body.panel-open .bottom-sheet {
-    transform: translateY(0);
-}
-
-.sheet-handle {
-    width: 40px;
-    height: 4px;
-    background: var(--gold);
-    opacity: 0.4;
-    border-radius: 4px;
-    margin: 12px auto 0;
-}
-
-.bottom-sheet-inner {
-    padding: 1rem 1.5rem 3rem;
-}
-
-/* ─── Backdrop ─── */
-.backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(10, 5, 0, 0.6);
-    backdrop-filter: blur(4px);
-    z-index: 90;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.4s ease;
-}
-
-body.panel-open .backdrop {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-body.panel-open {
-    overflow: hidden;
-}
 
 /* ─── Detail Card Content ─── */
 .detail-tithi {
@@ -494,12 +402,28 @@ body.panel-open {
         padding: 2rem 1rem 1.5rem;
     }
 
-    .side-panel {
-        display: none;
+@media (max-width: 768px) {
+    .manuscript-page {
+        padding: 2rem 1.2rem;
+        margin: 0 0.25rem;
+        border-radius: 0;
     }
-}
 
-@media (min-width: 769px) and (max-width: 1023px) {
-    .bottom-sheet { display: block; }
-    .side-panel { display: none; }
+    .verse {
+        padding: 1.2rem 0;
+    }
+
+    .verse.align-left,
+    .verse.align-right {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .verse-text {
+        line-height: 1.9;
+    }
+
+    .stotra-header {
+        padding: 2rem 1rem 1.5rem;
+    }
 }
