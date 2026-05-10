@@ -198,18 +198,15 @@ function extractJson(string $text): string
 // FIX: use gemini-1.5-flash (stable), pass system prompt in systemInstruction field
 function fetchGemini(string $apiKey, string $systemPrompt, string $userPrompt): ?array
 {
-    $model = 'gemini-1.5-flash';
+    $model = 'gemini-pro';
     $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
     $payload = [
-        'systemInstruction' => [           // ← correct field for system prompt in Gemini
-            'parts' => [['text' => $systemPrompt]]
-        ],
         'contents' => [
-            ['role' => 'user', 'parts' => [['text' => $userPrompt]]]
+            ['role' => 'user', 'parts' => [['text' => $systemPrompt . "\n\n" . $userPrompt]]]
         ],
         'generationConfig' => [
-            'temperature' => 0,        // ← 0 = deterministic, no hallucination
-            'responseMimeType' => 'application/json'   // forces JSON output
+            'temperature' => 0,
+            'responseMimeType' => 'application/json'
         ]
     ];
     $ch = curl_init($url);
@@ -223,6 +220,7 @@ function fetchGemini(string $apiKey, string $systemPrompt, string $userPrompt): 
     ]);
     $res = curl_exec($ch);
     $err = curl_error($ch);
+    file_put_contents(__DIR__ . '/debug_api.log', date('Y-m-d H:i:s') . " Gemini: $res\nError: $err\n", FILE_APPEND);
     curl_close($ch);
     if ($err || !$res)
         return null;
@@ -261,6 +259,7 @@ function fetchOpenAI(string $apiKey, string $systemPrompt, string $userPrompt): 
     ]);
     $res = curl_exec($ch);
     $err = curl_error($ch);
+    file_put_contents(__DIR__ . '/debug_api.log', date('Y-m-d H:i:s') . " OpenAI: $res\nError: $err\n", FILE_APPEND);
     curl_close($ch);
     if ($err || !$res)
         return null;
@@ -299,6 +298,7 @@ function fetchGroq(string $apiKey, string $systemPrompt, string $userPrompt): ?a
     ]);
     $res = curl_exec($ch);
     $err = curl_error($ch);
+    file_put_contents(__DIR__ . '/debug_api.log', date('Y-m-d H:i:s') . " Groq: $res\nError: $err\n", FILE_APPEND);
     curl_close($ch);
     if ($err || !$res)
         return null;
