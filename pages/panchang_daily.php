@@ -243,6 +243,7 @@ require_once '../includes/header.php';
                 <div class="p-row"><span class="p-label">योग</span><span class="p-value" id="p-yoga">—</span></div>
                 <div class="p-row"><span class="p-label">करण</span><span class="p-value" id="p-karana">—</span></div>
                 <div class="p-row"><span class="p-label">राहुकाल</span><span class="p-value" id="p-rahukaal" style="color: #cc0000;">—</span></div>
+                <div id="p-vishesh-row" class="p-row" style="display: none; background: rgba(204,0,0,0.05);"><span class="p-label" style="color: #cc0000;">विशेष</span><span class="p-value" id="p-vishesh" style="color: #cc0000; font-style: italic;">—</span></div>
             </div>
 
             <div class="p-divider"></div>
@@ -369,12 +370,17 @@ function populateCard(data, date) {
     
     let maahText = '—';
     if (p.maah) {
-        if (p.maah.purnimant === p.maah.amant) {
-            maahText = p.maah.purnimant;
-        } else if (p.maah.purnimant && p.maah.amant) {
-            maahText = `${p.maah.purnimant} (पूर्णिमान्त) / ${p.maah.amant} (अमान्त)`;
+        let purnimant = p.maah.purnimant || '';
+        let amant = p.maah.amant || '';
+        
+        if (purnimant && amant) {
+            if (purnimant === amant) {
+                maahText = purnimant;
+            } else {
+                maahText = `${purnimant} (पूर्णिमान्त) / ${amant} (अमान्त)`;
+            }
         } else {
-            maahText = p.maah.purnimant ? `${p.maah.purnimant} (पूर्णिमान्त)` : `${p.maah.amant} (अमान्त)`;
+            maahText = purnimant || amant || '—';
         }
     }
     document.getElementById('p-maah').textContent = maahText;
@@ -384,6 +390,16 @@ function populateCard(data, date) {
     document.getElementById('p-yoga').textContent = p.yoga || '—';
     document.getElementById('p-karana').textContent = p.karana || '—';
     document.getElementById('p-rahukaal').textContent = p.rahukaal || '—';
+
+    // Vishesh
+    const vRow = document.getElementById('p-vishesh-row');
+    const vVal = document.getElementById('p-vishesh');
+    if (p.vishesh && p.vishesh !== 'null') {
+        vRow.style.display = 'flex';
+        vVal.textContent = p.vishesh;
+    } else {
+        vRow.style.display = 'none';
+    }
 
     // Shubh Muhurt
     const muhurtGrid = document.getElementById('p-muhurt-grid');
