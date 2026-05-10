@@ -158,10 +158,15 @@ require_once '../includes/header.php';
     <div class="form-group" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center;">
         <input type="date" id="panchang-date" value="<?php echo $selectedDate; ?>">
         
-        <select id="panchang-model" style="padding: 10px 14px; background: rgba(15, 15, 20, 0.6); border: 1px solid var(--border-light); border-radius: 10px; color: var(--text-primary); font-size: 1rem; outline: none;">
-            <option value="flash">Gemini 1.5 Flash (तेज़)</option>
-            <option value="pro">Gemini 1.5 Pro (शक्तिशाली)</option>
-            <option value="std">Gemini 1.0 Pro (पुराना/स्थिर)</option>
+        <select id="panchang-provider" style="padding: 10px 14px; background: rgba(15, 15, 20, 0.6); border: 1px solid var(--border-light); border-radius: 10px; color: var(--text-primary); font-size: 1rem; outline: none;">
+            <option value="all">🔄 All (Cross-check)</option>
+            <option value="gemini">♊ Google Gemini</option>
+            <option value="groq">⚡ Groq (Llama 3.1)</option>
+            <option value="openai">🤖 OpenAI (ChatGPT)</option>
+        </select>
+
+        <select id="panchang-model" style="padding: 10px 14px; background: rgba(15, 15, 20, 0.6); border: 1px solid var(--border-light); border-radius: 10px; color: var(--text-primary); font-size: 1rem; outline: none; display:none;">
+            <option value="flash">Flash</option>
         </select>
 
         <button id="btn-fetch" class="btn btn-primary" onclick="loadPanchang(false)" style="padding: 10px 20px;">✨ पंचांग प्राप्त करें</button>
@@ -290,7 +295,7 @@ function formatHindiDate(dateStr) {
 
 async function loadPanchang(force = false) {
     const date = document.getElementById('panchang-date').value;
-    const model = document.getElementById('panchang-model').value;
+    const provider = document.getElementById('panchang-provider').value;
     if (!date) return alert('कृपया तारीख चुनें');
 
     document.getElementById('panchang-loading').style.display = 'block';
@@ -312,7 +317,7 @@ async function loadPanchang(force = false) {
     btnRefetch.disabled = true;
 
     try {
-        const url = `../api/fetch_panchang_ai.php?date=${date}&model=${model}${force ? '&force=true' : ''}`;
+        const url = `../api/fetch_panchang_ai.php?date=${date}&provider=${provider}${force ? '&force=true' : ''}`;
         const res = await fetch(url);
         const data = await res.json();
 

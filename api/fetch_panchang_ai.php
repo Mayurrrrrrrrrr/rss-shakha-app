@@ -5,14 +5,11 @@ require_once '../includes/auth.php';
  * Uses Gemini, OpenAI, and Groq to generate full daily panchang data
  */
 require_once __DIR__ . '/../config/db.php';
-// requireLogin();
+requireLogin();
 
 header('Content-Type: application/json; charset=UTF-8');
 
-// Entry logging
-file_put_contents('panchang_debug.log', date('Y-m-d H:i:s') . " - API Request started for date: " . ($_GET['date'] ?? 'today') . " | Model: " . ($_GET['api_provider'] ?? 'all') . "\n", FILE_APPEND);
-
-$shakhaId = 1; // getCurrentShakhaId();
+$shakhaId = getCurrentShakhaId();
 if (!$shakhaId) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
@@ -34,7 +31,7 @@ if (empty($geminiKey) && empty($openaiKey) && empty($groqKey)) {
 }
 
 $date = $_GET['date'] ?? date('Y-m-d');
-$modelParam = $_GET['model'] ?? 'flash';
+$providerParam = $_GET['provider'] ?? 'all'; // New parameter to select specific API
 $forceFetch = isset($_GET['force']) && $_GET['force'] === 'true';
 
 // Validate date
@@ -106,8 +103,9 @@ $userPrompt = "दिनांक: $formattedDate, $dayName (Date: $date)\nस�
 /**
  * Fetch from Gemini
  */
-function fetchGemini($apiKey, $model, $prompt) {
-    $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent";
+function fetchGemini($apiKey, $prompt) {
+    // Using v1 and gemini-1.5-flash for maximum stability
+    $url = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=" . $apiKey;
     $payload = [
         'contents' => [['parts' => [['text' => $prompt]]]],
         'generationConfig' => ['temperature' => 0.2, 'responseMimeType' => 'application/json']
@@ -117,18 +115,15 @@ function fetchGemini($apiKey, $model, $prompt) {
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST => true,
-        CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'X-goog-api-key: ' . $apiKey],
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
         CURLOPT_POSTFIELDS => json_encode($payload),
-        CURLOPT_TIMEOUT => 30,
+        CURLOPT_TIMEOUT => 40,
         CURLOPT_SSL_VERIFYPEER => false
     ]);
     
     $res = curl_exec($ch);
     $data = json_decode($res, true);
     $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
-    if (!$text) {
-        file_put_contents('panchang_debug.log', date('Y-m-d H:i:s') . " - Gemini Error: " . $res . "\n", FILE_APPEND);
-    }
     return json_decode(extractJson($text), true);
 }
 
@@ -150,16 +145,13 @@ function fetchOpenAI($apiKey, $prompt) {
         CURLOPT_POST => true,
         CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Authorization: Bearer ' . $apiKey],
         CURLOPT_POSTFIELDS => json_encode($payload),
-        CURLOPT_TIMEOUT => 30,
+        CURLOPT_TIMEOUT => 40,
         CURLOPT_SSL_VERIFYPEER => false
     ]);
     
     $res = curl_exec($ch);
     $data = json_decode($res, true);
     $text = $data['choices'][0]['message']['content'] ?? '';
-    if (!$text) {
-        file_put_contents('panchang_debug.log', date('Y-m-d H:i:s') . " - OpenAI Error: " . $res . "\n", FILE_APPEND);
-    }
     return json_decode($text, true);
 }
 
@@ -169,7 +161,7 @@ function fetchOpenAI($apiKey, $prompt) {
 function fetchGroq($apiKey, $prompt) {
     $url = "https://api.groq.com/openai/v1/chat/completions";
     $payload = [
-        'model' => 'llama3-70b-8192',
+        'model' => 'llama-3.1-70b-versatile', // Updated model
         'messages' => [['role' => 'user', 'content' => $prompt]],
         'temperature' => 0.2,
         'response_format' => ['type' => 'json_object']
@@ -181,16 +173,13 @@ function fetchGroq($apiKey, $prompt) {
         CURLOPT_POST => true,
         CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Authorization: Bearer ' . $apiKey],
         CURLOPT_POSTFIELDS => json_encode($payload),
-        CURLOPT_TIMEOUT => 30,
+        CURLOPT_TIMEOUT => 40,
         CURLOPT_SSL_VERIFYPEER => false
     ]);
     
     $res = curl_exec($ch);
     $data = json_decode($res, true);
     $text = $data['choices'][0]['message']['content'] ?? '';
-    if (!$text) {
-        file_put_contents('panchang_debug.log', date('Y-m-d H:i:s') . " - Groq Error: " . $res . "\n", FILE_APPEND);
-    }
     return json_decode($text, true);
 }
 
@@ -203,21 +192,23 @@ $geminiData = null;
 $openaiData = null;
 $groqData = null;
 
-// Primary Fetch (Gemini)
-if (!empty($geminiKey)) {
-    $modelMap = ['flash' => 'gemini-1.5-flash', 'pro' => 'gemini-1.5-pro'];
-    $model = $modelMap[$modelParam] ?? $modelMap['flash'];
-    $geminiData = fetchGemini($geminiKey, $model, $systemPrompt . "\n\n" . $userPrompt);
+// Routing based on provider selection
+if ($providerParam === 'gemini' || $providerParam === 'all') {
+    if (!empty($geminiKey)) {
+        $geminiData = fetchGemini($geminiKey, $systemPrompt . "\n\n" . $userPrompt);
+    }
 }
 
-// Fallback/Cross-Check Fetch (Groq)
-if (!empty($groqKey) && (!$geminiData || $useCrossCheck)) {
-    $groqData = fetchGroq($groqKey, $systemPrompt . "\n\n" . $userPrompt);
+if ($providerParam === 'groq' || ($providerParam === 'all' && (!$geminiData || $useCrossCheck))) {
+    if (!empty($groqKey)) {
+        $groqData = fetchGroq($groqKey, $systemPrompt . "\n\n" . $userPrompt);
+    }
 }
 
-// Fallback/Cross-Check Fetch (OpenAI)
-if (!empty($openaiKey) && (!$geminiData && !$groqData || $useCrossCheck)) {
-    $openaiData = fetchOpenAI($openaiKey, $systemPrompt . "\n\n" . $userPrompt);
+if ($providerParam === 'openai' || ($providerParam === 'all' && (!$geminiData && !$groqData || $useCrossCheck))) {
+    if (!empty($openaiKey)) {
+        $openaiData = fetchOpenAI($openaiKey, $systemPrompt . "\n\n" . $userPrompt);
+    }
 }
 
 // Selection Logic (Priority: Gemini > Groq > OpenAI)
@@ -230,7 +221,7 @@ $sources = array_filter([
     'OpenAI' => $openaiData
 ]);
 
-if (count($sources) >= 2) {
+if (count($sources) >= 2 && $providerParam === 'all') {
     $keys = array_keys($sources);
     $m1 = $sources[$keys[0]];
     $m2 = $sources[$keys[1]];
@@ -240,7 +231,7 @@ if (count($sources) >= 2) {
     
     if (strpos($t1, $t2) === false && strpos($t2, $t1) === false) {
         $finalPanchang['vishesh'] = ($finalPanchang['vishesh'] ? $finalPanchang['vishesh'] . " | " : "") . 
-            "⚠️ AI Cross-check Discrepancy: {$keys[0]} identifies '{$m1['tithi']}' while {$keys[1]} identifies '{$m2['tithi']}'. Please verify.";
+            "⚠️ AI Cross-check: {$keys[0]} identifies '{$m1['tithi']}' while {$keys[1]} identifies '{$m2['tithi']}'.";
     }
 }
 
@@ -255,7 +246,7 @@ if ($finalPanchang) {
         'success' => true,
         'date' => $date,
         'panchang' => $finalPanchang,
-        'source' => count($sources) > 1 ? 'ai-multi-model' : 'ai'
+        'source' => count($sources) > 1 ? 'ai-multi-model' : 'ai-' . array_key_first($sources)
     ], JSON_UNESCAPED_UNICODE);
 } else {
     echo json_encode(['success' => false, 'message' => 'Failed to generate Panchang. Please try again.']);
