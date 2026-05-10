@@ -97,6 +97,7 @@ if ($pdo && isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                                 <li><a href="../pages/events.php" class="<?php echo $currentPage === 'events' ? 'active' : ''; ?>">📅 कार्यक्रम</a></li>
                                                 <li><a href="../pages/notice.php" class="<?php echo $currentPage === 'notice' ? 'active' : ''; ?>">📢 सूचना</a></li>
                                                 <li><a href="../pages/amrit_vachan.php" class="<?php echo $currentPage === 'amrit_vachan' ? 'active' : ''; ?>">💎 अमृत वचन</a></li>
+                                                <li><a href="../pages/vyaktitv.php" class="<?php echo $currentPage === 'vyaktitv' ? 'active' : ''; ?>">🚩 व्यक्तित्व</a></li>
                                                 <li><a href="../pages/greetings.php" class="<?php echo $currentPage === 'greetings' ? 'active' : ''; ?>">🎨 शुभकामनाएं</a></li>
                                             </ul>
                                         </li>
@@ -115,7 +116,7 @@ if ($pdo && isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                         <li><a href="../pages/dashboard.php" class="<?php echo $currentPage === 'dashboard' ? 'active' : ''; ?>">🏠 मुख्य पृष्ठ</a></li>
                                         <li><a href="../pages/swayamsevaks.php" class="<?php echo $currentPage === 'swayamsevaks' ? 'active' : ''; ?>">👥 स्वयंसेवक</a></li>
                                         
-                                        <?php $dailyOpsActive = in_array($currentPage, ['daily_record', 'activities', 'notice', 'subhashit', 'geet', 'ghoshnayein', 'greetings']) ? 'open' : ''; ?>
+                                        <?php $dailyOpsActive = in_array($currentPage, ['daily_record', 'activities', 'notice', 'subhashit', 'geet', 'ghoshnayein', 'greetings', 'panchang_daily']) ? 'open' : ''; ?>
                                         <li class="nav-group <?php echo $dailyOpsActive; ?>">
                                             <div class="nav-group-header"><span>📅 दैनिक कार्य (Daily Ops)</span> <span class="chevron">▼</span></div>
                                             <ul class="nav-group-items">
@@ -126,7 +127,9 @@ if ($pdo && isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                                 <li><a href="../pages/geet.php" class="<?php echo $currentPage === 'geet' ? 'active' : ''; ?>">🎵 गीत</a></li>
                                                 <li><a href="../pages/ghoshnayein.php" class="<?php echo $currentPage === 'ghoshnayein' ? 'active' : ''; ?>">🗣️ घोषणाएं</a></li>
                                                 <li><a href="../pages/amrit_vachan.php" class="<?php echo $currentPage === 'amrit_vachan' ? 'active' : ''; ?>">💎 अमृत वचन</a></li>
+                                                <li><a href="../pages/vyaktitv.php" class="<?php echo $currentPage === 'vyaktitv' ? 'active' : ''; ?>">🚩 व्यक्तित्व</a></li>
                                                 <li><a href="../pages/greetings.php" class="<?php echo $currentPage === 'greetings' ? 'active' : ''; ?>">🎨 शुभकामनाएं</a></li>
+                                                <li><a href="../pages/panchang_daily.php" class="<?php echo $currentPage === 'panchang_daily' ? 'active' : ''; ?>">🕉️ दैनिक पंचांग</a></li>
                                             </ul>
                                         </li>
                                         
@@ -158,6 +161,8 @@ if ($pdo && isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                         <li><a href="../pages/swayamsevak_dashboard.php" class="<?php echo $currentPage === 'swayamsevak_dashboard' ? 'active' : ''; ?>">🏠 मुख्य पृष्ठ</a></li>
                                         <li><a href="../pages/timetable_view.php" class="<?php echo $currentPage === 'timetable_view' ? 'active' : ''; ?>">📋 समय-सारणी</a></li>
                                         <li><a href="../pages/subhashit_view.php" class="<?php echo $currentPage === 'subhashit_view' ? 'active' : ''; ?>">📜 सुभाषित</a></li>
+                                        <li><a href="../pages/vyaktitv_view.php" class="<?php echo $currentPage === 'vyaktitv_view' ? 'active' : ''; ?>">🚩 व्यक्तित्व</a></li>
+                                        <li><a href="../pages/panchang_daily.php" class="<?php echo $currentPage === 'panchang_daily' ? 'active' : ''; ?>">🕉️ दैनिक पंचांग</a></li>
                                         <li><a href="../pages/change_password.php" class="<?php echo $currentPage === 'change_password' ? 'active' : ''; ?>">🔑 पासवर्ड बदलें</a></li>
                                 <?php endif; ?>
 

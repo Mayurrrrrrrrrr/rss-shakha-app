@@ -50,7 +50,9 @@ require_once __DIR__ . '/../config/db.php';
             </a>
             <div class="nav-links" id="nav-links">
                 <a href="/home.php#sanskriti" class="nav-link">संस्कृति</a>
+                <a href="/ekatmata-mantra/" class="nav-link">एकात्मता मन्त्र</a>
                 <a href="/ekatmata-stotra/" class="nav-link">एकात्मता स्तोत्र</a>
+                <a href="/pages/vyaktitv_view.php" class="nav-link">व्यक्तित्व</a>
                 <a href="/prarthna/" class="nav-link">प्रार्थना</a>
                 <?php if ($isLoggedIn): ?>
                     <a href="<?php echo $dashUrl; ?>" class="nav-link nav-link-cta">🚩 डैशबोर्ड</a>

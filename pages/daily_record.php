@@ -77,7 +77,7 @@ $autoSs = ($mm >= 4) ? $yy - 78 : $yy - 79;
     <div class="alert alert-success">✅ रिकॉर्ड सफलतापूर्वक सहेजा गया!</div>
 <?php endif; ?>
 
-<form method="POST" action="../actions/daily_record_save.php">
+<form method="POST" action="../api/actions/daily_record_save.php">
     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
     <?php if ($existingRecord): ?>
         <input type="hidden" name="record_id" value="<?php echo $existingRecord['id']; ?>">
@@ -285,7 +285,7 @@ $autoSs = ($mm >= 4) ? $yy - 78 : $yy - 79;
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Prokerala API Auto-fetch Logic
+    // 1. Local Panchang Auto-fetch Logic (Using Surya Siddhanta)
     const btnFetch = document.getElementById('btn-fetch-panchang');
     const dateInput = document.getElementById('record_date');
 

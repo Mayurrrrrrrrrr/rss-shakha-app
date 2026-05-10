@@ -131,7 +131,7 @@ require_once '../includes/header.php';
 
 <div class="tt-premium-card">
     <div class="card-header">📋 <?php echo $hindiDayNames[$selectedDay]; ?> की समय-सारणी</div>
-    <form method="POST" action="../actions/timetable_save.php" id="default-form">
+    <form method="POST" action="../api/actions/timetable_save.php" id="default-form">
         <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
         <input type="hidden" name="save_type" value="default">
         <input type="hidden" name="day_of_week" value="<?php echo $selectedDay; ?>">
@@ -216,7 +216,7 @@ require_once '../includes/header.php';
         <?php endif; ?>
     </div>
     
-    <form method="POST" action="../actions/timetable_save.php" id="override-form">
+    <form method="POST" action="../api/actions/timetable_save.php" id="override-form">
         <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
         <input type="hidden" name="override_date" value="<?php echo $overrideDate; ?>">
         

@@ -51,7 +51,7 @@ $allShakhas = $pdo->query("SELECT * FROM shakhas ORDER BY name")->fetchAll();
     <div class="card-header">
         <?php echo $editData ? '✏️ मुख्य शिक्षक संपादित करें' : '➕ नया मुख्य शिक्षक जोड़ें'; ?>
     </div>
-    <form method="POST" action="../actions/mukhyashikshak_save.php">
+    <form method="POST" action="../api/actions/mukhyashikshak_save.php">
         <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
         <?php if ($editData): ?>
             <input type="hidden" name="id" value="<?php echo $editData['id']; ?>">
@@ -126,7 +126,7 @@ $allShakhas = $pdo->query("SELECT * FROM shakhas ORDER BY name")->fetchAll();
                             <td>
                                 <div class="table-actions">
                                     <a href="../pages/mukhyashikshaks.php?edit=<?php echo $m['id']; ?>" class="btn btn-sm btn-outline">✏️</a>
-                                    <a href="../actions/mukhyashikshak_delete.php?id=<?php echo $m['id']; ?>" class="btn btn-sm btn-danger"
+                                    <a href="../api/actions/mukhyashikshak_delete.php?id=<?php echo $m['id']; ?>" class="btn btn-sm btn-danger"
                                         data-confirm="क्या आप इस मुख्य शिक्षक को हटाना चाहते हैं?">🗑️</a>
                                 </div>
                             </td>

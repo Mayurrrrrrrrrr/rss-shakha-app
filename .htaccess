@@ -32,8 +32,8 @@ Options -MultiViews
     Header always set Referrer-Policy            "strict-origin-when-cross-origin"
     Header always set Permissions-Policy         "geolocation=(), camera=(), microphone=()"
 
-    # Updated CSP to allow CDNs and Images for Ekatmata Stotra
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.tailwindcss.com unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: images.unsplash.com via.placeholder.com;"
+    # Updated CSP to allow CDNs and Images for Ekatmata Stotra and Snapshot Sharing
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.tailwindcss.com unpkg.com cdn.jsdelivr.net translate.google.com translate.googleapis.com static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com unpkg.com translate.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: images.unsplash.com via.placeholder.com translate.googleapis.com; frame-src 'self' translate.google.com;"
 
     AddDefaultCharset UTF-8
 
@@ -67,19 +67,23 @@ Options -MultiViews
     # Public homepage: root goes to home.php
     RewriteRule ^$ /home.php [L]
 
-    # Allow public content directories
+    # Allow public content directories (standalone)
     RewriteRule ^ekatmata-stotra/ - [L]
-    RewriteRule ^prarthna/ - [L]
-    RewriteRule ^subhashit/ - [L]
-    RewriteRule ^geet/ - [L]
-    RewriteRule ^ghoshnayein/ - [L]
-    RewriteRule ^amrit-vachan/ - [L]
+    RewriteRule ^utsav/ - [L]
+    RewriteRule ^content/ - [L]
+
+    # Content Router: old folder URLs → content/index.php
+    RewriteRule ^prarthna/?$        content/index.php?page=prarthna [L,QSA]
+    RewriteRule ^subhashit/?$       content/index.php?page=subhashit [L,QSA]
+    RewriteRule ^geet/?$            content/index.php?page=geet [L,QSA]
+    RewriteRule ^ghoshnayein/?$     content/index.php?page=ghoshnayein [L,QSA]
+    RewriteRule ^amrit-vachan/?$    content/index.php?page=amrit-vachan [L,QSA]
+    RewriteRule ^ekatmata-mantra/?$ content/index.php?page=ekatmata-mantra [L,QSA]
 
     # Block sensitive directories
     RewriteRule ^config/         - [F,L]
     RewriteRule ^includes/       - [F,L]
     RewriteRule ^scripts/        - [F,L]
-    RewriteRule ^sql/            - [F,L]
 </IfModule>
 
 # ── Error pages ─────────────────────────────────────────────

@@ -1,0 +1,327 @@
+/* =============================================
+   प्रार्थना Page — Modern Indic Premium Style
+   ============================================= */
+
+:root {
+    --saffron: #E65100;
+    --saffron-warm: #FF6D00;
+    --saffron-glow: rgba(230, 81, 0, 0.08);
+    --saffron-deep: #BF360C;
+    --green-deep: #1B5E20;
+    --cream: #FDF8F0;
+    --cream-dark: #F5EDE0;
+    --parchment: #FAF3E8;
+    --ink: #2C1810;
+    --ink-light: #5D4037;
+    --ink-muted: #8D6E63;
+    --border-warm: rgba(188, 143, 95, 0.25);
+    --gold-accent: #C9943E;
+    --shadow-warm: 0 4px 25px rgba(44, 24, 16, 0.08);
+    --radius: 20px;
+    --radius-sm: 12px;
+    --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Noto Sans Devanagari', sans-serif;
+    line-height: 1.7;
+}
+
+.prarthna-main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+}
+
+/* === HEADER === */
+.prarthna-header {
+    text-align: center;
+    padding: 60px 0 40px;
+}
+
+.header-ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.ornament-line {
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-accent), transparent);
+}
+
+.ornament-om {
+    color: var(--saffron);
+    font-size: 1.8rem;
+    font-family: 'Tiro Devanagari Sanskrit', serif;
+    opacity: 0.8;
+}
+
+.prarthna-title {
+    font-size: 2.8rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--saffron) 0%, var(--saffron-deep) 60%, var(--gold-accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 2px;
+}
+
+.prarthna-subtitle {
+    font-size: 1.1rem;
+    color: var(--ink-muted);
+    margin-top: 8px;
+    font-style: italic;
+    font-family: 'Tiro Devanagari Sanskrit', serif;
+}
+
+/* === SECTIONS === */
+.prarthna-section {
+    margin-bottom: 40px;
+}
+
+.section-card {
+    background: white;
+    border: 1px solid var(--border-warm);
+    border-radius: var(--radius);
+    padding: 32px;
+    box-shadow: var(--shadow-warm);
+}
+
+.section-card h2 {
+    font-size: 1.25rem;
+    color: var(--saffron);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-card p {
+    font-size: 1rem;
+    color: var(--ink-light);
+    margin-bottom: 12px;
+}
+
+/* === TABS === */
+.prarthna-tabs-container {
+    position: sticky;
+    top: 70px;
+    z-index: 100;
+    background: var(--cream);
+    padding: 10px 0;
+    margin-bottom: 24px;
+}
+
+.prarthna-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 4px;
+    background: var(--parchment);
+    border-radius: 40px;
+    border: 1px solid var(--border-warm);
+    scrollbar-width: none;
+}
+
+.prarthna-tabs::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+    flex: 1;
+    white-space: nowrap;
+    padding: 10px 24px;
+    border: none;
+    background: transparent;
+    color: var(--ink-muted);
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.tab-btn.active {
+    background: white;
+    color: var(--saffron);
+    box-shadow: 0 4px 12px rgba(44, 24, 16, 0.06);
+}
+
+/* === CONTENT WRAPPER === */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.5s ease both;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.manuscript-page {
+    background: white;
+    border: 1px solid var(--border-warm);
+    border-radius: var(--radius);
+    padding: 50px 40px;
+    box-shadow: var(--shadow-warm);
+    position: relative;
+    overflow: hidden;
+}
+
+.manuscript-page::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 6px;
+    background: var(--saffron);
+}
+
+.verse {
+    padding: 20px 0;
+}
+
+.verse-sanskrit {
+    font-family: 'Tiro Devanagari Sanskrit', serif;
+    font-size: 1.5rem;
+    line-height: 2.2;
+    color: var(--green-deep);
+    text-align: center;
+}
+
+.page-rule {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-accent), transparent);
+    margin: 20px 0;
+    opacity: 0.3;
+}
+
+.verse-ghosh-text {
+    font-size: 2rem !important;
+    color: var(--saffron) !important;
+    font-weight: 800 !important;
+    margin-top: 30px;
+}
+
+/* Pronunciation Note */
+.pronunciation-note {
+    background: var(--saffron-glow);
+    padding: 12px 20px;
+    border-radius: 10px;
+    color: var(--saffron-deep);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 30px;
+    font-weight: 600;
+}
+
+/* Meaning Cards */
+.meaning-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.meaning-card {
+    background: white;
+    border: 1px solid var(--border-warm);
+    border-radius: var(--radius-sm);
+    padding: 24px;
+    border-left: 4px solid var(--gold-accent);
+}
+
+.meaning-num {
+    font-weight: 800;
+    color: var(--saffron);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.meaning-card p {
+    font-size: 1.05rem;
+    color: var(--ink-light);
+    line-height: 1.8;
+}
+
+/* Shabdarth */
+.shabdarth-wrapper {
+    background: white;
+    border: 1px solid var(--border-warm);
+    border-radius: var(--radius);
+    padding: 32px;
+}
+
+.shabdarth-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px 24px;
+}
+
+.shabdarth-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--cream-dark);
+}
+
+.s-word {
+    font-weight: 700;
+    color: var(--saffron-deep);
+    font-family: 'Tiro Devanagari Sanskrit', serif;
+}
+
+.s-sep {
+    color: var(--gold-accent);
+    opacity: 0.6;
+}
+
+.s-meaning {
+    color: var(--ink-light);
+    font-size: 0.95rem;
+}
+
+/* Share Option */
+.share-options {
+    text-align: center;
+    margin-top: 60px;
+}
+
+.share-btn-wa {
+    background: #25D366;
+    color: white;
+    text-decoration: none;
+    padding: 14px 32px;
+    border-radius: 40px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);
+    transition: var(--transition);
+}
+
+.share-btn-wa:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(37, 211, 102, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .prarthna-title { font-size: 2.2rem; }
+    .manuscript-page { padding: 30px 20px; }
+    .verse-sanskrit { font-size: 1.25rem; }
+    .shabdarth-grid { grid-template-columns: 1fr; }
+    .prarthna-tabs-container { top: 60px; }
+    .tab-btn { padding: 10px 16px; font-size: 0.85rem; }
+}

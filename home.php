@@ -6,25 +6,98 @@ $pageCanonical = 'https://sanghasthan.yuktaa.com/';
 require_once __DIR__ . '/includes/public_header.php';
 ?>
 
-    <!-- Hero -->
-    <section class="hero" id="hero">
-        <div class="hero-bg-pattern"></div>
-        <div class="hero-content">
-            <div class="hero-icon">
-                <img src="assets/images/flag_icon.png" alt="भगवा ध्वज" class="hero-flag">
-            </div>
-            <h1 class="hero-title">
-                <span class="hero-title-main">संघस्थान</span>
-                <span class="hero-title-sub">॥ परं वैभवं नेतुमेतत् स्वराष्ट्रम् ॥</span>
-            </h1>
-            <p class="hero-desc">शाखा जीवन, सनातन ज्ञान एवं भारतीय संस्कृति का सार्वजनिक मंच</p>
-            <div class="hero-ornament">
-                <span class="ornament-line"></span>
-                <span class="ornament-symbol">ॐ</span>
-                <span class="ornament-line"></span>
-            </div>
+    <!-- Premium Indic Hero -->
+    <style>
+        .indic-hero {
+            position: relative;
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #FFF9F2 0%, #FFEFE0 100%);
+            overflow: hidden;
+            text-align: center;
+            border-bottom: 4px solid var(--saffron);
+        }
+        .indic-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,107,0,0.05) 0%, transparent 60%);
+            animation: rotateBg 60s linear infinite;
+        }
+        @keyframes rotateBg { 100% { transform: rotate(360deg); } }
+        
+        .hero-mandala {
+            position: absolute;
+            width: 800px;
+            height: 800px;
+            opacity: 0.04;
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="48" fill="none" stroke="%23FF6B00" stroke-width="0.5"/><path d="M50 2 L50 98 M2 50 L98 50 M16 16 L84 84 M16 84 L84 16" stroke="%23FF6B00" stroke-width="0.5"/></svg>');
+            animation: slowSpin 120s linear infinite;
+        }
+        @keyframes slowSpin { 100% { transform: rotate(360deg); } }
+
+        .indic-hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 107, 0, 0.2);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.05), inset 0 0 0 1px rgba(255,255,255,0.5);
+            transform: translateY(20px);
+            animation: floatUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+        @keyframes floatUp { to { transform: translateY(0); } }
+
+        .indic-hero-flag {
+            width: 90px;
+            margin-bottom: 24px;
+            filter: drop-shadow(0 10px 15px rgba(255,107,0,0.4));
+            animation: floatGently 4s ease-in-out infinite;
+        }
+        @keyframes floatGently { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        .indic-hero-title {
+            font-size: clamp(3rem, 6vw, 5.5rem);
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FF6B00 0%, #D83100 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .indic-hero-subtitle {
+            font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+            color: #3C2A21;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .indic-hero-desc {
+            font-size: 1.2rem;
+            color: #665A54;
+            line-height: 1.8;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+    </style>
+
+    <section class="indic-hero">
+        <div class="hero-mandala"></div>
+        <div class="indic-hero-content">
+            <img src="assets/images/flag_icon.png" alt="भगवा ध्वज" class="indic-hero-flag">
+            <h1 class="indic-hero-title">संघस्थान</h1>
+            <h2 class="indic-hero-subtitle">॥ परं वैभवं नेतुमेतत् स्वराष्ट्रम् ॥</h2>
+            <div style="width: 60px; height: 3px; background: var(--saffron); margin: 0 auto 24px; border-radius: 2px;"></div>
+            <p class="indic-hero-desc">शाखा जीवन, सनातन ज्ञान एवं भारतीय संस्कृति का सार्वजनिक मंच। हमारी गौरवशाली परम्पराओं और सांस्कृतिक रत्नों का संकलन।</p>
         </div>
-        <div class="scroll-indicator"><span class="scroll-arrow">↓</span></div>
     </section>
 
     <!-- Content Grid -->
@@ -44,6 +117,13 @@ require_once __DIR__ . '/includes/public_header.php';
                     <p class="card-desc">नमस्ते सदा वत्सले मातृभूमे — राष्ट्रीय स्वयंसेवक संघ की प्रार्थना</p>
                     <span class="card-arrow">→</span>
                 </a>
+                <a href="/ekatmata-mantra/" class="content-card" id="card-mantra">
+                    <div class="card-glow"></div>
+                    <div class="card-icon">🕉️</div>
+                    <h3 class="card-title">एकात्मता मन्त्र</h3>
+                    <p class="card-desc">यं वैदिका मन्त्रदृशः पुराणः — सर्वपन्थ समभाव का दिव्य मन्त्र</p>
+                    <span class="card-arrow">→</span>
+                </a>
                 <a href="/ekatmata-stotra/" class="content-card" id="card-ekatmata">
                     <div class="card-glow"></div>
                     <div class="card-icon">📜</div>
@@ -56,6 +136,13 @@ require_once __DIR__ . '/includes/public_header.php';
                     <div class="card-icon">✨</div>
                     <h3 class="card-title">सुभाषित</h3>
                     <p class="card-desc">संस्कृत के अमूल्य सूक्तियों का संग्रह — जीवन के हर पहलू पर मार्गदर्शन</p>
+                    <span class="card-arrow">→</span>
+                </a>
+                <a href="/pages/vyaktitv_view.php" class="content-card" id="card-vyaktitv">
+                    <div class="card-glow"></div>
+                    <div class="card-icon">🚩</div>
+                    <h3 class="card-title">व्यक्तित्व</h3>
+                    <p class="card-desc">डॉ. केशव बलिराम हेडगेवार — राष्ट्रीय स्वयंसेवक संघ के संस्थापक का प्रेरक जीवन परिचय</p>
                     <span class="card-arrow">→</span>
                 </a>
                 <a href="/geet/" class="content-card" id="card-geet">
@@ -148,6 +235,8 @@ require_once __DIR__ . '/includes/public_header.php';
         const prarthnaData = {
             "नमस्ते सदा वत्सले मातृभूमे": { title: "प्रार्थना — पहली पंक्ति", text: "नमस्ते सदा वत्सले मातृभूमे, त्वया हिन्दुभूमे सुखं वर्धितोऽहम्", link: "/prarthna/" },
             "प्रार्थना": { title: "प्रार्थना", text: "नमस्ते सदा वत्सले मातृभूमे — दैनिक प्रार्थना", link: "/prarthna/" },
+            "एकात्मता मन्त्र": { title: "एकात्मता मन्त्र", text: "यं वैदिका मन्त्रदृशः पुराणः — सर्वपन्थ समभाव का दिव्य मन्त्र", link: "/ekatmata-mantra/" },
+            "यं वैदिका मन्त्रदृशः": { title: "एकात्मता मन्त्र — पहली पंक्ति", text: "यं वैदिका मन्त्रदृशः पुराणः इन्द्रं यमं मातरिश्वानमाहुः", link: "/ekatmata-mantra/" },
             "एकात्मता स्तोत्र": { title: "एकात्मता स्तोत्र", text: "भारत की एकता का अनुपम सूत्र — ३३ श्लोकों का संग्रह", link: "/ekatmata-stotra/" }
         };
 
@@ -303,4 +392,4 @@ require_once __DIR__ . '/includes/public_header.php';
     });
     </script>
 
-<?php require_once __DIR__ . '/includes/public_footer.php'; ?>
+    <?php require_once __DIR__ . '/includes/public_footer.php'; ?>

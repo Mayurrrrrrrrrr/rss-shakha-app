@@ -9,8 +9,19 @@ requireLogin();
 
 header('Content-Type: application/json; charset=UTF-8');
 
-if (!defined('GEMINI_API_KEY')) {
-    echo json_encode(['success' => false, 'message' => 'Gemini API Key not configured in .env']);
+$shakhaId = getCurrentShakhaId();
+if (!$shakhaId) {
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
+}
+
+// Fetch Shakha-specific Gemini Key ONLY (No global fallback)
+$stmtKey = $pdo->prepare("SELECT gemini_api_key FROM shakhas WHERE id = ?");
+$stmtKey->execute([$shakhaId]);
+$apiKey = $stmtKey->fetchColumn();
+
+if (empty($apiKey)) {
+    echo json_encode(['success' => false, 'message' => 'इस शाखा के लिए AI सामग्री निर्माण सक्रिय नहीं है। कृपया सेटिंग्स में अपनी Gemini API Key डालें।']);
     exit;
 }
 
@@ -83,7 +94,7 @@ curl_setopt_array($ch, [
     CURLOPT_POST => true,
     CURLOPT_HTTPHEADER => [
         'Content-Type: application/json',
-        'X-goog-api-key: ' . GEMINI_API_KEY
+        'X-goog-api-key: ' . $apiKey
     ],
     CURLOPT_POSTFIELDS => json_encode($payload),
     CURLOPT_TIMEOUT => 30,

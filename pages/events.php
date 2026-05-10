@@ -72,7 +72,7 @@ if (isAdmin()) {
 <div class="premium-card mb-20 fade-in">
     <div class="card-header">✨ नया कार्यक्रम जोड़ें</div>
     <div class="card-body">
-        <form action="../actions/add_event.php" method="POST" class="add-form">
+        <form action="../api/actions/add_event.php" method="POST" class="add-form">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <?php if (isAdmin()): ?>
                 <div class="form-group mb-12">
@@ -203,7 +203,7 @@ if (isAdmin()) {
                         </a>
                         
                         <?php if (isAdmin() || ($ev['shakha_id'] == $_SESSION['shakha_id'])): ?>
-                            <a href="../actions/delete_event.php?id=<?php echo $ev['id']; ?>" class="event-action-delete" onclick="return confirm('क्या आप वाकई इसे हटाना चाहते हैं?')">
+                            <a href="../api/actions/delete_event.php?id=<?php echo $ev['id']; ?>" class="event-action-delete" onclick="return confirm('क्या आप वाकई इसे हटाना चाहते हैं?')">
                                 🗑️
                             </a>
                         <?php endif; ?>

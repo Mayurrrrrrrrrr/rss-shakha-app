@@ -415,12 +415,17 @@ require_once '../includes/header.php';
 <script>
     // Helper function to convert base64 to Blob
     function dataURLtoBlob(dataurl) {
-        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-        while(n--){
-            u8arr[n] = bstr.charCodeAt(n);
+        try {
+            var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+            while(n--){
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new Blob([u8arr], {type:mime});
+        } catch (e) {
+            console.error('Blob conversion failed:', e);
+            return null;
         }
-        return new Blob([u8arr], {type:mime});
     }
 
     // Generate High-Res Image using html2canvas
@@ -438,7 +443,7 @@ require_once '../includes/header.php';
                 scale: captureScale,
                 backgroundColor: '#FFF9F2',
                 useCORS: true,
-                allowTaint: true,
+                allowTaint: false,
                 logging: false,
                 imageTimeout: 15000,
                 onclone: (clonedDoc) => {
@@ -528,14 +533,17 @@ require_once '../includes/header.php';
                         runFallback(b64, textStr);
                     }
                 } catch (shareErr) {
-                    runFallback(b64, textStr);
+                    if (shareErr.name !== 'AbortError') {
+                        runFallback(b64, textStr);
+                    }
                 }
             } else {
                 runFallback(b64, textStr);
             }
         } catch (e) {
             if (e.name !== 'AbortError') {
-                alert('शेयर करने में समस्या हुई। कृपया इमेज डाउनलोड करके शेयर करें।');
+                console.error('Share Error:', e);
+                alert('शेयर करने में समस्या हुई: ' + e.message + '\n\nकृपया इमेज डाउनलोड करके शेयर करें।');
             }
         }
 

@@ -46,7 +46,7 @@ $shakhas = $pdo->query("SELECT s.*,
     <div class="card-header">
         <?php echo $editData ? '✏️ शाखा संपादित करें' : '➕ नई शाखा जोड़ें'; ?>
     </div>
-    <form method="POST" action="../actions/shakha_save.php">
+    <form method="POST" action="../api/actions/shakha_save.php">
         <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
         <?php if ($editData): ?>
             <input type="hidden" name="id" value="<?php echo $editData['id']; ?>">
@@ -106,7 +106,7 @@ $shakhas = $pdo->query("SELECT s.*,
                             <td>
                                 <div class="table-actions">
                                     <a href="../pages/shakhas.php?edit=<?php echo $s['id']; ?>" class="btn btn-sm btn-outline">✏️</a>
-                                    <a href="../actions/shakha_delete.php?id=<?php echo $s['id']; ?>" class="btn btn-sm btn-danger"
+                                    <a href="../api/actions/shakha_delete.php?id=<?php echo $s['id']; ?>" class="btn btn-sm btn-danger"
                                         data-confirm="क्या आप इस शाखा को हटाना चाहते हैं? इससे जुड़े सभी रिकॉर्ड भी हट सकते हैं।">🗑️</a>
                                 </div>
                             </td>

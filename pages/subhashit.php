@@ -25,9 +25,7 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
     // Ensure column exists for older installations
     $pdo->exec("ALTER TABLE subhashits ADD COLUMN panchang_text VARCHAR(255) AFTER subhashit_date");
-} catch (PDOException $e) {
-    // table already exists or other non-critical error
-}
+} catch (PDOException $e) {}
 
 $shakhaId = getCurrentShakhaId();
 $success = '';
@@ -43,6 +41,7 @@ $sanskrit_text = '';
 $hindi_meaning = '';
 $shabdarth = [];
 $subhashit_date = date('Y-m-d');
+$panchang_text = '';
 
 if ($subhashitId) {
     $stmt = $pdo->prepare("SELECT * FROM subhashits WHERE id = ? AND shakha_id = ?");
@@ -68,7 +67,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $panchang_text = trim($_POST['panchang_text'] ?? '');
     $createdBy = $_SESSION['user_id'];
 
-    // Build shabdarth array from POST
     $shabdWords = $_POST['shabd'] ?? [];
     $shabdMeanings = $_POST['arth'] ?? [];
     $shabdarth = [];
@@ -91,11 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare("INSERT INTO subhashits (shakha_id, sanskrit_text, hindi_meaning, shabdarth, subhashit_date, panchang_text, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)");
                 $stmt->execute([$shakhaId, $sanskrit_text, $hindi_meaning, $shabdarthJson, $subhashit_date, $panchang_text, $createdBy]);
                 $success = "सुभाषित सफलतापूर्वक सहेजा गया!";
-                $sanskrit_text = '';
-                $hindi_meaning = '';
-                $shabdarth = [];
-                $panchang_text = '';
-                $subhashitId = null;
+                $sanskrit_text = ''; $hindi_meaning = ''; $shabdarth = []; $panchang_text = ''; $subhashitId = null;
             }
         } catch (Exception $e) {
             $error = "त्रुटि: सुभाषित सहेजने में विफल। " . $e->getMessage();
@@ -105,7 +99,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch recent subhashits
 $stmt = $pdo->prepare("SELECT * FROM subhashits WHERE shakha_id = ? ORDER BY subhashit_date DESC LIMIT 15");
 $stmt->execute([$shakhaId]);
 $recentSubhashits = $stmt->fetchAll();
@@ -115,294 +108,59 @@ require_once '../includes/header.php';
 ?>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;700;800;900&display=swap" rel="stylesheet">
 
 <style>
-    /* ===== SUBHASHIT CAPTURE FRAME ===== */
+    /* PREMIUM DESIGN STYLES */
     .sub-capture-container {
-        width: 100%;
-        max-width: 480px;
-        margin: 0 auto;
-        background: linear-gradient(180deg, #FFF9E6 0%, #FFF5F5 50%, #F0FFF4 100%);
-        color: #3E2723;
-        font-family: 'Noto Sans Devanagari', serif;
-        padding: 0;
-        box-sizing: border-box;
-        border-radius: 0;
-        overflow: hidden;
-        position: relative;
-        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.18);
-        border: 3px solid #D4A574;
+        background: linear-gradient(135deg, #aa771c, #fcf6ba, #aa771c);
+        padding: 12px; border-radius: 4px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        width: 100%; max-width: 550px; margin: 0 auto; position: relative; font-family: 'Noto Serif Devanagari', serif;
     }
+    .sub-capture-inner {
+        background: #fff9e3; background-image: radial-gradient(circle at 50% 10%, #fffdf5 0%, #fff9e3 70%);
+        border: 2px solid #5a4408; padding: 30px 20px; position: relative; overflow: hidden;
+        box-sizing: border-box; display: flex; flex-direction: column; align-items: center;
+    }
+    .corner-svg { position: absolute; width: 80px; height: 80px; fill: #8b6b0d; z-index: 5; pointer-events: none; }
+    .tl { top: 0; left: 0; }
+    .tr { top: 0; right: 0; transform: scaleX(-1); }
+    .bl { bottom: 0; left: 0; transform: scaleY(-1); }
+    .br { bottom: 0; right: 0; transform: scale(-1); }
+    .flag-wrap { position: absolute; top: 15px; width: 40px; height: 60px; z-index: 10; }
+    .flag-l { left: 15px; } .flag-r { right: 15px; transform: scaleX(-1); }
+    .pole { width: 3px; height: 100%; background: linear-gradient(to right, #444, #888, #333); position: absolute; left: 0; }
+    .dhwaj { position: absolute; left: 3px; width: 35px; height: 25px; fill: #ff8c00; transform-origin: left center; }
+    .om-text { font-size: 55px; color: #cc0000; font-weight: 900; letter-spacing: 2px; margin-bottom: 5px; z-index: 2; line-height: 1; }
+    .meta-info { display: flex; flex-direction: column; align-items: center; text-align: center; margin: 5px 0 10px; z-index: 2; }
+    .meta-date-panchang { font-size: 13px; font-weight: 700; color: #5a4408; line-height: 1.4; }
+    .meta-shakha { font-size: 15px; font-weight: 900; color: #880E4F; margin-top: 4px; }
+    .title-container { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 10px 0; z-index: 2; }
+    .wing { width: 35px; height: 35px; fill: #cc0000; }
+    .main-title { font-size: clamp(35px, 8vw, 55px); font-weight: 900; color: #002266; margin: 0; text-shadow: 2px 2px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 2px 4px 5px rgba(0,0,0,0.1); }
+    .divider-svg { width: 80%; height: 20px; margin: 5px 0; z-index: 2; }
+    .shlok-text { text-align: center; font-size: clamp(20px, 5.5vw, 30px); line-height: 1.4; font-weight: 800; color: #000000; margin: 15px 0; z-index: 2; white-space: pre-wrap; word-break: break-word; }
+    .arth-box { display: flex; align-items: center; justify-content: center; gap: 15px; width: 95%; margin-top: 20px; z-index: 2; flex-wrap: wrap; }
+    .arth-label { background: #610000; color: #ffea00; padding: 6px 20px; border-radius: 20px 4px 20px 4px; font-weight: 900; font-size: 20px; border: 1px solid #910000; }
+    .arth-text { font-size: clamp(18px, 4.5vw, 22px); color: #002266; font-weight: 700; line-height: 1.5; text-align: center; flex: 1; min-width: 200px; white-space: pre-wrap; word-break: break-word; }
+    .shabdarth-box { width: 90%; margin-top: 20px; z-index: 2; display: flex; flex-direction: column; align-items: center; }
+    .shabdarth-title { font-size: 16px; font-weight: 800; color: #8b6b0d; margin-bottom: 8px; border-bottom: 1px dashed #8b6b0d; padding-bottom: 2px; }
+    .shabdarth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; width: 100%; text-align: center; }
+    .shabd-row { font-size: 15px; color: #002266; display: flex; justify-content: center; gap: 5px; }
+    .shabd-word { font-weight: 900; color: #610000; }
+    .bottom-ornament { margin-top: 20px; width: 150px; height: 15px; fill: #bf953f; }
 
-    /* Floral corner decorations */
-    .sub-capture-container::before { content: '🌸'; position: absolute; top: 2px; left: 8px; font-size: 24px; z-index: 10; }
-    .sub-capture-container::after { content: '🌸'; position: absolute; top: 2px; right: 8px; font-size: 24px; z-index: 10; }
-
-    .sub-floral-bottom::before { content: '🌺'; position: absolute; bottom: 2px; left: 8px; font-size: 24px; z-index: 10; }
-    .sub-floral-bottom::after { content: '🌺'; position: absolute; bottom: 2px; right: 8px; font-size: 24px; z-index: 10; }
-
-    /* Floral border band */
-    .sub-floral-band {
-        background: linear-gradient(90deg, #FCE4EC, #FFF9C4, #E8F5E9, #FCE4EC);
-        text-align: center;
-        padding: 5px 0;
-        font-size: 16px;
-        letter-spacing: 6px;
-        color: #E91E63;
-        border-bottom: 1px solid #F8BBD0;
-    }
-
-    /* Date strip */
-    .sub-date-strip {
-        background: linear-gradient(135deg, #558B2F, #33691E);
-        color: #F1F8E9;
-        text-align: center;
-        padding: 10px 20px;
-        font-size: 14px;
-        font-weight: 500;
-        letter-spacing: 0.5px;
-    }
-
-    /* Shakha header */
-    .sub-shakha-header {
-        background: linear-gradient(135deg, #C2185B 0%, #AD1457 100%);
-        color: #FCE4EC;
-        padding: 14px 20px;
-        text-align: center;
-        font-size: 18px;
-        font-weight: 700;
-        letter-spacing: 1px;
-        border-bottom: 2px solid #E91E63;
-    }
-
-    /* Main title "सुभाषित" */
-    .sub-main-title {
-        text-align: center;
-        padding: 18px 20px 4px;
-        font-size: 30px;
-        font-weight: 800;
-        color: #880E4F;
-        letter-spacing: 3px;
-    }
-
-    .sub-subtitle {
-        text-align: center;
-        font-size: 14px;
-        color: #AD1457;
-        margin-bottom: 12px;
-        font-weight: 500;
-    }
-
-    /* Separator ornament */
-    .sub-ornament {
-        text-align: center;
-        color: #E91E63;
-        font-size: 16px;
-        margin: 4px 0;
-        letter-spacing: 10px;
-    }
-
-    /* Sanskrit shloka block */
-    .sub-sanskrit-block {
-        padding: 16px 24px;
-        text-align: center;
-        position: relative;
-    }
-    .sub-sanskrit-text {
-        font-size: 22px;
-        line-height: 1.8;
-        color: #1B5E20;
-        font-weight: 600;
-        white-space: pre-wrap;
-        word-break: break-word;
-    }
-
-    /* Hindi meaning block */
-    .sub-hindi-section {
-        margin: 0 20px;
-        padding: 14px 18px;
-        background: rgba(255, 249, 196, 0.5);
-        border-radius: 10px;
-        border: 1px dashed #F9A825;
-    }
-    .sub-section-label {
-        font-size: 15px;
-        font-weight: 700;
-        color: #E65100;
-        text-align: center;
-        margin-bottom: 8px;
-        letter-spacing: 1px;
-    }
-    .sub-hindi-text {
-        font-size: 17px;
-        line-height: 1.7;
-        color: #3E2723;
-        text-align: center;
-        white-space: pre-wrap;
-        word-break: break-word;
-    }
-
-    /* Shabdarth block */
-    .sub-shabdarth-section {
-        margin: 14px 20px;
-        padding: 14px 18px;
-        background: rgba(232, 245, 233, 0.5);
-        border-radius: 10px;
-        border: 1px dashed #81C784;
-    }
-    .sub-shabdarth-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2px 16px;
-    }
-    .sub-shabdarth-row {
-        display: flex;
-        justify-content: center;
-        align-items: baseline;
-        gap: 6px;
-        padding: 4px 0;
-        font-size: 14px;
-        color: #2E7D32;
-    }
-    .sub-shabdarth-word {
-        font-weight: 700;
-        color: #1B5E20;
-    }
-    .sub-shabdarth-dash {
-        color: #81C784;
-    }
-    .sub-shabdarth-meaning {
-        color: #33691E;
-    }
-
-    /* Footer */
-    .sub-footer-band {
-        margin-top: 16px;
-        background: linear-gradient(90deg, #FCE4EC, #FFF9C4, #E8F5E9, #FCE4EC);
-        text-align: center;
-        padding: 5px 0;
-        font-size: 16px;
-        letter-spacing: 6px;
-        color: #E91E63;
-        border-top: 1px solid #F8BBD0;
-    }
-
-    /* ===== FORM STYLES ===== */
-    .shabdarth-pair {
-        display: grid;
-        grid-template-columns: 1fr 1fr auto;
-        gap: 10px;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-    .shabdarth-pair input {
-        width: 100%;
-        padding: 12px 14px;
-        background: rgba(15, 15, 20, 0.6);
-        border: 1px solid var(--border-light);
-        border-radius: 10px;
-        color: var(--text-primary);
-        font-size: 1rem;
-        font-family: inherit;
-        transition: all 0.3s ease;
-    }
-    .shabdarth-pair input:focus {
-        outline: none;
-        border-color: #E91E63;
-        box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.15);
-    }
-    .remove-pair-btn {
-        background: rgba(239, 83, 80, 0.15);
-        border: 1px solid rgba(239, 83, 80, 0.3);
-        color: var(--danger);
-        width: 38px;
-        height: 38px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 1.2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-    }
-    .remove-pair-btn:hover {
-        background: var(--danger);
-        color: white;
-    }
-    .add-pair-btn {
-        background: rgba(233, 30, 99, 0.1);
-        border: 1px dashed #E91E63;
-        color: #F48FB1;
-        padding: 10px;
-        border-radius: 10px;
-        cursor: pointer;
-        text-align: center;
-        font-size: 0.95rem;
-        transition: all 0.2s;
-        margin-top: 5px;
-    }
-    .add-pair-btn:hover {
-        background: rgba(233, 30, 99, 0.2);
-        color: #FCE4EC;
-    }
-
-    .sub-form-input {
-        width: 100%;
-        padding: 14px 18px;
-        background: rgba(15, 15, 20, 0.6);
-        border: 1px solid var(--border-light);
-        border-radius: 10px;
-        color: var(--text-primary);
-        font-size: 1rem;
-        font-family: inherit;
-        transition: all 0.3s ease;
-    }
-    .sub-form-input:focus {
-        outline: none;
-        border-color: #E91E63;
-        box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.15);
-        background: rgba(15, 15, 20, 0.9);
-    }
-    textarea.sub-form-input {
-        resize: vertical;
-        min-height: 80px;
-    }
-
-    .sub-form-label {
-        display: block;
-        margin-bottom: 6px;
-        font-weight: 600;
-        color: var(--text-secondary);
-        font-size: 0.95rem;
-    }
-
-    .sub-premium-card {
-        background: rgba(34, 34, 46, 0.7);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(233, 30, 99, 0.2);
-        border-radius: 16px;
-        padding: 28px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    }
-    .sub-premium-card .card-header {
-        border-bottom: 1px solid rgba(233, 30, 99, 0.15);
-        font-size: 1.3rem;
-        padding-bottom: 15px;
-        margin-bottom: 25px;
-        color: #F48FB1;
-    }
-
-    .layout-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-    }
-
-    @media (max-width: 900px) {
-        .layout-grid {
-            grid-template-columns: 1fr;
-        }
-    }
+    /* FORM STYLES */
+    .shabdarth-pair { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: center; margin-bottom: 10px; }
+    .shabdarth-pair input, .sub-form-input { width: 100%; padding: 12px 14px; background: rgba(15, 15, 20, 0.6); border: 1px solid var(--border-light); border-radius: 10px; color: var(--text-primary); font-size: 1rem; transition: all 0.3s ease; }
+    .shabdarth-pair input:focus, .sub-form-input:focus { outline: none; border-color: #E91E63; box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.15); background: rgba(15, 15, 20, 0.9); }
+    .remove-pair-btn { background: rgba(239, 83, 80, 0.15); border: 1px solid rgba(239, 83, 80, 0.3); color: var(--danger); width: 38px; height: 38px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .add-pair-btn { background: rgba(233, 30, 99, 0.1); border: 1px dashed #E91E63; color: #F48FB1; padding: 10px; border-radius: 10px; cursor: pointer; text-align: center; margin-top: 5px; }
+    .sub-form-label { display: block; margin-bottom: 6px; font-weight: 600; color: var(--text-secondary); font-size: 0.95rem; }
+    .sub-premium-card { background: rgba(34, 34, 46, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(233, 30, 99, 0.2); border-radius: 16px; padding: 28px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
+    .sub-premium-card .card-header { border-bottom: 1px solid rgba(233, 30, 99, 0.15); font-size: 1.3rem; padding-bottom: 15px; margin-bottom: 25px; color: #F48FB1; }
+    .layout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 900px) { .layout-grid { grid-template-columns: 1fr; } }
 </style>
 
 <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
@@ -412,12 +170,8 @@ require_once '../includes/header.php';
     <?php endif; ?>
 </div>
 
-<?php if ($success): ?>
-    <div class="alert alert-success"><?php echo $success; ?></div>
-<?php endif; ?>
-<?php if ($error): ?>
-    <div class="alert alert-danger"><?php echo $error; ?></div>
-<?php endif; ?>
+<?php if ($success): ?><div class="alert alert-success"><?php echo $success; ?></div><?php endif; ?>
+<?php if ($error): ?><div class="alert alert-danger"><?php echo $error; ?></div><?php endif; ?>
 
 <div class="layout-grid">
     <!-- Form Side -->
@@ -430,23 +184,17 @@ require_once '../includes/header.php';
 
                 <div class="form-group" style="margin-bottom: 16px;">
                     <label class="sub-form-label">दिनांक (Date)</label>
-                    <input type="date" name="subhashit_date" id="inp-date" class="sub-form-input"
-                        value="<?php echo htmlspecialchars($subhashit_date); ?>">
+                    <input type="date" name="subhashit_date" id="inp-date" class="sub-form-input" value="<?php echo htmlspecialchars($subhashit_date); ?>">
                 </div>
 
                 <div class="form-group" style="margin-bottom: 16px;">
-                    <label class="sub-form-label">
-                        पंचांग 
-                        <button type="button" id="btn-fetch-panchang" class="btn btn-sm" style="background: #FFF3E0; color: #E65100; border: 1px solid #FFCC80; padding: 2px 8px; float: right; cursor: pointer;">✨ पंचांग प्राप्त करें</button>
-                    </label>
-                    <textarea name="panchang_text" id="inp-panchang" class="sub-form-input" rows="2"
-                        placeholder="विक्रम संवत् 2083, चैत्र...&#10;शक संवत् 1948, चैत्र..."><?php echo htmlspecialchars($panchang_text ?? ''); ?></textarea>
+                    <label class="sub-form-label">पंचांग <button type="button" id="btn-fetch-panchang" class="btn btn-sm" style="background: #FFF3E0; color: #E65100; border: 1px solid #FFCC80; padding: 2px 8px; float: right; cursor: pointer;">✨ पंचांग प्राप्त करें</button></label>
+                    <textarea name="panchang_text" id="inp-panchang" class="sub-form-input" rows="2"><?php echo htmlspecialchars($panchang_text ?? ''); ?></textarea>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 16px;">
                     <label class="sub-form-label">संस्कृत सुभाषित *</label>
-                    <textarea name="sanskrit_text" id="inp-sanskrit" class="sub-form-input" rows="4" required
-                        placeholder="यहाँ संस्कृत सुभाषित लिखें..."><?php echo htmlspecialchars($sanskrit_text ?? ''); ?></textarea>
+                    <textarea name="sanskrit_text" id="inp-sanskrit" class="sub-form-input" rows="4" required><?php echo htmlspecialchars($sanskrit_text ?? ''); ?></textarea>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 16px;">
@@ -454,25 +202,21 @@ require_once '../includes/header.php';
                         <span>हिंदी अर्थ</span>
                         <button type="button" class="btn btn-sm" onclick="generateAiSubhashit()" id="btn-ai-subhashit" style="background: rgba(233, 30, 99, 0.1); color: #F48FB1; border: 1px dashed #E91E63; padding: 4px 8px; cursor: pointer;">✨ AI से अर्थ व शब्दार्थ निकालें</button>
                     </label>
-                    <textarea name="hindi_meaning" id="inp-hindi" class="sub-form-input" rows="3"
-                        placeholder="हिंदी में अर्थ लिखें..."><?php echo htmlspecialchars($hindi_meaning ?? ''); ?></textarea>
+                    <textarea name="hindi_meaning" id="inp-hindi" class="sub-form-input" rows="3"><?php echo htmlspecialchars($hindi_meaning ?? ''); ?></textarea>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 16px;">
                     <label class="sub-form-label">चुनिंदा शब्दार्थ</label>
                     <div id="shabdarth-container">
-                        <?php if (!empty($shabdarth)): ?>
-                            <?php foreach ($shabdarth as $idx => $pair): ?>
-                                <div class="shabdarth-pair">
-                                    <input type="text" name="shabd[]" placeholder="शब्द" value="<?php echo htmlspecialchars($pair['shabd']); ?>">
-                                    <input type="text" name="arth[]" placeholder="अर्थ" value="<?php echo htmlspecialchars($pair['arth']); ?>">
-                                    <button type="button" class="remove-pair-btn" onclick="this.parentElement.remove(); updatePreview();">✕</button>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
+                        <?php if (!empty($shabdarth)): foreach ($shabdarth as $pair): ?>
                             <div class="shabdarth-pair">
-                                <input type="text" name="shabd[]" placeholder="शब्द">
-                                <input type="text" name="arth[]" placeholder="अर्थ">
+                                <input type="text" name="shabd[]" placeholder="शब्द" value="<?php echo htmlspecialchars($pair['shabd']); ?>">
+                                <input type="text" name="arth[]" placeholder="अर्थ" value="<?php echo htmlspecialchars($pair['arth']); ?>">
+                                <button type="button" class="remove-pair-btn" onclick="this.parentElement.remove(); updatePreview();">✕</button>
+                            </div>
+                        <?php endforeach; else: ?>
+                            <div class="shabdarth-pair">
+                                <input type="text" name="shabd[]" placeholder="शब्द"><input type="text" name="arth[]" placeholder="अर्थ">
                                 <button type="button" class="remove-pair-btn" onclick="this.parentElement.remove(); updatePreview();">✕</button>
                             </div>
                         <?php endif; ?>
@@ -480,84 +224,108 @@ require_once '../includes/header.php';
                     <div class="add-pair-btn" onclick="addShabdarthPair()">+ शब्दार्थ जोड़ें</div>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 5px; background: linear-gradient(135deg, #C2185B 0%, #AD1457 100%); box-shadow: 0 4px 15px rgba(194, 24, 91, 0.4); border-radius: 12px; padding: 15px; font-size: 1.1rem;">
-                    <?php echo $subhashitId ? '💾 अपडेट करें' : '💾 सहेजें (Save)'; ?>
-                </button>
-                <?php if ($subhashitId): ?>
-                    <a href="../pages/subhashit.php" class="btn btn-outline" style="width: 100%; text-align: center; display: block; margin-top: 8px;">➕ नया सुभाषित बनाएं</a>
-                <?php endif; ?>
+                <button type="submit" class="btn btn-primary" style="width: 100%; border-radius: 12px; padding: 15px;"><?php echo $subhashitId ? '💾 अपडेट करें' : '💾 सहेजें (Save)'; ?></button>
+                <?php if ($subhashitId): ?><a href="../pages/subhashit.php" class="btn btn-outline" style="width: 100%; text-align: center; display: block; margin-top: 8px;">➕ नया सुभाषित बनाएं</a><?php endif; ?>
             </form>
         </div>
-
-        <?php if (!empty($recentSubhashits)): ?>
-            <div class="sub-premium-card" style="margin-top: 20px;">
-                <div class="card-header">📋 हाल के सुभाषित</div>
-                <div style="font-size: 0.85em; padding: 8px 0 12px; color: var(--text-muted);">
-                    संपादित/डाउनलोड करने के लिए किसी सुभाषित पर क्लिक करें।
-                </div>
-                <div style="max-height: 300px; overflow-y: auto;">
-                    <?php foreach ($recentSubhashits as $n): ?>
-                        <a href="../pages/subhashit.php?id=<?php echo $n['id']; ?>"
-                            style="display: block; padding: 12px 15px; border-bottom: 1px solid var(--border-color); text-decoration: none; color: inherit; border-radius: 8px; margin-bottom: 4px; background: <?php echo ($subhashitId == $n['id']) ? 'rgba(141,110,99,0.15)' : 'transparent'; ?>; transition: all 0.2s;"
-                            onmouseover="this.style.background='rgba(141,110,99,0.1)'" onmouseout="this.style.background='<?php echo ($subhashitId == $n['id']) ? 'rgba(141,110,99,0.15)' : 'transparent'; ?>'">
-                            <strong style="color: var(--text-primary); font-size: 0.95rem;"><?php echo mb_substr(htmlspecialchars($n['sanskrit_text']), 0, 60) . (mb_strlen($n['sanskrit_text']) > 60 ? '...' : ''); ?></strong><br>
-                            <small style="color: <?php echo ($subhashitId == $n['id']) ? '#A1887F' : 'var(--text-muted)'; ?>;">
-                                <?php echo date('d-m-Y', strtotime($n['subhashit_date'])); ?>
-                            </small>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        <?php endif; ?>
     </div>
 
     <!-- Preview Side -->
     <div>
         <div class="share-actions" style="justify-content: center; margin-bottom: 15px; gap: 16px; display: flex;">
-            <button id="btn-download" class="btn btn-success" style="background: linear-gradient(135deg, #558B2F, #33691E); box-shadow: 0 4px 15px rgba(85,139,47,0.3);">⬇️ डाउनलोड (JPG)</button>
+            <button id="btn-download" class="btn btn-success">⬇️ डाउनलोड (JPG)</button>
             <button id="btn-share" class="btn btn-whatsapp">📱 व्हाट्सएप शेयर</button>
         </div>
 
-        <div style="overflow-x: auto; padding-bottom: 40px; text-align: center;">
-            <div id="capture-area" class="sub-capture-container">
+        <div style="overflow-x: auto; padding-bottom: 40px; text-align: center; display: flex; justify-content: center;">
+            <div id="preview-scaler" style="transform-origin: top center; transform: scale(min(1, calc((100vw - 40px) / 550))); width: 550px;">
+                <div id="capture-area" class="sub-capture-container" style="transform: none !important; box-shadow: none;">
+                    <div class="sub-capture-inner">
+                        <svg class="corner-svg tl" viewBox="0 0 100 100"><path d="M0,0 Q50,0 50,50 Q0,50 0,0 M10,10 Q40,10 40,40 Q10,40 10,10 M0,20 Q20,20 20,40 M20,0 Q20,20 40,20" /></svg>
+                        <svg class="corner-svg tr" viewBox="0 0 100 100"><path d="M0,0 Q50,0 50,50 Q0,50 0,0 M10,10 Q40,10 40,40 Q10,40 10,10 M0,20 Q20,20 20,40 M20,0 Q20,20 40,20" /></svg>
+                        <svg class="corner-svg bl" viewBox="0 0 100 100"><path d="M0,0 Q50,0 50,50 Q0,50 0,0 M10,10 Q40,10 40,40 Q10,40 10,10 M0,20 Q20,20 20,40 M20,0 Q20,20 40,20" /></svg>
+                        <svg class="corner-svg br" viewBox="0 0 100 100"><path d="M0,0 Q50,0 50,50 Q0,50 0,0 M10,10 Q40,10 40,40 Q10,40 10,10 M0,20 Q20,20 20,40 M20,0 Q20,20 40,20" /></svg>
 
-                <div class="sub-date-strip">
-                    <div id="prev-date" style="font-size: 15px;"><?php echo date('d-m-Y'); ?></div>
-                    <div id="prev-panchang" style="font-size: 12px; margin-top: 4px; font-weight: 400; color: #DCEDC8;"></div>
-                </div>
+                        <div class="flag-wrap flag-l"><div class="pole"></div><svg class="dhwaj" viewBox="0 0 100 80"><path d="M0,0 L100,25 L20,40 L100,55 L0,80 Z" /></svg></div>
+                        <div class="flag-wrap flag-r"><div class="pole"></div><svg class="dhwaj" viewBox="0 0 100 80"><path d="M0,0 L100,25 L20,40 L100,55 L0,80 Z" /></svg></div>
 
-                <div class="sub-shakha-header">
-                    🚩 <?php echo htmlspecialchars($shakhaName); ?> 🚩
-                </div>
+                        <div class="om-text">॥ ॐ ॥</div>
 
-                <div class="sub-floral-band">🌼 ❀ 🌸 ❀ 🌼 ❀ 🌸</div>
+                        <div class="meta-info">
+                            <div class="meta-date-panchang"><span id="prev-date"></span><br><span id="prev-panchang"></span></div>
+                            <div class="meta-shakha">🚩 <span id="prev-shakha-name"><?php echo htmlspecialchars($shakhaName); ?></span> 🚩</div>
+                        </div>
 
-                <div class="sub-main-title">सुभाषित</div>
-                <div class="sub-subtitle">( अभ्यास हेतु )</div>
+                        <svg class="divider-svg" viewBox="0 0 400 20"><path d="M50,10 L350,10" fill="none" stroke="#bf953f" stroke-width="1.5" /><circle cx="200" cy="10" r="4" fill="#cc0000" /></svg>
 
-                <div class="sub-ornament">─ ✦ ─</div>
+                        <div class="title-container">
+                            <svg class="wing" viewBox="0 0 100 100"><path d="M100,50 Q70,20 40,50 Q70,80 100,50 M80,50 Q60,35 40,50 Q60,65 80,50 M40,50 Q20,40 0,50 Q20,60 40,50" /></svg>
+                            <h1 class="main-title">सुभाषित</h1>
+                            <svg class="wing" style="transform: scaleX(-1)" viewBox="0 0 100 100"><path d="M100,50 Q70,20 40,50 Q70,80 100,50 M80,50 Q60,35 40,50 Q60,65 80,50 M40,50 Q20,40 0,50 Q20,60 40,50" /></svg>
+                        </div>
 
-                <div class="sub-sanskrit-block">
-                    <div id="prev-sanskrit" class="sub-sanskrit-text">संस्कृत सुभाषित यहाँ दिखेगा...</div>
-                </div>
+                        <svg class="divider-svg" viewBox="0 0 400 20"><path d="M100,10 L300,10" fill="none" stroke="#cc0000" stroke-width="1" /><path d="M200,2 L200,18" stroke="#bf953f" stroke-width="2" /></svg>
 
-                <div class="sub-ornament">─ ✦ ─</div>
+                        <div id="prev-sanskrit" class="shlok-text">संस्कृत सुभाषित यहाँ दिखेगा...</div>
 
-                <div id="prev-hindi-section" class="sub-hindi-section" style="display: none;">
-                    <div class="sub-section-label">— हिंदी अर्थ —</div>
-                    <div id="prev-hindi" class="sub-hindi-text"></div>
-                </div>
+                        <svg class="divider-svg" viewBox="0 0 400 20"><path d="M50,10 L350,10" fill="none" stroke="#bf953f" stroke-width="1.5" stroke-dasharray="5 5" /><circle cx="200" cy="10" r="5" fill="#bf953f" /></svg>
 
-                <div id="prev-shabdarth-section" class="sub-shabdarth-section" style="display: none;">
-                    <div class="sub-section-label">— चुनिंदा शब्दार्थ —</div>
-                    <div id="prev-shabdarth" class="sub-shabdarth-grid"></div>
-                </div>
+                        <div id="prev-hindi-section" class="arth-box" style="display: none;">
+                            <div class="arth-label">अर्थ :-</div>
+                            <div id="prev-hindi" class="arth-text"></div>
+                        </div>
 
-                <div class="sub-floral-bottom" style="position: relative;">
-                    <div class="sub-footer-band">🌼 ❀ 🌸 ❀ 🌼 ❀ 🌸</div>
+                        <div id="prev-shabdarth-section" class="shabdarth-box" style="display: none;">
+                            <div class="shabdarth-title">— शब्दार्थ —</div>
+                            <div id="prev-shabdarth" class="shabdarth-grid"></div>
+                        </div>
+
+                        <svg class="bottom-ornament" viewBox="0 0 200 20"><path d="M0,10 Q100,0 200,10" fill="none" stroke="currentColor" stroke-width="2" /><circle cx="100" cy="10" r="4" fill="#cc0000" /></svg>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
+<hr style="margin: 40px 0; border: 0; border-top: 1px solid rgba(233, 30, 99, 0.1);">
+
+<!-- Recent List Section -->
+<div class="card">
+    <div class="card-header">📋 हाल के सुभाषित (Recent Subhashits)</div>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>दिनांक</th>
+                    <th>सुभाषित</th>
+                    <th>क्रियाएं (Actions)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($recentSubhashits as $r): ?>
+                    <tr>
+                        <td><?php echo date('d-m-Y', strtotime($r['subhashit_date'])); ?></td>
+                        <td>
+                            <div style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600;">
+                                <?php echo htmlspecialchars($r['sanskrit_text']); ?>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="subhashit.php?id=<?php echo $r['id']; ?>" class="btn btn-sm btn-outline">✏️ Edit</a>
+                                <button class="btn btn-sm btn-success" onclick="quickAction('download', <?php echo $r['id']; ?>)">⬇️ JPG</button>
+                                <button class="btn btn-sm btn-whatsapp" onclick="quickAction('share', <?php echo $r['id']; ?>)">📱 Share</button>
+                                <?php if (isAdmin()): ?>
+                                    <button class="btn btn-sm btn-warning" onclick="openShareModal('subhashit', <?php echo $r['id']; ?>)">🔗 Global</button>
+                                <?php endif; ?>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if (empty($recentSubhashits)): ?>
+                    <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">कोई सुभाषित नहीं मिला।</td></tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -567,354 +335,180 @@ require_once '../includes/header.php';
 
     function formatHindiDate(dateString) {
         if (!dateString) return '';
-        const d = new Date(dateString);
-        if (isNaN(d)) return dateString;
-        const dayName = hindiDays[d.getDay()];
-        const day = d.getDate();
-        const monthName = hindiMonths[d.getMonth()];
-        const year = d.getFullYear();
-        return `${dayName}, ${day} ${monthName} ${year}`;
+        const d = new Date(dateString); if (isNaN(d)) return dateString;
+        return `${hindiDays[d.getDay()]}, ${d.getDate()} ${hindiMonths[d.getMonth()]} ${d.getFullYear()}`;
     }
 
     function addShabdarthPair(shabd = '', arth = '') {
         const container = document.getElementById('shabdarth-container');
-        
-        // Remove empty placeholder if it exists and is empty
-        const pairs = container.querySelectorAll('.shabdarth-pair');
-        if (pairs.length === 1) {
-            const inputs = pairs[0].querySelectorAll('input');
-            if (!inputs[0].value && !inputs[1].value) {
-                pairs[0].remove();
-            }
-        }
-
         const pair = document.createElement('div');
         pair.className = 'shabdarth-pair';
-        pair.innerHTML = `
-            <input type="text" name="shabd[]" placeholder="शब्द" oninput="updatePreview()" value="${shabd}">
+        pair.innerHTML = `<input type="text" name="shabd[]" placeholder="शब्द" oninput="updatePreview()" value="${shabd}">
             <input type="text" name="arth[]" placeholder="अर्थ" oninput="updatePreview()" value="${arth}">
-            <button type="button" class="remove-pair-btn" onclick="this.parentElement.remove(); updatePreview();">✕</button>
-        `;
-        container.appendChild(pair);
-        updatePreview();
+            <button type="button" class="remove-pair-btn" onclick="this.parentElement.remove(); updatePreview();">✕</button>`;
+        container.appendChild(pair); updatePreview();
     }
 
     function updatePreview() {
-        const dateInput = document.getElementById('inp-date').value;
+        const dateVal = document.getElementById('inp-date').value;
         const sanskrit = document.getElementById('inp-sanskrit').value;
         const hindi = document.getElementById('inp-hindi').value;
-        const panchangText = document.getElementById('inp-panchang').value;
+        const panchang = document.getElementById('inp-panchang').value;
 
-        document.getElementById('prev-date').innerText = formatHindiDate(dateInput) || '(दिनांक)';
+        document.getElementById('prev-date').innerText = formatHindiDate(dateVal) || '(दिनांक)';
+        const pEl = document.getElementById('prev-panchang');
+        pEl.innerHTML = panchang.trim() ? panchang.replace(/\n/g, '<br>') : '';
+        pEl.style.display = panchang.trim() ? 'block' : 'none';
         
-        const panchangEl = document.getElementById('prev-panchang');
-        if (panchangText.trim()) {
-            panchangEl.innerHTML = panchangText.replace(/\n/g, '<br>');
-            panchangEl.style.display = 'block';
-        } else {
-            panchangEl.style.display = 'none';
-        }
-        
-        const sanskritEl = document.getElementById('prev-sanskrit');
-        sanskritEl.innerHTML = (sanskrit || 'संस्कृत सुभाषित यहाँ दिखेगा...').replace(/\n/g, '<br>');
+        const sEl = document.getElementById('prev-sanskrit');
+        sEl.innerHTML = (sanskrit || 'संस्कृत सुभाषित यहाँ दिखेगा...').replace(/\n/g, '<br>');
 
-        // Auto-size sanskrit text
-        let fontSize = 22;
-        sanskritEl.style.fontSize = fontSize + 'px';
-        // Rough check: if text is long, reduce font
-        if (sanskrit.length > 200) fontSize = 17;
-        else if (sanskrit.length > 120) fontSize = 19;
-        sanskritEl.style.fontSize = fontSize + 'px';
+        const hSect = document.getElementById('prev-hindi-section');
+        const hEl = document.getElementById('prev-hindi');
+        if (hindi.trim()) { hSect.style.display = 'flex'; hEl.innerHTML = hindi.replace(/\n/g, '<br>'); }
+        else { hSect.style.display = 'none'; }
 
-        // Hindi meaning
-        const hindiSection = document.getElementById('prev-hindi-section');
-        const hindiEl = document.getElementById('prev-hindi');
-        if (hindi.trim()) {
-            hindiSection.style.display = 'block';
-            hindiEl.innerHTML = hindi.replace(/\n/g, '<br>');
-        } else {
-            hindiSection.style.display = 'none';
+        const sSect = document.getElementById('prev-shabdarth-section');
+        const sGrid = document.getElementById('prev-shabdarth');
+        const sIns = document.querySelectorAll('input[name="shabd[]"]');
+        const aIns = document.querySelectorAll('input[name="arth[]"]');
+        let sHtml = '';
+        for (let i = 0; i < sIns.length; i++) {
+            const w = sIns[i].value.trim(); const m = aIns[i].value.trim();
+            if (w || m) sHtml += `<div class="shabd-row"><span class="shabd-word">${w}</span><span>—</span><span style="color:#002266; font-weight:400;">${m}</span></div>`;
         }
-
-        // Shabdarth
-        const shabdInputs = document.querySelectorAll('input[name="shabd[]"]');
-        const arthInputs = document.querySelectorAll('input[name="arth[]"]');
-        const shabdarthSection = document.getElementById('prev-shabdarth-section');
-        const shabdarthEl = document.getElementById('prev-shabdarth');
-
-        let hasAny = false;
-        let html = '';
-        for (let i = 0; i < shabdInputs.length; i++) {
-            const w = shabdInputs[i].value.trim();
-            const m = arthInputs[i] ? arthInputs[i].value.trim() : '';
-            if (w || m) {
-                hasAny = true;
-                html += `<div class="sub-shabdarth-row">
-                    <span class="sub-shabdarth-word">${w || ''}</span>
-                    <span class="sub-shabdarth-dash">—</span>
-                    <span class="sub-shabdarth-meaning">${m || ''}</span>
-                </div>`;
-            }
-        }
-        if (hasAny) {
-            shabdarthSection.style.display = 'block';
-            shabdarthEl.innerHTML = html;
-        } else {
-            shabdarthSection.style.display = 'none';
-        }
+        if (sHtml) { sSect.style.display = 'flex'; sGrid.innerHTML = sHtml; }
+        else { sSect.style.display = 'none'; }
     }
 
-    // Bind events
     document.getElementById('inp-date').addEventListener('input', updatePreview);
     document.getElementById('inp-panchang').addEventListener('input', updatePreview);
     document.getElementById('inp-sanskrit').addEventListener('input', updatePreview);
     document.getElementById('inp-hindi').addEventListener('input', updatePreview);
-
-    // Bind existing shabdarth inputs
-    document.querySelectorAll('input[name="shabd[]"], input[name="arth[]"]').forEach(el => {
-        el.addEventListener('input', updatePreview);
-    });
-
-    // Panchang API Fetch Logic
     document.getElementById('btn-fetch-panchang').addEventListener('click', function() {
-        const selectedDate = document.getElementById('inp-date').value;
-        if (!selectedDate) return alert('कृपया पहले तारीख चुनें।');
-
-        const btnFetch = this;
-        btnFetch.innerHTML = '⏳ लोडिंग...';
-        btnFetch.disabled = true;
-
-        const mappers = {
-            month: {
-                'Chaitra': 'चैत्र', 'Vaisakha': 'वैशाख', 'Vaishakha': 'वैशाख', 'Jyeshtha': 'ज्येष्ठ', 'Jyaistha': 'ज्येष्ठ', 
-                'Ashadha': 'आषाढ़', 'Shravana': 'श्रावण', 'Sravana': 'श्रावण', 'Bhadrapada': 'भाद्रपद', 
-                'Ashwin': 'आश्विन', 'Asvina': 'आश्विन', 'Kartika': 'कार्तिक', 'Kartik': 'कार्तिक', 'Margashirsha': 'मार्गशीर्ष', 
-                'Margasira': 'मार्गशीर्ष', 'Pausha': 'पौष', 'Pausa': 'पौष', 'Magha': 'माघ', 'Phalguna': 'फाल्गुन'
-            },
-            tithi: {
-                'Prathama': 'प्रतिपदा', 'Pratipada': 'प्रतिपदा', 'Dwitiya': 'द्वितीया', 'Tritiya': 'तृतीया', 
-                'Chaturthi': 'चतुर्थी', 'Panchami': 'पंचमी', 'Shashthi': 'षष्ठी', 'Sashti': 'षष्ठी', 
-                'Saptami': 'सप्तमी', 'Ashtami': 'अष्टमी', 'Navami': 'नवमी', 'Dashami': 'दशमी', 
-                'Ekadashi': 'एकादशी', 'Dwadashi': 'द्वादशी', 'Trayodashi': 'त्रयोदशी', 'Chaturdashi': 'चतुर्दशी', 
-                'Purnima': 'पूर्णिमा', 'Amavasya': 'अमावस्या'
-            },
-            paksha: {
-                'Shukla': 'शुक्ल पक्ष', 'Krishna': 'कृष्ण पक्ष'
+        const d = document.getElementById('inp-date').value; if (!d) return alert('तारीख चुनें');
+        this.innerText = '⏳...';
+        fetch(`../api/fetch_panchang.php?date=${d}`).then(r => r.json()).then(data => {
+            if (data.status === 'success') {
+                const p = data.panchang;
+                let l = [];
+                if (p.vikram_samvat) l.push(`विक्रम संवत् ${p.vikram_samvat} (${p.vikram_month} ${p.paksha} ${p.tithi})`);
+                if (p.shaka_samvat) l.push(`शक संवत् ${p.shaka_samvat} (${p.shaka_month} ${p.paksha} ${p.tithi})`);
+                document.getElementById('inp-panchang').value = l.join('\n'); updatePreview();
             }
-        };
-
-        fetch(`../api/fetch_panchang.php?date=${selectedDate}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    const p = data.panchang;
-                    
-                    const pPaksha = mappers.paksha[p.paksha] || p.paksha;
-                    const pTithi = mappers.tithi[p.tithi] || p.tithi;
-                    
-                    const pMonthVikram = mappers.month[p.vikram_month] || p.vikram_month || '';
-                    const pMonthShaka = mappers.month[p.shaka_month] || p.shaka_month || '';
-                    
-                    let lines = [];
-
-                    // Line 1: Vikram Samvat
-                    if (p.vikram_samvat) {
-                        let vikramLine = `विक्रम संवत् ${p.vikram_samvat}`;
-                        let details = [];
-                        if(pMonthVikram) details.push(pMonthVikram);
-                        if(pPaksha) details.push(pPaksha);
-                        if(pTithi) details.push(pTithi);
-                        if (details.length > 0) vikramLine += ` (${details.join(' ')})`;
-                        lines.push(vikramLine);
-                    }
-
-                    // Line 2: Shaka Samvat
-                    if (p.shaka_samvat) {
-                        let shakaLine = `शक संवत् ${p.shaka_samvat}`;
-                        let details = [];
-                        if(pMonthShaka) details.push(pMonthShaka);
-                        if(pPaksha) details.push(pPaksha);
-                        if(pTithi) details.push(pTithi);
-                        if (details.length > 0) shakaLine += ` (${details.join(' ')})`;
-                        lines.push(shakaLine);
-                    }
-
-                    // Fallback if neither exists
-                    if (lines.length === 0) {
-                        lines.push(`${pMonthVikram} ${pPaksha} ${pTithi}`.trim());
-                    }
-                    
-                    document.getElementById('inp-panchang').value = lines.join('\n');
-                    updatePreview();
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('तकनीकी त्रुटि हुई।');
-            })
-            .finally(() => {
-                btnFetch.innerHTML = '✨ पंचांग प्राप्त करें';
-                btnFetch.disabled = false;
-            });
+        }).finally(() => this.innerText = '✨ पंचांग प्राप्त करें');
     });
-
-    // Initial call
-    updatePreview();
 
     async function generateAiSubhashit() {
-        const sanskrit = document.getElementById('inp-sanskrit').value.trim();
-        if (!sanskrit) {
-            alert("कृपया पहले संस्कृत सुभाषित दर्ज करें।");
-            return;
-        }
-
-        const btn = document.getElementById('btn-ai-subhashit');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '⏳ AI सोच रहा है...';
-        btn.disabled = true;
-
+        const s = document.getElementById('inp-sanskrit').value.trim(); if (!s) return alert("श्लोक लिखें");
+        const b = document.getElementById('btn-ai-subhashit'); b.innerText = '⏳...'; b.disabled = true;
         try {
-            const response = await fetch('../api/ai_content.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'subhashit_meaning', sanskrit: sanskrit })
-            });
-            
-            const data = await response.json();
+            const res = await fetch('../api/ai_content.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'subhashit_meaning', sanskrit: s }) });
+            const data = await res.json();
             if (data.success) {
                 document.getElementById('inp-hindi').value = data.result.hindi_meaning || '';
-                
-                // Clear existing shabdarth
                 document.getElementById('shabdarth-container').innerHTML = '';
-                
-                // Add new ones
-                if (data.result.shabdarth && data.result.shabdarth.length > 0) {
-                    data.result.shabdarth.forEach(item => {
-                        addShabdarthPair(item.shabd, item.arth);
-                    });
-                } else {
-                    addShabdarthPair(); // add empty
-                }
-                
+                if (data.result.shabdarth) data.result.shabdarth.forEach(i => addShabdarthPair(i.shabd, i.arth));
                 updatePreview();
-            } else {
-                alert("त्रुटि: " + (data.message || "Unknown error"));
             }
-        } catch (e) {
-            console.error(e);
-            alert("सर्वर से जुड़ने में त्रुटि।");
-        }
-
-        btn.innerHTML = originalText;
-        btn.disabled = false;
+        } catch(e) {}
+        b.innerText = '✨ AI से अर्थ व शब्दार्थ निकालें'; b.disabled = false;
     }
 
-    // Generate High-Res Image
     async function generateImage() {
+        if (document.fonts) { await document.fonts.ready; }
         const el = document.getElementById('capture-area');
-        const canvas = await html2canvas(el, {
-            scale: 2,
-            backgroundColor: '#FFF9E6',
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const captureScale = isMobile ? 1.5 : 2;
+
+        return await html2canvas(el, {
+            scale: captureScale,
+            backgroundColor: '#1a1100',
             useCORS: true,
-            logging: false
+            allowTaint: false,
+            logging: false,
+            imageTimeout: 15000,
+            onclone: (clonedDoc) => {
+                const clonedEl = clonedDoc.getElementById('capture-area');
+                clonedEl.style.transform = 'none';
+                clonedEl.style.display = 'block';
+            }
         });
-        return canvas;
     }
 
-    // Download Button
     document.getElementById('btn-download').addEventListener('click', async () => {
-        const btn = document.getElementById('btn-download');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '⏳ कृपया प्रतीक्षा करें...';
-        btn.disabled = true;
-
+        const b = document.getElementById('btn-download'); b.innerText = '⏳...'; b.disabled = true;
         try {
-            const canvas = await generateImage();
-            const dStr = document.getElementById('inp-date').value || 'date';
-
+            const c = await generateImage();
+            const b64 = c.toDataURL('image/jpeg', 0.85);
             if (window.FlutterShareChannel) {
-                const b64 = canvas.toDataURL('image/jpeg', 0.95);
-                window.FlutterShareChannel.postMessage(JSON.stringify({
-                    image: b64,
-                    text: 'सुभाषित',
-                    filename: `subhashit_${dStr}.jpg`
-                }));
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                return;
-            }
-
-            const a = document.createElement('a');
-            a.href = canvas.toDataURL('image/jpeg', 0.95);
-            a.download = `subhashit_${dStr}.jpg`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        } catch (e) {
-            console.error(e);
-            alert('स्नैपशॉट बनाने में तकनीकी त्रुटि हुई।');
-        }
-
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-    });
-
-    // WhatsApp Share Button
-    document.getElementById('btn-share').addEventListener('click', async () => {
-        const btn = document.getElementById('btn-share');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '⏳ तैयार हो रहा है...';
-        btn.disabled = true;
-
-        try {
-            const canvas = await generateImage();
-            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95));
-
-            const file = new File([blob], 'subhashit.jpg', { type: 'image/jpeg' });
-            const textStr = `📜 आज का सुभाषित — अभ्यास हेतु`;
-
-            if (window.FlutterShareChannel) {
-                const dStr = document.getElementById('inp-date').value || 'date';
-                const b64 = canvas.toDataURL('image/jpeg', 0.95);
-                window.FlutterShareChannel.postMessage(JSON.stringify({
-                    image: b64,
-                    text: textStr,
-                    filename: `subhashit_${dStr}.jpg`
-                }));
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                return;
-            }
-
-            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    title: 'सुभाषित',
-                    text: textStr,
-                    files: [file]
-                });
+                window.FlutterShareChannel.postMessage(JSON.stringify({ image: b64, text: 'सुभाषित', filename: 'subhashit.jpg' }));
             } else {
-                alert('आपका ब्राउज़र सीधे इमेज शेयरिंग सपोर्ट नहीं करता। इमेज डाउनलोड हो रही है...');
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                const dStr = document.getElementById('inp-date').value || 'date';
-                a.download = `subhashit_${dStr}.jpg`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.open('https://wa.me/?text=' + encodeURIComponent(textStr), '_blank');
+                const a = document.createElement('a'); a.href = b64; a.download = `subhashit.jpg`; a.click();
             }
-        } catch (e) {
-            if (e.name !== 'AbortError') {
-                console.error(e);
-                alert('शेयर करने में तकनीकी त्रुटि हुई।');
-            }
-        }
-
-        btn.innerHTML = originalText;
-        btn.disabled = false;
+        } catch(e) { console.error(e); alert('स्नैपशॉट बनाने में त्रुटि हुई।'); }
+        b.innerText = '⬇️ डाउनलोड (JPG)'; b.disabled = false;
     });
+
+    document.getElementById('btn-share').addEventListener('click', async () => {
+        const b = document.getElementById('btn-share'); b.innerText = '⏳...'; b.disabled = true;
+        try {
+            const c = await generateImage();
+            const textStr = '📜 सुभाषित';
+            const b64 = c.toDataURL('image/jpeg', 0.85);
+
+            if (window.FlutterShareChannel) {
+                window.FlutterShareChannel.postMessage(JSON.stringify({ image: b64, text: textStr, filename: 'subhashit.jpg' }));
+                b.innerText = '📱 व्हाट्सएप शेयर'; b.disabled = false; return;
+            }
+
+            if (navigator.share) {
+                try {
+                    const blob = dataURLtoBlob(b64);
+                    const file = new File([blob], 'subhashit.jpg', { type: 'image/jpeg' });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({ title: 'सुभाषित', text: textStr, files: [file] });
+                    } else { runFallback(b64, textStr); }
+                } catch (shareErr) {
+                    if (shareErr.name !== 'AbortError') { runFallback(b64, textStr); }
+                }
+            } else { runFallback(b64, textStr); }
+        } catch(e) { if (e.name !== 'AbortError') { console.error(e); alert('शेयर करने में त्रुटि हुई।'); } }
+        b.innerText = '📱 व्हाट्सएप शेयर'; b.disabled = false;
+    });
+
+    function dataURLtoBlob(dataurl) {
+        try {
+            var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+            while(n--){ u8arr[n] = bstr.charCodeAt(n); }
+            return new Blob([u8arr], {type:mime});
+        } catch (e) { console.error('Blob conversion failed:', e); return null; }
+    }
+
+    function runFallback(b64, textStr) {
+        alert('आपका ब्राउज़र सीधे इमेज शेयरिंग सपोर्ट नहीं करता। इमेज डाउनलोड हो रही है... उसके बाद व्हाट्सएप पर भेजें।');
+        const a = document.createElement('a');
+        a.href = b64; a.download = 'subhashit.jpg';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(() => { window.open('https://wa.me/?text=' + encodeURIComponent(textStr), '_blank'); }, 1000);
+    }
+
+    async function quickAction(type, id) {
+        window.location.href = 'subhashit.php?id=' + id + '&action=' + type;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const action = urlParams.get('action');
+        if (action === 'download') {
+            document.getElementById('btn-download').click();
+        } else if (action === 'share') {
+            document.getElementById('btn-share').click();
+        }
+    });
+
+    updatePreview();
 </script>
 
 <?php require_once '../includes/share_modal.php'; ?>

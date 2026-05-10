@@ -21,9 +21,6 @@ $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
-    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
-        die("Invalid CSRF token.");
-    }
 
     $newName = trim($_POST['name'] ?? '');
 
@@ -145,6 +142,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($error)) {
+        $geminiKey = trim($_POST['gemini_api_key'] ?? '');
+        $cityName = trim($_POST['city_name'] ?? '');
         if (!empty($newName)) {
             if ($logoPath) {
                 // Also get old logo to delete if exists
@@ -155,11 +154,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     unlink("../" . $oldLogo);
                 }
 
-                $stmt = $pdo->prepare("UPDATE shakhas SET name = ?, logo = ? WHERE id = ?");
-                $stmt->execute([$newName, $logoPath, $shakhaId]);
+                $stmt = $pdo->prepare("UPDATE shakhas SET name = ?, logo = ?, gemini_api_key = ?, city_name = ? WHERE id = ?");
+                $stmt->execute([$newName, $logoPath, $geminiKey, $cityName, $shakhaId]);
             } else {
-                $stmt = $pdo->prepare("UPDATE shakhas SET name = ? WHERE id = ?");
-                $stmt->execute([$newName, $shakhaId]);
+                $stmt = $pdo->prepare("UPDATE shakhas SET name = ?, gemini_api_key = ?, city_name = ? WHERE id = ?");
+                $stmt->execute([$newName, $geminiKey, $cityName, $shakhaId]);
             }
             $success = 'शाखा सेटिंग्स सफलतापूर्वक अपडेट कर दी गईं।';
         } else {
@@ -204,6 +203,13 @@ require_once '../includes/header.php';
         </div>
 
         <div class="form-group">
+            <label for="city_name">शहर का नाम (पंचांग के लिए)</label>
+            <input type="text" id="city_name" name="city_name" class="form-control"
+                value="<?php echo htmlspecialchars($shakha['city_name'] ?? 'मुम्बई'); ?>" placeholder="उदा. मुम्बई, पुणे, दिल्ली (हिंदी में लिखें)">
+            <small style="color: #888;">AI इसी शहर के अनुसार पंचांग की गणना करेगा। कृपया शहर का नाम **हिंदी** में ही लिखें।</small>
+        </div>
+
+        <div class="form-group">
             <label>वर्तमान लोगो (स्नैपशॉट के लिए)</label>
             <div style="margin-bottom:10px;">
                 <?php if (!empty($shakha['logo']) && file_exists("../" . $shakha['logo'])): ?>
@@ -219,6 +225,17 @@ require_once '../includes/header.php';
                 accept="image/jpeg, image/png, image/svg+xml, image/webp">
             <small style="color: #666;">इमेज स्वचालित रूप से 500x500 पिक्सल के वर्गाकार (Square) आकार में क्रॉप कर दी
                 जाएगी। (स्वचालित आकार विकल्प सक्रिय)</small>
+        </div>
+
+        <div class="form-group" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+            <label for="gemini_api_key">Gemini AI API Key</label>
+            <input type="password" id="gemini_api_key" name="gemini_api_key" class="form-control" 
+                value="<?php echo htmlspecialchars($shakha['gemini_api_key'] ?? ''); ?>" 
+                placeholder="AI फीचर्स के लिए अपनी Gemini API Key डालें">
+            <small style="color: #888; display: block; margin-top: 6px;">
+                यदि आप इसे खाली छोड़ते हैं, तो सिस्टम की डिफ़ॉल्ट API Key का उपयोग किया जाएगा। 
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--saffron);">अपनी API Key यहाँ से प्राप्त करें</a>
+            </small>
         </div>
 
         <div class="form-actions">

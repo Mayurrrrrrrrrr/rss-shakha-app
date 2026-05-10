@@ -44,7 +44,7 @@ $swayamsevaks = $stmt->fetchAll();
     <div class="card-header">
         <?php echo $editData ? '✏️ स्वयंसेवक संपादित करें' : '➕ नया स्वयंसेवक जोड़ें'; ?>
     </div>
-    <form method="POST" action="../actions/swayamsevak_save.php">
+    <form method="POST" action="../api/actions/swayamsevak_save.php">
         <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
         <?php if ($editData): ?>
             <input type="hidden" name="id" value="<?php echo $editData['id']; ?>">
@@ -151,7 +151,7 @@ $swayamsevaks = $stmt->fetchAll();
                                 <div class="table-actions">
                                     <a href="../pages/swayamsevaks.php?edit=<?php echo $s['id']; ?>"
                                         class="btn btn-sm btn-outline">✏️</a>
-                                    <a href="../actions/swayamsevak_delete.php?id=<?php echo $s['id']; ?>" class="btn btn-sm btn-danger"
+                                    <a href="../api/actions/swayamsevak_delete.php?id=<?php echo $s['id']; ?>" class="btn btn-sm btn-danger"
                                         data-confirm="क्या आप इस स्वयंसेवक को हटाना चाहते हैं?">🗑️</a>
                                 </div>
                             </td>

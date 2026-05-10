@@ -1,0 +1,94 @@
+/* Stotage-Inspired Premium Layout (Warm Theme) */
+
+/* Huge Typography */
+.st-hero-title {
+    font-size: clamp(4rem, 8vw, 8rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 2rem;
+    color: var(--text-dark);
+    font-family: 'Noto Sans Devanagari', sans-serif;
+    letter-spacing: -0.02em;
+}
+
+.st-hero-subtitle {
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 500;
+    color: var(--primary-color);
+    margin-bottom: 4rem;
+}
+
+/* Scroll Reveal Text */
+.st-scroll-reveal {
+    font-size: clamp(2rem, 4vw, 4rem);
+    line-height: 1.4;
+    font-weight: 600;
+    max-width: 1000px;
+    margin: 10vh auto;
+    color: rgba(60, 42, 33, 0.2); /* Muted text color, based on var(--text-dark) */
+}
+
+/* Words are split by JS and wrapped in spans */
+.st-scroll-reveal span.word {
+    display: inline-block;
+    transition: color 0.4s ease;
+}
+
+.st-scroll-reveal span.word.active {
+    color: var(--text-dark); /* Full color when active */
+}
+
+/* Asymmetric Layout */
+.st-asymmetric-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 2rem;
+    margin: 10vh 0;
+}
+
+.st-img-wrapper {
+    overflow: hidden;
+    border-radius: 32px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+.st-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.st-img-wrapper:hover img {
+    transform: scale(1.05);
+}
+
+.st-grid-left {
+    grid-column: 1 / 8;
+    margin-top: 5rem;
+}
+
+.st-grid-right {
+    grid-column: 6 / 13;
+}
+
+.st-grid-center {
+    grid-column: 3 / 11;
+}
+
+@media (max-width: 768px) {
+    .st-grid-left, .st-grid-right, .st-grid-center {
+        grid-column: 1 / -1;
+        margin-top: 0;
+    }
+}
+
+/* Massive Negative Space */
+.st-section {
+    padding: 15vh 5vw;
+}
+
+.st-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}

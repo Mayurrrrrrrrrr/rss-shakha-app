@@ -9,8 +9,13 @@ requireLogin();
 
 header('Content-Type: application/json; charset=UTF-8');
 
-if (!defined('GEMINI_API_KEY') || GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
-    echo json_encode(['success' => false, 'message' => 'Gemini API Key not configured. Please set GEMINI_API_KEY in your .env file.']);
+// Fetch Shakha-specific Gemini Key ONLY (No global fallback)
+$stmtKey = $pdo->prepare("SELECT gemini_api_key FROM shakhas WHERE id = ?");
+$stmtKey->execute([$shakhaId]);
+$apiKey = $stmtKey->fetchColumn();
+
+if (empty($apiKey)) {
+    echo json_encode(['success' => false, 'message' => 'इस शाखा के लिए AI अंतर्दृष्टि सक्रिय नहीं है। कृपया शाखा सेटिंग्स में अपनी Gemini API Key डालें।']);
     exit;
 }
 
@@ -23,6 +28,20 @@ if (!$fromDate || !$toDate) {
     echo json_encode(['success' => false, 'message' => 'from and to dates are required']);
     exit;
 }
+
+// 1. Check Cache
+$cacheKey = "shakha_{$shakhaId}_{$fromDate}_{$toDate}";
+try {
+    $stmtCache = $pdo->prepare("SELECT response_json FROM ai_content_cache WHERE content_type = 'insights' AND content_key = ?");
+    $stmtCache->execute([$cacheKey]);
+    $cachedData = $stmtCache->fetchColumn();
+    if ($cachedData) {
+        $result = json_decode($cachedData, true);
+        $result['source'] = 'cache';
+        echo json_encode($result);
+        exit;
+    }
+} catch (Exception $e) {}
 
 // Fetch shakha name
 $stmt = $pdo->prepare("SELECT name FROM shakhas WHERE id = ?");
@@ -359,7 +378,7 @@ curl_setopt_array($ch, [
     CURLOPT_POST => true,
     CURLOPT_HTTPHEADER => [
         'Content-Type: application/json',
-        'X-goog-api-key: ' . GEMINI_API_KEY
+        'X-goog-api-key: ' . $apiKey
     ],
     CURLOPT_POSTFIELDS => json_encode($payload),
     CURLOPT_TIMEOUT => 60,
@@ -369,7 +388,6 @@ curl_setopt_array($ch, [
 $response = curl_exec($ch);
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $curlError = curl_error($ch);
-curl_close($ch);
 
 if ($curlError) {
     echo json_encode(['success' => false, 'message' => 'API connection error: ' . $curlError]);
@@ -392,7 +410,7 @@ if (!$aiText) {
     exit;
 }
 
-echo json_encode([
+$responseObj = [
     'success' => true,
     'insights' => $aiText,
     'meta' => [
@@ -408,4 +426,12 @@ echo json_encode([
         'subhashits_count' => count($subhashits),
         'events_count' => count($events),
     ]
-]);
+];
+
+// Save to Cache
+try {
+    $stmtSave = $pdo->prepare("INSERT INTO ai_content_cache (content_type, content_key, response_json) VALUES ('insights', ?, ?) ON DUPLICATE KEY UPDATE response_json = VALUES(response_json)");
+    $stmtSave->execute([$cacheKey, json_encode($responseObj, JSON_UNESCAPED_UNICODE)]);
+} catch (Exception $e) {}
+
+echo json_encode($responseObj);

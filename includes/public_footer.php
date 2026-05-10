@@ -72,6 +72,21 @@
     window.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') window.closeSidePanel();
     });
+
+    // Deep Linking Support: Auto-open item if hash is present (e.g. #item-123)
+    window.addEventListener('load', () => {
+        const hash = window.location.hash;
+        if (hash && hash.startsWith('#item-')) {
+            const targetId = hash.substring(1);
+            const targetEl = document.getElementById(targetId);
+            if (targetEl) {
+                setTimeout(() => {
+                    targetEl.click();
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 500);
+            }
+        }
+    });
     </script>
 </body>
 </html>

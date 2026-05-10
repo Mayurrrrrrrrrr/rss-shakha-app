@@ -159,6 +159,11 @@ if (!$db_error && $_SERVER['REQUEST_METHOD'] === 'POST') {
                            placeholder="पासवर्ड दर्ज करें" required>
                 </div>
                 <button type="submit" class="btn btn-primary">🔑 लॉगिन करें</button>
+                <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <a href="home.php" style="color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        🏠 मुख्य पृष्ठ पर वापस जाएं (Back to Home)
+                    </a>
+                </div>
             </form>
         <?php endif; ?>
     </div>

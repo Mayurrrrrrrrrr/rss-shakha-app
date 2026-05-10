@@ -69,7 +69,7 @@ $activities = $stmt->fetchAll();
                                     <button type="button" class="btn btn-sm btn-outline"
                                         onclick="editActivity(<?php echo htmlspecialchars(json_encode($act)); ?>)">✏️
                                         एडिट</button>
-                                    <form method="POST" action="../actions/activity_save.php" style="display:inline;"
+                                    <form method="POST" action="../api/actions/activity_save.php" style="display:inline;"
                                         onsubmit="return confirm('क्या आप वाकई इस गतिविधि को हटाना चाहते हैं?');">
                                         <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                         <input type="hidden" name="action" value="delete">
@@ -95,7 +95,7 @@ $activities = $stmt->fetchAll();
             <h2 id="modalTitle">नई गतिविधि जोड़ें</h2>
             <button class="close-modal" onclick="closeModal('addActivityModal')">&times;</button>
         </div>
-        <form id="activityForm" method="POST" action="../actions/activity_save.php">
+        <form id="activityForm" method="POST" action="../api/actions/activity_save.php">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <input type="hidden" name="action" id="formAction" value="add">
             <input type="hidden" name="id" id="activityId" value="">
