@@ -268,78 +268,76 @@ function formatHindiDateSub($dateStr) {
             } catch (e) { console.error('Blob conversion failed:', e); return null; }
         }
 
-        async function generateImage() {
-            if (document.fonts) { await document.fonts.ready; }
-            const el = document.getElementById('capture-area');
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            const captureScale = isMobile ? 1.5 : 2;
+    async function generateImage() {
+        const el = document.getElementById('capture-area');
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const captureScale = isMobile ? 1.5 : 2;
 
-            return await html2canvas(el, {
-                scale: captureScale,
-                backgroundColor: '#1a1100',
-                useCORS: true,
-                allowTaint: false,
-                logging: false,
-                imageTimeout: 15000,
-                onclone: (clonedDoc) => {
-                    const clonedEl = clonedDoc.getElementById('capture-area');
-                    clonedEl.style.transform = 'none';
-                    clonedEl.style.display = 'block';
-                }
-            });
-        }
-
-        document.getElementById('btn-download').addEventListener('click', async () => {
-            const btn = document.getElementById('btn-download');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '⏳...';
-            btn.disabled = true;
-            try {
-                const canvas = await generateImage();
-                const b64 = canvas.toDataURL('image/jpeg', 0.85);
-                if (window.FlutterShareChannel) {
-                    window.FlutterShareChannel.postMessage(JSON.stringify({ image: b64, text: 'सुभाषित', filename: 'subhashit.jpg' }));
-                } else {
-                    const a = document.createElement('a');
-                    a.href = b64;
-                    a.download = 'subhashit.jpg';
-                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-                }
-            } catch (e) { console.error(e); alert('स्नैपशॉट बनाने में त्रुटि हुई।'); }
-            btn.innerHTML = originalText; btn.disabled = false;
-        });
-
-        document.getElementById('btn-share').addEventListener('click', async () => {
-            const btn = document.getElementById('btn-share');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '⏳...';
-            btn.disabled = true;
-            try {
-                const canvas = await generateImage();
-                const textStr = '📜 आज का सुभाषित — अभ्यास हेतु';
-                const b64 = canvas.toDataURL('image/jpeg', 0.85);
-
-                if (window.FlutterShareChannel) {
-                    window.FlutterShareChannel.postMessage(JSON.stringify({ image: b64, text: textStr, filename: 'subhashit.jpg' }));
-                    btn.innerHTML = originalText; btn.disabled = false; return;
-                }
-
-                if (navigator.share) {
-                    try {
-                        const blob = dataURLtoBlob(b64);
-                        const file = new File([blob], 'subhashit.jpg', { type: 'image/jpeg' });
-                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                            await navigator.share({ title: 'सुभाषित', text: textStr, files: [file] });
-                        } else { runFallback(b64, textStr); }
-                    } catch (shareErr) {
-                        if (shareErr.name !== 'AbortError') { runFallback(b64, textStr); }
-                    }
-                } else { runFallback(b64, textStr); }
-            } catch (e) {
-                if (e.name !== 'AbortError') { console.error(e); alert('शेयर करने में त्रुटि हुई।'); }
+        return await html2canvas(el, {
+            scale: captureScale,
+            backgroundColor: '#1a1100',
+            useCORS: true,
+            allowTaint: false,
+            logging: false,
+            onclone: (clonedDoc) => {
+                const clonedEl = clonedDoc.getElementById('capture-area');
+                clonedEl.style.transform = 'none';
+                clonedEl.style.display = 'block';
             }
-            btn.innerHTML = originalText; btn.disabled = false;
         });
+    }
+
+    document.getElementById('btn-download').addEventListener('click', async () => {
+        const btn = document.getElementById('btn-download');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '⏳...';
+        btn.disabled = true;
+        try {
+            const canvas = await generateImage();
+            const b64 = canvas.toDataURL('image/jpeg', 0.85);
+            if (window.FlutterShareChannel) {
+                window.FlutterShareChannel.postMessage(JSON.stringify({ image: b64, text: 'सुभाषित', filename: 'subhashit.jpg' }));
+            } else {
+                const a = document.createElement('a');
+                a.href = b64;
+                a.download = 'subhashit.jpg';
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            }
+        } catch (e) { console.error(e); alert('स्नैपशॉट बनाने में त्रुटि हुई।'); }
+        btn.innerHTML = originalText; btn.disabled = false;
+    });
+
+    document.getElementById('btn-share').addEventListener('click', async () => {
+        const btn = document.getElementById('btn-share');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '⏳...';
+        btn.disabled = true;
+        try {
+            const canvas = await generateImage();
+            const textStr = '📜 आज का सुभाषित — अभ्यास हेतु';
+            const b64 = canvas.toDataURL('image/jpeg', 0.85);
+
+            if (window.FlutterShareChannel) {
+                window.FlutterShareChannel.postMessage(JSON.stringify({ image: b64, text: textStr, filename: 'subhashit.jpg' }));
+                btn.innerHTML = originalText; btn.disabled = false; return;
+            }
+
+            if (navigator.share) {
+                try {
+                    const blob = dataURLtoBlob(b64);
+                    const file = new File([blob], 'subhashit.jpg', { type: 'image/jpeg' });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({ title: 'सुभाषित', text: textStr, files: [file] });
+                    } else { runFallback(b64, textStr); }
+                } catch (shareErr) {
+                    if (shareErr.name !== 'AbortError') { runFallback(b64, textStr); }
+                }
+            } else { runFallback(b64, textStr); }
+        } catch (e) {
+            if (e.name !== 'AbortError') { console.error(e); alert('शेयर करने में त्रुटि हुई।'); }
+        }
+        btn.innerHTML = originalText; btn.disabled = false;
+    });
 
         function runFallback(b64, textStr) {
             alert('आपका ब्राउज़र सीधे इमेज शेयरिंग सपोर्ट नहीं करता। इमेज डाउनलोड हो रही है... उसके बाद व्हाट्सएप पर भेजें।');

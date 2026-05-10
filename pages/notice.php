@@ -74,8 +74,8 @@ $pageTitle = 'सूचना (Notice)';
 require_once '../includes/header.php';
 ?>
 
-<!-- html2canvas plugin (Switched to jsDelivr for better reliability) -->
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<!-- html2canvas plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
     /* Scoped styles exactly like snapshot.php */
@@ -345,47 +345,44 @@ require_once '../includes/header.php';
         </div>
 
         <div style="overflow-x: auto; padding-bottom: 40px; text-align: center; display: flex; justify-content: center;">
-            <!-- Preview Scaler for better mobile capture -->
-            <div id="preview-scaler" style="transform-origin: top center; transform: scale(min(1, calc((100vw - 40px) / 480))); width: 480px;">
-                <div id="capture-area" class="capture-container" style="text-align: left; transform: none !important; box-shadow: none;">
+            <div id="capture-area" class="capture-container" style="text-align: left;">
 
-                    <div class="tithi-bar">
-                        <span id="prev-tithi" style="font-size: 18px;">तिथि यहाँ दिखेगी</span>
-                        <div id="prev-date" style="font-size: 14px; color: #8D6E63; margin-top: 5px; font-weight: normal;">
-                            (दिनांक)</div>
+                <div class="tithi-bar">
+                    <span id="prev-tithi" style="font-size: 18px;">तिथि यहाँ दिखेगी</span>
+                    <div id="prev-date" style="font-size: 14px; color: #8D6E63; margin-top: 5px; font-weight: normal;">
+                        (दिनांक)</div>
+                </div>
+
+                <div class="capture-header">
+                    <?php
+                    $logoPath = dirname(__DIR__) . '/assets/images/logo.svg';
+                    $logoBase64 = '';
+                    if (file_exists($logoPath)) {
+                        $logoBase64 = 'data:image/svg+xml;base64,' . base64_encode(file_get_contents($logoPath));
+                    }
+                    ?>
+                    <?php if ($logoBase64): ?>
+                        <img src="<?php echo $logoBase64; ?>" alt="शाखा" loading="lazy"
+                            style="width: 60px; height: 60px; border-radius: 50%; background: #FFF3E0; margin-bottom: 4px; object-fit: cover;">
+                    <?php endif; ?>
+                    <div
+                        style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 20px;">
+                        <span class="header-flag">🚩</span>
+                        वीरपाण्डिय कट्टभोम्मन शाखा
+                        <span class="header-flag">🚩</span>
+                    </div>
+                </div>
+
+                <div class="capture-body-inner">
+                    <div id="prev-subject" class="capture-subject">विषय</div>
+                    <div class="capture-location">📍 <span id="prev-location">घाटकोपर पूर्व, मुंबई</span></div>
+
+                    <div class="capture-message">
+                        <div id="prev-message" class="capture-message-inner">संदेश यहाँ दिखेगा...</div>
                     </div>
 
-                    <div class="capture-header">
-                        <?php
-                        $logoPath = dirname(__DIR__) . '/assets/images/logo.svg';
-                        $logoBase64 = '';
-                        if (file_exists($logoPath)) {
-                            $logoBase64 = 'data:image/svg+xml;base64,' . base64_encode(file_get_contents($logoPath));
-                        }
-                        ?>
-                        <?php if ($logoBase64): ?>
-                            <img src="<?php echo $logoBase64; ?>" alt="शाखा" loading="lazy"
-                                style="width: 60px; height: 60px; border-radius: 50%; background: #FFF3E0; margin-bottom: 4px; object-fit: cover;">
-                        <?php endif; ?>
-                        <div
-                            style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 20px;">
-                            <span class="header-flag">🚩</span>
-                            वीरपाण्डिय कट्टभोम्मन शाखा
-                            <span class="header-flag">🚩</span>
-                        </div>
-                    </div>
-
-                    <div class="capture-body-inner">
-                        <div id="prev-subject" class="capture-subject">विषय</div>
-                        <div class="capture-location">📍 <span id="prev-location">घाटकोपर पूर्व, मुंबई</span></div>
-
-                        <div class="capture-message">
-                            <div id="prev-message" class="capture-message-inner">संदेश यहाँ दिखेगा...</div>
-                        </div>
-
-                        <div class="capture-footer">
-                            <div class="jai-shri-ram">जय श्री राम 🏹</div>
-                        </div>
+                    <div class="capture-footer">
+                        <div class="jai-shri-ram">जय श्री राम 🏹</div>
                     </div>
                 </div>
             </div>
@@ -471,34 +468,35 @@ require_once '../includes/header.php';
 
     // Generate High-Res Image using html2canvas
     async function generateImage() {
-        if (document.fonts) {
-            await document.fonts.ready;
-        }
-        
         const el = document.getElementById('capture-area');
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         const captureScale = isMobile ? 1.5 : 2;
 
-        return await html2canvas(el, {
-            scale: captureScale,
-            backgroundColor: '#FFF9F2',
-            useCORS: true,
-            allowTaint: false,
-            logging: false,
-            imageTimeout: 15000,
-            onclone: (clonedDoc) => {
-                const clonedEl = clonedDoc.getElementById('capture-area');
-                clonedEl.style.transform = 'none';
-                clonedEl.style.display = 'block';
-            }
-        });
+        try {
+            const canvas = await html2canvas(el, {
+                scale: captureScale,
+                backgroundColor: '#FFF9F2',
+                useCORS: true,
+                allowTaint: false,
+                logging: false,
+                onclone: (clonedDoc) => {
+                    const clonedEl = clonedDoc.getElementById('capture-area');
+                    clonedEl.style.transform = 'none';
+                    clonedEl.style.display = 'block';
+                }
+            });
+            return canvas;
+        } catch (err) {
+            console.error('Capture failed:', err);
+            throw err;
+        }
     }
 
     // Download Button
     document.getElementById('btn-download').addEventListener('click', async () => {
         const btn = document.getElementById('btn-download');
         const originalText = btn.innerHTML;
-        btn.innerHTML = '⏳ कृपया प्रतीक्षा करें...';
+        btn.innerHTML = '⏳...';
         btn.disabled = true;
 
         try {
@@ -533,7 +531,7 @@ require_once '../includes/header.php';
     document.getElementById('btn-share').addEventListener('click', async () => {
         const btn = document.getElementById('btn-share');
         const originalText = btn.innerHTML;
-        btn.innerHTML = '⏳ तैयार हो रहा है...';
+        btn.innerHTML = '⏳...';
         btn.disabled = true;
 
         try {
@@ -543,11 +541,10 @@ require_once '../includes/header.php';
             const b64 = canvas.toDataURL('image/jpeg', 0.85);
 
             if (window.FlutterShareChannel) {
-                const dStr = document.getElementById('inp-date').value || 'date';
                 window.FlutterShareChannel.postMessage(JSON.stringify({
                     image: b64,
                     text: textStr,
-                    filename: `shakha_notice_${dStr}.jpg`
+                    filename: `shakha_notice.jpg`
                 }));
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -579,7 +576,7 @@ require_once '../includes/header.php';
         } catch (e) {
             if (e.name !== 'AbortError') {
                 console.error(e);
-                alert('शेयर करने में तकनीकी त्रुटि हुई।');
+                alert('शेयर करने में तकनीकी समस्या हुई।');
             }
         }
 
@@ -588,11 +585,10 @@ require_once '../includes/header.php';
     });
 
     function runFallback(b64, textStr) {
-        alert('आपका ब्राउज़र सीधे इमेज शेयरिंग सपोर्ट नहीं करता। इमेज डाउनलोड हो रही है... उसके बाद व्हाट्सएप पर भेजें।');
+        alert('आपका ब्राउज़र सीधे इमेज शेयरिंग सपोर्ट नहीं करता। इमेज डाउनलोड हो रही है, उसे व्हाट्सएप पर शेयर करें।');
         const a = document.createElement('a');
         a.href = b64;
-        const dStr = document.getElementById('inp-date').value || 'date';
-        a.download = `shakha_notice_${dStr}.jpg`;
+        a.download = 'shakha_notice.jpg';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

@@ -416,7 +416,6 @@ require_once '../includes/header.php';
     }
 
     async function generateImage() {
-        if (document.fonts) { await document.fonts.ready; }
         const el = document.getElementById('capture-area');
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         const captureScale = isMobile ? 1.5 : 2;
@@ -427,7 +426,6 @@ require_once '../includes/header.php';
             useCORS: true,
             allowTaint: false,
             logging: false,
-            imageTimeout: 15000,
             onclone: (clonedDoc) => {
                 const clonedEl = clonedDoc.getElementById('capture-area');
                 clonedEl.style.transform = 'none';
