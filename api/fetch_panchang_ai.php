@@ -84,7 +84,7 @@ You output ONLY a single valid JSON object.
 RULES:
 1. RAHU KAAL for {$dayName} is "{$correctRahuKaal}". Use this exactly.
 2. TITHI: If it changes, show both transition names and HH:MM AM/PM times.
-3. NAKSHATRA & RASHI: Match them correctly (e.g. Purva Phalguni is Singh).
+3. NAKSHATRA & RASHI: Match them correctly.
 4. SAMVAT: Vikram 2083, Shaka 1948, Yugabdha 5128 for year 2026.
 5. All times in HH:MM AM/PM IST.
 6. Output MUST be in Hindi (except for times and JSON keys).
@@ -118,7 +118,9 @@ function extractJson($text) {
 }
 
 function fetchGemini($apiKey, $systemPrompt, $userPrompt) {
-    $url = "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=" . $apiKey;
+    // Attempting v1beta with gemini-2.5-flash-native-audio-latest as a proxy for text if 1.5 is missing
+    $model = 'gemini-1.5-flash';
+    $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key=" . $apiKey;
     $payload = ['contents' => [['parts' => [['text' => $systemPrompt . "\n\n" . $userPrompt]]]]];
     
     $ch = curl_init($url);
@@ -129,7 +131,8 @@ function fetchGemini($apiKey, $systemPrompt, $userPrompt) {
         CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE),
         CURLOPT_TIMEOUT => 45,
         CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => 0
+        CURLOPT_SSL_VERIFYHOST => 0,
+        CURLOPT_FOLLOWLOCATION => true
     ]);
     $res = curl_exec($ch);
     $err = curl_error($ch);
@@ -160,7 +163,8 @@ function fetchOpenAI($apiKey, $systemPrompt, $userPrompt) {
         CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE),
         CURLOPT_TIMEOUT => 45,
         CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => 0
+        CURLOPT_SSL_VERIFYHOST => 0,
+        CURLOPT_FOLLOWLOCATION => true
     ]);
     $res = curl_exec($ch);
     $err = curl_error($ch);
@@ -177,7 +181,7 @@ function fetchOpenAI($apiKey, $systemPrompt, $userPrompt) {
 function fetchGroq($apiKey, $systemPrompt, $userPrompt) {
     $url = "https://api.groq.com/openai/v1/chat/completions";
     $payload = [
-        'model' => 'llama-3.1-8b-instant',
+        'model' => 'llama-3.1-70b-versatile',
         'messages' => [['role' => 'system', 'content' => $systemPrompt], ['role' => 'user', 'content' => $userPrompt]],
         'temperature' => 0,
         'response_format' => ['type' => 'json_object']
@@ -191,7 +195,8 @@ function fetchGroq($apiKey, $systemPrompt, $userPrompt) {
         CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE),
         CURLOPT_TIMEOUT => 45,
         CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => 0
+        CURLOPT_SSL_VERIFYHOST => 0,
+        CURLOPT_FOLLOWLOCATION => true
     ]);
     $res = curl_exec($ch);
     $err = curl_error($ch);
@@ -220,9 +225,7 @@ if ($providerParam === 'openai' || ($providerParam === 'all' && (!$geminiData &&
 $finalPanchang = $geminiData ?: ($groqData ?: $openaiData);
 
 if ($finalPanchang) {
-    // Basic PHP-side corrections
     $finalPanchang['rahukaal'] = $correctRahuKaal;
-    
     try {
         $stmtSave = $pdo->prepare("REPLACE INTO ai_content_cache (content_type, content_key, response_json) VALUES ('panchang', ?, ?)");
         $stmtSave->execute([$date, json_encode($finalPanchang, JSON_UNESCAPED_UNICODE)]);
