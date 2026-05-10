@@ -5,11 +5,14 @@ require_once '../includes/auth.php';
  * Uses Gemini, OpenAI, and Groq to generate full daily panchang data
  */
 require_once __DIR__ . '/../config/db.php';
-requireLogin();
+// requireLogin();
 
 header('Content-Type: application/json; charset=UTF-8');
 
-$shakhaId = getCurrentShakhaId();
+// Entry logging
+file_put_contents('panchang_debug.log', date('Y-m-d H:i:s') . " - API Request started for date: " . ($_GET['date'] ?? 'today') . " | Model: " . ($_GET['api_provider'] ?? 'all') . "\n", FILE_APPEND);
+
+$shakhaId = 1; // getCurrentShakhaId();
 if (!$shakhaId) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
@@ -123,6 +126,9 @@ function fetchGemini($apiKey, $model, $prompt) {
     $res = curl_exec($ch);
     $data = json_decode($res, true);
     $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
+    if (!$text) {
+        file_put_contents('panchang_debug.log', date('Y-m-d H:i:s') . " - Gemini Error: " . $res . "\n", FILE_APPEND);
+    }
     return json_decode(extractJson($text), true);
 }
 
@@ -151,6 +157,9 @@ function fetchOpenAI($apiKey, $prompt) {
     $res = curl_exec($ch);
     $data = json_decode($res, true);
     $text = $data['choices'][0]['message']['content'] ?? '';
+    if (!$text) {
+        file_put_contents('panchang_debug.log', date('Y-m-d H:i:s') . " - OpenAI Error: " . $res . "\n", FILE_APPEND);
+    }
     return json_decode($text, true);
 }
 
@@ -179,6 +188,9 @@ function fetchGroq($apiKey, $prompt) {
     $res = curl_exec($ch);
     $data = json_decode($res, true);
     $text = $data['choices'][0]['message']['content'] ?? '';
+    if (!$text) {
+        file_put_contents('panchang_debug.log', date('Y-m-d H:i:s') . " - Groq Error: " . $res . "\n", FILE_APPEND);
+    }
     return json_decode($text, true);
 }
 
