@@ -143,6 +143,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($error)) {
         $geminiKey = trim($_POST['gemini_api_key'] ?? '');
+        $openaiKey = trim($_POST['openai_api_key'] ?? '');
+        $useCrossCheck = isset($_POST['use_ai_crosscheck']) ? 1 : 0;
         $cityName = trim($_POST['city_name'] ?? '');
         if (!empty($newName)) {
             if ($logoPath) {
@@ -154,11 +156,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     unlink("../" . $oldLogo);
                 }
 
-                $stmt = $pdo->prepare("UPDATE shakhas SET name = ?, logo = ?, gemini_api_key = ?, city_name = ? WHERE id = ?");
-                $stmt->execute([$newName, $logoPath, $geminiKey, $cityName, $shakhaId]);
+                $stmt = $pdo->prepare("UPDATE shakhas SET name = ?, logo = ?, gemini_api_key = ?, openai_api_key = ?, use_ai_crosscheck = ?, city_name = ? WHERE id = ?");
+                $stmt->execute([$newName, $logoPath, $geminiKey, $openaiKey, $useCrossCheck, $cityName, $shakhaId]);
             } else {
-                $stmt = $pdo->prepare("UPDATE shakhas SET name = ?, gemini_api_key = ?, city_name = ? WHERE id = ?");
-                $stmt->execute([$newName, $geminiKey, $cityName, $shakhaId]);
+                $stmt = $pdo->prepare("UPDATE shakhas SET name = ?, gemini_api_key = ?, openai_api_key = ?, use_ai_crosscheck = ?, city_name = ? WHERE id = ?");
+                $stmt->execute([$newName, $geminiKey, $openaiKey, $useCrossCheck, $cityName, $shakhaId]);
             }
             $success = 'शाखा सेटिंग्स सफलतापूर्वक अपडेट कर दी गईं।';
         } else {
@@ -236,6 +238,23 @@ require_once '../includes/header.php';
                 यदि आप इसे खाली छोड़ते हैं, तो सिस्टम की डिफ़ॉल्ट API Key का उपयोग किया जाएगा। 
                 <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--saffron);">अपनी API Key यहाँ से प्राप्त करें</a>
             </small>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+            <label for="openai_api_key">OpenAI API Key (Cross-check के लिए)</label>
+            <input type="password" id="openai_api_key" name="openai_api_key" class="form-control" 
+                value="<?php echo htmlspecialchars($shakha['openai_api_key'] ?? ''); ?>" 
+                placeholder="OpenAI API Key डालें">
+            <small style="color: #888; display: block; margin-top: 6px;">
+                यह वैकल्पिक है। यदि आप इसे डालते हैं, तो AI परिणामों की तुलना (Cross-check) की जा सकेगी।
+            </small>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+            <label class="checkbox-container" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="checkbox" name="use_ai_crosscheck" value="1" <?php echo ($shakha['use_ai_crosscheck'] ?? 0) ? 'checked' : ''; ?> style="width: 20px; height: 20px;">
+                <span>AI Cross-check सक्रिय करें (सटीकता के लिए दो AI का उपयोग करें)</span>
+            </label>
         </div>
 
         <div class="form-actions">

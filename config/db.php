@@ -9,6 +9,9 @@ if (file_exists($env_file)) {
     if (isset($env['GEMINI_API_KEY'])) {
         define('GEMINI_API_KEY', $env['GEMINI_API_KEY']);
     }
+    if (isset($env['OPENAI_API_KEY'])) {
+        define('OPENAI_API_KEY', $env['OPENAI_API_KEY']);
+    }
 } else {
     // Fallback — replace these with actual values on server
     define('DB_HOST', 'localhost');
