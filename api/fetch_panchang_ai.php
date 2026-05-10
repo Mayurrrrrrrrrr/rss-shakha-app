@@ -9,6 +9,9 @@ requireLogin();
 
 header('Content-Type: application/json; charset=UTF-8');
 
+// Entry logging
+file_put_contents('panchang_debug.log', date('Y-m-d H:i:s') . " - API Request started for date: " . ($_GET['date'] ?? 'today') . "\n", FILE_APPEND);
+
 $shakhaId = getCurrentShakhaId();
 if (!$shakhaId) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
