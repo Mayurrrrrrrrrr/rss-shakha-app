@@ -1,6 +1,7 @@
 <?php
 require_once '../includes/auth.php';
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../includes/PanchangCalculator.php';
 requireLogin();
 
 header('Content-Type: application/json; charset=UTF-8');
@@ -62,10 +63,10 @@ $ts = strtotime($date);
 $hindiDays = ['रविवार', 'सोमवार', 'मंगलवार', 'बुधवार', 'गुरुवार', 'शुक्रवार', 'शनिवार'];
 $hindiMonths = ['जनवरी', 'फ़रवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'];
 $dayName = $hindiDays[date('w', $ts)];
-$dayOfWeek = (int) date('w', $ts);   // 0=Sun … 6=Sat
+$dayOfWeek = (int) date('w', $ts);
 $formattedDate = date('j', $ts) . ' ' . $hindiMonths[date('n', $ts) - 1] . ' ' . date('Y', $ts);
 
-// ─── Rahu Kaal reference table (hardcoded – AI must NOT invent these) ─────────
+// ─── Rahu Kaal reference table ──────────────────────────────────────────────
 $rahuKaalTable = [
     0 => '04:30 PM to 06:00 PM',  // Sunday
     1 => '07:30 AM to 09:00 AM',  // Monday
@@ -77,32 +78,36 @@ $rahuKaalTable = [
 ];
 $correctRahuKaal = $rahuKaalTable[$dayOfWeek];
 
-// ─── Astronomical Hints (to prevent AI hallucinations) ──────────────────────
-// May 17, 2026 is a New Moon (Amavasya).
-// May 1, 2026 is a Full Moon (Purnima).
-$referenceNewMoon = strtotime('2026-05-17 17:00:00');
-$daysDiff = ($ts - $referenceNewMoon) / 86400;
-$approxPaksha = ($daysDiff < -15 || ($daysDiff > 0 && $daysDiff < 14)) ? 'शुक्ल' : 'कृष्ण';
+// ─── Mathematical Ground Truth (using local calculator) ──────────────────────
+$calculator = new PanchangCalculator();
+$basePanchang = $calculator->getPanchang($date);
+$calculatedTithi = $basePanchang['tithi'];
+$calculatedPaksha = ($basePanchang['paksha'] === 'Shukla') ? 'शुक्ल' : 'कृष्ण';
+$calculatedSamvat = $basePanchang['vikram_samvat'];
 
 // ─── System Prompt ────────────────────────────────────────────────────────────
 $systemPrompt = <<<SYSTEM
 You are a precise Vedic Panchang calculator for {$cityName}, India.
-CRITICAL CONTEXT: The date is May 2026.
-GROUND TRUTH: It is currently KRISHNA PAKSHA. Do not use Shukla Paksha.
-SAMVAT: Vikram 2083 (राक्षस), Shaka 1948.
+CRITICAL GROUND TRUTH (Mathematical):
+- Date: {$formattedDate}, {$dayName}
+- Samvat: Vikram {$calculatedSamvat} (राक्षस), Shaka 1948
+- Paksha: {$calculatedPaksha}
+- Base Tithi: {$calculatedTithi}
 
-RULES:
-1. RAHU KAAL: "{$correctRahuKaal}" (Mandatory).
-2. TITHI: For 11-May-2026, it is Navami/Ashtami KRISHNA PAKSHA.
-3. OUTPUT: Valid JSON only. Values in Hindi. No placeholders like "06:00".
+TASK:
+1. Verify transition times for {$calculatedTithi}.
+2. If it changes, show: "{$calculatedTithi} (ends HH:MM AM/PM) / [Next Tithi] (from HH:MM AM/PM)".
+3. Fill other fields (Nakshatra, Yoga, Karana, Muhurtas) accurately for this date.
+4. RAHU KAAL: "{$correctRahuKaal}" (Copy verbatim).
+5. Output valid JSON in Hindi. No placeholders.
 
 JSON Format:
 {
   "surya":    { "udaya": "HH:MM AM/PM", "asta": "HH:MM AM/PM" },
   "chandra":  { "udaya": "HH:MM AM/PM", "asta": "HH:MM AM/PM", "rashi": "नाम" },
-  "samvat":   { "vikram": "2083 (राक्षस)", "shaka": "1948", "yugabdha": "5128" },
+  "samvat":   { "vikram": "{$calculatedSamvat} (राक्षस)", "shaka": "1948", "yugabdha": "5128" },
   "maah":     { "purnimant": "नाम", "amant": "नाम" },
-  "paksha":   "कृष्ण",
+  "paksha":   "{$calculatedPaksha}",
   "tithi":    "नाम (ends HH:MM AM/PM) / नाम (from HH:MM AM/PM)",
   "nakshatra":"नाम (ends HH:MM AM/PM)",
   "yoga":     "नाम (ends HH:MM AM/PM)",
@@ -117,7 +122,7 @@ JSON Format:
 }
 SYSTEM;
 
-$userPrompt = "Date: {$date} ({$dayName}). Location: {$cityName}.\nREMINDER: Today is KRISHNA PAKSHA. Return Panchang JSON. No placeholders.";
+$userPrompt = "Date: {$date}. Location: {$cityName}.\nCalculate precise transition times. No placeholders.";
 
 function extractJson(string $text): string
 {
@@ -152,7 +157,6 @@ function validatePanchang(&$data) {
 
 function fetchGemini(string $apiKey, string $systemPrompt, string $userPrompt): ?array
 {
-    // 2026 compatible model identifier
     $model = 'gemini-1.5-flash';
     $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
     $payload = [
