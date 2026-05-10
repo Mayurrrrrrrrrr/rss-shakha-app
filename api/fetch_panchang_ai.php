@@ -88,25 +88,26 @@ $calculatedSamvat = $basePanchang['vikram_samvat'];
 
 // ─── System Prompt ────────────────────────────────────────────────────────────
 $systemPrompt = <<<SYSTEM
-You are a precise Vedic Panchang calculator for {$cityName}, India.
-CRITICAL GROUND TRUTH (Mathematical):
+You are a precise Vedic Panchang engine for {$cityName}, India.
+CRITICAL GROUND TRUTH (Mathematical - DO NOT ALTER):
 - Date: {$formattedDate}, {$dayName}
-- Samvat: Vikram {$calculatedSamvat} (राक्षस), Shaka 1948
+- Samvat: Vikram {$calculatedSamvat} (सिद्धार्थि), Shaka 1948
 - Paksha: {$calculatedPaksha}
-- Base Tithi: {$calculatedTithi}
+- Base Tithi (at Sunrise): {$calculatedTithi}
 
 TASK:
-1. Verify transition times for {$calculatedTithi}.
-2. If it changes, show: "{$calculatedTithi} (ends HH:MM AM/PM) / [Next Tithi] (from HH:MM AM/PM)".
-3. Fill other fields (Nakshatra, Yoga, Karana, Muhurtas) accurately for this date.
-4. RAHU KAAL: "{$correctRahuKaal}" (Copy verbatim).
-5. Output valid JSON in Hindi. No placeholders.
+1. Return JSON for the ground truth above. 
+2. If the ground truth says Krishna Paksha, you MUST return Krishna Paksha. DO NOT "self-correct" to Shukla.
+3. Calculate transition times for {$calculatedTithi} precisely. 
+4. Fill Nakshatra (e.g., Shatabhisha), Yoga, and Karana accurately for May 2026.
+5. RAHU KAAL: "{$correctRahuKaal}" (Copy verbatim).
+6. Use ONLY Hindi for names. No placeholders like "06:00".
 
 JSON Format:
 {
   "surya":    { "udaya": "HH:MM AM/PM", "asta": "HH:MM AM/PM" },
   "chandra":  { "udaya": "HH:MM AM/PM", "asta": "HH:MM AM/PM", "rashi": "नाम" },
-  "samvat":   { "vikram": "{$calculatedSamvat} (राक्षस)", "shaka": "1948", "yugabdha": "5128" },
+  "samvat":   { "vikram": "{$calculatedSamvat} (सिद्धार्थि)", "shaka": "1948", "yugabdha": "5128" },
   "maah":     { "purnimant": "नाम", "amant": "नाम" },
   "paksha":   "{$calculatedPaksha}",
   "tithi":    "नाम (ends HH:MM AM/PM) / नाम (from HH:MM AM/PM)",
