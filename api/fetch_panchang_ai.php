@@ -2,7 +2,7 @@
 require_once '../includes/auth.php';
 /**
  * AI-Powered Comprehensive Panchang API
- * Uses Gemini and/or OpenAI to generate full daily panchang data
+ * Uses Gemini, OpenAI, and Groq to generate full daily panchang data
  */
 require_once __DIR__ . '/../config/db.php';
 requireLogin();
@@ -16,15 +16,16 @@ if (!$shakhaId) {
 }
 
 // Fetch Shakha-specific Keys and City Name
-$stmt = $pdo->prepare("SELECT gemini_api_key, openai_api_key, use_ai_crosscheck, city_name FROM shakhas WHERE id = ?");
+$stmt = $pdo->prepare("SELECT gemini_api_key, openai_api_key, groq_api_key, use_ai_crosscheck, city_name FROM shakhas WHERE id = ?");
 $stmt->execute([$shakhaId]);
 $shakhaData = $stmt->fetch();
 $geminiKey = $shakhaData['gemini_api_key'] ?? '';
 $openaiKey = $shakhaData['openai_api_key'] ?? '';
+$groqKey = $shakhaData['groq_api_key'] ?? '';
 $useCrossCheck = ($shakhaData['use_ai_crosscheck'] ?? 0) == 1;
 $cityName = $shakhaData['city_name'] ?? 'मुम्बई';
 
-if (empty($geminiKey) && empty($openaiKey)) {
+if (empty($geminiKey) && empty($openaiKey) && empty($groqKey)) {
     echo json_encode(['success' => false, 'message' => 'AI सुविधा सक्रिय नहीं है। कृपया सेटिंग्स में API Key डालें।']);
     exit;
 }
@@ -153,6 +154,34 @@ function fetchOpenAI($apiKey, $prompt) {
     return json_decode($text, true);
 }
 
+/**
+ * Fetch from Groq
+ */
+function fetchGroq($apiKey, $prompt) {
+    $url = "https://api.groq.com/openai/v1/chat/completions";
+    $payload = [
+        'model' => 'llama3-70b-8192',
+        'messages' => [['role' => 'user', 'content' => $prompt]],
+        'temperature' => 0.2,
+        'response_format' => ['type' => 'json_object']
+    ];
+    
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Authorization: Bearer ' . $apiKey],
+        CURLOPT_POSTFIELDS => json_encode($payload),
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_SSL_VERIFYPEER => false
+    ]);
+    
+    $res = curl_exec($ch);
+    $data = json_decode($res, true);
+    $text = $data['choices'][0]['message']['content'] ?? '';
+    return json_decode($text, true);
+}
+
 function extractJson($text) {
     if (preg_match('/\{.*\}/s', $text, $matches)) return $matches[0];
     return $text;
@@ -160,6 +189,7 @@ function extractJson($text) {
 
 $geminiData = null;
 $openaiData = null;
+$groqData = null;
 
 // Primary Fetch (Gemini)
 if (!empty($geminiKey)) {
@@ -168,22 +198,37 @@ if (!empty($geminiKey)) {
     $geminiData = fetchGemini($geminiKey, $model, $systemPrompt . "\n\n" . $userPrompt);
 }
 
-// Cross-Check Fetch (OpenAI)
-if ($useCrossCheck && !empty($openaiKey)) {
+// Fallback/Cross-Check Fetch (Groq)
+if (!empty($groqKey) && (!$geminiData || $useCrossCheck)) {
+    $groqData = fetchGroq($groqKey, $systemPrompt . "\n\n" . $userPrompt);
+}
+
+// Fallback/Cross-Check Fetch (OpenAI)
+if (!empty($openaiKey) && (!$geminiData && !$groqData || $useCrossCheck)) {
     $openaiData = fetchOpenAI($openaiKey, $systemPrompt . "\n\n" . $userPrompt);
 }
 
-// Selection & Comparison Logic
-$finalPanchang = $geminiData ?: $openaiData;
+// Selection Logic (Priority: Gemini > Groq > OpenAI)
+$finalPanchang = $geminiData ?: ($groqData ?: $openaiData);
 
-if ($geminiData && $openaiData) {
-    // Basic comparison of Tithi
-    $gTithi = mb_substr($geminiData['tithi'] ?? '', 0, 10);
-    $oTithi = mb_substr($openaiData['tithi'] ?? '', 0, 10);
+// Comparison Logic for Robustness
+$sources = array_filter([
+    'Gemini' => $geminiData,
+    'Groq' => $groqData,
+    'OpenAI' => $openaiData
+]);
+
+if (count($sources) >= 2) {
+    $keys = array_keys($sources);
+    $m1 = $sources[$keys[0]];
+    $m2 = $sources[$keys[1]];
     
-    if (strpos($gTithi, $oTithi) === false && strpos($oTithi, $gTithi) === false) {
+    $t1 = mb_substr($m1['tithi'] ?? '', 0, 10);
+    $t2 = mb_substr($m2['tithi'] ?? '', 0, 10);
+    
+    if (strpos($t1, $t2) === false && strpos($t2, $t1) === false) {
         $finalPanchang['vishesh'] = ($finalPanchang['vishesh'] ? $finalPanchang['vishesh'] . " | " : "") . 
-            "⚠️ AI Cross-check: Gemini identifies '{$geminiData['tithi']}' while OpenAI identifies '{$openaiData['tithi']}'. Please verify transition times.";
+            "⚠️ AI Cross-check Discrepancy: {$keys[0]} identifies '{$m1['tithi']}' while {$keys[1]} identifies '{$m2['tithi']}'. Please verify.";
     }
 }
 
@@ -198,7 +243,7 @@ if ($finalPanchang) {
         'success' => true,
         'date' => $date,
         'panchang' => $finalPanchang,
-        'source' => $openaiData && $geminiData ? 'ai-crosschecked' : 'ai'
+        'source' => count($sources) > 1 ? 'ai-multi-model' : 'ai'
     ], JSON_UNESCAPED_UNICODE);
 } else {
     echo json_encode(['success' => false, 'message' => 'Failed to generate Panchang. Please try again.']);

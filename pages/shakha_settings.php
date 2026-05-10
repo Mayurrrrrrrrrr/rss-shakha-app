@@ -144,6 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($error)) {
         $geminiKey = trim($_POST['gemini_api_key'] ?? '');
         $openaiKey = trim($_POST['openai_api_key'] ?? '');
+        $groqKey = trim($_POST['groq_api_key'] ?? '');
         $useCrossCheck = isset($_POST['use_ai_crosscheck']) ? 1 : 0;
         $cityName = trim($_POST['city_name'] ?? '');
         if (!empty($newName)) {
@@ -156,11 +157,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     unlink("../" . $oldLogo);
                 }
 
-                $stmt = $pdo->prepare("UPDATE shakhas SET name = ?, logo = ?, gemini_api_key = ?, openai_api_key = ?, use_ai_crosscheck = ?, city_name = ? WHERE id = ?");
-                $stmt->execute([$newName, $logoPath, $geminiKey, $openaiKey, $useCrossCheck, $cityName, $shakhaId]);
+                $stmt = $pdo->prepare("UPDATE shakhas SET name = ?, logo = ?, gemini_api_key = ?, openai_api_key = ?, groq_api_key = ?, use_ai_crosscheck = ?, city_name = ? WHERE id = ?");
+                $stmt->execute([$newName, $logoPath, $geminiKey, $openaiKey, $groqKey, $useCrossCheck, $cityName, $shakhaId]);
             } else {
-                $stmt = $pdo->prepare("UPDATE shakhas SET name = ?, gemini_api_key = ?, openai_api_key = ?, use_ai_crosscheck = ?, city_name = ? WHERE id = ?");
-                $stmt->execute([$newName, $geminiKey, $openaiKey, $useCrossCheck, $cityName, $shakhaId]);
+                $stmt = $pdo->prepare("UPDATE shakhas SET name = ?, gemini_api_key = ?, openai_api_key = ?, groq_api_key = ?, use_ai_crosscheck = ?, city_name = ? WHERE id = ?");
+                $stmt->execute([$newName, $geminiKey, $openaiKey, $groqKey, $useCrossCheck, $cityName, $shakhaId]);
             }
             $success = 'शाखा सेटिंग्स सफलतापूर्वक अपडेट कर दी गईं।';
         } else {
@@ -247,6 +248,16 @@ require_once '../includes/header.php';
                 placeholder="OpenAI API Key डालें">
             <small style="color: #888; display: block; margin-top: 6px;">
                 यह वैकल्पिक है। यदि आप इसे डालते हैं, तो AI परिणामों की तुलना (Cross-check) की जा सकेगी।
+            </small>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+            <label for="groq_api_key">Groq API Key (Fast & Accurate Cross-check के लिए)</label>
+            <input type="password" id="groq_api_key" name="groq_api_key" class="form-control" 
+                value="<?php echo htmlspecialchars($shakha['groq_api_key'] ?? ''); ?>" 
+                placeholder="Groq API Key (gsk_...) डालें">
+            <small style="color: #888; display: block; margin-top: 6px;">
+                यह वैकल्पिक है। Groq अत्यंत तेज़ और सटीक परिणाम देता है।
             </small>
         </div>
 
