@@ -3,9 +3,15 @@ require_once '../config/db.php';
 
 // Migration script to add OpenAI fields and set the key
 try {
-    // 1. Add columns if not exists
-    $pdo->exec("ALTER TABLE shakhas ADD COLUMN IF NOT EXISTS openai_api_key VARCHAR(255) NULL");
-    $pdo->exec("ALTER TABLE shakhas ADD COLUMN IF NOT EXISTS use_ai_crosscheck TINYINT(1) DEFAULT 0");
+    // 1. Add columns (using compatible way)
+    $columns = $pdo->query("SHOW COLUMNS FROM shakhas")->fetchAll(PDO::FETCH_COLUMN);
+    
+    if (!in_array('openai_api_key', $columns)) {
+        $pdo->exec("ALTER TABLE shakhas ADD COLUMN openai_api_key VARCHAR(255) NULL");
+    }
+    if (!in_array('use_ai_crosscheck', $columns)) {
+        $pdo->exec("ALTER TABLE shakhas ADD COLUMN use_ai_crosscheck TINYINT(1) DEFAULT 0");
+    }
     
     // 2. Update with user provided key and enable crosscheck
     // Key should be entered via UI or already in .env. We just enable crosscheck here if key exists.
