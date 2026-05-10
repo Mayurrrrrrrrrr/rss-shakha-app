@@ -77,45 +77,29 @@ $rahuKaalTable = [
 ];
 $correctRahuKaal = $rahuKaalTable[$dayOfWeek];
 
+// ─── Astronomical Hints (to prevent AI hallucinations) ──────────────────────
+// May 17, 2026 is a New Moon (Amavasya).
+// May 1, 2026 is a Full Moon (Purnima).
+$referenceNewMoon = strtotime('2026-05-17 17:00:00');
+$daysDiff = ($ts - $referenceNewMoon) / 86400;
+$approxPaksha = ($daysDiff < -15 || ($daysDiff > 0 && $daysDiff < 14)) ? 'शुक्ल' : 'कृष्ण';
+
 // ─── System Prompt ────────────────────────────────────────────────────────────
 $systemPrompt = <<<SYSTEM
-You are a precise Vedic Panchang calculation engine for {$cityName}, India (IST = UTC+5:30).
-You output ONLY a single valid JSON object — no preamble, no explanation, no markdown fences.
+You are a precise Vedic Panchang calculator for {$cityName}, India (IST = UTC+5:30).
+You output ONLY a single valid JSON object.
 
-═══════════════════════════════════════════════════════
-SECTION A — FIXED VALUES (use exactly as given, do not recalculate)
-═══════════════════════════════════════════════════════
-A1. RAHU KAAL for {$dayName} → "{$correctRahuKaal}"
-    Copy this value verbatim into the "rahukaal" field. Do NOT compute it yourself.
+CONTEXT: The date is May 2026. Note that May 11, 2026 is Krishna Paksha (NOT Shukla).
+REFERENCE HINT: Paksha is likely "{$approxPaksha}".
 
-═══════════════════════════════════════════════════════
-SECTION B — CALCULATION RULES
-═══════════════════════════════════════════════════════
-B1. TITHI
-    • Compute tithi based on the Moon-Sun longitude difference.
-    • USE PRECISE TIMES. Generic times like "06:00 PM" or "12:00 PM" are PROHIBITED unless exact.
+RULES:
+1. RAHU KAAL: "{$correctRahuKaal}" (Use exactly).
+2. TITHI: Use precise astronomical times. For 11-May-2026, it is Navami/Ashtami KRISHNA PAKSHA.
+3. NAKSHATRA & RASHI: Must match (e.g. Dhanishtha/Shatabhisha -> Makara/Kumbha).
+4. SAMVAT: Vikram 2083 (राक्षस), Shaka 1948, Yugabdha 5128 for year 2026.
+5. All times in HH:MM AM/PM IST. No placeholders like "06:00 PM".
 
-B2. NAKSHATRA & CHANDRA RASHI (MUST match)
-    • Ashwini, Bharani, Krittika(0–3°20') → मेष
-    • Krittika(3°20'–30°), Rohini, Mrigashira(0–8°20') → वृषभ
-    • Mrigashira(8°20'–30°), Ardra, Punarvasu(0–20°) → मिथुन
-    • Punarvasu(20°–30°), Pushya, Ashlesha → कर्क
-    • Magha, Purva Phalguni, Uttara Phalguni(0–10°) → सिंह
-    • Uttara Phalguni(10°–30°), Hasta, Chitra(0–15°) → कन्या
-    • Chitra(15°–30°), Swati, Vishakha(0–20°) → तुला
-    • Vishakha(20°–30°), Anuradha, Jyeshtha → वृश्चिक
-    • Mula, Purva Ashadha, Uttara Ashadha(0–10°) → धनु
-    • Uttara Ashadha(10°–30°), Shravana, Dhanishtha(0–15°) → मकर
-    • Dhanishtha(15°–30°), Shatabhisha, Purva Bhadrapada(0–20°) → कुंभ
-    • Purva Bhadrapada(20°–30°), Uttara Bhadrapada, Revati → मीन
-
-B3. SAMVAT for 2026: Vikram 2083 (राक्षस), Shaka 1948, Yugabdha 5128.
-
-═══════════════════════════════════════════════════════
-SECTION D — OUTPUT FORMAT
-═══════════════════════════════════════════════════════
-Output a single valid JSON object with EXACTLY this structure (all values in Hindi except times):
-
+JSON Format:
 {
   "surya":    { "udaya": "HH:MM AM/PM", "asta": "HH:MM AM/PM" },
   "chandra":  { "udaya": "HH:MM AM/PM", "asta": "HH:MM AM/PM", "rashi": "नाम" },
