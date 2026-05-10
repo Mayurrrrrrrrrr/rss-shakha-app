@@ -5,7 +5,7 @@ require_once '../includes/auth.php';
  * Uses Gemini and/or OpenAI to generate full daily panchang data
  */
 require_once __DIR__ . '/../config/db.php';
-requireLogin();
+// requireLogin();
 
 header('Content-Type: application/json; charset=UTF-8');
 
