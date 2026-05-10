@@ -160,8 +160,9 @@ function fetchGemini(string $apiKey, string $systemPrompt, string $userPrompt): 
     $model = 'gemini-1.5-flash';
     $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
     $payload = [
+        'systemInstruction' => ['parts' => [['text' => $systemPrompt]]],
         'contents' => [
-            ['role' => 'user', 'parts' => [['text' => $systemPrompt . "\n\n" . $userPrompt]]]
+            ['role' => 'user', 'parts' => [['text' => $userPrompt]]]
         ],
         'generationConfig' => [
             'temperature' => 0
