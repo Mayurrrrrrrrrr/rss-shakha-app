@@ -79,8 +79,9 @@ $rahuKaalTable = [
 $correctRahuKaal = $rahuKaalTable[$dayOfWeek];
 
 // ─── Mathematical Ground Truth (using local calculator) ──────────────────────
+// Offset calculation to approximate Sunrise (approx 5:30 AM / +0.229 JDN)
 $calculator = new PanchangCalculator();
-$basePanchang = $calculator->getPanchang($date);
+$basePanchang = $calculator->getPanchang($date . ' 05:30:00'); 
 $calculatedTithi = $basePanchang['tithi'];
 $calculatedPaksha = ($basePanchang['paksha'] === 'Shukla') ? 'शुक्ल' : 'कृष्ण';
 $calculatedSamvat = $basePanchang['vikram_samvat'];
@@ -136,7 +137,12 @@ function extractJson(string $text): string
 
 function validatePanchang(&$data) {
     $hallucinationPoints = 0;
-    $genericTimes = ['06:00 PM', '06:00 AM', '12:00 PM', '12:00 AM', '05:00 PM', '07:00 AM'];
+    // Expanded list of common AI placeholder times (round hours)
+    $genericTimes = [
+        '06:00 PM', '06:00 AM', '12:00 PM', '12:00 AM', '05:00 PM', '07:00 AM',
+        '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 AM', '08:00 AM',
+        '09:00 AM', '10:00 AM', '11:00 AM', '01:00 AM'
+    ];
     $checkFields = [
         $data['surya']['udaya'] ?? '',
         $data['surya']['asta'] ?? '',
