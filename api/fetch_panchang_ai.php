@@ -5,14 +5,11 @@ require_once '../includes/auth.php';
  * Uses Gemini and/or OpenAI to generate full daily panchang data
  */
 require_once __DIR__ . '/../config/db.php';
-// requireLogin();
+requireLogin();
 
 header('Content-Type: application/json; charset=UTF-8');
 
-// Entry logging
-file_put_contents('panchang_debug.log', date('Y-m-d H:i:s') . " - API Request started for date: " . ($_GET['date'] ?? 'today') . "\n", FILE_APPEND);
-
-$shakhaId = 1; // getCurrentShakhaId();
+$shakhaId = getCurrentShakhaId();
 if (!$shakhaId) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
@@ -125,11 +122,6 @@ function fetchGemini($apiKey, $model, $prompt) {
     $res = curl_exec($ch);
     $data = json_decode($res, true);
     $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
-    
-    if (!$text) {
-        file_put_contents('panchang_debug.log', date('Y-m-d H:i:s') . " - Gemini Raw Error: " . $res . "\n", FILE_APPEND);
-    }
-    
     return json_decode(extractJson($text), true);
 }
 
@@ -158,11 +150,6 @@ function fetchOpenAI($apiKey, $prompt) {
     $res = curl_exec($ch);
     $data = json_decode($res, true);
     $text = $data['choices'][0]['message']['content'] ?? '';
-    
-    if (!$text) {
-        file_put_contents('panchang_debug.log', date('Y-m-d H:i:s') . " - OpenAI Raw Error: " . $res . "\n", FILE_APPEND);
-    }
-    
     return json_decode($text, true);
 }
 
@@ -171,13 +158,12 @@ function extractJson($text) {
     return $text;
 }
 
-$results = [];
 $geminiData = null;
 $openaiData = null;
 
 // Primary Fetch (Gemini)
 if (!empty($geminiKey)) {
-    $modelMap = ['flash' => 'gemini-1.5-flash-latest', 'pro' => 'gemini-1.5-pro-latest'];
+    $modelMap = ['flash' => 'gemini-1.5-flash', 'pro' => 'gemini-1.5-pro'];
     $model = $modelMap[$modelParam] ?? $modelMap['flash'];
     $geminiData = fetchGemini($geminiKey, $model, $systemPrompt . "\n\n" . $userPrompt);
 }
@@ -215,8 +201,5 @@ if ($finalPanchang) {
         'source' => $openaiData && $geminiData ? 'ai-crosschecked' : 'ai'
     ], JSON_UNESCAPED_UNICODE);
 } else {
-    // Debug logging
-    file_put_contents('panchang_debug.log', date('Y-m-d H:i:s') . " - Generation failed.\nGemini Data: " . print_r($geminiData, true) . "\nOpenAI Data: " . print_r($openaiData, true) . "\n", FILE_APPEND);
     echo json_encode(['success' => false, 'message' => 'Failed to generate Panchang. Please try again.']);
 }
-
