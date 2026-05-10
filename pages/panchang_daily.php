@@ -171,6 +171,7 @@ require_once '../includes/header.php';
 
         <button id="btn-fetch" class="btn btn-primary" onclick="loadPanchang(false)" style="padding: 10px 20px;">✨ पंचांग प्राप्त करें</button>
         <button id="btn-refetch" class="btn btn-outline" onclick="loadPanchang(true)" style="padding: 10px 20px; border-color: var(--primary); color: var(--primary);">🔄 दोबारा प्राप्त करें (Refetch)</button>
+        <button id="btn-clear-cache" class="btn btn-outline" onclick="clearPanchangCache()" style="padding: 10px 20px; border-color: var(--danger); color: var(--danger); opacity: 0.8;">🗑️ कैश साफ़ करें</button>
     </div>
 </div>
 
@@ -318,7 +319,9 @@ async function loadPanchang(force = false) {
     btnRefetch.disabled = true;
 
     try {
-        const url = `../api/fetch_panchang_ai.php?date=${date}&provider=${provider}${force ? '&force=true' : ''}`;
+        // Add timestamp to bypass browser cache
+        const ts = new Date().getTime();
+        const url = `../api/fetch_panchang_ai.php?date=${date}&provider=${provider}${force ? '&force=true' : ''}&t=${ts}`;
         const res = await fetch(url);
         const data = await res.json();
 
@@ -349,6 +352,25 @@ async function loadPanchang(force = false) {
     btnRefetch.innerHTML = '🔄 दोबारा प्राप्त करें (Refetch)';
     btnFetch.disabled = false;
     btnRefetch.disabled = false;
+}
+
+async function clearPanchangCache() {
+    const date = document.getElementById('panchang-date').value;
+    if (!date) return;
+    if (!confirm('क्या आप इस तारीख का कैश साफ़ करना चाहते हैं?')) return;
+    
+    try {
+        const res = await fetch(`../api/clear_panchang_cache.php?date=${date}`);
+        const data = await res.json();
+        if (data.success) {
+            alert('कैश साफ़ कर दिया गया है।');
+            loadPanchang(false);
+        } else {
+            alert('त्रुटि: ' + data.message);
+        }
+    } catch(e) {
+        alert('त्रुटि: ' + e.message);
+    }
 }
 
 function populateCard(data, date) {
