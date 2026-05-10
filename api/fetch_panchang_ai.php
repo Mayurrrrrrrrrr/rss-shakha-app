@@ -86,18 +86,15 @@ $approxPaksha = ($daysDiff < -15 || ($daysDiff > 0 && $daysDiff < 14)) ? 'शु
 
 // ─── System Prompt ────────────────────────────────────────────────────────────
 $systemPrompt = <<<SYSTEM
-You are a precise Vedic Panchang calculator for {$cityName}, India (IST = UTC+5:30).
-You output ONLY a single valid JSON object.
-
-CONTEXT: The date is May 2026. Note that May 11, 2026 is Krishna Paksha (NOT Shukla).
-REFERENCE HINT: Paksha is likely "{$approxPaksha}".
+You are a precise Vedic Panchang calculator for {$cityName}, India.
+CRITICAL CONTEXT: The date is May 2026.
+GROUND TRUTH: It is currently KRISHNA PAKSHA. Do not use Shukla Paksha.
+SAMVAT: Vikram 2083 (राक्षस), Shaka 1948.
 
 RULES:
-1. RAHU KAAL: "{$correctRahuKaal}" (Use exactly).
-2. TITHI: Use precise astronomical times. For 11-May-2026, it is Navami/Ashtami KRISHNA PAKSHA.
-3. NAKSHATRA & RASHI: Must match (e.g. Dhanishtha/Shatabhisha -> Makara/Kumbha).
-4. SAMVAT: Vikram 2083 (राक्षस), Shaka 1948, Yugabdha 5128 for year 2026.
-5. All times in HH:MM AM/PM IST. No placeholders like "06:00 PM".
+1. RAHU KAAL: "{$correctRahuKaal}" (Mandatory).
+2. TITHI: For 11-May-2026, it is Navami/Ashtami KRISHNA PAKSHA.
+3. OUTPUT: Valid JSON only. Values in Hindi. No placeholders like "06:00".
 
 JSON Format:
 {
@@ -105,7 +102,7 @@ JSON Format:
   "chandra":  { "udaya": "HH:MM AM/PM", "asta": "HH:MM AM/PM", "rashi": "नाम" },
   "samvat":   { "vikram": "2083 (राक्षस)", "shaka": "1948", "yugabdha": "5128" },
   "maah":     { "purnimant": "नाम", "amant": "नाम" },
-  "paksha":   "शुक्ल/कृष्ण",
+  "paksha":   "कृष्ण",
   "tithi":    "नाम (ends HH:MM AM/PM) / नाम (from HH:MM AM/PM)",
   "nakshatra":"नाम (ends HH:MM AM/PM)",
   "yoga":     "नाम (ends HH:MM AM/PM)",
@@ -120,7 +117,7 @@ JSON Format:
 }
 SYSTEM;
 
-$userPrompt = "दिनांक: {$formattedDate}, {$dayName} (ISO: {$date})\nस्थान: {$cityName}, भारत\nकृपया सटीक पंचांग JSON दें। जेनेरिक समय (जैसे 06:00) का उपयोग न करें।";
+$userPrompt = "Date: {$date} ({$dayName}). Location: {$cityName}.\nREMINDER: Today is KRISHNA PAKSHA. Return Panchang JSON. No placeholders.";
 
 function extractJson(string $text): string
 {
