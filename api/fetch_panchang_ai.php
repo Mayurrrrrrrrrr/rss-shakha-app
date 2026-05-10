@@ -122,6 +122,11 @@ function fetchGemini($apiKey, $model, $prompt) {
     $res = curl_exec($ch);
     $data = json_decode($res, true);
     $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
+    
+    if (!$text) {
+        file_put_contents('panchang_debug.log', date('Y-m-d H:i:s') . " - Gemini Raw Error: " . $res . "\n", FILE_APPEND);
+    }
+    
     return json_decode(extractJson($text), true);
 }
 
@@ -150,6 +155,11 @@ function fetchOpenAI($apiKey, $prompt) {
     $res = curl_exec($ch);
     $data = json_decode($res, true);
     $text = $data['choices'][0]['message']['content'] ?? '';
+    
+    if (!$text) {
+        file_put_contents('panchang_debug.log', date('Y-m-d H:i:s') . " - OpenAI Raw Error: " . $res . "\n", FILE_APPEND);
+    }
+    
     return json_decode($text, true);
 }
 
@@ -202,5 +212,8 @@ if ($finalPanchang) {
         'source' => $openaiData && $geminiData ? 'ai-crosschecked' : 'ai'
     ], JSON_UNESCAPED_UNICODE);
 } else {
+    // Debug logging
+    file_put_contents('panchang_debug.log', date('Y-m-d H:i:s') . " - Generation failed.\nGemini Data: " . print_r($geminiData, true) . "\nOpenAI Data: " . print_r($openaiData, true) . "\n", FILE_APPEND);
     echo json_encode(['success' => false, 'message' => 'Failed to generate Panchang. Please try again.']);
 }
+
