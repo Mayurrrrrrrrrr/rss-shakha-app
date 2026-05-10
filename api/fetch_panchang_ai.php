@@ -198,15 +198,14 @@ function extractJson(string $text): string
 // FIX: use gemini-1.5-flash (stable), pass system prompt in systemInstruction field
 function fetchGemini(string $apiKey, string $systemPrompt, string $userPrompt): ?array
 {
-    $model = 'gemini-1.5-flash';
-    $url = "https://generativelanguage.googleapis.com/v1/models/{$model}:generateContent?key={$apiKey}";
+    $model = 'gemini-1.5-flash-latest';
+    $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
     $payload = [
         'contents' => [
             ['role' => 'user', 'parts' => [['text' => $systemPrompt . "\n\n" . $userPrompt]]]
         ],
         'generationConfig' => [
-            'temperature' => 0,
-            'response_mime_type' => 'application/json'
+            'temperature' => 0
         ]
     ];
     $ch = curl_init($url);
