@@ -235,7 +235,7 @@ function fetchGroq(string $apiKey, string $systemPrompt, string $userPrompt): ?a
 {
     $url = "https://api.groq.com/openai/v1/chat/completions";
     $payload = [
-        'model' => 'llama-3.1-8b-instant',
+        'model' => 'llama-3.3-70b-versatile',
         'messages' => [
             ['role' => 'system', 'content' => $systemPrompt],
             ['role' => 'user', 'content' => $userPrompt],
