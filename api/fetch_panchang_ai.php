@@ -206,7 +206,7 @@ function fetchGemini(string $apiKey, string $systemPrompt, string $userPrompt): 
         ],
         'generationConfig' => [
             'temperature' => 0,
-            'responseMimeType' => 'application/json'
+            'response_mime_type' => 'application/json'
         ]
     ];
     $ch = curl_init($url);
