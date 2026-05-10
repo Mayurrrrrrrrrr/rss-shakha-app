@@ -92,10 +92,8 @@ A1. RAHU KAAL for {$dayName} → "{$correctRahuKaal}"
 SECTION B — CALCULATION RULES
 ═══════════════════════════════════════════════════════
 B1. TITHI
-    • Compute tithi based on the Moon-Sun longitude difference (each tithi = 12°).
-    • If the tithi changes during daylight hours, show BOTH:
-      Format: "नाम1 (ends HH:MM AM/PM) / नाम2 (from HH:MM AM/PM)"
-    • The two transition times MUST be different.
+    • Compute tithi based on the Moon-Sun longitude difference.
+    • USE PRECISE TIMES. Generic times like "06:00 PM" or "12:00 PM" are PROHIBITED unless exact.
 
 B2. NAKSHATRA & CHANDRA RASHI (MUST match)
     • Ashwini, Bharani, Krittika(0–3°20') → मेष
@@ -120,10 +118,10 @@ Output a single valid JSON object with EXACTLY this structure (all values in Hin
 
 {
   "surya":    { "udaya": "HH:MM AM/PM", "asta": "HH:MM AM/PM" },
-  "chandra":  { "udaya": "HH:MM AM/PM", "asta": "HH:MM AM/PM", "rashi": "Hindi rashi name" },
+  "chandra":  { "udaya": "HH:MM AM/PM", "asta": "HH:MM AM/PM", "rashi": "नाम" },
   "samvat":   { "vikram": "2083 (राक्षस)", "shaka": "1948", "yugabdha": "5128" },
-  "maah":     { "purnimant": "Hindi month name", "amant": "Hindi month name" },
-  "paksha":   "शुक्ल or कृष्ण",
+  "maah":     { "purnimant": "नाम", "amant": "नाम" },
+  "paksha":   "शुक्ल/कृष्ण",
   "tithi":    "नाम (ends HH:MM AM/PM) / नाम (from HH:MM AM/PM)",
   "nakshatra":"नाम (ends HH:MM AM/PM)",
   "yoga":     "नाम (ends HH:MM AM/PM)",
@@ -133,12 +131,12 @@ Output a single valid JSON object with EXACTLY this structure (all values in Hin
     "abhijit": "HH:MM to HH:MM", "amrit_kaal": "HH:MM to HH:MM", "vijay": "HH:MM to HH:MM",
     "ravi_yoga": "HH:MM to HH:MM", "sarvarth_siddhi": "HH:MM to HH:MM"
   },
-  "vrat_tyohar": "festival name in Hindi, or null",
-  "vishesh": "any special note in Hindi, or null"
+  "vrat_tyohar": "नाम or null",
+  "vishesh": "नोट or null"
 }
 SYSTEM;
 
-$userPrompt = "दिनांक: {$formattedDate}, {$dayName} (ISO: {$date})\nस्थान: {$cityName}, भारत\nकृपया पंचांग JSON दें।";
+$userPrompt = "दिनांक: {$formattedDate}, {$dayName} (ISO: {$date})\nस्थान: {$cityName}, भारत\nकृपया सटीक पंचांग JSON दें। जेनेरिक समय (जैसे 06:00) का उपयोग न करें।";
 
 function extractJson(string $text): string
 {
@@ -148,6 +146,27 @@ function extractJson(string $text): string
     if (preg_match('/\{.*\}/s', $text, $m))
         return $m[0];
     return $text;
+}
+
+function validatePanchang(&$data) {
+    $hallucinationPoints = 0;
+    $genericTimes = ['06:00 PM', '06:00 AM', '12:00 PM', '12:00 AM', '05:00 PM', '07:00 AM'];
+    $checkFields = [
+        $data['surya']['udaya'] ?? '',
+        $data['surya']['asta'] ?? '',
+        $data['nakshatra'] ?? '',
+        $data['yoga'] ?? '',
+        $data['karana'] ?? ''
+    ];
+    foreach ($checkFields as $val) {
+        foreach ($genericTimes as $gt) {
+            if (strpos($val, $gt) !== false) $hallucinationPoints++;
+        }
+    }
+    if ($hallucinationPoints >= 2) {
+        $note = "⚠️ चेतावनी: AI द्वारा जेनेरिक समय (Placeholder) का उपयोग किया गया हो सकता है। कृपया पुष्टि करें।";
+        $data['vishesh'] = ($data['vishesh'] ?? '') ? $data['vishesh'] . ' | ' . $note : $note;
+    }
 }
 
 function fetchGemini(string $apiKey, string $systemPrompt, string $userPrompt): ?array
@@ -280,7 +299,7 @@ if ($providerParam === 'openai' || ($providerParam === 'all' && (!$geminiData &&
 $finalPanchang = $geminiData ?: ($groqData ?: $openaiData);
 
 if ($finalPanchang) {
-    // Force correct Rahu Kaal
+    validatePanchang($finalPanchang);
     $finalPanchang['rahukaal'] = $correctRahuKaal;
 
     try {
