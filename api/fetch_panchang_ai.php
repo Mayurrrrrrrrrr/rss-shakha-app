@@ -168,6 +168,9 @@ B7. SHUBH MUHURTAS (all as ranges HH:MM to HH:MM):
     - sarvarth_siddhi = range if applicable, else null.
 
 B8. VRAT_TYOHAR: Any Hindu festival or vrat on this date in Hindi? Else null.
+    CRITICAL: Cross-check the festival with the Ground Truth Tithi. 
+    (e.g., Masik Shivratri is ONLY on Krishna Chaturdashi. Ekadashi Vrat is ONLY on Ekadashi).
+    Do NOT hallucinate festivals that do not match the tithi.
 
 B9. VISHESH: Any special note. Else null.
 
@@ -182,6 +185,7 @@ SECTION C — SELF-CHECK
 □ No two fields share the same HH:MM timestamp?
 □ vijay is ~2 PM, not sunrise?
 □ chandra.asta consistent with {$pakshaHindi} paksha?
+□ vrat_tyohar aligns perfectly with the {$tithiHindi} tithi?
 
 ══════════════════════════════════════════════════════
 SECTION D — OUTPUT JSON
