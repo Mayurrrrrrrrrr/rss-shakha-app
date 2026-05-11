@@ -11,23 +11,16 @@ if (!$shakhaId) {
     exit;
 }
 
-$date = $_GET['date'] ?? null;
-if (!$date || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+$date = $_GET['date'] ?? '';
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
     echo json_encode(['success' => false, 'message' => 'Invalid date']);
     exit;
 }
 
 try {
-    $stmt = $pdo->prepare("DELETE FROM ai_content_cache WHERE content_type = 'panchang' AND content_key = ?");
+    $stmt = $pdo->prepare("DELETE FROM ai_content_cache WHERE content_type='panchang' AND content_key=?");
     $stmt->execute([$date]);
-    
-    echo json_encode([
-        'success' => true, 
-        'message' => 'Cache cleared for ' . $date
-    ]);
+    echo json_encode(['success' => true, 'message' => "Cache cleared for {$date}"]);
 } catch (Exception $e) {
-    echo json_encode([
-        'success' => false, 
-        'message' => $e->getMessage()
-    ]);
+    echo json_encode(['success' => false, 'message' => 'DB error: ' . $e->getMessage()]);
 }
