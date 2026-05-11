@@ -350,17 +350,9 @@ if ($final) {
     $final['maah']['purnimant'] = $maahPurnimant;
     $final['maah']['amant']     = $maahAmant;
 
-    // 8. Krishna paksha chandraast sanity check
-    if ($pakshaHindi === 'कृष्ण') {
-        $chandraAsta = $final['chandra']['asta'] ?? '';
-        if (preg_match('/(\d{1,2}):(\d{2})\s*PM/i', $chandraAsta, $m)) {
-            $hour = (int)$m[1];
-            if ($hour >= 1 && $hour <= 7) {
-                $note = "⚠️ चंद्रास्त जाँचें: कृष्ण पक्ष में दोपहर/शाम को चंद्रास्त सामान्यतः नहीं होता।";
-                $final['vishesh'] = ($final['vishesh'] ?? '') ? $final['vishesh'].' | '.$note : $note;
-            }
-        }
-    }
+    // 8. Removed flawed Krishna paksha chandraast sanity check.
+    // In late Krishna Paksha (Ekadashi, Dwadashi), the moon DOES set in the afternoon (e.g., 2 PM - 5 PM).
+    // A simple hour check causes false positives.
 }
 
 // ─── Save & respond ───────────────────────────────────────────────────────────
