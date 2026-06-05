@@ -126,7 +126,7 @@ $allShakhas = $pdo->query("SELECT * FROM shakhas ORDER BY name")->fetchAll();
                             <td>
                                 <div class="table-actions">
                                     <a href="../pages/mukhyashikshaks.php?edit=<?php echo $m['id']; ?>" class="btn btn-sm btn-outline">✏️</a>
-                                    <a href="../api/actions/mukhyashikshak_delete.php?id=<?php echo $m['id']; ?>" class="btn btn-sm btn-danger"
+                                    <a href="../api/actions/mukhyashikshak_delete.php?id=<?php echo $m['id']; ?>&csrf_token=<?php echo csrf_token(); ?>" class="btn btn-sm btn-danger"
                                         data-confirm="क्या आप इस मुख्य शिक्षक को हटाना चाहते हैं?">🗑️</a>
                                 </div>
                             </td>

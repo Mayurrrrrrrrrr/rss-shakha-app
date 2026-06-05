@@ -26,10 +26,73 @@ $stmt = $pdo->prepare("SELECT * FROM shakhas WHERE id = ?");
 $stmt->execute([$shakha_id]);
 $shakha = $stmt->fetch();
 
-// 2. Fetch Panchang
-$calc = new PanchangCalculator();
-$panchang = $calc->getPanchang($date);
-$tithiStr = $panchang['tithi'] . ' ' . $panchang['paksha'] . ', ' . $panchang['maah'] . ' ' . $panchang['vikram_samvat'];
+// 2. Fetch Panchang / Tithi
+$tithiStr = '';
+$stmt = $pdo->prepare("SELECT yugabdh, vikram_samvat, shaka_samvat, hindi_month, paksh, tithi, utsav FROM daily_records WHERE record_date = ? AND shakha_id = ?");
+$stmt->execute([$date, $shakha_id]);
+$record = $stmt->fetch();
+if ($record && !empty($record['tithi'])) {
+    $tithiStr = $record['tithi'] . ' ' . $record['paksh'] . ', ' . $record['hindi_month'] . ' (संवत् ' . $record['vikram_samvat'] . ', युगाब्द ' . $record['yugabdh'] . ')';
+    if (!empty($record['utsav'])) {
+        $tithiStr .= ' - ' . $record['utsav'];
+    }
+} else {
+    // Check AI Panchang cache
+    $cacheKey = "shakha_{$shakha_id}_{$date}";
+    $stmtC = $pdo->prepare("SELECT response_json FROM ai_content_cache WHERE content_type='panchang' AND content_key=?");
+    $stmtC->execute([$cacheKey]);
+    $cached = $stmtC->fetchColumn();
+    if ($cached) {
+        $aiData = json_decode($cached, true);
+        if ($aiData) {
+            $t = $aiData['tithi'] ?? '';
+            $p = $aiData['paksha'] ?? '';
+            $m = '';
+            if (isset($aiData['maah'])) {
+                $m = $aiData['maah']['purnimant'] ?? ($aiData['maah']['amant'] ?? '');
+            }
+            $v = '';
+            $y = '';
+            if (isset($aiData['samvat'])) {
+                $v = $aiData['samvat']['vikram'] ?? '';
+                $y = $aiData['samvat']['yugabdha'] ?? '';
+            }
+            $tithiParts = [];
+            if ($t) {
+                $tithiParts[] = $t;
+            }
+            if ($p && mb_strpos($t, $p) === false) {
+                $tithiParts[] = $p;
+            }
+            if ($m && mb_strpos($t, $m) === false) {
+                $tithiParts[] = $m;
+            }
+            $tithiStr = implode(' ', $tithiParts);
+            
+            $samvatParts = [];
+            if ($v) {
+                $samvatParts[] = "संवत् " . $v;
+            }
+            if ($y) {
+                $samvatParts[] = "युगाब्द " . $y;
+            }
+            if (!empty($samvatParts)) {
+                $tithiStr .= ' (' . implode(', ', $samvatParts) . ')';
+            }
+            if (!empty($aiData['vrat_tyohar']) && $aiData['vrat_tyohar'] !== 'null') {
+                $tithiStr .= ' - ' . $aiData['vrat_tyohar'];
+            }
+        }
+    }
+    
+    if (empty($tithiStr)) {
+        $calc = new PanchangCalculator();
+        $panchang = $calc->getPanchang($date);
+        if ($panchang) {
+            $tithiStr = $panchang['tithi'] . ' ' . $panchang['paksha'] . ', ' . $panchang['maah'] . ' (संवत् ' . $panchang['vikram_samvat'] . ', युगाब्द ' . $panchang['yugabdh'] . ')';
+        }
+    }
+}
 
 // 3. Fetch Subhashit (latest before or on this date)
 $stmt = $pdo->prepare("SELECT * FROM subhashits WHERE shakha_id = ? AND subhashit_date <= ? ORDER BY subhashit_date DESC LIMIT 1");
@@ -75,7 +138,7 @@ $col2 = array_slice($swayamsevaks, 15, 15);
 
 // QR Code URL (Points to daily_record.php for this date)
 $appUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]/pages/daily_record.php?date=" . urlencode($date);
-$qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" . urlencode($appUrl);
+$qrUrl = "https://chart.googleapis.com/chart?cht=qr&chs=150x150&chl=" . urlencode($appUrl);
 
 // Hindi formatting
 $hindiDays = ['रविवार', 'सोमवार', 'मंगलवार', 'बुधवार', 'गुरुवार', 'शुक्रवार', 'शनिवार'];

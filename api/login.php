@@ -1,4 +1,8 @@
 <?php
+require_once '../includes/auth.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once 'config.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -14,6 +18,12 @@ if (empty($username) || empty($password)) {
 }
 
 $ip = $_SERVER['REMOTE_ADDR'];
+if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+    $ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
+} elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+    $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+    $ip = trim($ips[0]);
+}
 
 // Rate Limiting Check
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM login_attempts WHERE ip = ? AND attempted_at > (NOW() - INTERVAL 15 MINUTE)");
@@ -42,6 +52,11 @@ if ($user && password_verify($password, $user['password'])) {
     $stmt = $pdo->prepare("DELETE FROM login_attempts WHERE ip = ?");
     $stmt->execute([$ip]);
 
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['user_type'] = $user['role'] ?? 'mukhyashikshak';
+    $_SESSION['user_name'] = $user['name'];
+    $_SESSION['shakha_id'] = $user['shakha_id'];
+
     sendResponse(true, 'लॉगिन सफल', $userData);
 }
 
@@ -62,12 +77,16 @@ if ($user && $user['password'] && password_verify($password, $user['password']))
     $stmt = $pdo->prepare("DELETE FROM login_attempts WHERE ip = ?");
     $stmt->execute([$ip]);
 
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['user_type'] = 'swayamsevak';
+    $_SESSION['user_name'] = $user['name'];
+    $_SESSION['shakha_id'] = $user['shakha_id'];
+
     sendResponse(true, 'लॉगिन सफल', $userData);
 }
 
 // Failed login attempt
 $stmt = $pdo->prepare("INSERT INTO login_attempts (ip) VALUES (?)");
 $stmt->execute([$ip]);
-sleep(1);
 
 sendResponse(false, 'गलत उपयोगकर्ता नाम या पासवर्ड!');

@@ -11,8 +11,9 @@ if (!isLoggedIn() || (!isAdmin() && !isMukhyashikshak())) {
 $shakhaId = getCurrentShakhaId();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $saveType = $_POST['save_type'] ?? ''; // 'default' or 'override'
-    $slotsRaw = $_POST['slots'] ?? [];
+    $inputs = getRequestInputs();
+    $saveType = $inputs['save_type'] ?? ''; // 'default' or 'override'
+    $slotsRaw = $inputs['slots'] ?? [];
     
     // Build clean slots array
     $slots = [];
@@ -32,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $slotsJson = json_encode($slots, JSON_UNESCAPED_UNICODE);
     
     if ($saveType === 'default') {
-        $dayOfWeek = intval($_POST['day_of_week'] ?? 0);
+        $dayOfWeek = intval($inputs['day_of_week'] ?? 0);
         
         // Upsert: delete old + insert new
         $stmt = $pdo->prepare("DELETE FROM timetable_defaults WHERE shakha_id = ? AND day_of_week = ?");
@@ -44,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: ../../pages/timetable.php?tab=default&day=" . $dayOfWeek . "&msg=Default+timetable+saved!");
         
     } elseif ($saveType === 'override') {
-        $overrideDate = $_POST['override_date'] ?? date('Y-m-d');
+        $overrideDate = $inputs['override_date'] ?? date('Y-m-d');
         
         // Upsert
         $stmt = $pdo->prepare("DELETE FROM timetable_overrides WHERE shakha_id = ? AND override_date = ?");
@@ -57,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
     } elseif ($saveType === 'override_to_default') {
         // Save current override data as the new default for that day_of_week
-        $overrideDate = $_POST['override_date'] ?? date('Y-m-d');
+        $overrideDate = $inputs['override_date'] ?? date('Y-m-d');
         $dayOfWeek = date('w', strtotime($overrideDate));
         
         $stmt = $pdo->prepare("DELETE FROM timetable_defaults WHERE shakha_id = ? AND day_of_week = ?");
@@ -76,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("INSERT INTO timetable_defaults (shakha_id, day_of_week, slots, updated_at) VALUES (?, ?, ?, NOW())");
             $stmt->execute([$shakhaId, $dw, $slotsJson]);
         }
-        header("Location: ../../pages/timetable.php?tab=default&msg=" . urlencode("à¤¸à¤®à¤¯-à¤¸à¤¾à¤°à¤£à¥€ à¤¸à¤­à¥€ 7 à¤¦à¤¿à¤¨à¥‹à¤‚ à¤®à¥‡à¤‚ à¤¸à¤«à¤²à¤¤à¤¾à¤ªà¥‚à¤°à¥à¤µà¤• à¤•à¥‰à¤ªà¥€ à¤•à¥€ à¤—à¤ˆ!"));
+        header("Location: ../../pages/timetable.php?tab=default&msg=" . urlencode("समय-सारणी सभी 7 दिनों में सफलतापूर्वक कॉपी की गई!"));
     }
     exit;
 }

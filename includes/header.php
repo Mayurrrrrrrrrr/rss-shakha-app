@@ -116,7 +116,7 @@ if ($pdo && isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                         <li><a href="../pages/dashboard.php" class="<?php echo $currentPage === 'dashboard' ? 'active' : ''; ?>">🏠 मुख्य पृष्ठ</a></li>
                                         <li><a href="../pages/swayamsevaks.php" class="<?php echo $currentPage === 'swayamsevaks' ? 'active' : ''; ?>">👥 स्वयंसेवक</a></li>
                                         
-                                        <?php $dailyOpsActive = in_array($currentPage, ['daily_record', 'activities', 'notice', 'subhashit', 'geet', 'ghoshnayein', 'greetings', 'panchang_daily']) ? 'open' : ''; ?>
+                                        <?php $dailyOpsActive = in_array($currentPage, ['daily_record', 'activities', 'notice', 'subhashit', 'geet', 'ghoshnayein', 'greetings', 'panchang_daily', 'paper_content', 'print_straight']) ? 'open' : ''; ?>
                                         <li class="nav-group <?php echo $dailyOpsActive; ?>">
                                             <div class="nav-group-header"><span>📅 दैनिक कार्य (Daily Ops)</span> <span class="chevron">▼</span></div>
                                             <ul class="nav-group-items">
@@ -130,16 +130,20 @@ if ($pdo && isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                                 <li><a href="../pages/vyaktitv.php" class="<?php echo $currentPage === 'vyaktitv' ? 'active' : ''; ?>">🚩 व्यक्तित्व</a></li>
                                                 <li><a href="../pages/greetings.php" class="<?php echo $currentPage === 'greetings' ? 'active' : ''; ?>">🎨 शुभकामनाएं</a></li>
                                                 <li><a href="../pages/panchang_daily.php" class="<?php echo $currentPage === 'panchang_daily' ? 'active' : ''; ?>">🕉️ दैनिक पंचांग</a></li>
+                                                <li><a href="../pages/paper_content.php" class="<?php echo $currentPage === 'paper_content' ? 'active' : ''; ?>">📄 साहित्य प्रिंटआउट</a></li>
+                                                <li><a href="../pages/print_straight.php" class="<?php echo $currentPage === 'print_straight' ? 'active' : ''; ?>">🖨️ साधारण प्रिंटआउट</a></li>
                                             </ul>
                                         </li>
                                         
-                                        <?php $repActive = in_array($currentPage, ['records_list', 'records_calendar', 'monthly_report', 'analytics', 'insights']) ? 'open' : ''; ?>
+                                        <?php $repActive = in_array($currentPage, ['records_list', 'records_calendar', 'monthly_report', 'gat_report', 'shreni_report', 'analytics', 'insights']) ? 'open' : ''; ?>
                                         <li class="nav-group <?php echo $repActive; ?>">
                                             <div class="nav-group-header"><span>📊 रिपोर्ट्स (Reports)</span> <span class="chevron">▼</span></div>
                                             <ul class="nav-group-items">
                                                 <li><a href="../pages/records_list.php" class="<?php echo $currentPage === 'records_list' ? 'active' : ''; ?>">📄 सूची</a></li>
                                                 <li><a href="../pages/records_calendar.php" class="<?php echo $currentPage === 'records_calendar' ? 'active' : ''; ?>">📅 कैलेंडर</a></li>
                                                 <li><a href="../pages/monthly_report.php" class="<?php echo $currentPage === 'monthly_report' ? 'active' : ''; ?>">📊 मासिक रिपोर्ट</a></li>
+                                                <li><a href="../pages/gat_report.php" class="<?php echo $currentPage === 'gat_report' ? 'active' : ''; ?>">👥 गटवार उपस्थिति</a></li>
+                                                <li><a href="../pages/shreni_report.php" class="<?php echo $currentPage === 'shreni_report' ? 'active' : ''; ?>">📊 श्रेणीवार उपस्थिति</a></li>
                                                 <li><a href="../pages/analytics.php" class="<?php echo $currentPage === 'analytics' ? 'active' : ''; ?>">📈 एनालिटिक्स</a></li>
                                                 <li><a href="../pages/insights.php" class="<?php echo $currentPage === 'insights' ? 'active' : ''; ?>">🧠 AI Insights</a></li>
                                             </ul>

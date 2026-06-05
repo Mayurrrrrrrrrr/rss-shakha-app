@@ -1,7 +1,7 @@
 <?php
 require_once '../../includes/auth.php';
 /**
- * Save Swayamsevak - à¤¸à¥à¤µà¤¯à¤‚à¤¸à¥‡à¤µà¤• à¤¸à¤¹à¥‡à¤œà¥‡à¤‚
+ * Save Swayamsevak - स्वयंसेवक सहेजें
  */
 require_once '../../config/db.php';
 requireLogin();
@@ -16,14 +16,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$id = $_POST['id'] ?? null;
-$name = trim($_POST['name'] ?? '');
-$address = trim($_POST['address'] ?? '');
-$phone = trim($_POST['phone'] ?? '');
-$age = intval($_POST['age'] ?? 0);
-$username = trim($_POST['username'] ?? '');
-$password = $_POST['password'] ?? '';
-$category = $_POST['category'] ?? 'Tarun';
+$inputs = getRequestInputs();
+$id = $inputs['id'] ?? null;
+$name = trim($inputs['name'] ?? '');
+$address = trim($inputs['address'] ?? '');
+$phone = trim($inputs['phone'] ?? '');
+$age = intval($inputs['age'] ?? 0);
+$username = trim($inputs['username'] ?? '');
+$password = $inputs['password'] ?? '';
+$category = $inputs['category'] ?? 'Tarun';
+$gat = trim($inputs['gat'] ?? '');
+if ($gat === '') $gat = null;
+$is_gat_nayak = isset($inputs['is_gat_nayak']) ? 1 : 0;
 $shakhaId = getCurrentShakhaId();
 
 if (empty($name) || !$shakhaId) {
@@ -47,17 +51,17 @@ if ($id) {
     // Update
     if (!empty($password)) {
         $hash = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare("UPDATE swayamsevaks SET name = ?, address = ?, phone = ?, age = ?, username = ?, password = ?, category = ? WHERE id = ? AND shakha_id = ?");
-        $stmt->execute([$name, $address, $phone, $age ?: null, $username, $hash, $category, $id, $shakhaId]);
+        $stmt = $pdo->prepare("UPDATE swayamsevaks SET name = ?, address = ?, phone = ?, age = ?, username = ?, password = ?, category = ?, gat = ?, is_gat_nayak = ? WHERE id = ? AND shakha_id = ?");
+        $stmt->execute([$name, $address, $phone, $age ?: null, $username, $hash, $category, $gat, $is_gat_nayak, $id, $shakhaId]);
     } else {
-        $stmt = $pdo->prepare("UPDATE swayamsevaks SET name = ?, address = ?, phone = ?, age = ?, username = ?, category = ? WHERE id = ? AND shakha_id = ?");
-        $stmt->execute([$name, $address, $phone, $age ?: null, $username, $category, $id, $shakhaId]);
+        $stmt = $pdo->prepare("UPDATE swayamsevaks SET name = ?, address = ?, phone = ?, age = ?, username = ?, category = ?, gat = ?, is_gat_nayak = ? WHERE id = ? AND shakha_id = ?");
+        $stmt->execute([$name, $address, $phone, $age ?: null, $username, $category, $gat, $is_gat_nayak, $id, $shakhaId]);
     }
 } else {
     // Insert
     $hash = !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : null;
-    $stmt = $pdo->prepare("INSERT INTO swayamsevaks (name, address, phone, age, username, password, shakha_id, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$name, $address, $phone, $age ?: null, $username, $hash, $shakhaId, $category]);
+    $stmt = $pdo->prepare("INSERT INTO swayamsevaks (name, address, phone, age, username, password, shakha_id, category, gat, is_gat_nayak) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$name, $address, $phone, $age ?: null, $username, $hash, $shakhaId, $category, $gat, $is_gat_nayak]);
 }
 
 header('Location: ../../pages/swayamsevaks.php?msg=saved');

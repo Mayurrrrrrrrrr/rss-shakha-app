@@ -203,7 +203,7 @@ if (isAdmin()) {
                         </a>
                         
                         <?php if (isAdmin() || ($ev['shakha_id'] == $_SESSION['shakha_id'])): ?>
-                            <a href="../api/actions/delete_event.php?id=<?php echo $ev['id']; ?>" class="event-action-delete" onclick="return confirm('क्या आप वाकई इसे हटाना चाहते हैं?')">
+                            <a href="../api/actions/delete_event.php?id=<?php echo $ev['id']; ?>&csrf_token=<?php echo csrf_token(); ?>" class="event-action-delete" onclick="return confirm('क्या आप वाकई इसे हटाना चाहते हैं?')">
                                 🗑️
                             </a>
                         <?php endif; ?>

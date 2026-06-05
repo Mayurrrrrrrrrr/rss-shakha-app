@@ -10,16 +10,17 @@ if (!isLoggedIn() || (!isAdmin() && !isMukhyashikshak())) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $title = trim($_POST['title']);
-    $description = trim($_POST['description']);
-    $event_date = $_POST['event_date'];
-    $event_time = $_POST['event_time'];
-    $location = trim($_POST['location']);
-    $meeting_link = trim($_POST['meeting_link']);
+    $inputs = getRequestInputs();
+    $title = trim($inputs['title'] ?? '');
+    $description = trim($inputs['description'] ?? '');
+    $event_date = $inputs['event_date'] ?? '';
+    $event_time = $inputs['event_time'] ?? '';
+    $location = trim($inputs['location'] ?? '');
+    $meeting_link = trim($inputs['meeting_link'] ?? '');
     
     // Determine shakha_id: Global if Admin creates it (so NULL), Shakha specific if Mukhyashikshak (so their shakha_id)
     if (isAdmin()) {
-        $shakha_id = isset($_POST['shakha_id']) && $_POST['shakha_id'] !== '' ? $_POST['shakha_id'] : null;
+        $shakha_id = isset($inputs['shakha_id']) && $inputs['shakha_id'] !== '' ? $inputs['shakha_id'] : null;
     } else {
         $shakha_id = $_SESSION['shakha_id']; 
     }

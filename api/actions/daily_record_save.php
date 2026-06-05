@@ -1,7 +1,7 @@
 <?php
 require_once '../../includes/auth.php';
 /**
- * Save Daily Record - à¤¦à¥ˆà¤¨à¤¿à¤• à¤°à¤¿à¤•à¥‰à¤°à¥à¤¡ à¤¸à¤¹à¥‡à¤œà¥‡à¤‚
+ * Save Daily Record - दैनिक रिकॉर्ड सहेजें
  */
 require_once '../../config/db.php';
 requireLogin();
@@ -16,20 +16,21 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$recordId = $_POST['record_id'] ?? null;
-$recordDate = $_POST['record_date'] ?? date('Y-m-d');
-$yugabdh = trim($_POST['yugabdh'] ?? '');
-$vikram_samvat = trim($_POST['vikram_samvat'] ?? '');
-$shaka_samvat = trim($_POST['shaka_samvat'] ?? '');
-$hindi_month = trim($_POST['hindi_month'] ?? '');
-$paksh = trim($_POST['paksh'] ?? '');
-$tithi = trim($_POST['tithi'] ?? '');
-$customMessage = trim($_POST['custom_message'] ?? '');
-$attendanceData = $_POST['attendance'] ?? [];
-$activityDone = $_POST['activity_done'] ?? [];
-$conductedBy = $_POST['conducted_by'] ?? [];
+$inputs = getRequestInputs();
+$recordId = $inputs['record_id'] ?? null;
+$recordDate = $inputs['record_date'] ?? date('Y-m-d');
+$yugabdh = trim($inputs['yugabdh'] ?? '');
+$vikram_samvat = trim($inputs['vikram_samvat'] ?? '');
+$shaka_samvat = trim($inputs['shaka_samvat'] ?? '');
+$hindi_month = trim($inputs['hindi_month'] ?? '');
+$paksh = trim($inputs['paksh'] ?? '');
+$tithi = trim($inputs['tithi'] ?? '');
+$customMessage = trim($inputs['custom_message'] ?? '');
+$attendanceData = $inputs['attendance'] ?? [];
+$activityDone = $inputs['activity_done'] ?? [];
+$conductedBy = $inputs['conducted_by'] ?? [];
 
-$utsav = trim($_POST['utsav'] ?? '');
+$utsav = trim($inputs['utsav'] ?? '');
 
 try {
     $pdo->beginTransaction();

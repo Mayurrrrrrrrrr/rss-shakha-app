@@ -9,7 +9,9 @@ requireLogin();
 
 header('Content-Type: application/json; charset=UTF-8');
 
-// Fetch Shakha-specific Gemini Key ONLY (No global fallback)
+$shakhaId = getCurrentShakhaId();
+
+// Fetch Shakha-specific Gemini Key
 $stmtKey = $pdo->prepare("SELECT gemini_api_key FROM shakhas WHERE id = ?");
 $stmtKey->execute([$shakhaId]);
 $apiKey = $stmtKey->fetchColumn();
@@ -22,7 +24,7 @@ if (empty($apiKey)) {
 // Validate params
 $fromDate = $_GET['from'] ?? null;
 $toDate = $_GET['to'] ?? null;
-$shakhaId = getCurrentShakhaId();
+
 
 if (!$fromDate || !$toDate) {
     echo json_encode(['success' => false, 'message' => 'from and to dates are required']);
@@ -42,6 +44,23 @@ try {
         exit;
     }
 } catch (Exception $e) {}
+
+// Rate limiting: 5 AI requests per user per hour
+$now = time();
+if (!isset($_SESSION['last_ai_request']) || ($now - $_SESSION['last_ai_request']) > 3600) {
+    $_SESSION['last_ai_request'] = $now;
+    $_SESSION['ai_request_count'] = 0;
+}
+
+if ($_SESSION['ai_request_count'] >= 5) {
+    http_response_code(429);
+    echo json_encode([
+        'success' => false,
+        'message' => 'You have reached the maximum AI requests for this hour. Please try again later.'
+    ]);
+    exit;
+}
+$_SESSION['ai_request_count']++;
 
 // Fetch shakha name
 $stmt = $pdo->prepare("SELECT name FROM shakhas WHERE id = ?");

@@ -61,15 +61,9 @@ if (isset($_POST['save_vachan'])) {
 $pageTitle = 'अमृत वचन';
 require_once '../includes/header.php';
 
-// Fetch items
-if (isAdmin()) {
-    $stmt = $pdo->query("SELECT a.*, s.name as shakha_name FROM amrit_vachan a LEFT JOIN shakhas s ON a.shakha_id = s.id ORDER BY vachan_date DESC");
-    $items = $stmt->fetchAll();
-} else {
-    $stmt = $pdo->prepare("SELECT * FROM amrit_vachan WHERE shakha_id = ? ORDER BY vachan_date DESC");
-    $stmt->execute([$shakhaId]);
-    $items = $stmt->fetchAll();
-}
+// Fetch items for all (Admin and Mukhya Shikshak see all now, but can only edit their own)
+$stmt = $pdo->query("SELECT a.*, s.name as shakha_name FROM amrit_vachan a LEFT JOIN shakhas s ON a.shakha_id = s.id ORDER BY vachan_date DESC LIMIT 30");
+$items = $stmt->fetchAll();
 
 $editItem = null;
 if (isset($_GET['edit'])) {
@@ -122,7 +116,7 @@ if (isset($_GET['edit'])) {
                     <tr>
                         <th>तारीख</th>
                         <th>सामग्री</th>
-                        <?php if (isAdmin()): ?><th>शाखा</th><?php endif; ?>
+                        <th>शाखा</th>
                         <th>कार्रवाई</th>
                     </tr>
                 </thead>
@@ -137,15 +131,21 @@ if (isset($_GET['edit'])) {
                                     <div style="font-weight: 600;"><?php echo mb_substr(htmlspecialchars($item['content']), 0, 50); ?>...</div>
                                     <?php if ($item['author']): ?><small>— <?php echo htmlspecialchars($item['author']); ?></small><?php endif; ?>
                                 </td>
-                                <?php if (isAdmin()): ?><td><?php echo htmlspecialchars($item['shakha_name'] ?? '-'); ?></td><?php endif; ?>
+                                <td><?php echo htmlspecialchars($item['shakha_name'] ?? '-'); ?></td>
                                 <td>
-                                    <div class="table-actions">
-                                        <a href="?edit=<?php echo $item['id']; ?>" class="btn btn-sm btn-outline">✏️</a>
-                                        <form method="POST" style="display:inline;" onsubmit="return confirm('क्या आप वाकई इसे हटाना चाहते हैं?');">
-                                            <input type="hidden" name="delete_id" value="<?php echo $item['id']; ?>">
-                                            <button type="submit" class="btn btn-sm btn-outline" style="color: red;">🗑️</button>
-                                        </form>
-                                    </div>
+                                    <?php if ($item['shakha_id'] == $shakhaId || isAdmin()): ?>
+                                        <div class="table-actions">
+                                            <a href="?edit=<?php echo $item['id']; ?>" class="btn btn-sm btn-outline">✏️</a>
+                                            <form method="POST" style="display:inline;" onsubmit="return confirm('क्या आप वाकई इसे हटाना चाहते हैं?');">
+                                                <input type="hidden" name="delete_id" value="<?php echo $item['id']; ?>">
+                                                <button type="submit" class="btn btn-sm btn-outline" style="color: red;">🗑️</button>
+                                            </form>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="table-actions">
+                                            <a href="whatsapp://send?text=<?php echo urlencode($item['content'] . ($item['author'] ? "\n— " . $item['author'] : '') . "\n🚩 " . $item['shakha_name']); ?>" class="btn btn-sm btn-whatsapp">📱 Share</a>
+                                        </div>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

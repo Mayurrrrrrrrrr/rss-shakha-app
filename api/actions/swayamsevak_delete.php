@@ -11,7 +11,8 @@ if (isSwayamsevak()) {
     exit;
 }
 
-$id = $_GET['id'] ?? null;
+$inputs = getRequestInputs();
+$id = $inputs['id'] ?? null;
 
 if ($id) {
     $shakhaId = getCurrentShakhaId();

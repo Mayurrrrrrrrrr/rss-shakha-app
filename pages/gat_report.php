@@ -1,10 +1,9 @@
 <?php
 require_once '../includes/auth.php';
 /**
- * Monthly Report - मासिक रिपोर्ट
- * Date range selection + downloadable report
+ * Gat-wise Attendance Report - गटवार उपस्थिति रिपोर्ट
  */
-$pageTitle = 'मासिक रिपोर्ट';
+$pageTitle = 'गटवार उपस्थिति रिपोर्ट';
 require_once '../includes/header.php';
 require_once '../config/db.php';
 requireLogin();
@@ -34,46 +33,57 @@ function formatHindiDateReport($dateStr)
 $startDate = $_GET['start_date'] ?? date('Y-m-01');
 $endDate = $_GET['end_date'] ?? date('Y-m-t');
 $hasData = false;
-
 $totalDays = 0;
-$dailyAttendance = [];
-$avgAttendance = 0;
+$grouped = [];
 
 if ($startDate && $endDate) {
     // Total shakha days
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM daily_records WHERE shakha_id = ? AND record_date BETWEEN ? AND ?");
     $stmt->execute([$shakhaId, $startDate, $endDate]);
-    $totalDays = $stmt->fetchColumn();
+    $totalDays = intval($stmt->fetchColumn());
 
-    // Daily attendance
-    $stmt = $pdo->prepare("SELECT dr.record_date, 
-        (SELECT COUNT(*) FROM attendance a WHERE a.daily_record_id = dr.id AND a.is_present = 1) as present_count,
-        (SELECT COUNT(*) FROM attendance a JOIN swayamsevaks s ON a.swayamsevak_id = s.id WHERE a.daily_record_id = dr.id AND a.is_present = 1 AND COALESCE(s.category, 'Tarun') = 'Baal') as baal_count,
-        (SELECT COUNT(*) FROM attendance a JOIN swayamsevaks s ON a.swayamsevak_id = s.id WHERE a.daily_record_id = dr.id AND a.is_present = 1 AND COALESCE(s.category, 'Tarun') = 'Tarun') as tarun_count,
-        (SELECT COUNT(*) FROM attendance a JOIN swayamsevaks s ON a.swayamsevak_id = s.id WHERE a.daily_record_id = dr.id AND a.is_present = 1 AND COALESCE(s.category, 'Tarun') = 'Praudh') as praudh_count,
-        (SELECT COUNT(*) FROM attendance a JOIN swayamsevaks s ON a.swayamsevak_id = s.id WHERE a.daily_record_id = dr.id AND a.is_present = 1 AND COALESCE(s.category, 'Tarun') = 'Abhyagat') as abhyagat_count
-        FROM daily_records dr
-        WHERE dr.shakha_id = ? AND dr.record_date BETWEEN ? AND ?
-        ORDER BY dr.record_date");
-    $stmt->execute([$shakhaId, $startDate, $endDate]);
-    $dailyAttendance = $stmt->fetchAll();
+    // Fetch all active swayamsevaks with their attendance count for this period
+    $stmt = $pdo->prepare("
+        SELECT s.*, 
+        (
+            SELECT COUNT(*) 
+            FROM attendance a 
+            JOIN daily_records dr ON a.daily_record_id = dr.id 
+            WHERE a.swayamsevak_id = s.id 
+              AND a.is_present = 1 
+              AND dr.record_date BETWEEN ? AND ?
+        ) as present_days
+        FROM swayamsevaks s
+        WHERE s.is_active = 1 AND s.shakha_id = ?
+        ORDER BY COALESCE(NULLIF(s.gat, ''), 'zzzzzzzz') ASC, s.is_gat_nayak DESC, s.name ASC
+    ");
+    $stmt->execute([$startDate, $endDate, $shakhaId]);
+    $swayamsevaks = $stmt->fetchAll();
 
-    if (count($dailyAttendance) > 0) {
+    if (count($swayamsevaks) > 0) {
         $hasData = true;
-        $totalPresent = 0;
-        $totalBaal = 0; $totalTarun = 0; $totalPraudh = 0; $totalAbhyagat = 0;
-        foreach ($dailyAttendance as $row) {
-            $totalPresent += $row['present_count'];
-            $totalBaal += $row['baal_count'];
-            $totalTarun += $row['tarun_count'];
-            $totalPraudh += $row['praudh_count'];
-            $totalAbhyagat += $row['abhyagat_count'];
+        foreach ($swayamsevaks as $s) {
+            $gatName = trim($s['gat'] ?? '');
+            if ($gatName === '') {
+                $gatKey = 'बिना गट के (Unassigned)';
+            } else {
+                $gatKey = $gatName;
+            }
+
+            if (!isset($grouped[$gatKey])) {
+                $grouped[$gatKey] = [
+                    'nayak' => null,
+                    'members' => []
+                ];
+            }
+
+            // Put Gat Nayak at the top of the group if they belong to a Gat
+            if ($s['is_gat_nayak'] && $gatName !== '') {
+                $grouped[$gatKey]['nayak'] = $s;
+            } else {
+                $grouped[$gatKey]['members'][] = $s;
+            }
         }
-        $avgAttendance = round($totalPresent / count($dailyAttendance), 1);
-        $avgBaal = round($totalBaal / count($dailyAttendance), 1);
-        $avgTarun = round($totalTarun / count($dailyAttendance), 1);
-        $avgPraudh = round($totalPraudh / count($dailyAttendance), 1);
-        $avgAbhyagat = round($totalAbhyagat / count($dailyAttendance), 1);
     }
 }
 
@@ -87,7 +97,7 @@ if ($shakhaRow) {
 }
 
 // Logo for capture
-$logoPath = __DIR__ . '/assets/images/logo.svg';
+$logoPath = __DIR__ . '/../assets/images/logo.svg';
 $logoBase64 = '';
 if (file_exists($logoPath)) {
     $logoBase64 = 'data:image/svg+xml;base64,' . base64_encode(file_get_contents($logoPath));
@@ -98,13 +108,13 @@ if (file_exists($logoPath)) {
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <div class="page-header">
-    <h1>📊 मासिक रिपोर्ट</h1>
+    <h1>👥 गटवार उपस्थिति रिपोर्ट</h1>
 </div>
 
 <!-- Date Range Selection -->
 <div class="card">
     <div class="card-header">📅 तिथि चयन</div>
-    <form method="GET" action="monthly_report.php"
+    <form method="GET" action="gat_report.php"
         style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;">
         <div class="form-group" style="flex: 1; min-width: 200px;">
             <label class="form-label">प्रारंभ तिथि</label>
@@ -151,7 +161,7 @@ if (file_exists($logoPath)) {
                 <div style="font-size: 22px; font-weight: bold;">🚩
                     <?php echo htmlspecialchars($shakhaName); ?> 🚩
                 </div>
-                <div style="font-size: 14px; opacity: 0.9; margin-top: 4px;">मासिक रिपोर्ट</div>
+                <div style="font-size: 14px; opacity: 0.9; margin-top: 4px;">गटवार उपस्थिति रिपोर्ट (Gat Attendance)</div>
             </div>
 
             <!-- Date Range -->
@@ -162,29 +172,60 @@ if (file_exists($logoPath)) {
             </div>
 
             <div style="padding: 20px;">
-                <!-- Summary Stats -->
-                <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-                    <div
-                        style="flex: 1; background: #F1F8E9; border: 1px solid #C5E1A5; border-radius: 10px; padding: 16px; text-align: center;">
-                        <div style="font-size: 32px; font-weight: bold; color: #2E7D32;">
-                            <?php echo $totalDays; ?>
-                        </div>
-                        <div style="font-size: 14px; color: #5D4037;">कुल शाखा दिवस</div>
-                    </div>
-                    <div
-                        style="flex: 1; background: #FFF3E0; border: 1px solid #FFB74D; border-radius: 10px; padding: 16px; text-align: center;">
-                        <div style="font-size: 32px; font-weight: bold; color: #E64A19;">
-                            <?php echo $avgAttendance; ?>
-                        </div>
-                        <div style="font-size: 14px; color: #5D4037;">औसत उपस्थिति</div>
-                        <div style="font-size: 12px; margin-top: 6px; color: #D84315; font-weight: 600; line-height: 1.4;">
-                            बाल: <?php echo $avgBaal; ?>, तरुण: <?php echo $avgTarun; ?><br>
-                            प्रौढ़: <?php echo $avgPraudh; ?>, अभ्यागत: <?php echo $avgAbhyagat; ?>
-                        </div>
-                    </div>
+                <!-- Total Days Info -->
+                <div style="background: #F1F8E9; border: 1px solid #C5E1A5; border-radius: 10px; padding: 12px; text-align: center; margin-bottom: 20px; font-weight: 500;">
+                    कुल शाखा दिवस (Total Shakha Days): <strong style="color: #2E7D32; font-size: 1.25rem;"><?php echo $totalDays; ?></strong>
                 </div>
 
+                <!-- Gat Sections -->
+                <?php foreach ($grouped as $gatName => $group): ?>
+                    <div style="background: #FFF; border: 1px solid #FFCC80; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden;">
+                        
+                        <!-- Gat Header -->
+                        <div style="background: #FFF3E0; border-bottom: 2px solid #FFB74D; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 17px; font-weight: bold; color: #E64A19;">👤 <?php echo htmlspecialchars($gatName); ?></span>
+                            <span style="font-size: 13px; color: #D84315; font-weight: 500;">कुल सदस्य: <?php echo ( ($group['nayak'] ? 1 : 0) + count($group['members']) ); ?></span>
+                        </div>
 
+                        <div style="padding: 10px 15px;">
+                            <!-- Leader (Gat Nayak) -->
+                            <?php if ($group['nayak']): 
+                                $n = $group['nayak'];
+                                $pct = $totalDays > 0 ? round(($n['present_days'] / $totalDays) * 100) : 0;
+                            ?>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed #FFCC80; background: #FFFDE7;">
+                                    <div>
+                                        <strong style="font-size: 15px; color: #4A1C00;"><?php echo htmlspecialchars($n['name']); ?></strong>
+                                        <span style="background: #E65100; color: #FFF; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 6px; font-weight: bold;">गट नायक</span>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <span style="font-weight: 600; color: #2E7D32;"><?php echo $n['present_days']; ?> / <?php echo $totalDays; ?> दिन</span>
+                                        <span style="font-size: 12px; color: #757575; margin-left: 5px;">(<?php echo $pct; ?>%)</span>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Members -->
+                            <?php if (!empty($group['members'])): ?>
+                                <?php foreach ($group['members'] as $m): 
+                                    $pct = $totalDays > 0 ? round(($m['present_days'] / $totalDays) * 100) : 0;
+                                ?>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #EEEEEE;">
+                                        <div style="font-size: 14px; color: #5D4037;">
+                                            <?php echo htmlspecialchars($m['name']); ?>
+                                        </div>
+                                        <div style="text-align: right; font-size: 14px;">
+                                            <span style="font-weight: 500; color: #37474F;"><?php echo $m['present_days']; ?> / <?php echo $totalDays; ?> दिन</span>
+                                            <span style="font-size: 12px; color: #9E9E9E; margin-left: 5px;">(<?php echo $pct; ?>%)</span>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php elseif (!$group['nayak']): ?>
+                                <div style="text-align: center; color: #9E9E9E; padding: 10px; font-size: 14px;">गट में कोई सदस्य नहीं है।</div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
 
                 <!-- Footer -->
                 <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #FFCC80; text-align: center;">
@@ -198,13 +239,13 @@ if (file_exists($logoPath)) {
     <div class="card">
         <div class="empty-state">
             <div class="icon">📭</div>
-            <p>चयनित तिथि सीमा में कोई रिकॉर्ड नहीं मिला।</p>
+            <p>चयनित तिथि सीमा में कोई सदस्य रिकॉर्ड नहीं मिला।</p>
         </div>
     </div>
 <?php endif; ?>
 
 <script>
-    // Download Monthly Report
+    // Download Report Image
     async function generateReportImage() {
         const el = document.getElementById('report-capture-area');
         const canvas = await html2canvas(el, {
@@ -229,8 +270,8 @@ if (file_exists($logoPath)) {
                     const b64 = canvas.toDataURL('image/jpeg', 0.95);
                     window.FlutterShareChannel.postMessage(JSON.stringify({
                         image: b64,
-                        text: 'शाखा मासिक रिपोर्ट',
-                        filename: 'shakha_monthly_report_<?php echo $startDate; ?>_to_<?php echo $endDate; ?>.jpg'
+                        text: 'गटवार उपस्थिति रिपोर्ट',
+                        filename: 'gat_attendance_report_<?php echo $startDate; ?>_to_<?php echo $endDate; ?>.jpg'
                     }));
                     dlBtn.innerHTML = originalText;
                     dlBtn.disabled = false;
@@ -239,7 +280,7 @@ if (file_exists($logoPath)) {
 
                 const a = document.createElement('a');
                 a.href = canvas.toDataURL('image/jpeg', 0.95);
-                a.download = 'shakha_monthly_report_<?php echo $startDate; ?>_to_<?php echo $endDate; ?>.jpg';
+                a.download = 'gat_attendance_report_<?php echo $startDate; ?>_to_<?php echo $endDate; ?>.jpg';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -262,15 +303,15 @@ if (file_exists($logoPath)) {
             try {
                 const canvas = await generateReportImage();
                 const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95));
-                const file = new File([blob], 'shakha_monthly_report.jpg', { type: 'image/jpeg' });
-                const textStr = 'शाखा मासिक रिपोर्ट — <?php echo date("d/m/Y", strtotime($startDate)); ?> से <?php echo date("d/m/Y", strtotime($endDate)); ?>';
+                const file = new File([blob], 'gat_attendance_report.jpg', { type: 'image/jpeg' });
+                const textStr = 'गटवार उपस्थिति रिपोर्ट — <?php echo date("d/m/Y", strtotime($startDate)); ?> से <?php echo date("d/m/Y", strtotime($endDate)); ?>';
 
                 if (window.FlutterShareChannel) {
                     const b64 = canvas.toDataURL('image/jpeg', 0.95);
                     window.FlutterShareChannel.postMessage(JSON.stringify({
                         image: b64,
                         text: textStr,
-                        filename: 'shakha_monthly_report_<?php echo $startDate; ?>_to_<?php echo $endDate; ?>.jpg'
+                        filename: 'gat_attendance_report_<?php echo $startDate; ?>_to_<?php echo $endDate; ?>.jpg'
                     }));
                     shareBtn.innerHTML = originalText;
                     shareBtn.disabled = false;
@@ -279,14 +320,14 @@ if (file_exists($logoPath)) {
 
                 if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({
-                        title: 'शाखा मासिक रिपोर्ट',
+                        title: 'गटवार उपस्थिति रिपोर्ट',
                         text: textStr,
                         files: [file]
                     });
                 } else {
                     const a = document.createElement('a');
                     a.href = URL.createObjectURL(blob);
-                    a.download = 'shakha_monthly_report.jpg';
+                    a.download = 'gat_attendance_report.jpg';
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);

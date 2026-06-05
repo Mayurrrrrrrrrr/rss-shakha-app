@@ -49,9 +49,23 @@ if ($existingRecord) {
 }
 
 // Load all active swayamsevaks and activities for this shakha
-$stmt = $pdo->prepare("SELECT * FROM swayamsevaks WHERE is_active = 1 AND shakha_id = ? ORDER BY name");
+$stmt = $pdo->prepare("SELECT * FROM swayamsevaks WHERE is_active = 1 AND shakha_id = ? ORDER BY FIELD(category, 'Baal', 'Tarun', 'Praudh', 'Abhyagat'), name");
 $stmt->execute([$shakhaId]);
 $swayamsevaks = $stmt->fetchAll();
+
+$groupedByCat = [
+    'Baal' => [],
+    'Tarun' => [],
+    'Praudh' => [],
+    'Abhyagat' => []
+];
+foreach ($swayamsevaks as $s) {
+    $cat = $s['category'] ?? 'Tarun';
+    if (!isset($groupedByCat[$cat])) {
+        $groupedByCat[$cat] = [];
+    }
+    $groupedByCat[$cat][] = $s;
+}
 
 $stmt = $pdo->prepare("SELECT * FROM activities WHERE is_active = 1 AND (shakha_id IS NULL OR shakha_id = ?) ORDER BY sort_order, id");
 $stmt->execute([$shakhaId]);
@@ -224,15 +238,27 @@ $autoSs = ($mm >= 4) ? $yy - 78 : $yy - 79;
         <?php if (empty($swayamsevaks)): ?>
             <div class="alert alert-info">ℹ️ पहले <a href="../pages/swayamsevaks.php">स्वयंसेवक जोड़ें</a>।</div>
         <?php else: ?>
-            <div class="checkbox-group">
-                <?php foreach ($swayamsevaks as $s): ?>
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="attendance[<?php echo $s['id']; ?>]" value="1"
-                               <?php echo (isset($existingAttendance[$s['id']]) && $existingAttendance[$s['id']]) ? 'checked' : ''; ?>>
-                        <span class="checkbox-label"><?php echo htmlspecialchars($s['name']); ?></span>
-                    </label>
-                <?php endforeach; ?>
-            </div>
+            <?php 
+            $catLabels = ['Baal' => 'बाल (Baal)', 'Tarun' => 'तरुण (Tarun)', 'Praudh' => 'प्रौढ़ (Praudh)', 'Abhyagat' => 'अभ्यागत (Abhyagat)'];
+            foreach ($groupedByCat as $catKey => $members): 
+                if (empty($members)) continue;
+            ?>
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: bold; color: #E64A19; border-bottom: 2px solid #FFCC80; padding-bottom: 4px; margin-bottom: 12px; font-size: 1rem; display: flex; justify-content: space-between;">
+                        <span>🚩 <?php echo $catLabels[$catKey]; ?></span>
+                        <span style="font-size: 0.85rem; color: #666; font-weight: normal;">संख्या: <?php echo count($members); ?></span>
+                    </div>
+                    <div class="checkbox-group" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px;">
+                        <?php foreach ($members as $s): ?>
+                            <label class="checkbox-item" style="background: #FFF9F2; border: 1px solid #FFE0B2; border-radius: 6px; padding: 10px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" name="attendance[<?php echo $s['id']; ?>]" value="1" style="width: 18px; height: 18px; cursor: pointer;"
+                                       <?php echo (isset($existingAttendance[$s['id']]) && $existingAttendance[$s['id']]) ? 'checked' : ''; ?>>
+                                <span class="checkbox-label" style="font-weight: 500; color: #4A1C00;"><?php echo htmlspecialchars($s['name']); ?></span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
         <?php endif; ?>
     </div>
 

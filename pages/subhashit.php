@@ -44,8 +44,8 @@ $subhashit_date = date('Y-m-d');
 $panchang_text = '';
 
 if ($subhashitId) {
-    $stmt = $pdo->prepare("SELECT * FROM subhashits WHERE id = ? AND shakha_id = ?");
-    $stmt->execute([$subhashitId, $shakhaId]);
+    $stmt = $pdo->prepare("SELECT * FROM subhashits WHERE id = ?");
+    $stmt->execute([$subhashitId]);
     $existing = $stmt->fetch();
     if ($existing) {
         $sanskrit_text = $existing['sanskrit_text'];
@@ -53,9 +53,13 @@ if ($subhashitId) {
         $shabdarth = json_decode($existing['shabdarth'], true) ?: [];
         $subhashit_date = $existing['subhashit_date'];
         $panchang_text = $existing['panchang_text'] ?? '';
+        $isReadOnly = ($existing['shakha_id'] != $shakhaId);
     } else {
         $subhashitId = null;
+        $isReadOnly = false;
     }
+} else {
+    $isReadOnly = false;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -82,9 +86,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($sanskrit_text) {
         try {
             if ($subhashitIdToSave) {
-                $stmt = $pdo->prepare("UPDATE subhashits SET sanskrit_text = ?, hindi_meaning = ?, shabdarth = ?, subhashit_date = ?, panchang_text = ? WHERE id = ? AND shakha_id = ?");
-                $stmt->execute([$sanskrit_text, $hindi_meaning, $shabdarthJson, $subhashit_date, $panchang_text, $subhashitIdToSave, $shakhaId]);
-                $success = "सुभाषित सफलतापूर्वक अपडेट किया गया!";
+                // Security check
+                $stmtCheck = $pdo->prepare("SELECT shakha_id FROM subhashits WHERE id = ?");
+                $stmtCheck->execute([$subhashitIdToSave]);
+                if ($stmtCheck->fetchColumn() != $shakhaId) {
+                    $error = "त्रुटि: आप केवल अपनी शाखा के सुभाषित अपडेट कर सकते हैं।";
+                } else {
+                    $stmt = $pdo->prepare("UPDATE subhashits SET sanskrit_text = ?, hindi_meaning = ?, shabdarth = ?, subhashit_date = ?, panchang_text = ? WHERE id = ? AND shakha_id = ?");
+                    $stmt->execute([$sanskrit_text, $hindi_meaning, $shabdarthJson, $subhashit_date, $panchang_text, $subhashitIdToSave, $shakhaId]);
+                    $success = "सुभाषित सफलतापूर्वक अपडेट किया गया!";
+                }
             } else {
                 $stmt = $pdo->prepare("INSERT INTO subhashits (shakha_id, sanskrit_text, hindi_meaning, shabdarth, subhashit_date, panchang_text, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)");
                 $stmt->execute([$shakhaId, $sanskrit_text, $hindi_meaning, $shabdarthJson, $subhashit_date, $panchang_text, $createdBy]);
@@ -99,15 +110,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$stmt = $pdo->prepare("SELECT * FROM subhashits WHERE shakha_id = ? ORDER BY subhashit_date DESC LIMIT 15");
-$stmt->execute([$shakhaId]);
+$stmt = $pdo->prepare("SELECT s.*, sh.name as origin_shakha_name FROM subhashits s JOIN shakhas sh ON s.shakha_id = sh.id ORDER BY s.subhashit_date DESC LIMIT 30");
+$stmt->execute();
 $recentSubhashits = $stmt->fetchAll();
 
 $pageTitle = 'सुभाषित (Subhashit)';
 require_once '../includes/header.php';
 ?>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;700;800;900&display=swap" rel="stylesheet">
 
 <style>
@@ -224,7 +235,10 @@ require_once '../includes/header.php';
                     <div class="add-pair-btn" onclick="addShabdarthPair()">+ शब्दार्थ जोड़ें</div>
                 </div>
 
+                <?php if (!$isReadOnly): ?>
                 <button type="submit" class="btn btn-primary" style="width: 100%; border-radius: 12px; padding: 15px;"><?php echo $subhashitId ? '💾 अपडेट करें' : '💾 सहेजें (Save)'; ?></button>
+                <?php endif; ?>
+                
                 <?php if ($subhashitId): ?><a href="../pages/subhashit.php" class="btn btn-outline" style="width: 100%; text-align: center; display: block; margin-top: 8px;">➕ नया सुभाषित बनाएं</a><?php endif; ?>
             </form>
         </div>
@@ -308,10 +322,17 @@ require_once '../includes/header.php';
                             <div style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600;">
                                 <?php echo htmlspecialchars($r['sanskrit_text']); ?>
                             </div>
+                            <?php if ($r['shakha_id'] != $shakhaId): ?>
+                                <small style="color: #666; font-weight: normal;">(🚩 <?php echo htmlspecialchars($r['origin_shakha_name']); ?>)</small>
+                            <?php endif; ?>
                         </td>
                         <td>
                             <div class="d-flex gap-1">
-                                <a href="subhashit.php?id=<?php echo $r['id']; ?>" class="btn btn-sm btn-outline">✏️ Edit</a>
+                                <?php if ($r['shakha_id'] == $shakhaId || isAdmin()): ?>
+                                    <a href="subhashit.php?id=<?php echo $r['id']; ?>" class="btn btn-sm btn-outline">✏️ Edit</a>
+                                <?php else: ?>
+                                    <a href="subhashit.php?id=<?php echo $r['id']; ?>" class="btn btn-sm btn-outline">👁️ View/Share</a>
+                                <?php endif; ?>
                                 <button class="btn btn-sm btn-success" onclick="quickAction('download', <?php echo $r['id']; ?>)">⬇️ JPG</button>
                                 <button class="btn btn-sm btn-whatsapp" onclick="quickAction('share', <?php echo $r['id']; ?>)">📱 Share</button>
                                 <?php if (isAdmin()): ?>
@@ -403,16 +424,26 @@ require_once '../includes/header.php';
         const s = document.getElementById('inp-sanskrit').value.trim(); if (!s) return alert("श्लोक लिखें");
         const b = document.getElementById('btn-ai-subhashit'); b.innerText = '⏳...'; b.disabled = true;
         try {
-            const res = await fetch('../api/ai_content.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'subhashit_meaning', sanskrit: s }) });
+            const res = await fetch('../api/ai_content.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'subhashit_meaning', sanskrit: s })
+            });
             const data = await res.json();
             if (data.success) {
                 document.getElementById('inp-hindi').value = data.result.hindi_meaning || '';
                 document.getElementById('shabdarth-container').innerHTML = '';
                 if (data.result.shabdarth) data.result.shabdarth.forEach(i => addShabdarthPair(i.shabd, i.arth));
                 updatePreview();
+            } else {
+                alert(data.message || 'AI response error');
             }
-        } catch(e) {}
-        b.innerText = '✨ AI से अर्थ व शब्दार्थ निकालें'; b.disabled = false;
+        } catch (e) {
+            console.error('AI request failed', e);
+            alert('AI सेवा उपलब्ध नहीं है। बाद में पुनः प्रयास करें।');
+        }
+        b.innerText = '✨ AI से अर्थ व शब्दार्थ निकालें';
+        b.disabled = false;
     }
 
     async function generateImage() {
@@ -422,9 +453,9 @@ require_once '../includes/header.php';
 
         return await html2canvas(el, {
             scale: captureScale,
-            backgroundColor: '#1a1100',
+            backgroundColor: '#FFF9E3',
             useCORS: true,
-            allowTaint: false,
+            allowTaint: true,
             logging: false,
             onclone: (clonedDoc) => {
                 const clonedEl = clonedDoc.getElementById('capture-area');
@@ -442,7 +473,7 @@ require_once '../includes/header.php';
             if (window.FlutterShareChannel) {
                 window.FlutterShareChannel.postMessage(JSON.stringify({ image: b64, text: 'सुभाषित', filename: 'subhashit.jpg' }));
             } else {
-                const a = document.createElement('a'); a.href = b64; a.download = `subhashit.jpg`; a.click();
+                const a = document.createElement('a'); a.href = b64; a.download = `subhashit.jpg`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
             }
         } catch(e) { console.error(e); alert('स्नैपशॉट बनाने में त्रुटि हुई।'); }
         b.innerText = '⬇️ डाउनलोड (JPG)'; b.disabled = false;

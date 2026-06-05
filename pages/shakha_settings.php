@@ -11,15 +11,28 @@ if (!isAdmin() && !isMukhyashikshak()) {
     exit;
 }
 
-$shakhaId = getCurrentShakhaId();
-if (!$shakhaId) {
+$shakhaId = null;
+if (isAdmin()) {
+    if (isset($_GET['shakha_id'])) {
+        $shakhaId = intval($_GET['shakha_id']);
+    }
+} else {
+    $shakhaId = getCurrentShakhaId();
+}
+
+if ($shakhaId === null && !isAdmin()) {
     die("No Shakha assigned.");
 }
 
 $success = '';
 $error = '';
+$allShakhas = [];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($shakhaId === null && isAdmin()) {
+    $allShakhas = $pdo->query("SELECT id, name FROM shakhas ORDER BY name")->fetchAll();
+}
+
+if ($shakhaId !== null && $_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
 
     $newName = trim($_POST['name'] ?? '');
@@ -171,9 +184,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Fetch current details
-$stmt = $pdo->prepare("SELECT * FROM shakhas WHERE id = ?");
-$stmt->execute([$shakhaId]);
-$shakha = $stmt->fetch();
+$shakha = null;
+if ($shakhaId !== null) {
+    $stmt = $pdo->prepare("SELECT * FROM shakhas WHERE id = ?");
+    $stmt->execute([$shakhaId]);
+    $shakha = $stmt->fetch();
+}
 
 $pageTitle = 'शाखा सेटिंग्स';
 require_once '../includes/header.php';
@@ -195,10 +211,37 @@ require_once '../includes/header.php';
     </div>
 <?php endif; ?>
 
-<div class="card">
-    <div class="card-header">अपनी शाखा का विवरण अपडेट करें</div>
-    <form method="POST" action="" enctype="multipart/form-data">
-        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+<?php if ($shakhaId === null && isAdmin()): ?>
+    <div class="card">
+        <div class="card-header">⚙️ सेटिंग्स के लिए शाखा चुनें</div>
+        <div class="table-container">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align: left; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">शाखा का नाम</th>
+                        <th style="text-align: right; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">कार्रवाई</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($allShakhas as $s): ?>
+                        <tr>
+                            <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <strong><?php echo htmlspecialchars($s['name']); ?></strong>
+                            </td>
+                            <td style="text-align: right; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <a href="shakha_settings.php?shakha_id=<?php echo $s['id']; ?>" class="btn btn-sm" style="background: var(--saffron); color: white;">⚙️ कॉन्फ़िगर करें</a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+<?php else: ?>
+    <div class="card">
+        <div class="card-header">शाखा का विवरण अपडेट करें (<?php echo htmlspecialchars($shakha['name']); ?>)</div>
+        <form method="POST" action="" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
         <div class="form-group">
             <label for="name">शाखा का नाम</label>
             <input type="text" id="name" name="name" class="form-control"
@@ -273,5 +316,6 @@ require_once '../includes/header.php';
         </div>
     </form>
 </div>
+<?php endif; ?>
 
 <?php require_once '../includes/footer.php'; ?>

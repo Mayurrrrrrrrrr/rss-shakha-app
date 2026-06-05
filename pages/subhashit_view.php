@@ -275,9 +275,9 @@ function formatHindiDateSub($dateStr) {
 
         return await html2canvas(el, {
             scale: captureScale,
-            backgroundColor: '#1a1100',
+            backgroundColor: '#FFF9E3',
             useCORS: true,
-            allowTaint: false,
+            allowTaint: true,
             logging: false,
             onclone: (clonedDoc) => {
                 const clonedEl = clonedDoc.getElementById('capture-area');

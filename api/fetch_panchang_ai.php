@@ -59,11 +59,13 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
     exit;
 }
 
+$cacheKey = "shakha_{$shakhaId}_{$date}";
+
 // ─── Cache Check ──────────────────────────────────────────────────────────────
 if (!$forceFetch) {
     try {
         $stmtC = $pdo->prepare("SELECT response_json FROM ai_content_cache WHERE content_type='panchang' AND content_key=?");
-        $stmtC->execute([$date]);
+        $stmtC->execute([$cacheKey]);
         $cached = $stmtC->fetchColumn();
         if ($cached) {
             echo json_encode(['success'=>true,'date'=>$date,'panchang'=>json_decode($cached,true),'source'=>'cache'], JSON_UNESCAPED_UNICODE);
@@ -71,6 +73,23 @@ if (!$forceFetch) {
         }
     } catch (Exception $e) {}
 }
+
+// Rate limiting: 5 AI requests per user per hour
+$now = time();
+if (!isset($_SESSION['last_ai_request']) || ($now - $_SESSION['last_ai_request']) > 3600) {
+    $_SESSION['last_ai_request'] = $now;
+    $_SESSION['ai_request_count'] = 0;
+}
+
+if ($_SESSION['ai_request_count'] >= 5) {
+    http_response_code(429);
+    echo json_encode([
+        'success' => false,
+        'message' => 'You have reached the maximum AI requests for this hour. Please try again later.'
+    ]);
+    exit;
+}
+$_SESSION['ai_request_count']++;
 
 // ─── Date helpers ─────────────────────────────────────────────────────────────
 $ts           = strtotime($date);
@@ -363,7 +382,7 @@ if ($final) {
 if ($final) {
     try {
         $pdo->prepare("REPLACE INTO ai_content_cache (content_type,content_key,response_json) VALUES ('panchang',?,?)")
-            ->execute([$date, json_encode($final, JSON_UNESCAPED_UNICODE)]);
+            ->execute([$cacheKey, json_encode($final, JSON_UNESCAPED_UNICODE)]);
     } catch (Exception $e) {}
     $src = count($sources) > 1 ? 'ai-multi' : 'ai-'.array_key_first($sources);
     echo json_encode(['success'=>true,'date'=>$date,'panchang'=>$final,'source'=>$src], JSON_UNESCAPED_UNICODE);

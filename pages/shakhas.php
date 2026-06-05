@@ -106,7 +106,7 @@ $shakhas = $pdo->query("SELECT s.*,
                             <td>
                                 <div class="table-actions">
                                     <a href="../pages/shakhas.php?edit=<?php echo $s['id']; ?>" class="btn btn-sm btn-outline">✏️</a>
-                                    <a href="../api/actions/shakha_delete.php?id=<?php echo $s['id']; ?>" class="btn btn-sm btn-danger"
+                                    <a href="../api/actions/shakha_delete.php?id=<?php echo $s['id']; ?>&csrf_token=<?php echo csrf_token(); ?>" class="btn btn-sm btn-danger"
                                         data-confirm="क्या आप इस शाखा को हटाना चाहते हैं? इससे जुड़े सभी रिकॉर्ड भी हट सकते हैं।">🗑️</a>
                                 </div>
                             </td>

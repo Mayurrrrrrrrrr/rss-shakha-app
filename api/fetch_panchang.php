@@ -21,6 +21,7 @@ try {
     echo json_encode([
         'status' => 'success',
         'date' => $date,
+        'cached' => false,
         'panchang' => [
             'tithi' => $result['tithi'],
             'paksha' => $result['paksha'],

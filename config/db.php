@@ -35,5 +35,67 @@ try {
     );
 } catch (PDOException $e) {
     error_log('DB Connection failed: ' . $e->getMessage());
-    $pdo = null;
+    
+    http_response_code(503);
+    
+    $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+    $contentType = $_SERVER['HTTP_CONTENT_TYPE'] ?? $_SERVER['CONTENT_TYPE'] ?? '';
+    
+    if (strpos($accept, 'application/json') !== false || strpos($contentType, 'application/json') !== false) {
+        header('Content-Type: application/json; charset=UTF-8');
+        echo json_encode([
+            'success' => false,
+            'message' => 'Database connection failed'
+        ]);
+    } else {
+        header('Content-Type: text/html; charset=UTF-8');
+        ?>
+        <!DOCTYPE html>
+        <html lang="hi">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>डेटाबेस कनेक्शन विफल (Database Connection Failed)</title>
+            <style>
+                body {
+                    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+                    background: #f4f6f9;
+                    color: #333;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                }
+                .error-card {
+                    background: #fff;
+                    padding: 40px 30px;
+                    border-radius: 12px;
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+                    text-align: center;
+                    max-width: 450px;
+                    width: 90%;
+                }
+                h1 {
+                    color: #e53935;
+                    margin-top: 0;
+                    font-size: 24px;
+                }
+                p {
+                    font-size: 16px;
+                    line-height: 1.6;
+                    color: #555;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="error-card">
+                <h1>🚩 तकनीकी समस्या (Technical Issue)</h1>
+                <p>डेटाबेस कनेक्शन स्थापित करने में विफलता आई है। कृपया कुछ समय बाद पुनः प्रयास करें।</p>
+            </div>
+        </body>
+        </html>
+        <?php
+    }
+    exit;
 }

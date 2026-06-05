@@ -9,8 +9,9 @@ if (!isLoggedIn() || (!isAdmin() && !isMukhyashikshak())) {
     exit;
 }
 
-if (isset($_GET['id'])) {
-    $event_id = $_GET['id'];
+$inputs = getRequestInputs();
+if (isset($inputs['id'])) {
+    $event_id = $inputs['id'];
 
     if (!isAdmin()) {
         // Mukhyashikshaks can only delete their shakha's events

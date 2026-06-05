@@ -54,7 +54,7 @@ $pageTitle = 'समय-सारणी (Timetable)';
 require_once '../includes/header.php';
 ?>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <style>
 .tt-tabs { display: flex; gap: 0; margin-bottom: 24px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
@@ -374,3 +374,4 @@ function addSlotOverride() {
 </script>
 
 <?php require_once '../includes/footer.php'; ?>
+

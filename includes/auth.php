@@ -93,9 +93,16 @@ function csrf_token(): string {
 }
 
 function csrf_verify(): void {
-  if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+  $inputs = getRequestInputs();
+  $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $inputs['csrf_token'] ?? '';
+  if (empty($token) || !hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
       http_response_code(403);
-      die('CSRF validation failed');
+      header('Content-Type: application/json; charset=UTF-8');
+      echo json_encode([
+          'success' => false,
+          'message' => 'CSRF validation failed'
+      ]);
+      exit;
   }
 }
  
@@ -127,4 +134,28 @@ function getHindiDate() {
     $month = $months[(int)date('n')];
     $year = date('Y');
     return toHindiNumerals($day) . ' ' . $month . ' ' . toHindiNumerals($year);
+}
+
+/**
+ * Retrieve incoming request inputs, handling both JSON and form-urlencoded payloads.
+ */
+function getRequestInputs(): array
+{
+    static $inputs = null;
+    if ($inputs !== null) {
+        return $inputs;
+    }
+    
+    $inputs = array_merge($_GET, $_POST);
+    
+    $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
+    if (stripos($contentType, 'application/json') !== false) {
+        $json = file_get_contents('php://input');
+        $data = json_decode($json, true);
+        if (is_array($data)) {
+            $inputs = array_merge($inputs, $data);
+        }
+    }
+    
+    return $inputs;
 }

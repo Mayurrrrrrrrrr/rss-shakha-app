@@ -31,9 +31,9 @@ $error = '';
 
 $geetId = $_GET['id'] ?? null;
 if ($geetId) {
-    // Verify it belongs to this shakha or superadmin
-    $stmt = $pdo->prepare("SELECT * FROM geet WHERE id = ? AND shakha_id = ?");
-    $stmt->execute([$geetId, $shakhaId]);
+    // Fetch the geet (allow viewing from any shakha)
+    $stmt = $pdo->prepare("SELECT * FROM geet WHERE id = ?");
+    $stmt->execute([$geetId]);
     $existing = $stmt->fetch();
     if ($existing) {
         $title = $existing['title'];
@@ -41,9 +41,13 @@ if ($geetId) {
         $lyrics = $existing['lyrics'];
         $meaning = $existing['meaning_or_context'];
         $geetDate = $existing['geet_date'];
+        $isReadOnly = ($existing['shakha_id'] != $shakhaId);
     } else {
         $geetId = null; 
+        $isReadOnly = false;
     }
+} else {
+    $isReadOnly = false;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -59,10 +63,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($title && $lyrics) {
         try {
             if ($geetIdToSave) {
-                // Update
-                $stmt = $pdo->prepare("UPDATE geet SET title = ?, geet_type = ?, lyrics = ?, meaning_or_context = ?, geet_date = ? WHERE id = ? AND shakha_id = ?");
-                $stmt->execute([$title, $geet_type, $lyrics, $meaning, $geetDate, $geetIdToSave, $shakhaId]);
-                $success = "गीत सफलतापूर्वक अपडेट किया गया!";
+                // Security check
+                $stmtCheck = $pdo->prepare("SELECT shakha_id FROM geet WHERE id = ?");
+                $stmtCheck->execute([$geetIdToSave]);
+                if ($stmtCheck->fetchColumn() != $shakhaId) {
+                    $error = "त्रुटि: आप केवल अपनी शाखा के गीत अपडेट कर सकते हैं।";
+                } else {
+                    // Update
+                    $stmt = $pdo->prepare("UPDATE geet SET title = ?, geet_type = ?, lyrics = ?, meaning_or_context = ?, geet_date = ? WHERE id = ? AND shakha_id = ?");
+                    $stmt->execute([$title, $geet_type, $lyrics, $meaning, $geetDate, $geetIdToSave, $shakhaId]);
+                    $success = "गीत सफलतापूर्वक अपडेट किया गया!";
+                }
             } else {
                 // Insert
                 $stmt = $pdo->prepare("INSERT INTO geet (shakha_id, title, geet_type, lyrics, meaning_or_context, geet_date, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)");
@@ -82,9 +93,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch recent geet
-$stmt = $pdo->prepare("SELECT id, title, geet_type, geet_date FROM geet WHERE shakha_id = ? ORDER BY geet_date DESC LIMIT 15");
-$stmt->execute([$shakhaId]);
+// Fetch recent geet from all shakhas
+$stmt = $pdo->prepare("SELECT g.id, g.title, g.geet_type, g.geet_date, g.shakha_id, sh.name as origin_shakha_name FROM geet g JOIN shakhas sh ON g.shakha_id = sh.id ORDER BY g.geet_date DESC LIMIT 30");
+$stmt->execute();
 $recentGeet = $stmt->fetchAll();
 
 $pageTitle = 'गीत (Geet)';
@@ -145,9 +156,11 @@ require_once '../includes/header.php';
                     <textarea name="meaning" id="inp-meaning" class="form-control" rows="5" placeholder="गीत का भावार्थ या इससे जुड़ा कोई अमृत वचन यहाँ लिखें..."><?php echo htmlspecialchars($meaning ?? ''); ?></textarea>
                 </div>
 
+                <?php if (!$isReadOnly): ?>
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 5px;">
                     <?php echo $geetId ? '💾 अपडेट करें (Update)' : '💾 सहेजें (Save to Database)'; ?>
                 </button>
+                <?php endif; ?>
                 <?php if ($geetId): ?>
                     <a href="geet.php" class="btn btn-outline" style="width: 100%; text-align: center; display: block;">➕ नया गीत बनाएं (Create New)</a>
                 <?php endif; ?>
@@ -167,6 +180,9 @@ require_once '../includes/header.php';
                             <span style="font-size: 0.8em; padding: 2px 6px; border-radius: 4px; background: <?php echo $g['geet_type'] == 'Ekal' ? '#E3F2FD; color:#1565C0;' : '#E8F5E9; color:#2E7D32;'; ?>">
                                 <?php echo $g['geet_type'] == 'Ekal' ? 'एकल' : 'सांघिक'; ?>
                             </span>
+                            <?php if ($g['shakha_id'] != $shakhaId): ?>
+                                <span style="font-size: 0.8em; color: #666; margin-left: 5px;">(🚩 <?php echo htmlspecialchars($g['origin_shakha_name']); ?>)</span>
+                            <?php endif; ?>
                             <small style="color: #666; float: right;"><?php echo date('d-m-Y', strtotime($g['geet_date'])); ?></small>
                         </a>
                     <?php endforeach; ?>

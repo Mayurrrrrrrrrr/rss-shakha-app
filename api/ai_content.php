@@ -15,7 +15,7 @@ if (!$shakhaId) {
     exit;
 }
 
-// Fetch Shakha-specific Gemini Key ONLY (No global fallback)
+// Fetch Shakha-specific Gemini Key
 $stmtKey = $pdo->prepare("SELECT gemini_api_key FROM shakhas WHERE id = ?");
 $stmtKey->execute([$shakhaId]);
 $apiKey = $stmtKey->fetchColumn();
@@ -88,51 +88,75 @@ if ($action === 'suggest_ghoshna' || $action === 'subhashit_meaning') {
     $payload['generationConfig']['responseMimeType'] = "application/json";
 }
 
-$ch = curl_init($geminiUrl);
-curl_setopt_array($ch, [
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_POST => true,
-    CURLOPT_HTTPHEADER => [
-        'Content-Type: application/json',
-        'X-goog-api-key: ' . $apiKey
-    ],
-    CURLOPT_POSTFIELDS => json_encode($payload),
-    CURLOPT_TIMEOUT => 30,
-    CURLOPT_SSL_VERIFYPEER => false,
-]);
+$cacheKey = $action . '_' . md5($systemPrompt . "\n\n" . $userPrompt);
+$aiText = null;
+$fallbackToCache = false;
 
-$response = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-$curlError = curl_error($ch);
-curl_close($ch);
+try {
+    $ch = curl_init($geminiUrl);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/json',
+            'X-goog-api-key: ' . $apiKey
+        ],
+        CURLOPT_POSTFIELDS => json_encode($payload),
+        CURLOPT_TIMEOUT => 3, // 3 seconds timeout
+        CURLOPT_SSL_VERIFYPEER => false,
+    ]);
 
-if ($curlError) {
-    echo json_encode(['success' => false, 'message' => 'API connection error: ' . $curlError]);
-    exit;
-}
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
 
-$result = json_decode($response, true);
+    if ($curlError || $httpCode !== 200 || !$response) {
+        throw new Exception($curlError ?: 'HTTP error ' . $httpCode);
+    }
 
-if ($httpCode !== 200 || !$result) {
-    $errorMsg = $result['error']['message'] ?? 'Unknown Gemini API error';
-    echo json_encode(['success' => false, 'message' => 'Gemini API error: ' . $errorMsg]);
-    exit;
-}
+    $result = json_decode($response, true);
+    $aiText = $result['candidates'][0]['content']['parts'][0]['text'] ?? null;
+    if (!$aiText) {
+        throw new Exception('Empty response from AI');
+    }
 
-$aiText = $result['candidates'][0]['content']['parts'][0]['text'] ?? null;
+    // Save successful response to cache
+    try {
+        $stmtSave = $pdo->prepare("INSERT INTO ai_content_cache (content_type, content_key, response_json) VALUES ('ai_content', ?, ?) ON DUPLICATE KEY UPDATE response_json = VALUES(response_json)");
+        $stmtSave->execute([$cacheKey, $aiText]);
+    } catch (Exception $ex) {}
 
-if (!$aiText) {
-    echo json_encode(['success' => false, 'message' => 'Gemini did not return any text response.']);
-    exit;
+} catch (Exception $e) {
+    // Fallback to cache
+    $fallbackToCache = true;
+    try {
+        $stmtCache = $pdo->prepare("SELECT response_json FROM ai_content_cache WHERE content_type = 'ai_content' AND content_key = ?");
+        $stmtCache->execute([$cacheKey]);
+        $aiText = $stmtCache->fetchColumn();
+    } catch (Exception $ex) {}
+
+    if (!$aiText) {
+        echo json_encode(['success' => false, 'message' => 'Request timed out or failed and no cached data available.']);
+        exit;
+    }
 }
 
 if ($action === 'suggest_ghoshna' || $action === 'subhashit_meaning') {
     $parsed = json_decode($aiText, true);
     if (json_last_error() === JSON_ERROR_NONE) {
-        echo json_encode(['success' => true, 'result' => $parsed]);
+        $responsePayload = ['success' => true, 'result' => $parsed];
+        if ($fallbackToCache) {
+            $responsePayload['cached'] = true;
+        }
+        echo json_encode($responsePayload);
     } else {
         echo json_encode(['success' => false, 'message' => 'Failed to parse AI JSON response: ' . $aiText]);
     }
 } else {
-    echo json_encode(['success' => true, 'result' => $aiText]);
+    $responsePayload = ['success' => true, 'result' => $aiText];
+    if ($fallbackToCache) {
+        $responsePayload['cached'] = true;
+    }
+    echo json_encode($responsePayload);
 }

@@ -1,90 +1,112 @@
-const CACHE_NAME = 'sanghasthan-cache-v1';
-const DYNAMIC_CACHE = 'sanghasthan-dynamic-v1';
+const CACHE_NAME = 'sanghasthan-static-v1';
+const API_CACHE_NAME = 'sanghasthan-api-v1';
 
 const STATIC_ASSETS = [
-    '/manifest.json',
-    '/offline.php',
-    '/assets/css/home.css',
-    '/assets/css/public-content.css',
-    '/assets/images/favicon.png',
-    '/assets/images/flag_icon.png'
+  '/',
+  '/index.php',
+  '/manifest.json',
+  '/assets/images/favicon.png',
+  '/assets/images/logo.svg',
+  '/assets/images/flag_icon.png'
 ];
 
-// Install event: Cache essential static assets
+// Install Event
 self.addEventListener('install', event => {
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('[Service Worker] Caching static assets');
-                return cache.addAll(STATIC_ASSETS);
-            })
-            .then(() => self.skipWaiting())
-    );
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(STATIC_ASSETS);
+    }).then(() => self.skipWaiting())
+  );
 });
 
-// Activate event: Clean up old caches
+// Activate Event
 self.addEventListener('activate', event => {
-    event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.map(cache => {
-                    if (cache !== CACHE_NAME && cache !== DYNAMIC_CACHE) {
-                        console.log('[Service Worker] Deleting old cache:', cache);
-                        return caches.delete(cache);
-                    }
-                })
-            );
-        }).then(() => self.clients.claim())
-    );
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cache => {
+          if (cache !== CACHE_NAME && cache !== API_CACHE_NAME) {
+            return caches.delete(cache);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
+  );
 });
 
-// Fetch event: Network-first for pages, Cache-first for assets
+// Fetch Event
 self.addEventListener('fetch', event => {
-    // Only intercept GET requests
-    if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
 
-    const url = new URL(event.request.url);
-
-    // Skip cross-origin requests
-    if (url.origin !== location.origin) return;
-
-    // For HTML Navigation Requests (Network First, fallback to Cache, fallback to Offline page)
-    if (event.request.mode === 'navigate') {
-        event.respondWith(
-            fetch(event.request)
-                .then(response => {
-                    return caches.open(DYNAMIC_CACHE).then(cache => {
-                        cache.put(event.request.url, response.clone());
-                        return response;
-                    });
-                })
-                .catch(() => {
-                    return caches.match(event.request).then(cachedResponse => {
-                        return cachedResponse || caches.match('/offline.php');
-                    });
-                })
-        );
-        return;
-    }
-
-    // For Static Assets (Cache First, fallback to Network)
+  // 1. Static Assets - Stale-While-Revalidate
+  if (url.pathname.includes('/assets/') || url.pathname.match(/\.(css|js|woff2?|png|jpe?g|gif|svg|ico)$/)) {
     event.respondWith(
-        caches.match(event.request).then(cachedResponse => {
-            if (cachedResponse) {
-                return cachedResponse;
+      caches.open(CACHE_NAME).then(cache => {
+        return cache.match(event.request).then(cachedResponse => {
+          const fetchPromise = fetch(event.request).then(networkResponse => {
+            if (networkResponse.status === 200) {
+              cache.put(event.request, networkResponse.clone());
             }
-            return fetch(event.request).then(networkResponse => {
-                if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-                    return networkResponse;
-                }
-                const responseToCache = networkResponse.clone();
-                caches.open(DYNAMIC_CACHE).then(cache => {
-                    cache.put(event.request, responseToCache);
-                });
-                return networkResponse;
-            }).catch(() => {
-                return new Response('', { status: 408, statusText: 'Request timeout' });
+            return networkResponse;
+          }).catch(() => {
+            // Ignore network failures for Stale-While-Revalidate background fetch
+          });
+          return cachedResponse || fetchPromise;
+        });
+      })
+    );
+    return;
+  }
+
+  // 2. API Requests - Network-First, fallback to Cache
+  if (url.pathname.includes('/api/')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(networkResponse => {
+          // Cache successful GET requests
+          if (event.request.method === 'GET' && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            caches.open(API_CACHE_NAME).then(cache => {
+              cache.put(event.request, responseClone);
             });
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          // Network failed, try cache
+          if (event.request.method === 'GET') {
+            return caches.match(event.request).then(cachedResponse => {
+              if (cachedResponse) {
+                return cachedResponse;
+              }
+              // Cache also failed/empty, return custom offline JSON
+              return new Response(JSON.stringify({
+                success: false,
+                offline: true,
+                message: "You are currently offline."
+              }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json; charset=UTF-8' }
+              });
+            });
+          } else {
+            // For POST/PUT etc. where cache is not possible, return offline JSON directly
+            return new Response(JSON.stringify({
+              success: false,
+              offline: true,
+              message: "You are currently offline."
+            }), {
+              status: 200,
+              headers: { 'Content-Type': 'application/json; charset=UTF-8' }
+            });
+          }
         })
     );
+    return;
+  }
+
+  // 3. Default Strategy: Network First
+  event.respondWith(
+    fetch(event.request).catch(() => caches.match(event.request))
+  );
 });

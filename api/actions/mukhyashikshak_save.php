@@ -9,11 +9,12 @@ if (!isAdmin()) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = $_POST['id'] ?? null;
-    $name = trim($_POST['name'] ?? '');
-    $username = trim($_POST['username'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $shakha_id = $_POST['shakha_id'] ?? null;
+    $inputs = getRequestInputs();
+    $id = $inputs['id'] ?? null;
+    $name = trim($inputs['name'] ?? '');
+    $username = trim($inputs['username'] ?? '');
+    $password = $inputs['password'] ?? '';
+    $shakha_id = $inputs['shakha_id'] ?? null;
 
     if (empty($name) || empty($username) || empty($shakha_id)) {
         header('Location: ../../pages/mukhyashikshaks.php?msg=error');

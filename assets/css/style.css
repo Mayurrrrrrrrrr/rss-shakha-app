@@ -3,6 +3,14 @@
    Theme: Saffron + Deep Green (भगवा + हरा)
    ============================================= */
 
+@font-face {
+    font-family: 'Noto Sans Devanagari';
+    font-style: normal;
+    font-weight: 300 700;
+    font-display: swap;
+    src: url('https://fonts.gstatic.com/s/notosansdevanagari/v29/ea8hGL5dIFRdz5cWI3suQx9B92N-N5l_5w.woff2') format('woff2');
+}
+
 :root {
     --saffron: #FF6B00;
     --saffron-light: #FF9A3C;
@@ -41,7 +49,7 @@
 }
 
 body {
-    font-family: 'Noto Sans Devanagari', sans-serif;
+    font-family: 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     font-size: 1.1rem;
     background: var(--bg-primary);
     color: var(--text-primary);
@@ -129,7 +137,7 @@ a:hover {
     color: var(--saffron) !important;
     line-height: 1.1;
     letter-spacing: 0.5px;
-    font-family: 'Noto Sans Devanagari', sans-serif;
+    font-family: 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
 .brand-subtitle {

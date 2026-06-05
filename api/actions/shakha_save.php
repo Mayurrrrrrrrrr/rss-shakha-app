@@ -9,8 +9,9 @@ if (!isAdmin()) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = $_POST['id'] ?? null;
-    $name = trim($_POST['name'] ?? '');
+    $inputs = getRequestInputs();
+    $id = $inputs['id'] ?? null;
+    $name = trim($inputs['name'] ?? '');
 
     if (empty($name)) {
         header('Location: ../../pages/shakhas.php?msg=error');

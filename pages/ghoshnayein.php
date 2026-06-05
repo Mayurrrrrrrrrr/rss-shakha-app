@@ -30,17 +30,22 @@ $error = '';
 
 $ghoshnaId = $_GET['id'] ?? null;
 if ($ghoshnaId) {
-    $stmt = $pdo->prepare("SELECT * FROM ghoshnayein WHERE id = ? AND shakha_id = ?");
-    $stmt->execute([$ghoshnaId, $shakhaId]);
+    // Load ghoshna (allow any shakha for view/share)
+    $stmt = $pdo->prepare("SELECT * FROM ghoshnayein WHERE id = ?");
+    $stmt->execute([$ghoshnaId]);
     $existing = $stmt->fetch();
     if ($existing) {
         $slogan_sanskrit = $existing['slogan_sanskrit'];
         $slogan_hindi = $existing['slogan_hindi'];
         $context = $existing['context'];
         $ghoshnaDate = $existing['ghoshna_date'];
+        $isReadOnly = ($existing['shakha_id'] != $shakhaId);
     } else {
         $ghoshnaId = null; 
+        $isReadOnly = false;
     }
+} else {
+    $isReadOnly = false;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -55,10 +60,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($slogan_sanskrit || $slogan_hindi) {
         try {
             if ($ghoshnaIdToSave) {
-                // Update
-                $stmt = $pdo->prepare("UPDATE ghoshnayein SET slogan_sanskrit = ?, slogan_hindi = ?, context = ?, ghoshna_date = ? WHERE id = ? AND shakha_id = ?");
-                $stmt->execute([$slogan_sanskrit, $slogan_hindi, $context, $ghoshnaDate, $ghoshnaIdToSave, $shakhaId]);
-                $success = "घोषणा सफलतापूर्वक अपडेट की गई!";
+                // Security check
+                $stmtCheck = $pdo->prepare("SELECT shakha_id FROM ghoshnayein WHERE id = ?");
+                $stmtCheck->execute([$ghoshnaIdToSave]);
+                if ($stmtCheck->fetchColumn() != $shakhaId) {
+                    $error = "त्रुटि: आप केवल अपनी शाखा की घोषणाएं अपडेट कर सकते हैं।";
+                } else {
+                    // Update
+                    $stmt = $pdo->prepare("UPDATE ghoshnayein SET slogan_sanskrit = ?, slogan_hindi = ?, context = ?, ghoshna_date = ? WHERE id = ? AND shakha_id = ?");
+                    $stmt->execute([$slogan_sanskrit, $slogan_hindi, $context, $ghoshnaDate, $ghoshnaIdToSave, $shakhaId]);
+                    $success = "घोषणा सफलतापूर्वक अपडेट की गई!";
+                }
             } else {
                 // Insert
                 $stmt = $pdo->prepare("INSERT INTO ghoshnayein (shakha_id, slogan_sanskrit, slogan_hindi, context, ghoshna_date, created_by) VALUES (?, ?, ?, ?, ?, ?)");
@@ -78,9 +90,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch recent
-$stmt = $pdo->prepare("SELECT id, slogan_sanskrit, slogan_hindi, ghoshna_date FROM ghoshnayein WHERE shakha_id = ? ORDER BY ghoshna_date DESC LIMIT 15");
-$stmt->execute([$shakhaId]);
+// Fetch recent ghoshnayein from all shakhas
+$stmt = $pdo->prepare("SELECT g.id, g.slogan_sanskrit, g.slogan_hindi, g.ghoshna_date, g.shakha_id, sh.name as origin_shakha_name FROM ghoshnayein g JOIN shakhas sh ON g.shakha_id = sh.id ORDER BY g.ghoshna_date DESC LIMIT 30");
+$stmt->execute();
 $recentGhoshnayein = $stmt->fetchAll();
 
 $pageTitle = 'घोषणाएं (Ghoshnayein)';
@@ -133,9 +145,11 @@ require_once '../includes/header.php';
                     <input type="text" name="context" id="inp-context" class="form-control" placeholder="उदा. विजयादशमी उत्सव हेतु, शारीरिक अभ्यास हेतु" value="<?php echo htmlspecialchars($context ?? ''); ?>">
                 </div>
 
+                <?php if (!$isReadOnly): ?>
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 5px;">
                     <?php echo $ghoshnaId ? '💾 अपडेट करें (Update)' : '💾 सहेजें (Save to Database)'; ?>
                 </button>
+                <?php endif; ?>
                 <?php if ($ghoshnaId): ?>
                     <a href="ghoshnayein.php" class="btn btn-outline" style="width: 100%; text-align: center; display: block;">➕ नई घोषणा बनाएं (Create New)</a>
                 <?php endif; ?>
@@ -152,7 +166,10 @@ require_once '../includes/header.php';
                     <?php foreach ($recentGhoshnayein as $g): ?>
                         <a href="ghoshnayein.php?id=<?php echo $g['id']; ?>" class="list-group-item <?php echo ($ghoshnaId == $g['id']) ? 'active' : ''; ?>" style="display: block; padding: 10px; border-bottom: 1px solid #eee; text-decoration: none; color: inherit; background: <?php echo ($ghoshnaId == $g['id']) ? '#FFF3E0' : 'transparent'; ?>">
                             <strong><?php echo htmlspecialchars($g['slogan_sanskrit'] ?: $g['slogan_hindi']); ?></strong><br>
-                            <small style="color: #666;"><?php echo date('d-m-Y', strtotime($g['ghoshna_date'])); ?></small>
+                            <?php if ($g['shakha_id'] != $shakhaId): ?>
+                                <span style="font-size: 0.8em; color: #666;">(🚩 <?php echo htmlspecialchars($g['origin_shakha_name']); ?>)</span>
+                            <?php endif; ?>
+                            <small style="color: #666; float: right;"><?php echo date('d-m-Y', strtotime($g['ghoshna_date'])); ?></small>
                         </a>
                     <?php endforeach; ?>
                 </div>

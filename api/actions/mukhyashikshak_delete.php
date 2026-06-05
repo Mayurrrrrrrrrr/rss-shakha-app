@@ -8,7 +8,8 @@ if (!isAdmin()) {
     exit;
 }
 
-$id = $_GET['id'] ?? null;
+$inputs = getRequestInputs();
+$id = $inputs['id'] ?? null;
 
 if ($id) {
     try {

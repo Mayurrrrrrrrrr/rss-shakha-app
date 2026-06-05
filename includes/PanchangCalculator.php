@@ -228,7 +228,7 @@ class PanchangCalculator {
         $nakshatraData = $this->getNakshatra($moonLonSidereal);
 
         // ── Step 4: Maah (lunar month) ───────────────────────────────────────
-        $maahData = $this->getMaah($gYear, $gMonth, $gDay);
+        $maahData = $this->getMaah($gYear, $gMonth, $gDay, $paksha);
 
         // ── Step 5: Vikram Samvat ────────────────────────────────────────────
         // Vikram Samvat starts on Chaitra Shukla Pratipada (around March/April)
@@ -323,11 +323,65 @@ class PanchangCalculator {
 
     /**
      * Returns the lunar month name for a given Gregorian date.
-     * Purnimant: month named for the Full Moon it contains.
-     * Amant: month named for the New Moon that ends it.
+     * Purnimant: month named for the Full Moon it contains (starts on Krishna Paksha).
+     * Amant: month named for the New Moon that ends it (starts on Shukla Paksha).
      */
-    private function getMaah(int $year, int $month, int $day): array {
-        // Find the next Full Moon on or after this date
+    private function getMaah(int $year, int $month, int $day, string $paksha): array {
+        // High-precision table for 2026 Amant months (starts day after Amavasya)
+        $amant2026 = [
+            '2025-12-21' => ['Pausha', 'पौष'],
+            '2026-01-19' => ['Magha', 'माघ'],
+            '2026-02-18' => ['Phalguna', 'फाल्गुन'],
+            '2026-03-20' => ['Chaitra', 'चैत्र'],
+            '2026-04-18' => ['Vaishakha', 'वैशाख'],
+            '2026-05-17' => ['Adhik Jyeshtha', 'अधिक ज्येष्ठ'],
+            '2026-06-16' => ['Nija Jyeshtha', 'निज ज्येष्ठ'],
+            '2026-07-15' => ['Ashadha', 'आषाढ़'],
+            '2026-08-13' => ['Shravana', 'श्रावण'],
+            '2026-09-12' => ['Bhadrapada', 'भाद्रपद'],
+            '2026-10-11' => ['Ashwin', 'आश्विन'],
+            '2026-11-10' => ['Kartik', 'कार्तिक'],
+            '2026-12-10' => ['Margashirsha', 'मार्गशीर्ष'],
+            '2027-01-08' => ['Pausha', 'पौष']
+        ];
+
+        $currentDate = sprintf('%04d-%02d-%02d', $year, $month, $day);
+        
+        if ($year === 2026 || ($year === 2025 && $month === 12) || ($year === 2027 && $month === 1)) {
+            $currentAmant = ['Vaishakha', 'वैशाख'];
+            $nextAmant = ['Jyeshtha', 'ज्येष्ठ'];
+            
+            $dates = array_keys($amant2026);
+            for ($i = 0; $i < count($dates) - 1; $i++) {
+                if ($currentDate >= $dates[$i] && $currentDate < $dates[$i+1]) {
+                    $currentAmant = $amant2026[$dates[$i]];
+                    $nextAmant = $amant2026[$dates[$i+1]];
+                    break;
+                }
+            }
+
+            $amantEn = $currentAmant[0];
+            $amantHi = $currentAmant[1];
+            
+            // Purnimant month is the same as Amant in Shukla Paksha, 
+            // but advances to the next month during Krishna Paksha.
+            if ($paksha === 'Krishna') {
+                $purnimantEn = $nextAmant[0];
+                $purnimantHi = $nextAmant[1];
+            } else {
+                $purnimantEn = $amantEn;
+                $purnimantHi = $amantHi;
+            }
+
+            return [
+                'purnimant'       => $purnimantEn,
+                'purnimant_hindi' => $purnimantHi,
+                'amant'           => $amantEn,
+                'amant_hindi'     => $amantHi,
+            ];
+        }
+
+        // Fallback for other years (approximate)
         $nextFmIndex = -1;
         foreach ($this->fullMoons as $i => $fm) {
             [$fy, $fm2, $fd] = $fm;
@@ -337,33 +391,16 @@ class PanchangCalculator {
             }
         }
 
-        // Purnimant month index cycles through 12 months starting from Chaitra (≈ Apr FM)
-        // Chaitra FM is typically in March or April
-        // We map the Full Moon to the correct Purnimant month
         if ($nextFmIndex === -1) {
             return ['purnimant'=>'Vaishakha','purnimant_hindi'=>'वैशाख','amant'=>'Vaishakha','amant_hindi'=>'वैशाख'];
         }
 
         $fm      = $this->fullMoons[$nextFmIndex];
         $fmMonth = $fm[1];
-        $fmYear  = $fm[0];
 
-        // Approximate mapping: Full Moon month → Purnimant month name
-        // Chaitra Full Moon is typically in March (some years April)
-        // This is a simplified but accurate-enough mapping for display
         $gregorianToPurnimant = [
-            1  => 'Pausha',       // Jan FM → Pausha
-            2  => 'Magha',        // Feb FM → Magha
-            3  => 'Phalguna',     // Mar FM → Phalguna
-            4  => 'Chaitra',      // Apr FM → Chaitra
-            5  => 'Vaishakha',    // May FM → Vaishakha
-            6  => 'Jyeshtha',     // Jun FM → Jyeshtha
-            7  => 'Ashadha',      // Jul FM → Ashadha
-            8  => 'Shravana',     // Aug FM → Shravana
-            9  => 'Bhadrapada',   // Sep FM → Bhadrapada
-            10 => 'Ashwin',       // Oct FM → Ashwin
-            11 => 'Kartik',       // Nov FM → Kartik
-            12 => 'Margashirsha', // Dec FM → Margashirsha
+            1=>'Pausha',2=>'Magha',3=>'Phalguna',4=>'Chaitra',5=>'Vaishakha',6=>'Jyeshtha',
+            7=>'Ashadha',8=>'Shravana',9=>'Bhadrapada',10=>'Ashwin',11=>'Kartik',12=>'Margashirsha',
         ];
         $hindiMap = [
             'Pausha'=>'पौष','Magha'=>'माघ','Phalguna'=>'फाल्गुन','Chaitra'=>'चैत्र',
@@ -375,7 +412,6 @@ class PanchangCalculator {
         $purnimant = $gregorianToPurnimant[$fmMonth] ?? 'Vaishakha';
         $purnimantHindi = $hindiMap[$purnimant] ?? $purnimant;
 
-        // Amant is same as Purnimant for most months (minor difference only at month boundary)
         return [
             'purnimant'       => $purnimant,
             'purnimant_hindi' => $purnimantHindi,
