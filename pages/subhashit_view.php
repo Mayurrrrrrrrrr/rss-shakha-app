@@ -277,7 +277,7 @@ function formatHindiDateSub($dateStr) {
             scale: captureScale,
             backgroundColor: '#FFF9E3',
             useCORS: true,
-            allowTaint: true,
+            allowTaint: false,
             logging: false,
             onclone: (clonedDoc) => {
                 const clonedEl = clonedDoc.getElementById('capture-area');

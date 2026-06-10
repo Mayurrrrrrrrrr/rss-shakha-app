@@ -355,10 +355,11 @@ require_once '../includes/header.php';
 
                 <div class="capture-header">
                     <?php
-                    $logoPath = dirname(__DIR__) . '/assets/images/logo.svg';
+                    $logoPath = dirname(__DIR__) . '/assets/images/logo.png';
                     $logoBase64 = '';
                     if (file_exists($logoPath)) {
-                        $logoBase64 = 'data:image/svg+xml;base64,' . base64_encode(file_get_contents($logoPath));
+                        $mime = mime_content_type($logoPath);
+                        $logoBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($logoPath));
                     }
                     ?>
                     <?php if ($logoBase64): ?>

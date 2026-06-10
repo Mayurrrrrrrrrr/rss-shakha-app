@@ -332,7 +332,7 @@ require_once '../includes/header.php';
                     if ($shakhaLogo && file_exists("../" . $shakhaLogo)) {
                         $logoPath = "../" . $shakhaLogo;
                     } else {
-                        $logoPath = dirname(__DIR__) . '/assets/images/logo.svg';
+                        $logoPath = dirname(__DIR__) . '/assets/images/logo.png';
                     }
                     $logoBase64 = '';
                     if (file_exists($logoPath)) {

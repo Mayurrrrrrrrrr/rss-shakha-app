@@ -465,7 +465,7 @@ document.getElementById('btn-download').addEventListener('click', async () => {
         const canvas = await html2canvas(captureArea, {
             scale: 2, 
             useCORS: true, 
-            allowTaint: true,
+            allowTaint: false,
             backgroundColor: '#FFF9E3'
         });
         if (window.FlutterShareChannel) {
@@ -493,7 +493,7 @@ document.getElementById('btn-share').addEventListener('click', async () => {
         const canvas = await html2canvas(captureArea, {
             scale: 2, 
             useCORS: true, 
-            allowTaint: true,
+            allowTaint: false,
             backgroundColor: '#FFF9E3'
         });
         const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.95));
