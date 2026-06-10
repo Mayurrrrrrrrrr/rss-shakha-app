@@ -85,7 +85,7 @@ require_once '../includes/header.php';
 ?>
 
 <!-- html2canvas plugin (Switched to jsDelivr for better reliability) -->
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="../assets/js/html2canvas.min.js"></script>
 
 <style>
     /* Scoped styles for the capture area to ensure it looks good when captured */

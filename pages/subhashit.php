@@ -118,7 +118,7 @@ $pageTitle = 'सुभाषित (Subhashit)';
 require_once '../includes/header.php';
 ?>
 
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="../assets/js/html2canvas.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;700;800;900&display=swap" rel="stylesheet">
 
 <style>

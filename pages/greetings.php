@@ -146,7 +146,7 @@ if (isset($_GET['saved'])) {
 require_once '../includes/header.php';
 ?>
 
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="../assets/js/html2canvas.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Tiro+Devanagari+Hindi:ital@0;1&family=Hind:wght@400;500;600;700&family=Anek+Devanagari:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
