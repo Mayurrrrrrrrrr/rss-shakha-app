@@ -48,6 +48,10 @@ CGIPassAuth On
     <FilesMatch "\.(css|js|png|jpg|jpeg|gif|svg|webp|ico|woff|woff2)$">
         Header set Cache-Control "no-store, no-cache, must-revalidate"
     </FilesMatch>
+    <FilesMatch "\.apk$">
+        Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+        Header set Expires "0"
+    </FilesMatch>
 </IfModule>
 
 # ── Protect sensitive files ──────────────────────────────────

@@ -54,7 +54,7 @@ require_once __DIR__ . '/../config/db.php';
                 <a href="/ekatmata-stotra/" class="nav-link">एकात्मता स्तोत्र</a>
                 <a href="/pages/vyaktitv_view.php" class="nav-link">व्यक्तित्व</a>
                 <a href="/prarthna/" class="nav-link">प्रार्थना</a>
-                <a href="/sanghasthan.apk" class="nav-link" style="color: #2E7D32; font-weight: bold;">📱 ऐप डाउनलोड</a>
+                <a href="/sanghasthan.apk?v=<?php echo @filemtime(__DIR__ . '/../sanghasthan.apk') ?: time(); ?>" class="nav-link" style="color: #2E7D32; font-weight: bold;">📱 ऐप डाउनलोड</a>
                 <?php if ($isLoggedIn): ?>
                     <a href="<?php echo $dashUrl; ?>" class="nav-link nav-link-cta">🚩 डैशबोर्ड</a>
                 <?php else: ?>

@@ -170,7 +170,7 @@ if ($pdo && isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                         <li><a href="../pages/change_password.php" class="<?php echo $currentPage === 'change_password' ? 'active' : ''; ?>">🔑 पासवर्ड बदलें</a></li>
                                 <?php endif; ?>
 
-                                <li style="margin-top: 10px;"><a href="/sanghasthan.apk" style="color: #4CAF50; font-weight: bold;">📱 एंड्रॉइड ऐप डाउनलोड</a></li>
+                                <li style="margin-top: 10px;"><a href="/sanghasthan.apk?v=<?php echo @filemtime(__DIR__ . '/../sanghasthan.apk') ?: time(); ?>" style="color: #4CAF50; font-weight: bold;">📱 एंड्रॉइड ऐप डाउनलोड</a></li>
                                 <li style="margin-top: 20px;"><a href="../logout.php" class="nav-logout">🚪 लॉग आउट</a></li>
                         </ul>
                 </aside>
