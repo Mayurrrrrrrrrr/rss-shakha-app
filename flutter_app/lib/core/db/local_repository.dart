@@ -368,9 +368,17 @@ class LocalRepository {
   Future<void> bulkUpsert(String tableName, List<dynamic> rows) async {
     if (rows.isEmpty) return;
     final db = await _dbHelper.database;
+    
+    // Get columns of the SQLite table dynamically to avoid crashes on missing columns (e.g. created_at)
+    final List<Map<String, dynamic>> columnsInfo = await db.rawQuery('PRAGMA table_info($tableName)');
+    final Set<String> existingColumns = columnsInfo.map((col) => col['name'] as String).toSet();
+    
     await db.transaction((txn) async {
       for (var row in rows) {
         final data = Map<String, dynamic>.from(row);
+        // Filter out keys that do not exist as columns in SQLite
+        data.removeWhere((key, value) => !existingColumns.contains(key));
+        
         await txn.insert(
           tableName,
           data,
