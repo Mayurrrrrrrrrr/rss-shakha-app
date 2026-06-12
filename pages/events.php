@@ -32,20 +32,21 @@ try {
 
 // Fetch events
 if (isAdmin()) {
-    // Admin sees all events
+    // Admin sees all active events
     $stmt = $pdo->query("SELECT e.*, s.name as shakha_name, u.name as creator_name 
                          FROM events e 
                          LEFT JOIN shakhas s ON e.shakha_id = s.id 
                          LEFT JOIN admin_users u ON e.created_by = u.id 
+                         WHERE e.is_active = 1
                          ORDER BY e.event_date DESC, e.event_time DESC");
     $events = $stmt->fetchAll();
 } else {
-    // Mukhyashikshak sees global events (shakha_id IS NULL) OR their own shakha's events
+    // Mukhyashikshak sees global active events (shakha_id IS NULL) OR their own shakha's active events
     $stmt = $pdo->prepare("SELECT e.*, s.name as shakha_name, u.name as creator_name 
                            FROM events e 
                            LEFT JOIN shakhas s ON e.shakha_id = s.id 
                            LEFT JOIN admin_users u ON e.created_by = u.id 
-                           WHERE e.shakha_id IS NULL OR e.shakha_id = ? 
+                           WHERE e.is_active = 1 AND (e.shakha_id IS NULL OR e.shakha_id = ?) 
                            ORDER BY e.event_date DESC, e.event_time DESC");
     $stmt->execute([$_SESSION['shakha_id']]);
     $events = $stmt->fetchAll();

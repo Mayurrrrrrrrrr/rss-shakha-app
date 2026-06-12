@@ -40,20 +40,25 @@ $stmt->execute([$username]);
 $user = $stmt->fetch();
 
 if ($user && password_verify($password, $user['password'])) {
+    require_once __DIR__ . '/sync/auth_api.php';
+    $role = $user['role'] ?? 'mukhyashikshak';
+    $token = generateAPIToken($user['id'], $role, $user['shakha_id']);
+    
     $userData = [
         'id' => $user['id'],
         'name' => $user['name'],
-        'role' => $user['role'] ?? 'mukhyashikshak',
+        'role' => $role,
         'shakha_id' => $user['shakha_id'],
-        'type' => 'admin_user'
+        'type' => 'admin_user',
+        'token' => $token
     ];
-    // In a real app we'd generate a JWT token here, for this simple demo we will return the user data
+    
     // Clear attempts on success
     $stmt = $pdo->prepare("DELETE FROM login_attempts WHERE ip = ?");
     $stmt->execute([$ip]);
 
     $_SESSION['user_id'] = $user['id'];
-    $_SESSION['user_type'] = $user['role'] ?? 'mukhyashikshak';
+    $_SESSION['user_type'] = $role;
     $_SESSION['user_name'] = $user['name'];
     $_SESSION['shakha_id'] = $user['shakha_id'];
 
@@ -66,12 +71,16 @@ $stmt->execute([$username]);
 $user = $stmt->fetch();
 
 if ($user && $user['password'] && password_verify($password, $user['password'])) {
+    require_once __DIR__ . '/sync/auth_api.php';
+    $token = generateAPIToken($user['id'], 'swayamsevak', $user['shakha_id']);
+    
     $userData = [
         'id' => $user['id'],
         'name' => $user['name'],
         'role' => 'swayamsevak',
         'shakha_id' => $user['shakha_id'],
-        'type' => 'swayamsevak'
+        'type' => 'swayamsevak',
+        'token' => $token
     ];
     // Clear attempts on success
     $stmt = $pdo->prepare("DELETE FROM login_attempts WHERE ip = ?");
