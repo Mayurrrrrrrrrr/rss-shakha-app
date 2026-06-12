@@ -225,76 +225,91 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return ValueListenableBuilder<bool>(
       valueListenable: syncEngine.isSyncing,
       builder: (context, syncing, _) {
-        return Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          color: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'नमस्ते, मुख्य शिक्षक जी 🙏',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF5D4037)),
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
+        return ValueListenableBuilder<String?>(
+          valueListenable: syncEngine.syncError,
+          builder: (context, error, _) {
+            final hasError = error != null && error.isNotEmpty;
+            return Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              color: hasError ? Colors.red.shade50 : Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: syncing ? Colors.amber : Colors.green,
-                            ),
+                          const Text(
+                            'नमस्ते, मुख्य शिक्षक जी 🙏',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF5D4037)),
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            syncing ? 'सिंक्रनाइज़ेशन चालू है...' : 'डेटाबेस सिंक्रनाइज़्ड है',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: syncing ? Colors.amber.shade800 : Colors.green.shade800,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Container(
+                                width: 10,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: syncing
+                                      ? Colors.amber
+                                      : (hasError ? Colors.red : Colors.green),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  syncing
+                                      ? 'सिंक्रनाइज़ेशन चालू है...'
+                                      : (hasError ? 'सिंक विफल: $error' : 'डेटाबेस सिंक्रनाइज़्ड है'),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: syncing
+                                        ? Colors.amber.shade800
+                                        : (hasError ? Colors.red.shade800 : Colors.green.shade800),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          ValueListenableBuilder<String?>(
+                            valueListenable: syncEngine.lastSyncTime,
+                            builder: (context, lastSync, _) {
+                              return Text(
+                                lastSync != null ? 'अंतिम सिंक: $lastSync' : 'सिंक नहीं हुआ है',
+                                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                              );
+                            },
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
-                      ValueListenableBuilder<String?>(
-                        valueListenable: syncEngine.lastSyncTime,
-                        builder: (context, lastSync, _) {
-                          return Text(
-                            lastSync != null ? 'अंतिम सिंक: $lastSync' : 'सिंक नहीं हुआ है',
-                            style: const TextStyle(fontSize: 12, color: Colors.grey),
-                          );
-                        },
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      onPressed: syncing ? null : () => syncEngine.sync(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: hasError ? Colors.red.shade700 : const Color(0xFFFF6B00),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                    ],
-                  ),
+                      icon: syncing
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                            )
+                          : const Icon(Icons.sync, size: 16),
+                      label: Text(hasError ? 'पुनः प्रयास' : 'सिंक करें'),
+                    ),
+                  ],
                 ),
-                ElevatedButton.icon(
-                  onPressed: syncing ? null : () => syncEngine.sync(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF6B00),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  icon: syncing
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                        )
-                      : const Icon(Icons.sync, size: 16),
-                  label: const Text('सिंक करें'),
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );

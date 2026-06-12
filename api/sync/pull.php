@@ -3,7 +3,7 @@
  * Sync Pull API - डेटाबेस से अपडेट खींचें
  */
 require_once __DIR__ . '/auth_api.php';
-require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../../config/db.php';
 
 // Authenticate user request and get context
 $userContext = authenticateAPIRequest();

@@ -11,6 +11,7 @@ class SyncEngine {
   
   final ValueNotifier<bool> isSyncing = ValueNotifier<bool>(false);
   final ValueNotifier<String?> lastSyncTime = ValueNotifier<String?>(null);
+  final ValueNotifier<String?> syncError = ValueNotifier<String?>(null);
 
   SyncEngine({required this.apiClient, required this.localRepo}) {
     _initLastSyncTime();
@@ -38,10 +39,12 @@ class SyncEngine {
     final connectivity = await Connectivity().checkConnectivity();
     if (connectivity.isEmpty || connectivity.first == ConnectivityResult.none) {
       debugPrint('Sync skipped: Device offline');
+      syncError.value = 'डिवाइस ऑफ़लाइन है (Device offline)';
       return;
     }
 
     isSyncing.value = true;
+    syncError.value = null; // Clear previous error
     try {
       debugPrint('Sync: Starting upload of queued actions...');
       await _pushOfflineQueue();
@@ -50,8 +53,10 @@ class SyncEngine {
       await _pullServerChanges();
 
       debugPrint('Sync completed successfully.');
+      syncError.value = null;
     } catch (e) {
       debugPrint('Sync Engine failed: $e');
+      syncError.value = e.toString().replaceAll('Exception: ', '');
     } finally {
       isSyncing.value = false;
     }

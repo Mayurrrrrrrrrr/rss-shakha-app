@@ -3,7 +3,7 @@
  * Sync Push API - स्थानीय रिकॉर्ड्स सर्वर पर अपलोड करें
  */
 require_once __DIR__ . '/auth_api.php';
-require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../../config/db.php';
 
 // Authenticate user request
 $userContext = authenticateAPIRequest();

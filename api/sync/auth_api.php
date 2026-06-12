@@ -53,8 +53,20 @@ function authenticateAPIRequest() {
     $headers = getallheaders();
     $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
     
-    if (empty($authHeader) && isset($_GET['token'])) {
-        $authHeader = 'Bearer ' . $_GET['token'];
+    if (empty($authHeader)) {
+        // Fallback 1: Custom X-API-Token header (Apache does not strip custom X- headers)
+        $customToken = $headers['X-API-Token'] ?? $headers['x-api-token'] ?? $headers['X-Api-Token'] ?? '';
+        if (!empty($customToken)) {
+            $authHeader = 'Bearer ' . $customToken;
+        }
+    }
+    
+    if (empty($authHeader)) {
+        // Fallback 2: GET/POST parameter fallback
+        $paramToken = $_GET['token'] ?? $_POST['token'] ?? '';
+        if (!empty($paramToken)) {
+            $authHeader = 'Bearer ' . $paramToken;
+        }
     }
     
     if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {

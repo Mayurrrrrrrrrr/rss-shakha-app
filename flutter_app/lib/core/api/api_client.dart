@@ -19,6 +19,12 @@ class ApiClient {
           final token = prefs.getString('api_token');
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
+            options.headers['X-API-Token'] = token;
+            
+            // Fallback for environments that strip custom headers
+            final queryParams = Map<String, dynamic>.from(options.queryParameters);
+            queryParams['token'] = token;
+            options.queryParameters = queryParams;
           }
           return handler.next(options);
         },
