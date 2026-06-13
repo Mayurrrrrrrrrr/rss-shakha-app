@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
@@ -13,9 +14,12 @@ class SyncEngine {
   final ValueNotifier<String?> lastSyncTime = ValueNotifier<String?>(null);
   final ValueNotifier<String?> syncError = ValueNotifier<String?>(null);
 
+  Timer? _periodicSyncTimer;
+
   SyncEngine({required this.apiClient, required this.localRepo}) {
     _initLastSyncTime();
     _setupConnectivityListener();
+    _startPeriodicSync();
   }
 
   Future<void> _initLastSyncTime() async {
@@ -30,6 +34,18 @@ class SyncEngine {
         sync();
       }
     });
+  }
+
+  void _startPeriodicSync() {
+    _periodicSyncTimer?.cancel();
+    _periodicSyncTimer = Timer.periodic(const Duration(minutes: 15), (timer) {
+      debugPrint('Sync: Periodic background sync triggered.');
+      sync();
+    });
+  }
+
+  void dispose() {
+    _periodicSyncTimer?.cancel();
   }
 
   Future<void> sync() async {
@@ -97,8 +113,10 @@ class SyncEngine {
 
   Future<void> _pushOfflineQueue() async {
     final actions = await localRepo.getPendingActions();
-    if (actions.isEmpty) {
-      debugPrint('Push Sync: No pending actions in queue.');
+    final pendingRecordsDirect = await localRepo.getPendingDailyRecords();
+
+    if (actions.isEmpty && pendingRecordsDirect.isEmpty) {
+      debugPrint('Push Sync: No pending actions or records in queue.');
       return;
     }
 
@@ -119,6 +137,14 @@ class SyncEngine {
       actionQueueIds.add(act['id']);
     }
 
+    // Add any daily records directly marked as pending_sync in database
+    for (var recDirect in pendingRecordsDirect) {
+      final exists = dailyRecords.any((r) => r['offline_id'] == recDirect['offline_id'] || r['record_date'] == recDirect['record_date']);
+      if (!exists) {
+        dailyRecords.add(recDirect);
+      }
+    }
+
     final response = await apiClient.post(
       '/api/sync/push.php',
       data: {
@@ -137,11 +163,23 @@ class SyncEngine {
           await localRepo.resolveSwayamsevakMappings(swMappings);
         }
 
-        // 2. Resolve local daily record ID mapping
+        // 2. Resolve local daily record ID mapping and clear pending_sync flag
         if (data['record_mappings'] != null) {
           final recMappings = Map<String, dynamic>.from(data['record_mappings'])
               .map((k, v) => MapEntry(k, v as int));
           await localRepo.resolveRecordMappings(recMappings);
+        }
+
+        // Also proactively clear pending_sync for all records that were successfully pushed
+        // in case any were omitted from mappings but successfully saved
+        for (var rec in dailyRecords) {
+          final offlineIdStr = rec['offline_id'] as String?;
+          if (offlineIdStr != null) {
+            final offlineId = int.tryParse(offlineIdStr);
+            if (offlineId != null) {
+              await localRepo.resolveRecordMappings({offlineIdStr: offlineId});
+            }
+          }
         }
 
         // 3. Clear processed actions from SQLite queue

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../core/providers/providers.dart';
+import '../../core/models/models.dart';
 
 class PanchangScreen extends ConsumerStatefulWidget {
   const PanchangScreen({super.key});
@@ -13,7 +14,7 @@ class PanchangScreen extends ConsumerStatefulWidget {
 class _PanchangScreenState extends ConsumerState<PanchangScreen> {
   DateTime _selectedDate = DateTime.now();
   bool _isLoading = false;
-  Map<String, dynamic>? _panchang;
+  Panchang? _panchang;
   String? _error;
 
   @override
@@ -31,14 +32,17 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
     try {
       final apiClient = ref.read(apiClientProvider);
       final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
-      final response = await apiClient.get(
-        '/api/fetch_panchang.php',
-        queryParameters: {'date': dateStr},
-      );
+      final response = await apiClient.fetchPanchang(dateStr);
 
       if (response.statusCode == 200 && response.data != null && response.data['status'] == 'success') {
         setState(() {
-          _panchang = response.data['panchang'] as Map<String, dynamic>?;
+          final panchangData = response.data['panchang'];
+          if (panchangData != null) {
+            _panchang = Panchang.fromJson(panchangData as Map<String, dynamic>);
+          } else {
+            _panchang = null;
+            _error = 'पंचांग जानकारी प्राप्त करने में विफल।';
+          }
         });
       } else {
         setState(() {
@@ -178,84 +182,332 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
                       : _panchang == null
                           ? const Center(child: Text('पंचांग उपलब्ध नहीं है।'))
                           : SingleChildScrollView(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: Column(
-                                children: [
-                                  // Utsav Banner if any
-                                  if (_panchang!['utsav'] != null && _panchang!['utsav'].toString().trim().isNotEmpty)
-                                    Card(
-                                      elevation: 3,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                      color: const Color(0xFFFFE0B2), // Light orange
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: Row(
-                                          children: [
-                                            const Icon(Icons.star, color: Colors.orange, size: 32),
-                                            const SizedBox(width: 12),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    'आज का उत्सव / विशेष दिन',
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Colors.brown,
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                child: Column(
+                                  children: [
+                                    // Utsav Banner if any
+                                    if (_panchang!.utsav != null && _panchang!.utsav!.trim().isNotEmpty)
+                                      Card(
+                                        elevation: 3,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                        color: const Color(0xFFFFE0B2), // Light orange
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.star, color: Colors.orange, size: 32),
+                                              const SizedBox(width: 12),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    const Text(
+                                                      'आज का उत्सव / विशेष दिन',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Colors.brown,
+                                                      ),
                                                     ),
-                                                  ),
-                                                  const SizedBox(height: 4),
-                                                  Text(
-                                                    _panchang!['utsav'].toString(),
-                                                    style: const TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Color(0xFFE65100),
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      _panchang!.utsav!,
+                                                      style: const TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Color(0xFFE65100),
+                                                      ),
                                                     ),
-                                                  ),
-                                                ],
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    const SizedBox(height: 16),
+
+                                    // Tithi & Nakshatra Native Cards
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: Card(
+                                            elevation: 4,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(16),
+                                            ),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(16),
+                                                gradient: const LinearGradient(
+                                                  colors: [Color(0xFFFFE0B2), Colors.white],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                              ),
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(16.0),
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      padding: const EdgeInsets.all(8),
+                                                      decoration: BoxDecoration(
+                                                        color: const Color(0xFFFF6B00).withValues(alpha: 0.1),
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                      child: const Icon(
+                                                        Icons.brightness_5_rounded,
+                                                        color: Color(0xFFFF6B00),
+                                                        size: 28,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 12),
+                                                    const Text(
+                                                      'तिथि / Tithi',
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Color(0xFF5D4037),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      _panchang!.tithi.isNotEmpty ? _panchang!.tithi : '-',
+                                                      style: const TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Color(0xFFFF6B00),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      _panchang!.paksha.isNotEmpty ? '${_panchang!.paksha} पक्ष' : '-',
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.brown,
+                                                        fontWeight: FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Card(
+                                            elevation: 4,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(16),
+                                            ),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(16),
+                                                gradient: const LinearGradient(
+                                                  colors: [Color(0xFFFFF3E0), Colors.white],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                              ),
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(16.0),
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      padding: const EdgeInsets.all(8),
+                                                      decoration: BoxDecoration(
+                                                        color: const Color(0xFFE65100).withValues(alpha: 0.1),
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                      child: const Icon(
+                                                        Icons.auto_awesome_rounded,
+                                                        color: Color(0xFFE65100),
+                                                        size: 28,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 12),
+                                                    const Text(
+                                                      'नक्षत्र / Nakshatra',
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Color(0xFF5D4037),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      _panchang!.nakshatra.isNotEmpty ? _panchang!.nakshatra : '-',
+                                                      style: const TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Color(0xFFE65100),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      _panchang!.shakaMonth.isNotEmpty ? '${_panchang!.shakaMonth} (शक)' : '-',
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.brown,
+                                                        fontWeight: FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16),
+
+                                    // Sunrise & Sunset Side-by-Side Card
+                                    Card(
+                                      elevation: 4,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(16),
+                                          gradient: const LinearGradient(
+                                            colors: [Color(0xFFFFFDE7), Colors.white],
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                          ),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  children: [
+                                                    Container(
+                                                      padding: const EdgeInsets.all(8),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.amber.withValues(alpha: 0.1),
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                      child: const Icon(
+                                                        Icons.wb_sunny_rounded,
+                                                        color: Colors.amber,
+                                                        size: 32,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                    const Text(
+                                                      'सूर्योदय / Sunrise',
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Color(0xFF5D4037),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      _panchang!.sunrise.isNotEmpty ? _panchang!.sunrise : '-',
+                                                      style: const TextStyle(
+                                                        fontSize: 20,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Color(0xFFE65100),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Container(
+                                                height: 50,
+                                                width: 1,
+                                                color: const Color(0xFFFFD54F),
+                                              ),
+                                              Expanded(
+                                                child: Column(
+                                                  children: [
+                                                    Container(
+                                                      padding: const EdgeInsets.all(8),
+                                                      decoration: BoxDecoration(
+                                                        color: const Color(0xFFFF7043).withValues(alpha: 0.1),
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                      child: const Icon(
+                                                        Icons.wb_twilight_rounded,
+                                                        color: Color(0xFFFF7043),
+                                                        size: 32,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                    const Text(
+                                                      'सूर्यास्त / Sunset',
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Color(0xFF5D4037),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      _panchang!.sunset.isNotEmpty ? _panchang!.sunset : '-',
+                                                      style: const TextStyle(
+                                                        fontSize: 20,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Color(0xFFE65100),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+
+                                    // Traditional Samvats Card
+                                    Card(
+                                      elevation: 4,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                        side: const BorderSide(color: Color(0xFFFFB74D), width: 1.5),
+                                      ),
+                                      color: Colors.white,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(20.0),
+                                        child: Column(
+                                          children: [
+                                            const Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.gavel_rounded, color: Color(0xFFFF6B00)),
+                                                SizedBox(width: 8),
+                                                Text(
+                                                  '✨ राष्ट्रीय पंचांग विवरण ✨',
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Color(0xFFFF6B00),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 16),
+                                            const Divider(color: Color(0xFFFFB74D)),
+                                            _buildPanchangDetailRow('युगाब्द (Yugabdh)', _panchang!.yugabdha.isNotEmpty ? _panchang!.yugabdha : '५१२८'),
+                                            _buildPanchangDetailRow('विक्रम संवत (Vikram Samvat)', _panchang!.vikramSamvat.isNotEmpty ? _panchang!.vikramSamvat : '-'),
+                                            _buildPanchangDetailRow('शालिवाहन शक संवत (Shaka Samvat)', _panchang!.shakaSamvat.isNotEmpty ? _panchang!.shakaSamvat : '-'),
+                                            _buildPanchangDetailRow('मास (Hindi Month)', _panchang!.vikramMonth.isNotEmpty ? _panchang!.vikramMonth : '-'),
+                                            _buildPanchangDetailRow('पक्ष (Paksha)', _panchang!.paksha.isNotEmpty ? _panchang!.paksha : '-'),
                                           ],
                                         ),
                                       ),
                                     ),
-                                  const SizedBox(height: 16),
-
-                                  // Traditional Panchang Card
-                                  Card(
-                                    elevation: 4,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                      side: const BorderSide(color: Color(0xFFFFB74D), width: 1.5),
-                                    ),
-                                    color: Colors.white,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(20.0),
-                                      child: Column(
-                                        children: [
-                                          const Text(
-                                            '✨ राष्ट्रीय पंचांग विवरण ✨',
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: Color(0xFFFF6B00),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 16),
-                                          const Divider(color: Color(0xFFFFB74D)),
-                                          _buildPanchangDetailRow('युगाब्द (Yugabdh)', _panchang!['yugabdha']?.toString() ?? '५१२८'),
-                                          _buildPanchangDetailRow('विक्रम संवत (Vikram Samvat)', _panchang!['vikram_samvat']?.toString() ?? '-'),
-                                          _buildPanchangDetailRow('शालिवाहन शक संवत (Shaka Samvat)', _panchang!['shaka_samvat']?.toString() ?? '-'),
-                                          _buildPanchangDetailRow('मास (Hindi Month)', _panchang!['vikram_month']?.toString() ?? '-'),
-                                          _buildPanchangDetailRow('पक्ष (Paksha)', _panchang!['paksha']?.toString() ?? '-'),
-                                          _buildPanchangDetailRow('तिथि (Tithi)', _panchang!['tithi']?.toString() ?? '-'),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 24),
                                 ],
                               ),
                             ),

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../core/models/models.dart';
 import '../../core/providers/providers.dart';
 
@@ -34,12 +35,12 @@ class _ShakhaTimerScreenState extends ConsumerState<ShakhaTimerScreen> {
   void dispose() {
     _timer?.cancel();
     _audioPlayer.dispose();
+    WakelockPlus.disable();
     super.dispose();
   }
 
   Future<void> _loadTodaySlots() async {
     final repo = ref.read(localRepoProvider);
-    final session = ref.read(sessionProvider);
     final today = DateTime.now();
     
     // Get override for today
@@ -83,18 +84,33 @@ class _ShakhaTimerScreenState extends ConsumerState<ShakhaTimerScreen> {
   void _toggleTimer() {
     if (_isRunning) {
       _timer?.cancel();
+      WakelockPlus.disable();
       setState(() {
         _isRunning = false;
       });
       SystemSound.play(SystemSoundType.click);
     } else {
-      // Play initial whistle/bell click
       SystemSound.play(SystemSoundType.click);
+      WakelockPlus.enable();
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         setState(() {
           _elapsedSeconds++;
         });
         _checkAlerts();
+        
+        // Check if we finished the entire Shakha duration
+        if (_slots.isNotEmpty) {
+          final totalSec = (_slots.last['end_min'] * 60).toInt();
+          if (_elapsedSeconds >= totalSec) {
+            _timer?.cancel();
+            WakelockPlus.disable();
+            setState(() {
+              _isRunning = false;
+              _elapsedSeconds = totalSec; // Clamp to final value
+            });
+            _playWhistle(doubleBlast: true); // Double whistle at completion
+          }
+        }
       });
       setState(() {
         _isRunning = true;
@@ -104,6 +120,7 @@ class _ShakhaTimerScreenState extends ConsumerState<ShakhaTimerScreen> {
 
   void _resetTimer() {
     _timer?.cancel();
+    WakelockPlus.disable();
     setState(() {
       _elapsedSeconds = 0;
       _isRunning = false;
@@ -172,7 +189,52 @@ class _ShakhaTimerScreenState extends ConsumerState<ShakhaTimerScreen> {
       }
     }
 
-    final activeTopic = activeIdx != -1 ? _slots[activeIdx]['topic'] : 'प्रतीक्षा या अंतराल...';
+    int remainingSeconds = 0;
+    String activeTopic = 'प्रतीक्षा या अंतराल...';
+    
+    if (_slots.isNotEmpty) {
+      if (activeIdx != -1) {
+        // Active block is running
+        final slot = _slots[activeIdx];
+        final endSec = (slot['end_min'] * 60).toInt();
+        remainingSeconds = endSec - _elapsedSeconds;
+        activeTopic = slot['topic'] as String;
+      } else {
+        // No active slot currently running
+        if (_elapsedSeconds == 0) {
+          // Timer hasn't started yet: display duration of first slot
+          final firstSlot = _slots.first;
+          remainingSeconds = ((firstSlot['end_min'] - firstSlot['start_min']) * 60).toInt();
+          activeTopic = 'शुरू करने के लिए तैयार... (${firstSlot['topic']})';
+        } else {
+          // In an interval or finished
+          final totalSec = (_slots.last['end_min'] * 60).toInt();
+          if (_elapsedSeconds >= totalSec) {
+            remainingSeconds = 0;
+            activeTopic = 'शाखा समाप्त (Shakha Completed)';
+          } else {
+            // Find the next upcoming slot
+            int nextIdx = -1;
+            for (int i = 0; i < _slots.length; i++) {
+              final startSec = (_slots[i]['start_min'] * 60).toInt();
+              if (_elapsedSeconds < startSec) {
+                nextIdx = i;
+                break;
+              }
+            }
+            if (nextIdx != -1) {
+              final nextSlot = _slots[nextIdx];
+              final startSec = (nextSlot['start_min'] * 60).toInt();
+              remainingSeconds = startSec - _elapsedSeconds;
+              activeTopic = 'अंतराल: अगला - ${nextSlot['topic']}';
+            } else {
+              remainingSeconds = 0;
+              activeTopic = 'प्रतीक्षा या अंतराल...';
+            }
+          }
+        }
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -200,7 +262,7 @@ class _ShakhaTimerScreenState extends ConsumerState<ShakhaTimerScreen> {
                   child: Column(
                     children: [
                       Text(
-                        _formatTime(_elapsedSeconds),
+                        _formatTime(remainingSeconds),
                         style: const TextStyle(
                           fontSize: 72,
                           fontFamily: 'monospace',

@@ -22,14 +22,14 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 2) {
+    if (oldVersion < 3) {
       final tables = [
         'shakhas',
         'swayamsevaks',
@@ -102,6 +102,7 @@ class DatabaseHelper {
         custom_message $textType,
         shakha_id $integerType,
         is_active $integerType DEFAULT 1,
+        pending_sync $integerType DEFAULT 0,
         updated_at $textType
       )
     ''');

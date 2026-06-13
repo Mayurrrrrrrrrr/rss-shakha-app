@@ -295,7 +295,9 @@ class _AddEditSwayamsevakModalState extends ConsumerState<_AddEditSwayamsevakMod
     );
 
     await repo.saveSwayamsevak(sway);
-    Navigator.pop(context, true);
+    if (mounted) {
+      Navigator.pop(context, true);
+    }
   }
 
   @override
@@ -358,7 +360,7 @@ class _AddEditSwayamsevakModalState extends ConsumerState<_AddEditSwayamsevakMod
               const Text('आयु श्रेणी (Category)', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: _category,
+                initialValue: _category,
                 onChanged: (val) => setState(() => _category = val!),
                 items: const [
                   DropdownMenuItem(value: 'Bal', child: Text('बाल (Bal - Under 15)')),
@@ -372,7 +374,7 @@ class _AddEditSwayamsevakModalState extends ConsumerState<_AddEditSwayamsevakMod
                 title: const Text('गट नायक है?'),
                 value: _isGatNayak,
                 onChanged: (val) => setState(() => _isGatNayak = val),
-                activeColor: const Color(0xFFFF6B00),
+                activeThumbColor: const Color(0xFFFF6B00),
               ),
               const SizedBox(height: 24),
               SizedBox(

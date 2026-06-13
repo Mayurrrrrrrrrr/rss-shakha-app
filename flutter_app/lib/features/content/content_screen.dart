@@ -1,8 +1,7 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:share_plus/share_plus.dart';
 import '../../core/providers/providers.dart';
+import 'content_reading_screen.dart';
 
 class ContentScreen extends ConsumerStatefulWidget {
   const ContentScreen({super.key});
@@ -18,7 +17,7 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
   }
 
   @override
@@ -43,6 +42,7 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
           tabs: const [
+            Tab(text: 'प्रार्थना'),
             Tab(text: 'सुभाषित'),
             Tab(text: 'अमृत वचन'),
             Tab(text: 'गीत'),
@@ -76,10 +76,114 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
               child: TabBarView(
                 controller: _tabController,
                 children: [
+                  _buildPrarthnaTab(),
                   _buildSubhashitsTab(),
                   _buildAmritVachansTab(),
                   _buildGeetsTab(),
                   _buildGhoshnayeinTab(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPrarthnaTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Card(
+        elevation: 4,
+        shadowColor: const Color(0xFFFF6B00).withValues(alpha: 0.15),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        color: Colors.white,
+        child: Column(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFFFF6B00),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+              width: double.infinity,
+              child: const Column(
+                children: [
+                  Text(
+                    '🚩 राष्ट्रीय स्वयंसेवक संघ',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 6),
+                  Text(
+                    'संघ प्रार्थना',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                children: [
+                  const Text(
+                    'नमस्ते सदा वत्सले मातृभूमे,\nत्वया हिन्दुभूमे सुखं वर्धितोऽहम्।\nमहामङ्गले पुण्यभूमे त्वदर्थे।\nपतत्वेष कायो नमस्ते नमस्ते ॥१॥',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF4E342E),
+                      height: 1.6,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'राष्ट्रीय स्वयंसेवक संघ की प्रार्थना पूर्णतः राष्ट्रभक्ति से ओतप्रोत है। यह संस्कृत भाषा में है और इसमें तीन श्लोक हैं।',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade700,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF6B00),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: const Icon(Icons.chrome_reader_mode),
+                    label: const Text(
+                      'पूर्ण प्रार्थना, अनुवाद व शब्दार्थ पढ़ें',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ContentReadingScreen(
+                            type: ContentType.prarthna,
+                            title: 'संघ प्रार्थना',
+                            content: '',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -104,114 +208,75 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
           padding: const EdgeInsets.all(16),
           itemBuilder: (ctx, index) {
             final sub = filtered[index];
-            List<dynamic> shabdarthList = [];
-            if (sub.shabdarth != null) {
-              try {
-                shabdarthList = jsonDecode(sub.shabdarth!);
-              } catch (_) {}
-            }
-
             return Card(
-              elevation: 3,
+              elevation: 2,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               margin: const EdgeInsets.only(bottom: 16),
               color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(18.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          '📖 सुभाषित (Subhashit)',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFFFF6B00),
-                            fontSize: 14,
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.share, color: Color(0xFFFF6B00)),
-                          onPressed: () {
-                            final text = '📖 *सुभाषित (Subhashit)*\n\n'
-                                '🚩 *संस्कृत श्लोक:*\n${sub.sanskritText}\n\n'
-                                '📙 *हिंदी भावार्थ:*\n${sub.hindiMeaning}\n\n'
-                                'संघस्थान ऐप से साझा किया गया 🚩';
-                            SharePlus.instance.share(ShareParams(text: text));
-                          },
-                        ),
-                      ],
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ContentReadingScreen(
+                        type: ContentType.subhashit,
+                        title: sub.panchangText != null && sub.panchangText!.isNotEmpty
+                            ? sub.panchangText!
+                            : 'सुभाषित श्लोक',
+                        content: sub.sanskritText,
+                        extra: sub.hindiMeaning,
+                        listData: sub.shabdarth,
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    if (sub.panchangText != null && sub.panchangText!.isNotEmpty) ...[
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFF8E1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.amber.shade200),
-                        ),
-                        child: Text(
-                          sub.panchangText!,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF5D4037),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            sub.panchangText != null && sub.panchangText!.isNotEmpty
+                                ? sub.panchangText!
+                                : '📖 सुभाषित श्लोक',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFFF6B00),
+                              fontSize: 14,
+                            ),
                           ),
-                        ),
+                          const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+                        ],
                       ),
                       const SizedBox(height: 12),
-                    ],
-                    const Text('संस्कृत श्लोक:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.amber)),
-                    const SizedBox(height: 6),
-                    Text(
-                      sub.sanskritText,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF5D4037),
-                        height: 1.5,
+                      Text(
+                        sub.sanskritText,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF5D4037),
+                          height: 1.4,
+                        ),
                       ),
-                    ),
-                    const Divider(height: 24),
-                    const Text('हिंदी भावार्थ:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.orange)),
-                    const SizedBox(height: 6),
-                    Text(
-                      sub.hindiMeaning,
-                      style: const TextStyle(fontSize: 15, color: Colors.black87, height: 1.4),
-                    ),
-                    if (shabdarthList.isNotEmpty) ...[
-                      const Divider(height: 24),
-                      const Text('शब्दार्थ (Glossary):', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green)),
                       const SizedBox(height: 8),
-                      Table(
-                        border: TableBorder.all(color: Colors.grey.shade200, width: 1, borderRadius: BorderRadius.circular(8)),
-                        columnWidths: const {
-                          0: FixedColumnWidth(100),
-                          1: FlexColumnWidth(),
-                        },
-                        children: shabdarthList.map((item) {
-                          final word = item['shabd'] ?? '';
-                          final meaning = item['arth'] ?? '';
-                          return TableRow(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(word, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.brown)),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(meaning),
-                              ),
-                            ],
-                          );
-                        }).toList(),
+                      Text(
+                        sub.hindiMeaning,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade700,
+                          height: 1.4,
+                        ),
                       ),
                     ],
-                  ],
+                  ),
                 ),
               ),
             );
@@ -243,49 +308,59 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               margin: const EdgeInsets.only(bottom: 16),
               color: const Color(0xFFFFFDE7), // Light yellow card
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Icon(Icons.format_quote, size: 36, color: Color(0xFFFF6B00)),
-                        IconButton(
-                          icon: const Icon(Icons.share, color: Color(0xFFFF6B00)),
-                          onPressed: () {
-                            final text = '💭 *अमृत वचन (Amrit Vachan)*\n\n'
-                                '"${vachan.content}"\n\n'
-                                '- *${vachan.author ?? "अज्ञात"}*\n\n'
-                                'संघस्थान ऐप से साझा किया गया 🚩';
-                            SharePlus.instance.share(ShareParams(text: text));
-                          },
-                        ),
-                      ],
-                    ),
-                    Text(
-                      vachan.content,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF3E2723),
-                        height: 1.5,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ContentReadingScreen(
+                        type: ContentType.amritVachan,
+                        title: 'अमृत वचन',
+                        content: vachan.content,
+                        extra: vachan.author,
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Text(
-                        '- ${vachan.author ?? "अज्ञात"}',
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Icon(Icons.format_quote, size: 36, color: Color(0xFFFF6B00)),
+                          Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        vachan.content,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFFF6B00),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF3E2723),
+                          height: 1.5,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 12),
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: Text(
+                          '- ${vachan.author ?? "अज्ञात"}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFFFF6B00),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -317,67 +392,37 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               margin: const EdgeInsets.only(bottom: 16),
               color: Colors.white,
-              child: ExpansionTile(
-                title: Text(
-                  geet.title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF5D4037)),
-                ),
-                subtitle: Text('श्रेणी: ${geet.geetType == "Sanghik" ? "संघिक" : "एकल"}'),
-                leading: const Icon(Icons.music_note, color: Color(0xFFFF6B00)),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('गीत पंक्तियाँ:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
-                            IconButton(
-                              icon: const Icon(Icons.share, color: Color(0xFFFF6B00), size: 20),
-                              onPressed: () {
-                                final text = '🎵 *गीत: ${geet.title}*\n'
-                                    'श्रेणी: ${geet.geetType == "Sanghik" ? "संघिक" : "एकल"}\n\n'
-                                    '${geet.lyrics}\n\n'
-                                    'संघस्थान ऐप से साझा किया गया 🚩';
-                                SharePlus.instance.share(ShareParams(text: text));
-                              },
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.orange.shade50,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            geet.lyrics,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF5D4037),
-                              height: 1.6,
-                            ),
-                          ),
-                        ),
-                        if (geet.meaningOrContext != null && geet.meaningOrContext!.isNotEmpty) ...[
-                          const SizedBox(height: 16),
-                          const Text('विषय / संदर्भ:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
-                          const SizedBox(height: 6),
-                          Text(
-                            geet.meaningOrContext!,
-                            style: const TextStyle(fontSize: 14, color: Colors.black87),
-                          ),
-                        ]
-                      ],
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ContentReadingScreen(
+                        type: ContentType.geet,
+                        title: geet.title,
+                        content: geet.lyrics,
+                        extra: geet.geetType,
+                      ),
                     ),
+                  );
+                },
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  leading: const CircleAvatar(
+                    backgroundColor: Color(0xFFFFF3E0),
+                    child: Icon(Icons.music_note, color: Color(0xFFFF6B00)),
                   ),
-                ],
+                  title: Text(
+                    geet.title,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF5D4037)),
+                  ),
+                  subtitle: Text(
+                    'श्रेणी: ${geet.geetType == "Sanghik" ? "संघिक गीत" : "एकल गीत"}',
+                    style: TextStyle(color: Colors.grey.shade600),
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+                ),
               ),
             );
           },
@@ -409,71 +454,69 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               margin: const EdgeInsets.only(bottom: 12),
               color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(18.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            const CircleAvatar(
-                              backgroundColor: Color(0xFFFFE0B2),
-                              child: Text('📣', style: TextStyle(fontSize: 16)),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              gh.ghoshnaDate,
-                              style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.share, color: Color(0xFFFF6B00)),
-                          onPressed: () {
-                            final text = '📣 *घोषणा (Ghoshna)*\n\n'
-                                '🚩 *संस्कृत:*\n${gh.sloganSanskrit}\n\n'
-                                '📙 *हिंदी अर्थ:*\n${gh.sloganHindi}\n\n'
-                                'संघस्थान ऐप से साझा किया गया 🚩';
-                            SharePlus.instance.share(ShareParams(text: text));
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      gh.sloganSanskrit,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Color(0xFFFF6B00),
-                        height: 1.4,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ContentReadingScreen(
+                        type: ContentType.ghoshna,
+                        title: 'घोषणा (Ghoshna)',
+                        content: gh.sloganSanskrit,
+                        extra: gh.sloganHindi,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      gh.sloganHindi,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        color: Color(0xFF388E3C),
-                        fontWeight: FontWeight.bold,
-                        height: 1.4,
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: Color(0xFFFFE0B2),
+                                child: Text('📣', style: TextStyle(fontSize: 16)),
+                              ),
+                              SizedBox(width: 12),
+                              Text(
+                                'घोषणा (Slogan)',
+                                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                          Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+                        ],
                       ),
-                    ),
-                    if (gh.context != null && gh.context!.isNotEmpty) ...[
-                      const Divider(height: 18),
+                      const SizedBox(height: 12),
                       Text(
-                        gh.context!,
+                        gh.sloganSanskrit,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Color(0xFFFF6B00),
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        gh.sloganHindi,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 14,
-                          color: Colors.black54,
-                          fontStyle: FontStyle.italic,
+                          color: Color(0xFF388E3C),
+                          fontWeight: FontWeight.bold,
+                          height: 1.4,
                         ),
                       ),
                     ],
-                  ],
+                  ),
                 ),
               ),
             );

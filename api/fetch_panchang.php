@@ -124,7 +124,10 @@ try {
             'vikram_samvat' => $vikram_samvat,
             'shaka_samvat' => $shaka_samvat,
             'yugabdha' => $yugabdha,
-            'utsav' => $utsav
+            'utsav' => $utsav,
+            'nakshatra' => $aiPanchang ? ($aiPanchang['nakshatra'] ?? $result['nakshatra'] ?? '-') : ($result['nakshatra'] ?? '-'),
+            'sunrise' => $aiPanchang ? ($aiPanchang['surya']['udaya'] ?? '06:00 AM') : '06:00 AM',
+            'sunset' => $aiPanchang ? ($aiPanchang['surya']['asta'] ?? '06:30 PM') : '06:30 PM'
         ]
     ]);
 

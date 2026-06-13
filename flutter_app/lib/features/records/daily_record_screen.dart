@@ -14,6 +14,9 @@ class DailyRecordScreen extends ConsumerStatefulWidget {
 class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
   DateTime _selectedDate = DateTime.now();
   
+  // Form Key for native validation
+  final _formKey = GlobalKey<FormState>();
+  
   // Dropdown options in Devanagari Hindi
   final List<String> _tithiOptions = ['प्रतिपदा', 'द्वितीया', 'तृतीया', 'चतुर्थी', 'पंचमी', 'षष्ठी', 'सप्तमी', 'अष्टमी', 'नवमी', 'दशमी', 'एकादशी', 'द्वादशी', 'त्रयोदशी', 'चतुर्दशी', 'पूर्णिमा', 'अमावस्या'];
   final List<String> _pakshOptions = ['शुक्ल पक्ष', 'कृष्ण पक्ष'];
@@ -131,7 +134,6 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
   Future<void> _loadFormData() async {
     setState(() => _isLoading = true);
     final repo = ref.read(localRepoProvider);
-    final session = ref.read(sessionProvider);
     
     // 1. Fetch swayamsevaks and activities from SQLite
     _swayamsevaks = await repo.getAllSwayamsevaks();
@@ -200,6 +202,9 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
   }
 
   Future<void> _handleSave() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
     setState(() => _isSaving = true);
     final repo = ref.read(localRepoProvider);
     final session = ref.read(sessionProvider);
@@ -218,6 +223,7 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
       customMessage: _messageController.text.trim(),
       shakhaId: session.shakhaId,
       isActive: 1,
+      pendingSync: 1,
     );
 
     final List<Attendance> attendanceList = [];
@@ -328,302 +334,339 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
           ? const Center(child: CircularProgressIndicator(color: Color(0xFFFF6B00)))
           : Container(
               color: const Color(0xFFF9F6F0),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Date Selector
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      color: Colors.white,
-                      child: ListTile(
-                        leading: const Icon(Icons.calendar_today, color: Color(0xFFFF6B00)),
-                        title: Text(
-                          'दिनांक: $displayDate',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        trailing: ElevatedButton(
-                          onPressed: _pickDate,
-                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF6B00)),
-                          child: const Text('बदलें', style: TextStyle(color: Colors.white)),
+              child: Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Date Selector
+                      Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        color: Colors.white,
+                        child: ListTile(
+                          leading: const Icon(Icons.calendar_today, color: Color(0xFFFF6B00)),
+                          title: Text(
+                            'दिनांक: $displayDate',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          trailing: ElevatedButton(
+                            onPressed: _pickDate,
+                            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF6B00)),
+                            child: const Text('बदलें', style: TextStyle(color: Colors.white)),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
-                    // Panchang Expandable Accordion
-                    ExpansionTile(
-                      title: const Text('🗓️ दैनिक पंचांग विवरण (Panchang Details)'),
-                      leading: const Icon(Icons.settings_suggest, color: Colors.amber),
-                      initiallyExpanded: false,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: DropdownButtonFormField<String>(
-                                      value: _tithiOptions.contains(_tithiController.text) ? _tithiController.text : null,
-                                      decoration: const InputDecoration(labelText: 'तिथि (Tithi)'),
-                                      items: _tithiOptions.map((String val) {
-                                        return DropdownMenuItem<String>(
-                                          value: val,
-                                          child: Text(val),
-                                        );
-                                      }).toList(),
-                                      onChanged: (val) {
-                                        if (val != null) {
-                                          _tithiController.text = val;
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: DropdownButtonFormField<String>(
-                                      value: _pakshOptions.contains(_pakshController.text) ? _pakshController.text : null,
-                                      decoration: const InputDecoration(labelText: 'पक्ष (Paksha)'),
-                                      items: _pakshOptions.map((String val) {
-                                        return DropdownMenuItem<String>(
-                                          value: val,
-                                          child: Text(val),
-                                        );
-                                      }).toList(),
-                                      onChanged: (val) {
-                                        if (val != null) {
-                                          _pakshController.text = val;
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: DropdownButtonFormField<String>(
-                                      value: _monthOptions.contains(_monthController.text) ? _monthController.text : null,
-                                      decoration: const InputDecoration(labelText: 'मास (Month)'),
-                                      items: _monthOptions.map((String val) {
-                                        return DropdownMenuItem<String>(
-                                          value: val,
-                                          child: Text(val),
-                                        );
-                                      }).toList(),
-                                      onChanged: (val) {
-                                        if (val != null) {
-                                          _monthController.text = val;
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _yugabdhController,
-                                      decoration: const InputDecoration(labelText: 'युगाब्द (Yugabdh)'),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _vikramController,
-                                      decoration: const InputDecoration(labelText: 'विक्रम संवत'),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _shakaController,
-                                      decoration: const InputDecoration(labelText: 'शालिवाहन शक'),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              TextField(
-                                controller: _utsavController,
-                                decoration: const InputDecoration(labelText: 'विशेष उत्सव/जयंती (Festival/Utsav)'),
-                              ),
-                              const SizedBox(height: 16),
-                              ElevatedButton.icon(
-                                onPressed: _isFetchingPanchang ? null : _fetchPanchang,
-                                icon: _isFetchingPanchang
-                                    ? const SizedBox(
-                                        width: 16,
-                                        height: 16,
-                                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                                      )
-                                    : const Icon(Icons.auto_awesome, color: Colors.white),
-                                label: const Text('✨ ऑटो-फिल पंचांग', style: TextStyle(color: Colors.white)),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFFF6B00),
-                                  minimumSize: const Size(double.infinity, 44),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Swayamsevak Attendance List
-                    const Text('👥 स्वयंसेवक उपस्थिति (Attendance)',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF5D4037))),
-                    const SizedBox(height: 8),
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      color: Colors.white,
-                      child: _swayamsevaks.isEmpty
-                          ? const Padding(
-                              padding: EdgeInsets.all(24),
-                              child: Center(
-                                child: Text('निर्देशिका में कोई स्वयंसेवक उपलब्ध नहीं है।', style: TextStyle(color: Colors.grey)),
-                              ),
-                            )
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                      // Panchang Expandable Accordion
+                      ExpansionTile(
+                        title: const Text('🗓️ दैनिक पंचांग विवरण (Panchang Details)'),
+                        leading: const Icon(Icons.settings_suggest, color: Colors.amber),
+                        initiallyExpanded: false,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            child: Column(
                               children: [
-                                _buildCategoryGroup('बाल (Baal)', groupedSwayamsevaks['Baal']!),
-                                _buildCategoryGroup('तरुण/युवा (Tarun)', groupedSwayamsevaks['Tarun']!),
-                                _buildCategoryGroup('प्रौढ़ (Praudh)', groupedSwayamsevaks['Praudh']!),
-                                _buildCategoryGroup('अभ्यागत (Abhyagat)', groupedSwayamsevaks['Abhyagat']!),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: DropdownButtonFormField<String>(
+                                        key: ValueKey('tithi_${_tithiController.text}'),
+                                        initialValue: _tithiOptions.contains(_tithiController.text) ? _tithiController.text : null,
+                                        decoration: const InputDecoration(labelText: 'तिथि (Tithi)'),
+                                        items: _tithiOptions.map((String val) {
+                                          return DropdownMenuItem<String>(
+                                            value: val,
+                                            child: Text(val),
+                                          );
+                                        }).toList(),
+                                        onChanged: (val) {
+                                          if (val != null) {
+                                            setState(() {
+                                              _tithiController.text = val;
+                                            });
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: DropdownButtonFormField<String>(
+                                        key: ValueKey('paksh_${_pakshController.text}'),
+                                        initialValue: _pakshOptions.contains(_pakshController.text) ? _pakshController.text : null,
+                                        decoration: const InputDecoration(labelText: 'पक्ष (Paksha)'),
+                                        items: _pakshOptions.map((String val) {
+                                          return DropdownMenuItem<String>(
+                                            value: val,
+                                            child: Text(val),
+                                          );
+                                        }).toList(),
+                                        onChanged: (val) {
+                                          if (val != null) {
+                                            setState(() {
+                                              _pakshController.text = val;
+                                            });
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: DropdownButtonFormField<String>(
+                                        key: ValueKey('month_${_monthController.text}'),
+                                        initialValue: _monthOptions.contains(_monthController.text) ? _monthController.text : null,
+                                        decoration: const InputDecoration(labelText: 'मास (Month)'),
+                                        items: _monthOptions.map((String val) {
+                                          return DropdownMenuItem<String>(
+                                            value: val,
+                                            child: Text(val),
+                                          );
+                                        }).toList(),
+                                        onChanged: (val) {
+                                          if (val != null) {
+                                            setState(() {
+                                              _monthController.text = val;
+                                            });
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: TextFormField(
+                                        controller: _yugabdhController,
+                                        keyboardType: TextInputType.number,
+                                        decoration: const InputDecoration(labelText: 'युगाब्द (Yugabdh)'),
+                                        validator: (val) {
+                                          if (val == null || val.trim().isEmpty) return null;
+                                          if (int.tryParse(val.trim()) == null) {
+                                            return 'केवल संख्या';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextFormField(
+                                        controller: _vikramController,
+                                        keyboardType: TextInputType.number,
+                                        decoration: const InputDecoration(labelText: 'विक्रम संवत'),
+                                        validator: (val) {
+                                          if (val == null || val.trim().isEmpty) return null;
+                                          if (int.tryParse(val.trim()) == null) {
+                                            return 'केवल संख्या';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: TextFormField(
+                                        controller: _shakaController,
+                                        keyboardType: TextInputType.number,
+                                        decoration: const InputDecoration(labelText: 'शालिवाहन शक'),
+                                        validator: (val) {
+                                          if (val == null || val.trim().isEmpty) return null;
+                                          if (int.tryParse(val.trim()) == null) {
+                                            return 'केवल संख्या';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                TextFormField(
+                                  controller: _utsavController,
+                                  decoration: const InputDecoration(labelText: 'विशेष उत्सव/जयंती (Festival/Utsav)'),
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton.icon(
+                                  onPressed: _isFetchingPanchang ? null : _fetchPanchang,
+                                  icon: _isFetchingPanchang
+                                      ? const SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                        )
+                                      : const Icon(Icons.auto_awesome, color: Colors.white),
+                                  label: const Text('✨ ऑटो-फिल पंचांग', style: TextStyle(color: Colors.white)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFFF6B00),
+                                    minimumSize: const Size(double.infinity, 44),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                ),
                               ],
                             ),
-                    ),
-                    const SizedBox(height: 20),
+                          )
+                        ],
+                      ),
+                      const SizedBox(height: 20),
 
-                    // Activities Performed List
-                    const Text('🚩 दैनिक संघ कार्यक्रम (Activities)',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF5D4037))),
-                    const SizedBox(height: 8),
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      color: Colors.white,
-                      child: _activities.isEmpty
-                          ? const Padding(
-                              padding: EdgeInsets.all(24),
-                              child: Center(
-                                child: Text('कोई सक्रिय गतिविधियाँ नहीं मिली।', style: TextStyle(color: Colors.grey)),
+                      // Swayamsevak Attendance List
+                      const Text('👥 स्वयंसेवक उपस्थिति (Attendance)',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF5D4037))),
+                      const SizedBox(height: 8),
+                      Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        color: Colors.white,
+                        child: _swayamsevaks.isEmpty
+                            ? const Padding(
+                                padding: EdgeInsets.all(24),
+                                child: Center(
+                                  child: Text('निर्देशिका में कोई स्वयंसेवक उपलब्ध नहीं है।', style: TextStyle(color: Colors.grey)),
+                                ),
+                              )
+                            : Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildCategoryGroup('बाल (Baal)', groupedSwayamsevaks['Baal']!),
+                                  _buildCategoryGroup('तरुण/युवा (Tarun)', groupedSwayamsevaks['Tarun']!),
+                                  _buildCategoryGroup('प्रौढ़ (Praudh)', groupedSwayamsevaks['Praudh']!),
+                                  _buildCategoryGroup('अभ्यागत (Abhyagat)', groupedSwayamsevaks['Abhyagat']!),
+                                ],
                               ),
-                            )
-                          : Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Column(
-                                children: _activities.map((act) {
-                                  final isDone = _activityDone[act.id] ?? false;
-                                  final currentConductor = _conductedBy[act.id];
+                      ),
+                      const SizedBox(height: 20),
 
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                                    child: Row(
-                                      children: [
-                                        Checkbox(
-                                          value: isDone,
-                                          activeColor: const Color(0xFFFF6B00),
-                                          onChanged: (val) {
-                                            setState(() {
-                                              _activityDone[act.id] = val ?? false;
-                                            });
-                                          },
-                                        ),
-                                        Expanded(
-                                          child: Text(
-                                            act.name,
-                                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      // Activities Performed List
+                      const Text('🚩 दैनिक संघ कार्यक्रम (Activities)',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF5D4037))),
+                      const SizedBox(height: 8),
+                      Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        color: Colors.white,
+                        child: _activities.isEmpty
+                            ? const Padding(
+                                padding: EdgeInsets.all(24),
+                                child: Center(
+                                  child: Text('कोई सक्रिय गतिविधियाँ नहीं मिली।', style: TextStyle(color: Colors.grey)),
+                                ),
+                              )
+                            : Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Column(
+                                  children: _activities.map((act) {
+                                    final isDone = _activityDone[act.id] ?? false;
+                                    final currentConductor = _conductedBy[act.id];
+
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                                      child: Row(
+                                        children: [
+                                          Checkbox(
+                                            value: isDone,
+                                            activeColor: const Color(0xFFFF6B00),
+                                            onChanged: (val) {
+                                              setState(() {
+                                                _activityDone[act.id] = val ?? false;
+                                              });
+                                            },
                                           ),
-                                        ),
-                                        if (isDone)
-                                          SizedBox(
-                                            width: 140,
-                                            child: DropdownButtonHideUnderline(
-                                              child: DropdownButtonFormField<int?>(
-                                                value: currentConductor,
-                                                hint: const Text('शिक्षक चुनें', style: TextStyle(fontSize: 12)),
-                                                decoration: const InputDecoration(
-                                                  contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                                                  border: OutlineInputBorder(),
-                                                ),
-                                                items: [
-                                                  const DropdownMenuItem<int?>(
-                                                    value: null,
-                                                    child: Text('कोई नहीं', style: TextStyle(fontSize: 12)),
-                                                  ),
-                                                  ..._swayamsevaks.map((s) => DropdownMenuItem<int?>(
-                                                        value: s.id,
-                                                        child: Text(
-                                                          s.name,
-                                                          overflow: TextOverflow.ellipsis,
-                                                          style: const TextStyle(fontSize: 12),
-                                                        ),
-                                                      )),
-                                                ],
-                                                onChanged: (val) {
-                                                  setState(() {
-                                                    _conductedBy[act.id] = val;
-                                                  });
-                                                },
-                                              ),
+                                          Expanded(
+                                            child: Text(
+                                              act.name,
+                                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                                             ),
                                           ),
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
+                                          if (isDone)
+                                            SizedBox(
+                                              width: 140,
+                                              child: DropdownButtonHideUnderline(
+                                                child: DropdownButtonFormField<int?>(
+                                                  key: ValueKey('conductor_${act.id}_$currentConductor'),
+                                                  initialValue: currentConductor,
+                                                  hint: const Text('शिक्षक चुनें', style: TextStyle(fontSize: 12)),
+                                                  decoration: const InputDecoration(
+                                                    contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                                                    border: OutlineInputBorder(),
+                                                  ),
+                                                  items: [
+                                                    const DropdownMenuItem<int?>(
+                                                      value: null,
+                                                      child: Text('कोई नहीं', style: TextStyle(fontSize: 12)),
+                                                    ),
+                                                    ..._swayamsevaks.map((s) => DropdownMenuItem<int?>(
+                                                          value: s.id,
+                                                          child: Text(
+                                                            s.name,
+                                                            overflow: TextOverflow.ellipsis,
+                                                            style: const TextStyle(fontSize: 12),
+                                                          ),
+                                                        )),
+                                                  ],
+                                                  onChanged: (val) {
+                                                    setState(() {
+                                                      _conductedBy[act.id] = val;
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
                               ),
-                            ),
-                    ),
-                    const SizedBox(height: 16),
+                      ),
+                      const SizedBox(height: 16),
 
-                    // Custom Notes Card
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      color: Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: TextField(
-                          controller: _messageController,
-                          maxLines: 3,
-                          decoration: const InputDecoration(
-                            labelText: 'विशेष टिप्पणी / संदेश (Notes)',
-                            alignLabelWithHint: true,
-                            border: OutlineInputBorder(),
+                      // Custom Notes Card
+                      Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        color: Colors.white,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: TextFormField(
+                            controller: _messageController,
+                            maxLines: 3,
+                            decoration: const InputDecoration(
+                              labelText: 'विशेष टिप्पणी / संदेश (Notes)',
+                              alignLabelWithHint: true,
+                              border: OutlineInputBorder(),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                    // Save Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 54,
-                      child: ElevatedButton(
-                        onPressed: _isSaving ? null : _handleSave,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFF6B00),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      // Save Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 54,
+                        child: ElevatedButton(
+                          onPressed: _isSaving ? null : _handleSave,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFFF6B00),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: _isSaving
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : const Text('🚩 रिकॉर्ड सुरक्षित करें (Save)',
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                         ),
-                        child: _isSaving
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text('🚩 रिकॉर्ड सुरक्षित करें (Save)',
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       ),
-                    ),
-                    const SizedBox(height: 32),
-                  ],
+                      const SizedBox(height: 32),
+                    ],
+                  ),
                 ),
               ),
             ),

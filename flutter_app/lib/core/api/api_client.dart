@@ -51,4 +51,12 @@ class ApiClient {
       rethrow;
     }
   }
+
+  Future<Response> fetchPanchang(String date) async {
+    try {
+      return await get('/api/fetch_panchang.php', queryParameters: {'date': date});
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../../core/api/api_client.dart';
 import '../../core/models/models.dart';
 import '../../core/providers/providers.dart';
-import 'snapshot_webview_screen.dart';
+import '../webview/native_placeholder_screen.dart';
 
 class RecordDetailScreen extends ConsumerStatefulWidget {
   final int recordId;
@@ -389,19 +387,19 @@ class _RecordDetailScreenState extends ConsumerState<RecordDetailScreen> {
   }
 
   Future<void> _openSnapshot() async {
-    final session = ref.read(sessionProvider);
-    final token = session.token ?? '';
     final recordId = _record?.id;
     if (recordId == null || recordId <= 0) return;
-    
-    final url = '${ApiClient.baseUrl}/pages/snapshot.php?id=$recordId&token=$token';
     if (!mounted) return;
     
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (ctx) => SnapshotWebViewScreen(
-          url: url,
+        builder: (ctx) => NativePlaceholderScreen(
+          type: PlaceholderType.snapshot,
+          title: '📸 रिपोर्ट स्नैपशॉट',
+          recordId: recordId,
+          dateStr: widget.dateStr,
+          formattedDate: widget.formattedDate,
         ),
       ),
     );

@@ -9,7 +9,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  webview_flutter: ^4.13.1
   url_launcher: ^6.3.2
   share_plus: ^12.0.1
   path_provider: ^2.1.5
@@ -23,6 +22,8 @@ dependencies:
   google_fonts: ^6.2.1
   uuid: ^4.5.1
   audioplayers: ^6.0.0
+  table_calendar: ^3.1.2
+  wakelock_plus: ^1.2.8
 
 dev_dependencies:
   flutter_test:
@@ -40,6 +41,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/audio/whistle.mp3
+    - assets/data/personalities.json
+    - assets/images/personalities/
   # fonts:
   #   - family: Noto Sans Devanagari
   #     fonts:

@@ -185,9 +185,13 @@ class LocalRepository {
     await db.transaction((txn) async {
       // Save record base
       if (record.id != null) {
+        final data = record.toJson();
+        if (sync) {
+          data['pending_sync'] = 1;
+        }
         await txn.update(
           'daily_records',
-          record.toJson(),
+          data,
           where: 'id = ?',
           whereArgs: [recordId],
         );
@@ -205,6 +209,7 @@ class LocalRepository {
           customMessage: record.customMessage,
           shakhaId: record.shakhaId,
           isActive: record.isActive,
+          pendingSync: sync ? 1 : record.pendingSync,
           updatedAt: DateTime.now().toIso8601String(),
         );
         await txn.insert('daily_records', newRecord.toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
@@ -274,6 +279,50 @@ class LocalRepository {
     return recordId;
   }
 
+  Future<List<Map<String, dynamic>>> getPendingDailyRecords() async {
+    final db = await _dbHelper.database;
+    final records = await db.query('daily_records', where: 'pending_sync = 1');
+    final List<Map<String, dynamic>> results = [];
+    
+    for (var rec in records) {
+      final recordId = rec['id'] as int;
+      
+      // Fetch attendance
+      final attendanceList = await getAttendanceForRecord(recordId);
+      final Map<String, dynamic> attendanceMap = {};
+      for (var att in attendanceList) {
+        attendanceMap[att.swayamsevakId.toString()] = att.isPresent == 1;
+      }
+      
+      // Fetch activities
+      final activitiesList = await getActivitiesForRecord(recordId);
+      final Map<String, dynamic> activitiesMap = {};
+      for (var act in activitiesList) {
+        activitiesMap[act.activityId.toString()] = {
+          'is_done': act.isDone == 1,
+          'conducted_by': act.conductedBy,
+        };
+      }
+      
+      results.add({
+        'offline_id': recordId.toString(),
+        'record_date': rec['record_date'],
+        'yugabdh': rec['yugabdh'],
+        'vikram_samvat': rec['vikram_samvat'],
+        'shaka_samvat': rec['shaka_samvat'],
+        'hindi_month': rec['hindi_month'],
+        'paksh': rec['paksh'],
+        'tithi': rec['tithi'],
+        'utsav': rec['utsav'],
+        'custom_message': rec['custom_message'],
+        'attendance': attendanceMap,
+        'activities': activitiesMap,
+      });
+    }
+    
+    return results;
+  }
+
   Future<void> resolveRecordMappings(Map<String, int> mappings) async {
     final db = await _dbHelper.database;
     await db.transaction((txn) async {
@@ -281,10 +330,10 @@ class LocalRepository {
         final tempId = int.parse(entry.key);
         final realId = entry.value;
 
-        // Update record primary ID
+        // Update record primary ID and clear pending_sync flag
         await txn.update(
           'daily_records',
-          {'id': realId},
+          {'id': realId, 'pending_sync': 0},
           where: 'id = ?',
           whereArgs: [tempId],
         );

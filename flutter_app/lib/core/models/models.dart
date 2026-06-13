@@ -110,6 +110,7 @@ class DailyRecord {
   final String? customMessage;
   final int? shakhaId;
   final int isActive;
+  final int pendingSync;
   final String? updatedAt;
 
   DailyRecord({
@@ -125,6 +126,7 @@ class DailyRecord {
     this.customMessage,
     this.shakhaId,
     required this.isActive,
+    this.pendingSync = 0,
     this.updatedAt,
   });
 
@@ -142,6 +144,7 @@ class DailyRecord {
       customMessage: json['custom_message'],
       shakhaId: json['shakha_id'] != null ? (json['shakha_id'] is String ? int.parse(json['shakha_id']) : json['shakha_id']) : null,
       isActive: json['is_active'] is String ? int.parse(json['is_active']) : (json['is_active'] ?? 1),
+      pendingSync: json['pending_sync'] is String ? int.parse(json['pending_sync']) : (json['pending_sync'] ?? 0),
       updatedAt: json['updated_at'],
     );
   }
@@ -159,6 +162,7 @@ class DailyRecord {
         'custom_message': customMessage,
         'shakha_id': shakhaId,
         'is_active': isActive,
+        'pending_sync': pendingSync,
         'updated_at': updatedAt,
       };
 }
@@ -624,5 +628,63 @@ class OfflineAction {
         'endpoint': endpoint,
         'payload': payload,
         'created_at': createdAt,
+      };
+}
+
+class Panchang {
+  final String tithi;
+  final String paksha;
+  final String vikramMonth;
+  final String shakaMonth;
+  final String vikramSamvat;
+  final String shakaSamvat;
+  final String yugabdha;
+  final String? utsav;
+  final String nakshatra;
+  final String sunrise;
+  final String sunset;
+
+  Panchang({
+    required this.tithi,
+    required this.paksha,
+    required this.vikramMonth,
+    required this.shakaMonth,
+    required this.vikramSamvat,
+    required this.shakaSamvat,
+    required this.yugabdha,
+    this.utsav,
+    required this.nakshatra,
+    required this.sunrise,
+    required this.sunset,
+  });
+
+  factory Panchang.fromJson(Map<String, dynamic> json) {
+    return Panchang(
+      tithi: json['tithi'] ?? '',
+      paksha: json['paksha'] ?? '',
+      vikramMonth: json['vikram_month'] ?? '',
+      shakaMonth: json['shaka_month'] ?? '',
+      vikramSamvat: json['vikram_samvat']?.toString() ?? '',
+      shakaSamvat: json['shaka_samvat']?.toString() ?? '',
+      yugabdha: json['yugabdha']?.toString() ?? '',
+      utsav: json['utsav'],
+      nakshatra: json['nakshatra'] ?? '-',
+      sunrise: json['sunrise'] ?? '06:00 AM',
+      sunset: json['sunset'] ?? '06:30 PM',
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'tithi': tithi,
+        'paksha': paksha,
+        'vikram_month': vikramMonth,
+        'shaka_month': shakaMonth,
+        'vikram_samvat': vikramSamvat,
+        'shaka_samvat': shakaSamvat,
+        'yugabdha': yugabdha,
+        'utsav': utsav,
+        'nakshatra': nakshatra,
+        'sunrise': sunrise,
+        'sunset': sunset,
       };
 }
