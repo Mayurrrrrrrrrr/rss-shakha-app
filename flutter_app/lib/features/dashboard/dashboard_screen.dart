@@ -144,7 +144,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       final response = await apiClient.get('/api/app_version.php');
       if (response.statusCode == 200 && response.data != null && response.data['status'] == 'success') {
         final serverVersionCode = response.data['version_code'] as int;
-        const currentVersionCode = 4;
+        const currentVersionCode = 6;
         
         if (serverVersionCode > currentVersionCode) {
           final downloadUrl = response.data['download_url'] as String;

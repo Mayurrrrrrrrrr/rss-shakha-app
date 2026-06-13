@@ -9,9 +9,9 @@ header("Access-Control-Allow-Methods: GET");
 // Return the latest application release meta info
 echo json_encode([
     'status' => 'success',
-    'version_name' => '1.0.4',
-    'version_code' => 5,
+    'version_name' => '1.0.5',
+    'version_code' => 6,
     'download_url' => 'https://sanghasthan.yuktaa.com/sanghasthan.apk',
-    'force_update' => false,
-    'message' => 'नया संस्करण (1.0.4) उपलब्ध है। बेहतर अनुभव और नए फीचर्स के लिए कृपया अभी अपडेट करें!'
+    'force_update' => true,
+    'message' => 'नया संस्करण (1.0.5) उपलब्ध है जिसमें दैनिक रिपोर्ट का स्नैपशॉट ऑप्शन तथा महत्वपूर्ण बग फिक्स शामिल हैं। कृपया सुचारू संचालन के लिए अभी अपडेट करें!'
 ], JSON_UNESCAPED_UNICODE);

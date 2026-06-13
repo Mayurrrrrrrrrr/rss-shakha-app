@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../core/api/api_client.dart';
 import '../../core/models/models.dart';
 import '../../core/providers/providers.dart';
 
@@ -24,6 +26,7 @@ class _RecordDetailScreenState extends ConsumerState<RecordDetailScreen> {
   List<Map<String, dynamic>> _attendanceDetails = [];
   List<Map<String, dynamic>> _activityDetails = [];
   bool _isLoading = true;
+  bool _isSyncing = false;
 
   int _presentCount = 0;
   int _absentCount = 0;
@@ -347,7 +350,97 @@ class _RecordDetailScreenState extends ConsumerState<RecordDetailScreen> {
                     ),
                   ),
       ),
+      bottomNavigationBar: _isLoading || _record == null
+          ? null
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              child: (_record!.id != null && _record!.id! > 0)
+                  ? ElevatedButton.icon(
+                      onPressed: _openSnapshot,
+                      icon: const Icon(Icons.camera_alt, color: Colors.white),
+                      label: const Text('📸 स्नैपशॉट (Snapshot)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFF6B00),
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        elevation: 3,
+                      ),
+                    )
+                  : ElevatedButton.icon(
+                      onPressed: _isSyncing ? null : _syncAndReload,
+                      icon: _isSyncing
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                            )
+                          : const Icon(Icons.sync, color: Colors.white),
+                      label: const Text('🔄 सिंक करें (Sync to get Snapshot)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[600],
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        elevation: 3,
+                      ),
+                    ),
+            ),
     );
+  }
+
+  Future<void> _openSnapshot() async {
+    final session = ref.read(sessionProvider);
+    final token = session.token ?? '';
+    final recordId = _record?.id;
+    if (recordId == null || recordId <= 0) return;
+    
+    final url = '${ApiClient.baseUrl}/pages/snapshot.php?id=$recordId&token=$token';
+    final uri = Uri.parse(url);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'Could not launch $url';
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('स्नैपशॉट खोलने में विफल: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _syncAndReload() async {
+    setState(() => _isSyncing = true);
+    try {
+      final syncEngine = ref.read(syncEngineProvider);
+      await syncEngine.sync();
+      
+      // Reload record details
+      await _loadRecordDetails();
+      
+      if (mounted) {
+        if (_record != null && _record!.id! > 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('✨ सिंक पूर्ण! स्नैपशॉट अब उपलब्ध है।')),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('⚠️ सिंक पूर्ण, लेकिन रिकॉर्ड मैप नहीं हो सका। कृपया इंटरनेट चेक करें।')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('सिंक विफल: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSyncing = false);
+      }
+    }
   }
 
   TableRow _buildPanchangRow(String label, String value) {

@@ -10,6 +10,50 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Token-based auto login for webviews/external links
+if (isset($_GET['token']) && !empty($_GET['token'])) {
+    if (!function_exists('getJWTSecret')) {
+        function getJWTSecret() {
+            return defined('DB_PASS') ? (DB_PASS ?: 'sanghasthan_sec_key_384') : 'sanghasthan_sec_key_384';
+        }
+    }
+    if (!function_exists('validateAPIToken')) {
+        function validateAPIToken($token) {
+            $parts = explode('.', $token);
+            if (count($parts) !== 3) {
+                return null;
+            }
+            
+            list($base64Header, $base64Payload, $base64Signature) = $parts;
+            
+            $signature = hash_hmac('sha256', $base64Header . "." . $base64Payload, getJWTSecret(), true);
+            $expectedSignature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
+            
+            if (!hash_equals($expectedSignature, $base64Signature)) {
+                return null;
+            }
+            
+            $payload = json_decode(base64_decode(str_replace(['-','_'], ['+','/'], $base64Payload)), true);
+            if (!is_array($payload) || !isset($payload['exp']) || $payload['exp'] < time()) {
+                return null;
+            }
+            
+            return $payload;
+        }
+    }
+    
+    // Require DB configuration to have access to DB_PASS
+    require_once __DIR__ . '/../config/db.php';
+    
+    $payload = validateAPIToken($_GET['token']);
+    if ($payload) {
+        $_SESSION['user_id'] = $payload['user_id'];
+        $_SESSION['user_type'] = $payload['user_type'];
+        $_SESSION['shakha_id'] = $payload['shakha_id'];
+        $_SESSION['last_active'] = time();
+    }
+}
+
 // Security headers
 header("X-Frame-Options: DENY");
 header("X-Content-Type-Options: nosniff");
