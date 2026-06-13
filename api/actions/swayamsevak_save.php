@@ -51,16 +51,16 @@ if ($id) {
     // Update
     if (!empty($password)) {
         $hash = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare("UPDATE swayamsevaks SET name = ?, address = ?, phone = ?, age = ?, username = ?, password = ?, category = ?, gat = ?, is_gat_nayak = ? WHERE id = ? AND shakha_id = ?");
+        $stmt = $pdo->prepare("UPDATE swayamsevaks SET name = ?, address = ?, phone = ?, age = ?, username = ?, password = ?, category = ?, gat = ?, is_gat_nayak = ?, updated_at = NOW() WHERE id = ? AND shakha_id = ?");
         $stmt->execute([$name, $address, $phone, $age ?: null, $username, $hash, $category, $gat, $is_gat_nayak, $id, $shakhaId]);
     } else {
-        $stmt = $pdo->prepare("UPDATE swayamsevaks SET name = ?, address = ?, phone = ?, age = ?, username = ?, category = ?, gat = ?, is_gat_nayak = ? WHERE id = ? AND shakha_id = ?");
+        $stmt = $pdo->prepare("UPDATE swayamsevaks SET name = ?, address = ?, phone = ?, age = ?, username = ?, category = ?, gat = ?, is_gat_nayak = ?, updated_at = NOW() WHERE id = ? AND shakha_id = ?");
         $stmt->execute([$name, $address, $phone, $age ?: null, $username, $category, $gat, $is_gat_nayak, $id, $shakhaId]);
     }
 } else {
     // Insert
     $hash = !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : null;
-    $stmt = $pdo->prepare("INSERT INTO swayamsevaks (name, address, phone, age, username, password, shakha_id, category, gat, is_gat_nayak) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO swayamsevaks (name, address, phone, age, username, password, shakha_id, category, gat, is_gat_nayak, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
     $stmt->execute([$name, $address, $phone, $age ?: null, $username, $hash, $shakhaId, $category, $gat, $is_gat_nayak]);
 }
 

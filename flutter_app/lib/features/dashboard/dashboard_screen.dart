@@ -13,6 +13,12 @@ import '../records/record_detail_screen.dart';
 import '../content/content_screen.dart';
 import '../shakha/shakha_timer_screen.dart';
 import '../shakha/timetable_screen.dart';
+import '../records/records_calendar_screen.dart';
+import '../reports/monthly_report_screen.dart';
+import '../notices/notices_screen.dart';
+import '../panchang/panchang_screen.dart';
+import '../content/vyaktitv_screen.dart';
+import '../webview/generic_webview_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -42,6 +48,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final syncEngine = ref.read(syncEngineProvider);
       syncEngine.isSyncing.addListener(_onSyncStateChanged);
+      // Auto-sync on launch
+      syncEngine.sync();
     });
   }
 
@@ -265,23 +273,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               children: [
                 // Welcome and Sync State Card
                 _buildSyncStatusCard(syncEngine),
-                const SizedBox(height: 16),
-
-                // Panchang Card
-                _buildPanchangCard(),
-                const SizedBox(height: 16),
-
-                // Stats Grid
-                _buildStatsGrid(),
-                const SizedBox(height: 24),
-
-                const Text(
-                  'मुख्य गतिविधियां',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF5D4037)),
-                ),
-                const SizedBox(height: 12),
-
-                // Menu Grid
+                   _buildSectionHeader('दैनिक कार्य (Daily Actions)'),
                 GridView.count(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -302,12 +294,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                     _buildMenuCard(
                       context,
-                      title: 'स्वयंसेवक निर्देशिका\n(Directory)',
-                      icon: Icons.people_outline,
-                      color: const Color(0xFF43A047),
+                      title: 'रिकॉर्ड कैलेंडर\n(Calendar)',
+                      icon: Icons.calendar_month,
+                      color: const Color(0xFF3F51B5),
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (ctx) => const SwayamsevakScreen()),
+                        MaterialPageRoute(builder: (ctx) => const RecordsCalendarScreen()),
                       ),
                     ),
                     _buildMenuCard(
@@ -332,31 +324,189 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                
-                // Full-width Menu Cards
-                _buildMenuCard(
-                  context,
-                  title: '📄 रिकॉर्ड इतिहास (Record History)',
-                  icon: Icons.history_edu_outlined,
-                  color: const Color(0xFF7B1FA2),
-                  isFullWidth: true,
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (ctx) => const RecordsListScreen()),
-                  ).then((_) => _loadStatsAndRecentRecords()),
+
+                _buildSectionHeader('रिपोर्ट्स और सूचनाएं (Reports & Notices)'),
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 1.15,
+                  children: [
+                    _buildMenuCard(
+                      context,
+                      title: 'रिकॉर्ड इतिहास\n(History)',
+                      icon: Icons.history_edu_outlined,
+                      color: const Color(0xFF7B1FA2),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (ctx) => const RecordsListScreen()),
+                      ).then((_) => _loadStatsAndRecentRecords()),
+                    ),
+                    _buildMenuCard(
+                      context,
+                      title: 'मासिक रिपोर्ट\n(Monthly Report)',
+                      icon: Icons.analytics_outlined,
+                      color: const Color(0xFF00796B),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (ctx) => const MonthlyReportScreen()),
+                      ),
+                    ),
+                    _buildMenuCard(
+                      context,
+                      title: 'सूचना पट्ट\n(Notice Board)',
+                      icon: Icons.campaign_outlined,
+                      color: const Color(0xFFD32F2F),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (ctx) => const NoticesScreen()),
+                      ),
+                    ),
+                    _buildMenuCard(
+                      context,
+                      title: 'स्वयंसेवक सूची\n(Directory)',
+                      icon: Icons.people_outline,
+                      color: const Color(0xFF43A047),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (ctx) => const SwayamsevakScreen()),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                _buildMenuCard(
-                  context,
-                  title: '📖 बौद्धिक सामग्री संग्रह (Content Library)',
-                  icon: Icons.menu_book_outlined,
-                  color: const Color(0xFF8D6E63),
-                  isFullWidth: true,
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (ctx) => const ContentScreen()),
-                  ),
+
+                _buildSectionHeader('बौद्धिक और पठन सामग्री (Content & Reading)'),
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 1.15,
+                  children: [
+                    _buildMenuCard(
+                      context,
+                      title: 'बौद्धिक सामग्री\n(Content Library)',
+                      icon: Icons.menu_book_outlined,
+                      color: const Color(0xFF8D6E63),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (ctx) => const ContentScreen()),
+                      ),
+                    ),
+                    _buildMenuCard(
+                      context,
+                      title: 'प्रेरक व्यक्तित्व\n(Vyaktitv)',
+                      icon: Icons.flag_outlined,
+                      color: const Color(0xFFFF8F00),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (ctx) => const VyaktitvScreen()),
+                      ),
+                    ),
+                    _buildMenuCard(
+                      context,
+                      title: 'पत्रक शाखा\n(Paper Shakha)',
+                      icon: Icons.print_outlined,
+                      color: const Color(0xFF00838F),
+                      onTap: () {
+                        final session = ref.read(sessionProvider);
+                        final token = session.token ?? '';
+                        final todayStr = DateTime.now().toIso8601String().substring(0, 10);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (ctx) => GenericWebViewScreen(
+                              title: '🖨️ पत्रक शाखा (Paper Shakha)',
+                              url: '${ApiClient.baseUrl}/pages/paper_shakha.php?date=$todayStr&token=$token',
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildMenuCard(
+                      context,
+                      title: 'डिजिटल फ्लिपबुक\n(Flipbook)',
+                      icon: Icons.menu_book,
+                      color: const Color(0xFF2E7D32),
+                      onTap: () {
+                        final session = ref.read(sessionProvider);
+                        final token = session.token ?? '';
+                        final todayStr = DateTime.now().toIso8601String().substring(0, 10);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (ctx) => GenericWebViewScreen(
+                              title: '📱 डिजिटल वृत्त (Flipbook)',
+                              url: '${ApiClient.baseUrl}/pages/daily_flipbook.php?date=$todayStr&token=$token',
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+
+                _buildSectionHeader('उपकरण और सेटिंग्स (Tools & Settings)'),
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 1.15,
+                  children: [
+                    _buildMenuCard(
+                      context,
+                      title: 'दैनिक पंचांग\n(Panchang)',
+                      icon: Icons.brightness_5_outlined,
+                      color: const Color(0xFFE65100),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (ctx) => const PanchangScreen()),
+                      ),
+                    ),
+                    _buildMenuCard(
+                      context,
+                      title: 'बधाई पत्रक\n(Greetings)',
+                      icon: Icons.card_giftcard_outlined,
+                      color: const Color(0xFFC2185B),
+                      onTap: () {
+                        final session = ref.read(sessionProvider);
+                        final token = session.token ?? '';
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (ctx) => GenericWebViewScreen(
+                              title: '🎨 बधाई जनरेटर (Greetings)',
+                              url: '${ApiClient.baseUrl}/pages/greetings.php?token=$token',
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildMenuCard(
+                      context,
+                      title: 'शाखा सेटिंग्स\n(Settings)',
+                      icon: Icons.settings_outlined,
+                      color: const Color(0xFF37474F),
+                      onTap: () {
+                        final session = ref.read(sessionProvider);
+                        final token = session.token ?? '';
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (ctx) => GenericWebViewScreen(
+                              title: '⚙️ शाखा सेटिंग्स',
+                              url: '${ApiClient.baseUrl}/pages/shakha_settings.php?token=$token',
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 24),
                 const Text(
@@ -566,6 +716,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     const SizedBox(width: 8),
                     ElevatedButton.icon(
                       onPressed: syncing ? null : () => syncEngine.sync(),
+                      onLongPress: syncing ? null : () async {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('⏳ पूर्ण सिंक (Full Sync) शुरू हो रहा है...')),
+                          );
+                        }
+                        await syncEngine.forceFullSync();
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: hasError ? Colors.red.shade700 : const Color(0xFFFF6B00),
                         foregroundColor: Colors.white,
@@ -697,6 +855,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24.0, bottom: 12.0),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Color(0xFFE65100),
+          fontFamily: 'Noto Sans Devanagari',
+        ),
+      ),
+    );
+  }
+
   Widget _buildMenuCard(
     BuildContext context, {
     required String title,
@@ -722,7 +895,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     Icon(icon, size: 36, color: color),
                     const SizedBox(width: 16),
                     Text(
-                      title,
+                       title.replaceAll('\n', ' '),
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF5D4037)),
                     ),
                     const Spacer(),

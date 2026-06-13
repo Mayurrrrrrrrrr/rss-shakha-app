@@ -57,7 +57,7 @@ if ($action === 'add' || $action === 'edit') {
     }
     
     if ($action === 'add') {
-        $stmt = $pdo->prepare("INSERT INTO activities (name, sort_order, shakha_id, is_active) VALUES (?, ?, ?, 1)");
+        $stmt = $pdo->prepare("INSERT INTO activities (name, sort_order, shakha_id, is_active, updated_at) VALUES (?, ?, ?, 1, NOW())");
         $stmt->execute([$name, $sortOrder, $shakhaId]);
         header('Location: ../../pages/activities.php?success=गतिविधि जोड़ी गई');
     } else {
@@ -68,7 +68,7 @@ if ($action === 'add' || $action === 'edit') {
             echo json_encode(['success' => false, 'message' => 'Invalid input data provided.']);
             exit;
         }
-        $stmt = $pdo->prepare("UPDATE activities SET name = ?, sort_order = ? WHERE id = ? AND shakha_id = ?");
+        $stmt = $pdo->prepare("UPDATE activities SET name = ?, sort_order = ?, updated_at = NOW() WHERE id = ? AND shakha_id = ?");
         $stmt->execute([$name, $sortOrder, $id, $shakhaId]);
         header('Location: ../../pages/activities.php?success=गतिविधि अपडेट की गई');
     }
@@ -79,7 +79,7 @@ if ($action === 'add' || $action === 'edit') {
         echo json_encode(['success' => false, 'message' => 'Invalid input data provided.']);
         exit;
     }
-    $stmt = $pdo->prepare("UPDATE activities SET is_active = 0 WHERE id = ? AND shakha_id = ?");
+    $stmt = $pdo->prepare("UPDATE activities SET is_active = 0, updated_at = NOW() WHERE id = ? AND shakha_id = ?");
     $stmt->execute([$id, $shakhaId]);
     header('Location: ../../pages/activities.php?success=गतिविधि हटा दी गई');
 }

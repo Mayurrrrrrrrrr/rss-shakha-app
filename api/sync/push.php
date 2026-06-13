@@ -61,8 +61,8 @@ try {
             // New swayamsevaks have temporary/offline string or negative IDs
             if (!$offlineId || strpos((string)$offlineId, 'temp_') === 0 || intval($offlineId) <= 0) {
                 // Insert new record
-                $stmt = $pdo->prepare("INSERT INTO swayamsevaks (name, address, phone, age, shakha_id, category, gat, is_gat_nayak, is_active) 
-                                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt = $pdo->prepare("INSERT INTO swayamsevaks (name, address, phone, age, shakha_id, category, gat, is_gat_nayak, is_active, updated_at) 
+                                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
                 $stmt->execute([$name, $address, $phone, $age, $shakhaId, $category, $gat, $isGatNayak, $isActive]);
                 $serverId = $pdo->lastInsertId();
                 if ($offlineId) {
@@ -71,7 +71,7 @@ try {
             } else {
                 // Update existing record
                 $serverId = intval($offlineId);
-                $stmt = $pdo->prepare("UPDATE swayamsevaks SET name = ?, address = ?, phone = ?, age = ?, category = ?, gat = ?, is_gat_nayak = ?, is_active = ? 
+                $stmt = $pdo->prepare("UPDATE swayamsevaks SET name = ?, address = ?, phone = ?, age = ?, category = ?, gat = ?, is_gat_nayak = ?, is_active = ?, updated_at = NOW() 
                                        WHERE id = ? AND shakha_id = ?");
                 $stmt->execute([$name, $address, $phone, $age, $category, $gat, $isGatNayak, $isActive, $serverId, $shakhaId]);
                 $swayamsevakMappings[$offlineId] = $serverId;
@@ -107,11 +107,11 @@ try {
 
             if ($existing) {
                 $recordId = $existing['id'];
-                $stmt = $pdo->prepare("UPDATE daily_records SET yugabdh = ?, vikram_samvat = ?, shaka_samvat = ?, hindi_month = ?, paksh = ?, tithi = ?, utsav = ?, custom_message = ?, is_active = ? WHERE id = ?");
+                $stmt = $pdo->prepare("UPDATE daily_records SET yugabdh = ?, vikram_samvat = ?, shaka_samvat = ?, hindi_month = ?, paksh = ?, tithi = ?, utsav = ?, custom_message = ?, is_active = ?, updated_at = NOW() WHERE id = ?");
                 $stmt->execute([$yugabdh, $vikram_samvat, $shaka_samvat, $hindi_month, $paksh, $tithi, $utsav, $customMessage, $isActive, $recordId]);
             } else {
-                $stmt = $pdo->prepare("INSERT INTO daily_records (record_date, yugabdh, vikram_samvat, shaka_samvat, hindi_month, paksh, tithi, utsav, custom_message, shakha_id, is_active) 
-                                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt = $pdo->prepare("INSERT INTO daily_records (record_date, yugabdh, vikram_samvat, shaka_samvat, hindi_month, paksh, tithi, utsav, custom_message, shakha_id, is_active, updated_at) 
+                                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
                 $stmt->execute([$recordDate, $yugabdh, $vikram_samvat, $shaka_samvat, $hindi_month, $paksh, $tithi, $utsav, $customMessage, $shakhaId, $isActive]);
                 $recordId = $pdo->lastInsertId();
             }
@@ -122,7 +122,7 @@ try {
 
             // Save Attendance details
             $pdo->prepare("DELETE FROM attendance WHERE daily_record_id = ?")->execute([$recordId]);
-            $attStmt = $pdo->prepare("INSERT INTO attendance (daily_record_id, swayamsevak_id, is_present) VALUES (?, ?, ?)");
+            $attStmt = $pdo->prepare("INSERT INTO attendance (daily_record_id, swayamsevak_id, is_present, updated_at) VALUES (?, ?, ?, NOW())");
             
             foreach ($attendanceData as $swayId => $isPresent) {
                 // If this is a newly created swayamsevak in this batch, replace the temp ID with the server ID
@@ -141,7 +141,7 @@ try {
 
             // Save Activity details
             $pdo->prepare("DELETE FROM daily_activities WHERE daily_record_id = ?")->execute([$recordId]);
-            $actStmt = $pdo->prepare("INSERT INTO daily_activities (daily_record_id, activity_id, is_done, conducted_by) VALUES (?, ?, ?, ?)");
+            $actStmt = $pdo->prepare("INSERT INTO daily_activities (daily_record_id, activity_id, is_done, conducted_by, updated_at) VALUES (?, ?, ?, ?, NOW())");
             
             foreach ($activitiesData as $actId => $details) {
                 $isDone = isset($details['is_done']) ? ($details['is_done'] ? 1 : 0) : 0;

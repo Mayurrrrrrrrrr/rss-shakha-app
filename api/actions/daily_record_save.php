@@ -44,7 +44,7 @@ try {
 
     // Create or update daily record
     if ($recordId) {
-        $stmt = $pdo->prepare("UPDATE daily_records SET yugabdh = ?, vikram_samvat = ?, shaka_samvat = ?, hindi_month = ?, paksh = ?, tithi = ?, utsav = ?, custom_message = ? WHERE id = ? AND shakha_id = ?");
+        $stmt = $pdo->prepare("UPDATE daily_records SET yugabdh = ?, vikram_samvat = ?, shaka_samvat = ?, hindi_month = ?, paksh = ?, tithi = ?, utsav = ?, custom_message = ?, updated_at = NOW() WHERE id = ? AND shakha_id = ?");
         $stmt->execute([$yugabdh, $vikram_samvat, $shaka_samvat, $hindi_month, $paksh, $tithi, $utsav, $customMessage, $recordId, $shakhaId]);
     } else {
         // Check if date already exists
@@ -54,10 +54,10 @@ try {
 
         if ($existing) {
             $recordId = $existing['id'];
-            $stmt = $pdo->prepare("UPDATE daily_records SET yugabdh = ?, vikram_samvat = ?, shaka_samvat = ?, hindi_month = ?, paksh = ?, tithi = ?, utsav = ?, custom_message = ? WHERE id = ?");
+            $stmt = $pdo->prepare("UPDATE daily_records SET yugabdh = ?, vikram_samvat = ?, shaka_samvat = ?, hindi_month = ?, paksh = ?, tithi = ?, utsav = ?, custom_message = ?, updated_at = NOW() WHERE id = ?");
             $stmt->execute([$yugabdh, $vikram_samvat, $shaka_samvat, $hindi_month, $paksh, $tithi, $utsav, $customMessage, $recordId]);
         } else {
-            $stmt = $pdo->prepare("INSERT INTO daily_records (record_date, yugabdh, vikram_samvat, shaka_samvat, hindi_month, paksh, tithi, utsav, custom_message, shakha_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO daily_records (record_date, yugabdh, vikram_samvat, shaka_samvat, hindi_month, paksh, tithi, utsav, custom_message, shakha_id, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
             $stmt->execute([$recordDate, $yugabdh, $vikram_samvat, $shaka_samvat, $hindi_month, $paksh, $tithi, $utsav, $customMessage, $shakhaId]);
             $recordId = $pdo->lastInsertId();
         }
@@ -72,7 +72,7 @@ try {
     $stmt->execute([$shakhaId]);
     $allSwayamsevaks = $stmt->fetchAll();
 
-    $attStmt = $pdo->prepare("INSERT INTO attendance (daily_record_id, swayamsevak_id, is_present) VALUES (?, ?, ?)");
+    $attStmt = $pdo->prepare("INSERT INTO attendance (daily_record_id, swayamsevak_id, is_present, updated_at) VALUES (?, ?, ?, NOW())");
     foreach ($allSwayamsevaks as $s) {
         $isPresent = isset($attendanceData[$s['id']]) ? 1 : 0;
         $attStmt->execute([$recordId, $s['id'], $isPresent]);
@@ -83,7 +83,7 @@ try {
     $stmt->execute([$shakhaId]);
     $allActivities = $stmt->fetchAll();
 
-    $actStmt = $pdo->prepare("INSERT INTO daily_activities (daily_record_id, activity_id, is_done, conducted_by) VALUES (?, ?, ?, ?)");
+    $actStmt = $pdo->prepare("INSERT INTO daily_activities (daily_record_id, activity_id, is_done, conducted_by, updated_at) VALUES (?, ?, ?, ?, NOW())");
     foreach ($allActivities as $act) {
         $isDone = isset($activityDone[$act['id']]) ? 1 : 0;
         $conductor = !empty($conductedBy[$act['id']]) ? intval($conductedBy[$act['id']]) : null;

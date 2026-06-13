@@ -62,6 +62,39 @@ class SyncEngine {
     }
   }
 
+  Future<void> forceFullSync() async {
+    if (isSyncing.value) return;
+
+    final connectivity = await Connectivity().checkConnectivity();
+    if (connectivity.isEmpty || connectivity.first == ConnectivityResult.none) {
+      debugPrint('Sync skipped: Device offline');
+      syncError.value = 'डिवाइस ऑफ़लाइन है (Device offline)';
+      return;
+    }
+
+    isSyncing.value = true;
+    syncError.value = null;
+    try {
+      debugPrint('Sync: Forcing full sync. Resetting timestamp...');
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('last_sync_timestamp', '1970-01-01 00:00:00');
+
+      debugPrint('Sync: Starting upload of queued actions...');
+      await _pushOfflineQueue();
+
+      debugPrint('Sync: Starting download of ALL server updates...');
+      await _pullServerChanges();
+
+      debugPrint('Sync completed successfully (forced full sync).');
+      syncError.value = null;
+    } catch (e) {
+      debugPrint('Sync Engine failed: $e');
+      syncError.value = e.toString().replaceAll('Exception: ', '');
+    } finally {
+      isSyncing.value = false;
+    }
+  }
+
   Future<void> _pushOfflineQueue() async {
     final actions = await localRepo.getPendingActions();
     if (actions.isEmpty) {
@@ -136,7 +169,10 @@ class SyncEngine {
     if (response.statusCode == 200 && response.data != null) {
       final data = response.data;
       if (data['success'] == true) {
-        final tablesData = data['data'] as Map<String, dynamic>;
+        if (data['data'] is! Map) {
+          throw Exception('Invalid server response: "data" field is not a map');
+        }
+        final tablesData = Map<String, dynamic>.from(data['data'] as Map);
         final serverTimestamp = data['server_timestamp'] as String;
 
         // Upsert tables sequentially

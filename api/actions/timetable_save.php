@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("DELETE FROM timetable_overrides WHERE shakha_id = ? AND override_date = ?");
         $stmt->execute([$shakhaId, $overrideDate]);
         
-        $stmt = $pdo->prepare("INSERT INTO timetable_overrides (shakha_id, override_date, slots) VALUES (?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO timetable_overrides (shakha_id, override_date, slots, updated_at) VALUES (?, ?, ?, NOW())");
         $stmt->execute([$shakhaId, $overrideDate, $slotsJson]);
         
         header("Location: ../../pages/timetable.php?tab=override&msg=Date+override+saved!");

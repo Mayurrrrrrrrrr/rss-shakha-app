@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/api/api_client.dart';
 import '../../core/models/models.dart';
 import '../../core/providers/providers.dart';
+import 'snapshot_webview_screen.dart';
 
 class RecordDetailScreen extends ConsumerStatefulWidget {
   final int recordId;
@@ -394,20 +395,16 @@ class _RecordDetailScreenState extends ConsumerState<RecordDetailScreen> {
     if (recordId == null || recordId <= 0) return;
     
     final url = '${ApiClient.baseUrl}/pages/snapshot.php?id=$recordId&token=$token';
-    final uri = Uri.parse(url);
-    try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        throw 'Could not launch $url';
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('स्नैपशॉट खोलने में विफल: $e')),
-        );
-      }
-    }
+    if (!mounted) return;
+    
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => SnapshotWebViewScreen(
+          url: url,
+        ),
+      ),
+    );
   }
 
   Future<void> _syncAndReload() async {

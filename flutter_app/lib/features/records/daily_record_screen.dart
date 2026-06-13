@@ -98,6 +98,7 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
 
   // Data states
   List<Swayamsevak> _swayamsevaks = [];
+  int? _existingRecordId;
   List<Activity> _activities = [];
   
   // Form selections
@@ -158,6 +159,7 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
     // 3. Load existing saved record if any
     final existingRecord = await repo.getDailyRecordByDate(dateStr);
     if (existingRecord != null) {
+      _existingRecordId = existingRecord.id;
       _yugabdhController.text = existingRecord.yugabdh ?? '';
       _vikramController.text = existingRecord.vikramSamvat ?? '';
       _shakaController.text = existingRecord.shakaSamvat ?? '';
@@ -180,6 +182,7 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
         _conductedBy[act.activityId] = act.conductedBy;
       }
     } else {
+      _existingRecordId = null;
       // Setup empty attendance & activities
       _attendance.clear();
       _activityDone.clear();
@@ -203,7 +206,7 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
     final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
 
     final record = DailyRecord(
-      id: null, // Let SQLite assign or generate negative ID inside repo
+      id: _existingRecordId, // Use existing record ID if editing
       recordDate: dateStr,
       yugabdh: _yugabdhController.text.trim(),
       vikramSamvat: _vikramController.text.trim(),

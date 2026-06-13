@@ -23,7 +23,21 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $lastSync)) {
 $response = [
     'success' => true,
     'server_timestamp' => date('Y-m-d H:i:s'),
-    'data' => []
+    'data' => [
+        'shakhas' => [],
+        'swayamsevaks' => [],
+        'daily_records' => [],
+        'attendance' => [],
+        'activities' => [],
+        'daily_activities' => [],
+        'timetable_defaults' => [],
+        'timetable_overrides' => [],
+        'events' => [],
+        'subhashits' => [],
+        'amrit_vachan' => [],
+        'geet' => [],
+        'ghoshnayein' => []
+    ]
 ];
 
 try {
