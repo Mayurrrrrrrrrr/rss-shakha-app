@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../../core/api/api_client.dart';
 import '../../core/models/models.dart';
 import '../../core/providers/providers.dart';
 
@@ -15,6 +14,78 @@ class DailyRecordScreen extends ConsumerStatefulWidget {
 class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
   DateTime _selectedDate = DateTime.now();
   
+  // Dropdown options in Devanagari Hindi
+  final List<String> _tithiOptions = ['प्रतिपदा', 'द्वितीया', 'तृतीया', 'चतुर्थी', 'पंचमी', 'षष्ठी', 'सप्तमी', 'अष्टमी', 'नवमी', 'दशमी', 'एकादशी', 'द्वादशी', 'त्रयोदशी', 'चतुर्दशी', 'पूर्णिमा', 'अमावस्या'];
+  final List<String> _pakshOptions = ['शुक्ल पक्ष', 'कृष्ण पक्ष'];
+  final List<String> _monthOptions = ['चैत्र', 'वैशाख', 'ज्येष्ठ', 'आषाढ़', 'श्रावण', 'भाद्रपद', 'आश्विन', 'कार्तिक', 'मार्गशीर्ष', 'पौष', 'माघ', 'फाल्गुन'];
+
+  void _updateTithi(String val) {
+    if (val.isNotEmpty && !_tithiOptions.contains(val)) {
+      setState(() {
+        _tithiOptions.add(val);
+      });
+    }
+    _tithiController.text = val;
+  }
+
+  void _updatePaksh(String val) {
+    if (val.isNotEmpty && !_pakshOptions.contains(val)) {
+      setState(() {
+        _pakshOptions.add(val);
+      });
+    }
+    _pakshController.text = val;
+  }
+
+  void _updateMonth(String val) {
+    if (val.isNotEmpty && !_monthOptions.contains(val)) {
+      setState(() {
+        _monthOptions.add(val);
+      });
+    }
+    _monthController.text = val;
+  }
+
+  bool _isFetchingPanchang = false;
+  Future<void> _fetchPanchang() async {
+    setState(() => _isFetchingPanchang = true);
+    final dateStr = DateFormat('Y-m-d').format(_selectedDate);
+    try {
+      final apiClient = ref.read(apiClientProvider);
+      final response = await apiClient.get('/api/fetch_panchang.php', queryParameters: {'date': dateStr});
+      if (response.statusCode == 200 && response.data != null && response.data['status'] == 'success') {
+        final panchang = response.data['panchang'];
+        setState(() {
+          _yugabdhController.text = panchang['yugabdha']?.toString() ?? '५१२८';
+          _vikramController.text = panchang['vikram_samvat']?.toString() ?? '';
+          _shakaController.text = panchang['shaka_samvat']?.toString() ?? '';
+          _updateMonth(panchang['vikram_month']?.toString() ?? '');
+          _updatePaksh(panchang['paksha']?.toString() ?? '');
+          _updateTithi(panchang['tithi']?.toString() ?? '');
+          _utsavController.text = panchang['utsav']?.toString() ?? '';
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('✨ पंचांग सफलतापूर्वक भर गया!')),
+          );
+        }
+      } else {
+        throw Exception(response.data?['message'] ?? 'त्रुटि');
+      }
+    } catch (e) {
+      debugPrint('Sync Panchang fetch failed: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('पंचांग भरने में विफल: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isFetchingPanchang = false);
+      }
+    }
+  }
+
   // Panchang states
   final _yugabdhController = TextEditingController();
   final _vikramController = TextEditingController();
@@ -75,9 +146,10 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
         _yugabdhController.text = '५१२८';
         _vikramController.text = panchang['vikram_samvat']?.toString() ?? '';
         _shakaController.text = panchang['shaka_samvat']?.toString() ?? '';
-        _monthController.text = panchang['vikram_month']?.toString() ?? '';
-        _pakshController.text = panchang['paksha']?.toString() ?? '';
-        _tithiController.text = panchang['tithi']?.toString() ?? '';
+        _updateMonth(panchang['vikram_month']?.toString() ?? '');
+        _updatePaksh(panchang['paksha']?.toString() ?? '');
+        _updateTithi(panchang['tithi']?.toString() ?? '');
+        _utsavController.text = panchang['utsav']?.toString() ?? '';
       }
     } catch (e) {
       debugPrint('Sync Panchang fetch failed: $e');
@@ -89,9 +161,9 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
       _yugabdhController.text = existingRecord.yugabdh ?? '';
       _vikramController.text = existingRecord.vikramSamvat ?? '';
       _shakaController.text = existingRecord.shakaSamvat ?? '';
-      _monthController.text = existingRecord.hindiMonth ?? '';
-      _pakshController.text = existingRecord.paksh ?? '';
-      _tithiController.text = existingRecord.tithi ?? '';
+      _updateMonth(existingRecord.hindiMonth ?? '');
+      _updatePaksh(existingRecord.paksh ?? '');
+      _updateTithi(existingRecord.tithi ?? '');
       _utsavController.text = existingRecord.utsav ?? '';
       _messageController.text = existingRecord.customMessage ?? '';
 
@@ -181,9 +253,11 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
         Navigator.pop(context);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('त्रुटि: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('त्रुटि: $e')),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);
@@ -215,6 +289,28 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
   @override
   Widget build(BuildContext context) {
     final displayDate = DateFormat('dd MMMM yyyy').format(_selectedDate);
+
+    // Group Swayamsevaks by category
+    final Map<String, List<Swayamsevak>> groupedSwayamsevaks = {
+      'Baal': [],
+      'Tarun': [],
+      'Praudh': [],
+      'Abhyagat': [],
+    };
+
+    for (final s in _swayamsevaks) {
+      final cat = s.category;
+      if (groupedSwayamsevaks.containsKey(cat)) {
+        groupedSwayamsevaks[cat]!.add(s);
+      } else {
+        groupedSwayamsevaks['Tarun']!.add(s);
+      }
+    }
+
+    // Sort alphabetically within each group
+    for (final key in groupedSwayamsevaks.keys) {
+      groupedSwayamsevaks[key]!.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -267,45 +363,108 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
                               Row(
                                 children: [
                                   Expanded(
-                                      child: TextField(
-                                          controller: _tithiController,
-                                          decoration: const InputDecoration(labelText: 'तिथि (Tithi)'))),
+                                    child: DropdownButtonFormField<String>(
+                                      value: _tithiOptions.contains(_tithiController.text) ? _tithiController.text : null,
+                                      decoration: const InputDecoration(labelText: 'तिथि (Tithi)'),
+                                      items: _tithiOptions.map((String val) {
+                                        return DropdownMenuItem<String>(
+                                          value: val,
+                                          child: Text(val),
+                                        );
+                                      }).toList(),
+                                      onChanged: (val) {
+                                        if (val != null) {
+                                          _tithiController.text = val;
+                                        }
+                                      },
+                                    ),
+                                  ),
                                   const SizedBox(width: 16),
                                   Expanded(
-                                      child: TextField(
-                                          controller: _pakshController,
-                                          decoration: const InputDecoration(labelText: 'पक्ष (Paksha)'))),
+                                    child: DropdownButtonFormField<String>(
+                                      value: _pakshOptions.contains(_pakshController.text) ? _pakshController.text : null,
+                                      decoration: const InputDecoration(labelText: 'पक्ष (Paksha)'),
+                                      items: _pakshOptions.map((String val) {
+                                        return DropdownMenuItem<String>(
+                                          value: val,
+                                          child: Text(val),
+                                        );
+                                      }).toList(),
+                                      onChanged: (val) {
+                                        if (val != null) {
+                                          _pakshController.text = val;
+                                        }
+                                      },
+                                    ),
+                                  ),
                                 ],
                               ),
                               Row(
                                 children: [
                                   Expanded(
-                                      child: TextField(
-                                          controller: _monthController,
-                                          decoration: const InputDecoration(labelText: 'मास (Month)'))),
+                                    child: DropdownButtonFormField<String>(
+                                      value: _monthOptions.contains(_monthController.text) ? _monthController.text : null,
+                                      decoration: const InputDecoration(labelText: 'मास (Month)'),
+                                      items: _monthOptions.map((String val) {
+                                        return DropdownMenuItem<String>(
+                                          value: val,
+                                          child: Text(val),
+                                        );
+                                      }).toList(),
+                                      onChanged: (val) {
+                                        if (val != null) {
+                                          _monthController.text = val;
+                                        }
+                                      },
+                                    ),
+                                  ),
                                   const SizedBox(width: 16),
                                   Expanded(
-                                      child: TextField(
-                                          controller: _yugabdhController,
-                                          decoration: const InputDecoration(labelText: 'युगाब्द (Yugabdh)'))),
+                                    child: TextField(
+                                      controller: _yugabdhController,
+                                      decoration: const InputDecoration(labelText: 'युगाब्द (Yugabdh)'),
+                                    ),
+                                  ),
                                 ],
                               ),
                               Row(
                                 children: [
                                   Expanded(
-                                      child: TextField(
-                                          controller: _vikramController,
-                                          decoration: const InputDecoration(labelText: 'विक्रम संवत'))),
+                                    child: TextField(
+                                      controller: _vikramController,
+                                      decoration: const InputDecoration(labelText: 'विक्रम संवत'),
+                                    ),
+                                  ),
                                   const SizedBox(width: 16),
                                   Expanded(
-                                      child: TextField(
-                                          controller: _shakaController,
-                                          decoration: const InputDecoration(labelText: 'शालिवाहन शक'))),
+                                    child: TextField(
+                                      controller: _shakaController,
+                                      decoration: const InputDecoration(labelText: 'शालिवाहन शक'),
+                                    ),
+                                  ),
                                 ],
                               ),
                               TextField(
-                                  controller: _utsavController,
-                                  decoration: const InputDecoration(labelText: 'विशेष उत्सव/जयंती (Festival/Utsav)')),
+                                controller: _utsavController,
+                                decoration: const InputDecoration(labelText: 'विशेष उत्सव/जयंती (Festival/Utsav)'),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton.icon(
+                                onPressed: _isFetchingPanchang ? null : _fetchPanchang,
+                                icon: _isFetchingPanchang
+                                    ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                      )
+                                    : const Icon(Icons.auto_awesome, color: Colors.white),
+                                label: const Text('✨ ऑटो-फिल पंचांग', style: TextStyle(color: Colors.white)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFFF6B00),
+                                  minimumSize: const Size(double.infinity, 44),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                              ),
                             ],
                           ),
                         )
@@ -328,26 +487,14 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
                                 child: Text('निर्देशिका में कोई स्वयंसेवक उपलब्ध नहीं है।', style: TextStyle(color: Colors.grey)),
                               ),
                             )
-                          : ListView.separated(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: _swayamsevaks.length,
-                              separatorBuilder: (c, i) => const Divider(height: 1),
-                              itemBuilder: (ctx, index) {
-                                final s = _swayamsevaks[index];
-                                final isPresent = _attendance[s.id!] ?? false;
-                                return CheckboxListTile(
-                                  title: Text(s.name, style: const TextStyle(fontWeight: FontWeight.w500)),
-                                  subtitle: Text('गट: ${s.gat ?? "सामान्य"} | ${s.category}'),
-                                  value: isPresent,
-                                  activeColor: const Color(0xFFFF6B00),
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _attendance[s.id!] = val ?? false;
-                                    });
-                                  },
-                                );
-                              },
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildCategoryGroup('बाल (Baal)', groupedSwayamsevaks['Baal']!),
+                                _buildCategoryGroup('तरुण/युवा (Tarun)', groupedSwayamsevaks['Tarun']!),
+                                _buildCategoryGroup('प्रौढ़ (Praudh)', groupedSwayamsevaks['Praudh']!),
+                                _buildCategoryGroup('अभ्यागत (Abhyagat)', groupedSwayamsevaks['Abhyagat']!),
+                              ],
                             ),
                     ),
                     const SizedBox(height: 20),
@@ -477,6 +624,42 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
                 ),
               ),
             ),
+    );
+  }
+
+  Widget _buildCategoryGroup(String title, List<Swayamsevak> list) {
+    if (list.isEmpty) return const SizedBox.shrink();
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              color: Color(0xFFFF6B00),
+            ),
+          ),
+        ),
+        ...list.map((s) {
+          final isPresent = _attendance[s.id!] ?? false;
+          return CheckboxListTile(
+            title: Text(s.name, style: const TextStyle(fontWeight: FontWeight.w500)),
+            subtitle: Text('गट: ${s.gat ?? "सामान्य"}'),
+            value: isPresent,
+            activeColor: const Color(0xFFFF6B00),
+            onChanged: (val) {
+              setState(() {
+                _attendance[s.id!] = val ?? false;
+              });
+            },
+          );
+        }).toList(),
+        const Divider(height: 1),
+      ],
     );
   }
 }

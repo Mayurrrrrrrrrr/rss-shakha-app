@@ -336,7 +336,7 @@ require_once '../includes/header.php';
                     }
                     $logoBase64 = '';
                     if (file_exists($logoPath)) {
-                        $mime = mime_content_type($logoPath);
+                        $mime = safe_mime_content_type($logoPath);
                         $logoBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($logoPath));
                     }
                     ?>

@@ -120,7 +120,7 @@ if ($shakhaId !== null && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $allowed = ['jpg', 'jpeg', 'png', 'svg', 'webp'];
 
             if (in_array($ext, $allowed)) {
-                $mimeType = mime_content_type($_FILES['logo']['tmp_name']);
+                $mimeType = safe_mime_content_type($_FILES['logo']['tmp_name']);
                 $allowedMimes = ['image/jpeg', 'image/png', 'image/svg+xml', 'image/webp'];
 
                 if (!in_array($mimeType, $allowedMimes)) {

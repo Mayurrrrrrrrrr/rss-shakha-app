@@ -161,3 +161,24 @@ function getRequestInputs(): array
     
     return $inputs;
 }
+
+/**
+ * Safe mime type lookup fallback in case fileinfo PHP extension is missing.
+ */
+function safe_mime_content_type($path) {
+    if (function_exists('mime_content_type')) {
+        $mime = @mime_content_type($path);
+        if ($mime) return $mime;
+    }
+    
+    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+    switch ($ext) {
+        case 'png': return 'image/png';
+        case 'jpg':
+        case 'jpeg': return 'image/jpeg';
+        case 'gif': return 'image/gif';
+        case 'svg': return 'image/svg+xml';
+        default: return 'application/octet-stream';
+    }
+}
+

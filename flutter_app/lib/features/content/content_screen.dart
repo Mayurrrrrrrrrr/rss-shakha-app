@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/models/models.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../core/providers/providers.dart';
 
 class ContentScreen extends ConsumerStatefulWidget {
@@ -121,6 +121,30 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          '📖 सुभाषित (Subhashit)',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFFFF6B00),
+                            fontSize: 14,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.share, color: Color(0xFFFF6B00)),
+                          onPressed: () {
+                            final text = '📖 *सुभाषित (Subhashit)*\n\n'
+                                '🚩 *संस्कृत श्लोक:*\n${sub.sanskritText}\n\n'
+                                '📙 *हिंदी भावार्थ:*\n${sub.hindiMeaning}\n\n'
+                                'संघस्थान ऐप से साझा किया गया 🚩';
+                            SharePlus.instance.share(ShareParams(text: text));
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
                     if (sub.panchangText != null && sub.panchangText!.isNotEmpty) ...[
                       Container(
                         width: double.infinity,
@@ -224,7 +248,22 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.format_quote, size: 36, color: Color(0xFFFF6B00)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Icon(Icons.format_quote, size: 36, color: Color(0xFFFF6B00)),
+                        IconButton(
+                          icon: const Icon(Icons.share, color: Color(0xFFFF6B00)),
+                          onPressed: () {
+                            final text = '💭 *अमृत वचन (Amrit Vachan)*\n\n'
+                                '"${vachan.content}"\n\n'
+                                '- *${vachan.author ?? "अज्ञात"}*\n\n'
+                                'संघस्थान ऐप से साझा किया गया 🚩';
+                            SharePlus.instance.share(ShareParams(text: text));
+                          },
+                        ),
+                      ],
+                    ),
                     Text(
                       vachan.content,
                       style: const TextStyle(
@@ -291,7 +330,22 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('गीत पंक्तियाँ:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('गीत पंक्तियाँ:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+                            IconButton(
+                              icon: const Icon(Icons.share, color: Color(0xFFFF6B00), size: 20),
+                              onPressed: () {
+                                final text = '🎵 *गीत: ${geet.title}*\n'
+                                    'श्रेणी: ${geet.geetType == "Sanghik" ? "संघिक" : "एकल"}\n\n'
+                                    '${geet.lyrics}\n\n'
+                                    'संघस्थान ऐप से साझा किया गया 🚩';
+                                SharePlus.instance.share(ShareParams(text: text));
+                              },
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 8),
                         Container(
                           width: double.infinity,
@@ -361,15 +415,30 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const CircleAvatar(
-                          backgroundColor: Color(0xFFFFE0B2),
-                          child: Text('📣', style: TextStyle(fontSize: 16)),
+                        Row(
+                          children: [
+                            const CircleAvatar(
+                              backgroundColor: Color(0xFFFFE0B2),
+                              child: Text('📣', style: TextStyle(fontSize: 16)),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              gh.ghoshnaDate,
+                              style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.bold),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 12),
-                        Text(
-                          gh.ghoshnaDate,
-                          style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.bold),
+                        IconButton(
+                          icon: const Icon(Icons.share, color: Color(0xFFFF6B00)),
+                          onPressed: () {
+                            final text = '📣 *घोषणा (Ghoshna)*\n\n'
+                                '🚩 *संस्कृत:*\n${gh.sloganSanskrit}\n\n'
+                                '📙 *हिंदी अर्थ:*\n${gh.sloganHindi}\n\n'
+                                'संघस्थान ऐप से साझा किया गया 🚩';
+                            SharePlus.instance.share(ShareParams(text: text));
+                          },
                         ),
                       ],
                     ),

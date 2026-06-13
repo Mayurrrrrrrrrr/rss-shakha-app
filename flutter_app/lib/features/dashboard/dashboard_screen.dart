@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/api/api_client.dart';
 import '../../core/providers/providers.dart';
 import '../../core/sync/sync_engine.dart';
@@ -36,6 +37,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     _loadCachedPanchang();
     _fetchPanchangFromServer();
     _loadStatsAndRecentRecords();
+    _checkAppUpdate();
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final syncEngine = ref.read(syncEngineProvider);
@@ -135,6 +137,74 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       }
     }
   }
+
+  Future<void> _checkAppUpdate() async {
+    try {
+      final apiClient = ref.read(apiClientProvider);
+      final response = await apiClient.get('/api/app_version.php');
+      if (response.statusCode == 200 && response.data != null && response.data['status'] == 'success') {
+        final serverVersionCode = response.data['version_code'] as int;
+        const currentVersionCode = 4;
+        
+        if (serverVersionCode > currentVersionCode) {
+          final downloadUrl = response.data['download_url'] as String;
+          final isForceUpdate = response.data['force_update'] as bool? ?? false;
+          final message = response.data['message'] as String? ?? 'नया अपडेट उपलब्ध है!';
+          
+          if (!mounted) return;
+          showDialog(
+            context: context,
+            barrierDismissible: !isForceUpdate,
+            builder: (ctx) => PopScope(
+              canPop: !isForceUpdate,
+              child: AlertDialog(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                title: const Row(
+                  children: [
+                    Text('📢 ', style: TextStyle(fontSize: 22)),
+                    Text(
+                      'नया अपडेट उपलब्ध है!',
+                      style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFF6B00)),
+                    ),
+                  ],
+                ),
+                content: Text(
+                  message,
+                  style: const TextStyle(fontSize: 16, height: 1.4),
+                ),
+                actions: [
+                  if (!isForceUpdate)
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: const Text('बाद में', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                    ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (!isForceUpdate) {
+                        Navigator.pop(ctx);
+                      }
+                      final uri = Uri.parse(downloadUrl);
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF6B00),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: const Text('अपडेट करें', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('App update check failed: $e');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {

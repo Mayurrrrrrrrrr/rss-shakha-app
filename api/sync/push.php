@@ -54,7 +54,7 @@ try {
 
             // Check if it is a new Swayamsevak or an edit
             // New swayamsevaks have temporary/offline string or negative IDs
-            if (!$offlineId || strpos($offlineId, 'temp_') === 0 || intval($offlineId) <= 0) {
+            if (!$offlineId || strpos((string)$offlineId, 'temp_') === 0 || intval($offlineId) <= 0) {
                 // Insert new record
                 $stmt = $pdo->prepare("INSERT INTO swayamsevaks (name, address, phone, age, shakha_id, category, gat, is_gat_nayak, is_active) 
                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -130,7 +130,7 @@ try {
                 }
 
                 // If mapped ID is still temporary or empty, skip it
-                if (strpos($mappedSwayId, 'temp_') === 0 || intval($mappedSwayId) <= 0) {
+                if (strpos((string)$mappedSwayId, 'temp_') === 0 || intval($mappedSwayId) <= 0) {
                     continue;
                 }
 
@@ -149,7 +149,7 @@ try {
                 if ($conductor && isset($swayamsevakMappings[$conductor])) {
                     $conductor = $swayamsevakMappings[$conductor];
                 }
-                if ($conductor && (strpos($conductor, 'temp_') === 0 || intval($conductor) <= 0)) {
+                if ($conductor && (strpos((string)$conductor, 'temp_') === 0 || intval($conductor) <= 0)) {
                     $conductor = null;
                 }
 

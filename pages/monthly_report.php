@@ -90,7 +90,7 @@ if ($shakhaRow) {
 $logoPath = dirname(__DIR__) . '/assets/images/logo.png';
 $logoBase64 = '';
 if (file_exists($logoPath)) {
-    $mime = mime_content_type($logoPath);
+    $mime = safe_mime_content_type($logoPath);
     $logoBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($logoPath));
 }
 ?>
