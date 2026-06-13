@@ -20,9 +20,35 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDB,
+      onUpgrade: _onUpgrade,
     );
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      final tables = [
+        'shakhas',
+        'swayamsevaks',
+        'daily_records',
+        'attendance',
+        'activities',
+        'daily_activities',
+        'timetable_defaults',
+        'timetable_overrides',
+        'events',
+        'subhashits',
+        'amrit_vachan',
+        'geet',
+        'ghoshnayein',
+        'offline_actions_queue'
+      ];
+      for (var table in tables) {
+        await db.execute('DROP TABLE IF EXISTS $table');
+      }
+      await _createDB(db, newVersion);
+    }
   }
 
   Future<void> _createDB(Database db, int version) async {
@@ -162,6 +188,7 @@ class DatabaseHelper {
         hindi_meaning $textType,
         shabdarth $textType,
         subhashit_date $textType,
+        panchang_text $textType,
         created_by $integerType,
         is_active $integerType DEFAULT 1,
         updated_at $textType
@@ -203,9 +230,10 @@ class DatabaseHelper {
       CREATE TABLE ghoshnayein (
         id $primaryKeyAuto,
         shakha_id $integerType,
-        title $textType NOT NULL,
-        content $textType NOT NULL,
-        ghoshnayein_date $textType,
+        slogan_sanskrit $textType,
+        slogan_hindi $textType,
+        context $textType,
+        ghoshna_date $textType,
         created_by $integerType,
         is_active $integerType DEFAULT 1,
         updated_at $textType

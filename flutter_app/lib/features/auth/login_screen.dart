@@ -188,7 +188,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       const SizedBox(height: 16),
                       const Text(
-                        'संस्करण (Version) 1.0.1+2',
+                        'संस्करण (Version) 1.0.2+3',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.black38,

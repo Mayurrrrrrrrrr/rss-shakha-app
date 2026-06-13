@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../../core/models/models.dart';
 import '../../core/providers/providers.dart';
 
@@ -21,6 +22,7 @@ class _ShakhaTimerScreenState extends ConsumerState<ShakhaTimerScreen> {
 
   List<Map<String, dynamic>> _slots = [];
   bool _isLoading = true;
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   @override
   void initState() {
@@ -31,6 +33,7 @@ class _ShakhaTimerScreenState extends ConsumerState<ShakhaTimerScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -108,22 +111,36 @@ class _ShakhaTimerScreenState extends ConsumerState<ShakhaTimerScreen> {
     SystemSound.play(SystemSoundType.click);
   }
 
+  Future<void> _playWhistle({bool doubleBlast = false}) async {
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audio/whistle.mp3'));
+      if (doubleBlast) {
+        await Future.delayed(const Duration(milliseconds: 1200));
+        await _audioPlayer.stop();
+        await _audioPlayer.play(AssetSource('audio/whistle.mp3'));
+      }
+    } catch (e) {
+      debugPrint('Error playing whistle: $e');
+    }
+  }
+
   void _checkAlerts() {
     // Check if we hit any transition timestamp
     for (var slot in _slots) {
       final startSec = (slot['start_min'] * 60).toInt();
       final endSec = (slot['end_min'] * 60).toInt();
 
-      // Long whistle (3s) at slot boundary transitions
+      // Whistle at slot boundary transitions
       if (_elapsedSeconds == startSec || _elapsedSeconds == endSec) {
         HapticFeedback.vibrate();
-        SystemSound.play(SystemSoundType.click);
+        _playWhistle(doubleBlast: false);
         break;
       }
-      // Warning beep 30 seconds before any slot ends
+      // Warning double-whistle 30 seconds before any slot ends
       if (_elapsedSeconds == endSec - 30) {
         HapticFeedback.lightImpact();
-        SystemSound.play(SystemSoundType.click);
+        _playWhistle(doubleBlast: true);
         break;
       }
     }

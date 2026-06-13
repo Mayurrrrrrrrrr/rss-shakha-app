@@ -7,6 +7,8 @@ import '../../core/providers/providers.dart';
 import '../../core/sync/sync_engine.dart';
 import '../swayamsevaks/swayamsevak_screen.dart';
 import '../records/daily_record_screen.dart';
+import '../records/records_list_screen.dart';
+import '../records/record_detail_screen.dart';
 import '../content/content_screen.dart';
 import '../shakha/shakha_timer_screen.dart';
 import '../shakha/timetable_screen.dart';
@@ -22,11 +24,67 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Map<String, String>? _panchangData;
   bool _isLoadingPanchang = false;
 
+  int _totalSwayamsevaks = 0;
+  int _totalRecords = 0;
+  bool _hasTodayRecord = false;
+  List<Map<String, dynamic>> _recentRecords = [];
+  bool _isLoadingStats = false;
+
   @override
   void initState() {
     super.initState();
     _loadCachedPanchang();
     _fetchPanchangFromServer();
+    _loadStatsAndRecentRecords();
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final syncEngine = ref.read(syncEngineProvider);
+      syncEngine.isSyncing.addListener(_onSyncStateChanged);
+    });
+  }
+
+  void _onSyncStateChanged() {
+    final isSyncing = ref.read(syncEngineProvider).isSyncing.value;
+    if (!isSyncing) {
+      _loadStatsAndRecentRecords();
+    }
+  }
+
+  @override
+  void dispose() {
+    try {
+      final syncEngine = ref.read(syncEngineProvider);
+      syncEngine.isSyncing.removeListener(_onSyncStateChanged);
+    } catch (_) {}
+    super.dispose();
+  }
+
+  Future<void> _loadStatsAndRecentRecords() async {
+    if (!mounted) return;
+    setState(() => _isLoadingStats = true);
+    try {
+      final repo = ref.read(localRepoProvider);
+      final swCount = await repo.getTotalSwayamsevaks();
+      final recCount = await repo.getTotalDailyRecords();
+      final todayStr = DateTime.now().toIso8601String().substring(0, 10);
+      final todayRec = await repo.getDailyRecordByDate(todayStr);
+      final recent = await repo.getRecentDailyRecords(3);
+      
+      if (mounted) {
+        setState(() {
+          _totalSwayamsevaks = swCount;
+          _totalRecords = recCount;
+          _hasTodayRecord = todayRec != null;
+          _recentRecords = recent;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading dashboard stats: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingStats = false);
+      }
+    }
   }
 
   Future<void> _loadCachedPanchang() async {
@@ -126,6 +184,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           onRefresh: () async {
             await _fetchPanchangFromServer();
             await syncEngine.sync();
+            await _loadStatsAndRecentRecords();
           },
           color: const Color(0xFFFF6B00),
           child: SingleChildScrollView(
@@ -140,6 +199,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
                 // Panchang Card
                 _buildPanchangCard(),
+                const SizedBox(height: 16),
+
+                // Stats Grid
+                _buildStatsGrid(),
                 const SizedBox(height: 24),
 
                 const Text(
@@ -201,7 +264,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
                 const SizedBox(height: 16),
                 
-                // Full-width Content Library Card
+                // Full-width Menu Cards
+                _buildMenuCard(
+                  context,
+                  title: '📄 रिकॉर्ड इतिहास (Record History)',
+                  icon: Icons.history_edu_outlined,
+                  color: const Color(0xFF7B1FA2),
+                  isFullWidth: true,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (ctx) => const RecordsListScreen()),
+                  ).then((_) => _loadStatsAndRecentRecords()),
+                ),
+                const SizedBox(height: 16),
                 _buildMenuCard(
                   context,
                   title: '📖 बौद्धिक सामग्री संग्रह (Content Library)',
@@ -213,11 +288,141 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     MaterialPageRoute(builder: (ctx) => const ContentScreen()),
                   ),
                 ),
+                const SizedBox(height: 24),
+                const Text(
+                  'हाल के रिकॉर्ड (Recent Records)',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF5D4037)),
+                ),
+                const SizedBox(height: 12),
+                _buildRecentRecordsList(),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildStatsGrid() {
+    return _isLoadingStats
+        ? const Center(child: LinearProgressIndicator(color: Color(0xFFFF6B00)))
+        : GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 2.2,
+            children: [
+              _buildStatMiniCard('👥 $_totalSwayamsevaks', 'कुल स्वयंसेवक'),
+              _buildStatMiniCard('📊 $_totalRecords', 'कुल रिकॉर्ड'),
+              _buildStatMiniCard(_hasTodayRecord ? '✅ पूर्ण' : '⏳ अपूर्ण', 'आज का रिकॉर्ड'),
+              _buildStatMiniCard('🚩 ${ref.watch(sessionProvider).shakhaId ?? 0}', 'शाखा आईडी'),
+            ],
+          );
+  }
+
+  Widget _buildStatMiniCard(String value, String label) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              value,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF5D4037)),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecentRecordsList() {
+    if (_isLoadingStats) {
+      return const Center(child: CircularProgressIndicator(color: Color(0xFFFF6B00)));
+    }
+    if (_recentRecords.isEmpty) {
+      return Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        color: Colors.white,
+        child: const Padding(
+          padding: EdgeInsets.all(24.0),
+          child: Center(
+            child: Text(
+              'अभी तक कोई दैनिक रिकॉर्ड उपलब्ध नहीं है।',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _recentRecords.length,
+      itemBuilder: (ctx, index) {
+        final rec = _recentRecords[index];
+        final recordDate = rec['record_date'] as String;
+        
+        // Format Hindi Date
+        String formattedDate = recordDate;
+        try {
+          final date = DateTime.parse(recordDate);
+          final List<String> hindiMonths = [
+            'जनवरी', 'फ़रवरी', 'मार्च', 'अप्रैल', 'मई', 'जून',
+            'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'
+          ];
+          final monthName = hindiMonths[date.month - 1];
+          formattedDate = '${date.day} $monthName ${date.year}';
+        } catch (_) {}
+
+        final present = rec['present_count'] ?? 0;
+        final total = rec['total_count'] ?? 0;
+
+        return Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.only(bottom: 12),
+          color: Colors.white,
+          child: ListTile(
+            leading: const CircleAvatar(
+              backgroundColor: Color(0xFFE8F5E9),
+              child: Icon(Icons.assignment_turned_in_outlined, color: Colors.green, size: 20),
+            ),
+            title: Text(
+              formattedDate,
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF5D4037)),
+            ),
+            subtitle: Text('उपस्थिति: $present / $total स्वयंसेवक'),
+            trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (ctx) => RecordDetailScreen(
+                    recordId: rec['id'] as int,
+                    dateStr: recordDate,
+                    formattedDate: formattedDate,
+                  ),
+                ),
+              ).then((_) => _loadStatsAndRecentRecords());
+            },
+          ),
+        );
+      },
     );
   }
 

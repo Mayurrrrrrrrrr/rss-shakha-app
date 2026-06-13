@@ -332,7 +332,7 @@ class LocalRepository {
 
   Future<List<Ghoshna>> getGhoshnayein() async {
     final db = await _dbHelper.database;
-    final maps = await db.query('ghoshnayein', where: 'is_active = 1', orderBy: 'ghoshnayein_date DESC');
+    final maps = await db.query('ghoshnayein', where: 'is_active = 1', orderBy: 'ghoshna_date DESC');
     return maps.map((m) => Ghoshna.fromJson(m)).toList();
   }
 
@@ -359,6 +359,78 @@ class LocalRepository {
     final maps = await db.query('timetable_overrides', where: 'override_date = ? AND is_active = 1', whereArgs: [date]);
     if (maps.isEmpty) return null;
     return TimetableOverride.fromJson(maps.first);
+  }
+
+  Future<int> getTotalSwayamsevaks() async {
+    final db = await _dbHelper.database;
+    final result = await db.rawQuery('SELECT COUNT(*) as count FROM swayamsevaks WHERE is_active = 1');
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
+
+  Future<int> getTotalDailyRecords() async {
+    final db = await _dbHelper.database;
+    final result = await db.rawQuery('SELECT COUNT(*) as count FROM daily_records WHERE is_active = 1');
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
+
+  Future<List<Map<String, dynamic>>> getRecentDailyRecords(int limit) async {
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'daily_records',
+      where: 'is_active = 1',
+      orderBy: 'record_date DESC',
+      limit: limit,
+    );
+    return _enrichRecords(maps);
+  }
+
+  Future<List<Map<String, dynamic>>> getAllDailyRecords() async {
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'daily_records',
+      where: 'is_active = 1',
+      orderBy: 'record_date DESC',
+    );
+    return _enrichRecords(maps);
+  }
+
+  Future<List<Map<String, dynamic>>> _enrichRecords(List<Map<String, dynamic>> maps) async {
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> result = [];
+    for (var m in maps) {
+      final recordId = m['id'] as int;
+      final presentResult = await db.rawQuery(
+        'SELECT COUNT(*) as count FROM attendance WHERE daily_record_id = ? AND is_present = 1',
+        [recordId],
+      );
+      final presentCount = Sqflite.firstIntValue(presentResult) ?? 0;
+
+      final totalResult = await db.rawQuery(
+        'SELECT COUNT(*) as count FROM attendance WHERE daily_record_id = ?',
+        [recordId],
+      );
+      final totalCount = Sqflite.firstIntValue(totalResult) ?? 0;
+
+      final activityDoneResult = await db.rawQuery(
+        'SELECT COUNT(*) as count FROM daily_activities WHERE daily_record_id = ? AND is_done = 1',
+        [recordId],
+      );
+      final activityDoneCount = Sqflite.firstIntValue(activityDoneResult) ?? 0;
+
+      final activityTotalResult = await db.rawQuery(
+        'SELECT COUNT(*) as count FROM daily_activities WHERE daily_record_id = ?',
+        [recordId],
+      );
+      final activityTotalCount = Sqflite.firstIntValue(activityTotalResult) ?? 0;
+
+      final map = Map<String, dynamic>.from(m);
+      map['present_count'] = presentCount;
+      map['total_count'] = totalCount;
+      map['activities_done'] = activityDoneCount;
+      map['activities_total'] = activityTotalCount;
+      result.add(map);
+    }
+    return result;
   }
 
   // ==========================================

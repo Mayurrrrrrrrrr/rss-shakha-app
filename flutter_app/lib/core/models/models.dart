@@ -396,6 +396,7 @@ class Subhashit {
   final String hindiMeaning;
   final String? shabdarth;
   final String subhashitDate;
+  final String? panchangText;
   final int? createdBy;
   final int isActive;
   final String? updatedAt;
@@ -407,6 +408,7 @@ class Subhashit {
     required this.hindiMeaning,
     this.shabdarth,
     required this.subhashitDate,
+    this.panchangText,
     this.createdBy,
     required this.isActive,
     this.updatedAt,
@@ -420,6 +422,7 @@ class Subhashit {
       hindiMeaning: json['hindi_meaning'] ?? '',
       shabdarth: json['shabdarth'],
       subhashitDate: json['subhashit_date'] ?? '',
+      panchangText: json['panchang_text'],
       createdBy: json['created_by'] != null ? (json['created_by'] is String ? int.parse(json['created_by']) : json['created_by']) : null,
       isActive: json['is_active'] is String ? int.parse(json['is_active']) : (json['is_active'] ?? 1),
       updatedAt: json['updated_at'],
@@ -433,6 +436,7 @@ class Subhashit {
         'hindi_meaning': hindiMeaning,
         'shabdarth': shabdarth,
         'subhashit_date': subhashitDate,
+        'panchang_text': panchangText,
         'created_by': createdBy,
         'is_active': isActive,
         'updated_at': updatedAt,
@@ -542,9 +546,10 @@ class Geet {
 class Ghoshna {
   final int? id;
   final int? shakhaId;
-  final String title;
-  final String content;
-  final String ghoshnayeinDate;
+  final String sloganSanskrit;
+  final String sloganHindi;
+  final String? context;
+  final String ghoshnaDate;
   final int? createdBy;
   final int isActive;
   final String? updatedAt;
@@ -552,9 +557,10 @@ class Ghoshna {
   Ghoshna({
     this.id,
     this.shakhaId,
-    required this.title,
-    required this.content,
-    required this.ghoshnayeinDate,
+    required this.sloganSanskrit,
+    required this.sloganHindi,
+    this.context,
+    required this.ghoshnaDate,
     this.createdBy,
     required this.isActive,
     this.updatedAt,
@@ -564,9 +570,10 @@ class Ghoshna {
     return Ghoshna(
       id: json['id'] != null ? (json['id'] is String ? int.parse(json['id']) : json['id']) : null,
       shakhaId: json['shakha_id'] != null ? (json['shakha_id'] is String ? int.parse(json['shakha_id']) : json['shakha_id']) : null,
-      title: json['title'] ?? '',
-      content: json['content'] ?? '',
-      ghoshnayeinDate: json['ghoshnayein_date'] ?? '',
+      sloganSanskrit: json['slogan_sanskrit'] ?? '',
+      sloganHindi: json['slogan_hindi'] ?? '',
+      context: json['context'],
+      ghoshnaDate: json['ghoshna_date'] ?? '',
       createdBy: json['created_by'] != null ? (json['created_by'] is String ? int.parse(json['created_by']) : json['created_by']) : null,
       isActive: json['is_active'] is String ? int.parse(json['is_active']) : (json['is_active'] ?? 1),
       updatedAt: json['updated_at'],
@@ -576,9 +583,10 @@ class Ghoshna {
   Map<String, dynamic> toJson() => {
         'id': id,
         'shakha_id': shakhaId,
-        'title': title,
-        'content': content,
-        'ghoshnayein_date': ghoshnayeinDate,
+        'slogan_sanskrit': sloganSanskrit,
+        'slogan_hindi': sloganHindi,
+        'context': context,
+        'ghoshna_date': ghoshnaDate,
         'created_by': createdBy,
         'is_active': isActive,
         'updated_at': updatedAt,

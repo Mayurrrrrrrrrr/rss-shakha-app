@@ -121,7 +121,27 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('ससंस्कृत श्लोक:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.amber)),
+                    if (sub.panchangText != null && sub.panchangText!.isNotEmpty) ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF8E1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.amber.shade200),
+                        ),
+                        child: Text(
+                          sub.panchangText!,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF5D4037),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    const Text('संस्कृत श्लोक:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.amber)),
                     const SizedBox(height: 6),
                     Text(
                       sub.sanskritText,
@@ -319,8 +339,9 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
     return asyncData.when(
       data: (list) {
         final filtered = list.where((x) =>
-            x.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            x.content.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+            x.sloganSanskrit.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            x.sloganHindi.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            (x.context ?? '').toLowerCase().contains(_searchQuery.toLowerCase())).toList();
 
         if (filtered.isEmpty) return const Center(child: Text('कोई घोषणा नहीं मिली।'));
 
@@ -334,23 +355,56 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               margin: const EdgeInsets.only(bottom: 12),
               color: Colors.white,
-              child: ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                leading: const CircleAvatar(
-                  backgroundColor: Color(0xFFFFE0B2),
-                  child: Text('📣', style: TextStyle(fontSize: 18)),
-                ),
-                title: Text(
-                  gh.title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFFFF6B00)),
-                ),
-                trailing: Text(
-                  gh.content,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: Color(0xFF388E3C),
-                  ),
+              child: Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const CircleAvatar(
+                          backgroundColor: Color(0xFFFFE0B2),
+                          child: Text('📣', style: TextStyle(fontSize: 16)),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          gh.ghoshnaDate,
+                          style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      gh.sloganSanskrit,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Color(0xFFFF6B00),
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      gh.sloganHindi,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        color: Color(0xFF388E3C),
+                        fontWeight: FontWeight.bold,
+                        height: 1.4,
+                      ),
+                    ),
+                    if (gh.context != null && gh.context!.isNotEmpty) ...[
+                      const Divider(height: 18),
+                      Text(
+                        gh.context!,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black54,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             );
