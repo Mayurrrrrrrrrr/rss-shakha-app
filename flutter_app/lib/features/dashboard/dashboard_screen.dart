@@ -522,17 +522,59 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Widget _buildPanchangCard() {
     if (_panchangData == null) {
-      return Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        color: const Color(0xFFFFF8E1), // light gold
-        child: const Padding(
-          padding: EdgeInsets.all(24.0),
-          child: Center(
-            child: CircularProgressIndicator(color: Color(0xFFFF6B00)),
+      if (_isLoadingPanchang) {
+        return Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          color: const Color(0xFFFFF8E1), // light gold
+          child: const Padding(
+            padding: EdgeInsets.all(24.0),
+            child: Center(
+              child: CircularProgressIndicator(color: Color(0xFFFF6B00)),
+            ),
           ),
-        ),
-      );
+        );
+      } else {
+        return Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          color: const Color(0xFFFFF8E1), // Warm gold-cream
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  '🗓️ दैनिक पंचांग',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFFFF6B00)),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'पंचांग डेटा उपलब्ध नहीं है (ऑफ़लाइन या सर्वर त्रुटि)',
+                  style: TextStyle(fontSize: 14, color: Colors.brown, fontWeight: FontWeight.w500),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    _fetchPanchangFromServer();
+                  },
+                  icon: const Icon(Icons.refresh, size: 18),
+                  label: const Text('पुनः प्रयास करें (Retry)'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFF6B00),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
     }
 
     return Card(

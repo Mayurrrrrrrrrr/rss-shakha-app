@@ -5,15 +5,12 @@ require_once '../includes/auth.php';
  */
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../config/db.php';
-requireLogin();
+require_once __DIR__ . '/sync/auth_api.php';
+
+$userContext = authenticateAPIRequest();
+$shakhaId = $userContext['shakha_id'];
 
 header('Content-Type: application/json; charset=UTF-8');
-
-$shakhaId = getCurrentShakhaId();
-if (!$shakhaId) {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit;
-}
 
 // Fetch Shakha-specific Gemini Key
 $stmtKey = $pdo->prepare("SELECT gemini_api_key FROM shakhas WHERE id = ?");

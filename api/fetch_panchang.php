@@ -1,15 +1,15 @@
 <?php
 require_once '../includes/auth.php';
+require_once __DIR__ . '/sync/auth_api.php';
 /**
  * Local Panchang API
  * ----------------------------
  * Calculates daily Tithi, Paksha, and Hindu Month using Surya Siddhanta approximation.
  */
-header('Content-Type: application/json');
-require_once '../includes/auth.php';
+header('Content-Type: application/json; charset=UTF-8');
 require_once '../includes/PanchangCalculator.php';
 
-requireLogin();
+$userContext = authenticateAPIRequest();
 
 $date = $_GET['date'] ?? date('Y-m-d');
 

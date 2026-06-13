@@ -5,11 +5,12 @@ require_once __DIR__ . '/../includes/auth.php';
  * Collects shakha data for a date range and sends to Gemini for analysis
  */
 require_once __DIR__ . '/../config/db.php';
-requireLogin();
+require_once __DIR__ . '/sync/auth_api.php';
+
+$userContext = authenticateAPIRequest();
+$shakhaId = $userContext['shakha_id'];
 
 header('Content-Type: application/json; charset=UTF-8');
-
-$shakhaId = getCurrentShakhaId();
 
 // Fetch Shakha-specific Gemini Key
 $stmtKey = $pdo->prepare("SELECT gemini_api_key FROM shakhas WHERE id = ?");
@@ -46,6 +47,9 @@ try {
 } catch (Exception $e) {}
 
 // Rate limiting: 5 AI requests per user per hour
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 $now = time();
 if (!isset($_SESSION['last_ai_request']) || ($now - $_SESSION['last_ai_request']) > 3600) {
     $_SESSION['last_ai_request'] = $now;

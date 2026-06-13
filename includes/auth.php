@@ -1,12 +1,14 @@
 <?php
-session_start();
-
-// PHP Hardening
+// PHP Hardening (must be done before session_start)
 ini_set('session.cookie_httponly', 1);
 ini_set('session.cookie_samesite', 'Strict');
 ini_set('session.use_strict_mode', 1);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Security headers
 header("X-Frame-Options: DENY");
