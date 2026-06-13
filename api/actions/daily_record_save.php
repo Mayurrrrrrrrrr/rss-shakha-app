@@ -32,13 +32,13 @@ $conductedBy = $inputs['conducted_by'] ?? [];
 
 $utsav = trim($inputs['utsav'] ?? '');
 
-try {
-    $pdo->beginTransaction();
-
-    // Auto-create utsav column if missing
+    // Auto-create utsav column if missing (run outside transaction to avoid implicit commit)
     try {
         $pdo->exec("ALTER TABLE daily_records ADD COLUMN utsav VARCHAR(255) DEFAULT NULL AFTER tithi");
     } catch (PDOException $e) { }
+
+try {
+    $pdo->beginTransaction();
 
     $shakhaId = getCurrentShakhaId();
 

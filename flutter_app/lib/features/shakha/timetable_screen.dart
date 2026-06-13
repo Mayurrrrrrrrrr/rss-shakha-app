@@ -67,7 +67,7 @@ class _TimetableScreenState extends ConsumerState<TimetableScreen> with SingleTi
     }
 
     // 2. Load override slots for chosen date
-    final dateStr = DateFormat('Y-m-d').format(_overrideDate);
+    final dateStr = DateFormat('yyyy-MM-dd').format(_overrideDate);
     final override = await repo.getTimetableOverrideForDate(dateStr);
     if (override != null) {
       try {
@@ -147,7 +147,7 @@ class _TimetableScreenState extends ConsumerState<TimetableScreen> with SingleTi
         'updated_at': DateTime.now().toIso8601String(),
       });
     } else {
-      final dateStr = DateFormat('Y-m-d').format(_overrideDate);
+      final dateStr = DateFormat('yyyy-MM-dd').format(_overrideDate);
       syncPayload['override_date'] = dateStr;
 
       // Update local SQLite db

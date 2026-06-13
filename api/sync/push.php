@@ -29,6 +29,11 @@ $response = [
     'errors' => []
 ];
 
+    // Auto-create column in case missing (run outside transaction to avoid implicit commits)
+    try {
+        $pdo->exec("ALTER TABLE daily_records ADD COLUMN utsav VARCHAR(255) DEFAULT NULL AFTER tithi");
+    } catch (PDOException $e) { }
+
 try {
     $pdo->beginTransaction();
 
@@ -93,10 +98,7 @@ try {
             $activitiesData = $rec['activities'] ?? [];
             $isActive = isset($rec['is_active']) ? intval($rec['is_active']) : 1;
 
-            // Auto-create column in case missing
-            try {
-                $pdo->exec("ALTER TABLE daily_records ADD COLUMN utsav VARCHAR(255) DEFAULT NULL AFTER tithi");
-            } catch (PDOException $e) { }
+
 
             // Insert or Update daily record base
             $stmt = $pdo->prepare("SELECT id FROM daily_records WHERE record_date = ? AND shakha_id = ?");

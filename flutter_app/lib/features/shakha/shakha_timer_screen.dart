@@ -43,7 +43,7 @@ class _ShakhaTimerScreenState extends ConsumerState<ShakhaTimerScreen> {
     final today = DateTime.now();
     
     // Get override for today
-    final todayStr = DateFormat('Y-m-d').format(today);
+    final todayStr = DateFormat('yyyy-MM-dd').format(today);
     final override = await repo.getTimetableOverrideForDate(todayStr);
 
     String slotsJson = '[]';

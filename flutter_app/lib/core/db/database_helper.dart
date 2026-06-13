@@ -11,6 +11,7 @@ class DatabaseHelper {
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDB('sanghasthan.db');
+    await _sanitizeLocalDatabase(_database!);
     return _database!;
   }
 
@@ -280,5 +281,99 @@ class DatabaseHelper {
     if (db != null) {
       await db.close();
     }
+  }
+
+  Future<void> _sanitizeLocalDatabase(Database db) async {
+    try {
+      // 1. Sanitize offline actions queue
+      final actions = await db.query('offline_actions_queue');
+      for (var action in actions) {
+        final id = action['id'] as String;
+        final payloadStr = action['payload'] as String;
+        try {
+          final payload = jsonDecode(payloadStr) as Map<String, dynamic>;
+          bool changed = false;
+          
+          if (payload.containsKey('record_date')) {
+            final date = payload['record_date'] as String;
+            final sanitized = _sanitizeDateString(date);
+            if (sanitized != date) {
+              payload['record_date'] = sanitized;
+              changed = true;
+            }
+          }
+          if (payload.containsKey('override_date')) {
+            final date = payload['override_date'] as String;
+            final sanitized = _sanitizeDateString(date);
+            if (sanitized != date) {
+              payload['override_date'] = sanitized;
+              changed = true;
+            }
+          }
+          
+          if (changed) {
+            await db.update(
+              'offline_actions_queue',
+              {'payload': jsonEncode(payload)},
+              where: 'id = ?',
+              whereArgs: [id],
+            );
+          }
+        } catch (_) {}
+      }
+
+      // 2. Sanitize daily_records table
+      final records = await db.query('daily_records');
+      for (var record in records) {
+        final id = record['id'] as int;
+        final date = record['record_date'] as String;
+        final sanitized = _sanitizeDateString(date);
+        if (sanitized != date) {
+          final existing = await db.query('daily_records', where: 'record_date = ?', whereArgs: [sanitized]);
+          if (existing.isNotEmpty) {
+            await db.delete('daily_records', where: 'id = ?', whereArgs: [id]);
+            await db.delete('attendance', where: 'daily_record_id = ?', whereArgs: [id]);
+            await db.delete('daily_activities', where: 'daily_record_id = ?', whereArgs: [id]);
+          } else {
+            await db.update('daily_records', {'record_date': sanitized}, where: 'id = ?', whereArgs: [id]);
+          }
+        }
+      }
+      
+      // 3. Sanitize timetable_overrides table
+      final overrides = await db.query('timetable_overrides');
+      for (var ov in overrides) {
+        final shakhaId = ov['shakha_id'] as int;
+        final date = ov['override_date'] as String;
+        final sanitized = _sanitizeDateString(date);
+        if (sanitized != date) {
+          final existing = await db.query('timetable_overrides', 
+              where: 'shakha_id = ? AND override_date = ?', whereArgs: [shakhaId, sanitized]);
+          if (existing.isNotEmpty) {
+            await db.delete('timetable_overrides', 
+                where: 'shakha_id = ? AND override_date = ?', whereArgs: [shakhaId, date]);
+          } else {
+            await db.update('timetable_overrides', 
+                {'override_date': sanitized}, 
+                where: 'shakha_id = ? AND override_date = ?', whereArgs: [shakhaId, date]);
+          }
+        }
+      }
+    } catch (_) {}
+  }
+
+  String _sanitizeDateString(String dateStr) {
+    final parts = dateStr.split('-');
+    if (parts.length == 3) {
+      var y = int.tryParse(parts[0]) ?? DateTime.now().year;
+      var m = int.tryParse(parts[1]) ?? DateTime.now().month;
+      var d = int.tryParse(parts[2]) ?? DateTime.now().day;
+      
+      if (m < 1 || m > 12) {
+        m = DateTime.now().month;
+      }
+      return '${y.toString().padLeft(4, '0')}-${m.toString().padLeft(2, '0')}-${d.toString().padLeft(2, '0')}';
+    }
+    return dateStr;
   }
 }

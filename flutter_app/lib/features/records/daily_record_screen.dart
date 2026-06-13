@@ -49,7 +49,7 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
   bool _isFetchingPanchang = false;
   Future<void> _fetchPanchang() async {
     setState(() => _isFetchingPanchang = true);
-    final dateStr = DateFormat('Y-m-d').format(_selectedDate);
+    final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
     try {
       final apiClient = ref.read(apiClientProvider);
       final response = await apiClient.get('/api/fetch_panchang.php', queryParameters: {'date': dateStr});
@@ -137,7 +137,7 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
     _activities = await repo.getActiveActivities();
 
     // 2. Fetch today's Panchang/utsav from API if online, otherwise pre-fill defaults
-    final dateStr = DateFormat('Y-m-d').format(_selectedDate);
+    final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
     try {
       final apiClient = ref.read(apiClientProvider);
       final response = await apiClient.get('/api/fetch_panchang.php', queryParameters: {'date': dateStr});
@@ -200,7 +200,7 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
     setState(() => _isSaving = true);
     final repo = ref.read(localRepoProvider);
     final session = ref.read(sessionProvider);
-    final dateStr = DateFormat('Y-m-d').format(_selectedDate);
+    final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
 
     final record = DailyRecord(
       id: null, // Let SQLite assign or generate negative ID inside repo
