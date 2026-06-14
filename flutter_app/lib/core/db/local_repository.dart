@@ -8,6 +8,17 @@ class LocalRepository {
   final _dbHelper = DatabaseHelper.instance;
   final _uuid = const Uuid();
 
+  Future<Map<String, dynamic>?> getShakhaById(int id) async {
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'shakhas',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    if (maps.isEmpty) return null;
+    return maps.first;
+  }
+
   // ==========================================
   // OFFLINE QUEUE UTILS
   // ==========================================

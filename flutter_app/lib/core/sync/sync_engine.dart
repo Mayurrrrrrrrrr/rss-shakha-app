@@ -157,15 +157,15 @@ class SyncEngine {
       final data = response.data;
       if (data['success'] == true) {
         // 1. Resolve local swayamsevak ID mapping
-        if (data['swayamsevak_mappings'] != null) {
-          final swMappings = Map<String, dynamic>.from(data['swayamsevak_mappings'])
+        if (data['swayamsevak_mappings'] != null && data['swayamsevak_mappings'] is Map) {
+          final swMappings = Map<String, dynamic>.from(data['swayamsevak_mappings'] as Map)
               .map((k, v) => MapEntry(k, v as int));
           await localRepo.resolveSwayamsevakMappings(swMappings);
         }
 
         // 2. Resolve local daily record ID mapping and clear pending_sync flag
-        if (data['record_mappings'] != null) {
-          final recMappings = Map<String, dynamic>.from(data['record_mappings'])
+        if (data['record_mappings'] != null && data['record_mappings'] is Map) {
+          final recMappings = Map<String, dynamic>.from(data['record_mappings'] as Map)
               .map((k, v) => MapEntry(k, v as int));
           await localRepo.resolveRecordMappings(recMappings);
         }

@@ -349,9 +349,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Map & Auto-select values
                     const monthToSet = p.vikram_month || p.shaka_month;
-                    setSelectedValue('hindi_month', mappers.month[monthToSet]);
-                    setSelectedValue('paksh', mappers.paksha[p.paksha]);
-                    setSelectedValue('tithi', mappers.tithi[p.tithi]);
+                    setSelectedValue('hindi_month', mappers.month[monthToSet] || monthToSet);
+                    setSelectedValue('paksh', mappers.paksha[p.paksha] || p.paksha);
+                    setSelectedValue('tithi', mappers.tithi[p.tithi] || p.tithi);
                     
                     // Pre-fill Samvat if available
                     if (p.vikram_samvat) {

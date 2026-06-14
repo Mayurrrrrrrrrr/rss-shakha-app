@@ -5,14 +5,15 @@ import '../../core/models/models.dart';
 import '../../core/providers/providers.dart';
 
 class DailyRecordScreen extends ConsumerStatefulWidget {
-  const DailyRecordScreen({super.key});
+  final DateTime? initialDate;
+  const DailyRecordScreen({super.key, this.initialDate});
 
   @override
   ConsumerState<DailyRecordScreen> createState() => _DailyRecordScreenState();
 }
 
 class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
-  DateTime _selectedDate = DateTime.now();
+  late DateTime _selectedDate;
   
   // Form Key for native validation
   final _formKey = GlobalKey<FormState>();
@@ -149,6 +150,7 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedDate = widget.initialDate ?? DateTime.now();
     _loadFormData();
   }
 

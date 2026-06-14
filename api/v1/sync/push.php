@@ -91,7 +91,7 @@ try {
             }
         }
     }
-    $response['swayamsevak_mappings'] = $swayamsevakMappings;
+    $response['swayamsevak_mappings'] = (object)$swayamsevakMappings;
 
     // 2. Process Daily Records saved offline
     $recordMappings = [];
@@ -173,7 +173,7 @@ try {
             }
         }
     }
-    $response['record_mappings'] = $recordMappings;
+    $response['record_mappings'] = (object)$recordMappings;
 
     $pdo->commit();
     echo json_encode($response);

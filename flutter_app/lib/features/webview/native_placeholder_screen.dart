@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/models/models.dart';
 import '../../core/providers/providers.dart';
+import '../../core/db/database_helper.dart';
 
 enum PlaceholderType {
   snapshot,
@@ -44,6 +45,12 @@ class _NativePlaceholderScreenState extends ConsumerState<NativePlaceholderScree
   int _activitiesCount = 0;
   String _utsav = '';
   String _customMessage = '';
+  String _shakhaName = 'संघस्थान';
+  int _baalCount = 0;
+  int _tarunCount = 0;
+  int _praudhCount = 0;
+  int _abhyagatCount = 0;
+  List<Map<String, String>> _conductedActivities = [];
 
   // Greetings Specific State
   final TextEditingController _greetingMsgController = TextEditingController(
@@ -91,15 +98,91 @@ class _NativePlaceholderScreenState extends ConsumerState<NativePlaceholderScree
         _utsav = _record!.utsav ?? '';
         _customMessage = _record!.customMessage ?? '';
 
+        // Load Shakha details
+        if (_record!.shakhaId != null) {
+          final shakha = await repo.getShakhaById(_record!.shakhaId!);
+          if (shakha != null) {
+            _shakhaName = shakha['name'] ?? 'संघस्थान';
+          }
+        } else {
+          // Fallback: load first shakha
+          final db = await DatabaseHelper.instance.database;
+          final List<Map<String, dynamic>> shakhas = await db.query('shakhas', limit: 1);
+          if (shakhas.isNotEmpty) {
+            _shakhaName = shakhas.first['name'] ?? 'संघस्थान';
+          }
+        }
+
+        // Fetch swayamsevaks and activities to map names and categories
+        final db = await DatabaseHelper.instance.database;
+        final List<Map<String, dynamic>> swayamsevakRows = await db.query('swayamsevaks');
+        final Map<int, String> swayamsevakCategories = {};
+        final Map<int, String> swayamsevakNames = {};
+        for (var row in swayamsevakRows) {
+          final id = row['id'] as int?;
+          if (id != null) {
+            swayamsevakCategories[id] = row['category'] ?? 'Tarun';
+            swayamsevakNames[id] = row['name'] ?? '';
+          }
+        }
+
         // Load attendance stats
         final attendanceList = await repo.getAttendanceForRecord(widget.recordId!);
         _totalCount = attendanceList.length;
         _presentCount = attendanceList.where((a) => a.isPresent == 1).length;
         _absentCount = _totalCount - _presentCount;
 
+        // Reset category counts
+        _baalCount = 0;
+        _tarunCount = 0;
+        _praudhCount = 0;
+        _abhyagatCount = 0;
+
+        for (var att in attendanceList) {
+          if (att.isPresent == 1) {
+            final cat = swayamsevakCategories[att.swayamsevakId] ?? 'Tarun';
+            if (cat == 'Baal') {
+              _baalCount++;
+            } else if (cat == 'Tarun') {
+              _tarunCount++;
+            } else if (cat == 'Praudh') {
+              _praudhCount++;
+            } else if (cat == 'Abhyagat') {
+              _abhyagatCount++;
+            } else {
+              _tarunCount++;
+            }
+          }
+        }
+
         // Load activities done
         final dailyActivities = await repo.getActivitiesForRecord(widget.recordId!);
         _activitiesCount = dailyActivities.where((a) => a.isDone == 1).length;
+
+        // Load activity names
+        final List<Map<String, dynamic>> activityRows = await db.query('activities');
+        final Map<int, String> activityNames = {};
+        for (var row in activityRows) {
+          final id = row['id'] as int?;
+          if (id != null) {
+            activityNames[id] = row['name'] ?? '';
+          }
+        }
+
+        // Build conducted activities list
+        _conductedActivities = [];
+        for (var da in dailyActivities) {
+          if (da.isDone == 1) {
+            final actName = activityNames[da.activityId] ?? '';
+            final conductorName = da.conductedBy != null ? (swayamsevakNames[da.conductedBy] ?? '') : '';
+            if (actName.isNotEmpty) {
+              _conductedActivities.add({
+                'name': actName,
+                'conductor': conductorName,
+              });
+            }
+          }
+        }
       }
     } catch (e) {
       debugPrint('Error loading snapshot data: $e');
@@ -113,17 +196,41 @@ class _NativePlaceholderScreenState extends ConsumerState<NativePlaceholderScree
   // Action methods
   void _shareSnapshot() {
     final date = widget.formattedDate ?? widget.dateStr ?? 'अज्ञात तिथि';
-    final shareText = '''
-🚩 *राष्ट्रीय स्वयंसेवक संघ - शाखा दैनिक वृत्त* 🚩
-━━━━━━━━━━━━━━━━━━━━━━
-📅 *तिथि:* $date
-${_utsav.isNotEmpty ? '🌺 *उत्सव:* $_utsav\n' : ''}👥 *उपस्थिति सारांश:*
-  ✅ उपस्थित स्वयंसेवक: $_presentCount
-  ❌ अनुपस्थित स्वयंसेवक: $_absentCount
-  📊 कुल संख्या: $_totalCount
+    
+    // Construct Panchang string
+    final List<String> tithiParts = [];
+    if (_record?.hindiMonth != null && _record!.hindiMonth!.isNotEmpty) {
+      tithiParts.add(_record!.hindiMonth!);
+    }
+    if (_record?.paksh != null && _record!.paksh!.isNotEmpty) {
+      tithiParts.add(_record!.paksh!);
+    }
+    if (_record?.tithi != null && _record!.tithi!.isNotEmpty) {
+      tithiParts.add(_record!.tithi!);
+    }
+    final tithiStr = tithiParts.join(' ');
+    
+    // Build activities list text
+    String activitiesText = '';
+    if (_conductedActivities.isNotEmpty) {
+      activitiesText = '\n📋 *गतिविधियाँ:*\n' + _conductedActivities.map((act) {
+        final condStr = (act['conductor'] != null && act['conductor']!.isNotEmpty) ? ' (संचालक: ${act['conductor']})' : '';
+        return '  ✅ ${act['name']}$condStr';
+      }).join('\n') + '\n';
+    }
 
-🎯 *गतिविधियाँ पूर्ण:* $_activitiesCount
-${_customMessage.isNotEmpty ? '\n💬 *विशेष संदेश/टिप्पणी:*\n$_customMessage\n' : ''}━━━━━━━━━━━━━━━━━━━━━━
+    final shareText = '''
+🚩 *राष्ट्रीय स्वयंसेवक संघ - $_shakhaName* 🚩
+━━━━━━━━━━━━━━━━━━━━━━
+📅 *दिनांक/तिथि:* $date
+${tithiStr.isNotEmpty ? '🕉️ *पंचांग:* $tithiStr\n' : ''}${_record?.yugabdh != null && _record!.yugabdh!.isNotEmpty ? '🔱 *युगाब्द:* ${_record!.yugabdh!}\n' : ''}${_record?.vikramSamvat != null && _record!.vikramSamvat!.isNotEmpty ? '🔱 *विक्रम संवत्:* ${_record!.vikramSamvat!}\n' : ''}${_utsav.isNotEmpty ? '🌺 *उत्सव:* $_utsav\n' : ''}
+👥 *उपस्थिति सारांश:*
+  ✅ कुल उपस्थित: $_presentCount
+  📊 वर्गवार: बाल: $_baalCount, तरुण: $_tarunCount, प्रौढ़: $_praudhCount, अभ्यागत: $_abhyagatCount
+  ❌ अनुपस्थित: $_absentCount
+  👥 कुल संख्या: $_totalCount
+$activitiesText${_customMessage.isNotEmpty ? '\n💬 *विशेष संदेश:*\n$_customMessage\n' : ''}━━━━━━━━━━━━━━━━━━━━━━
+_जय श्री राम 🏹_
 _संघस्थान ऐप द्वारा प्रेषित_
 ''';
     SharePlus.instance.share(ShareParams(text: shareText));
@@ -193,87 +300,312 @@ $message
   // 1. Snapshot Layout
   Widget _buildSnapshotLayout() {
     final date = widget.formattedDate ?? widget.dateStr ?? 'अज्ञात तिथि';
+    
+    // Construct Panchang string matching the web snapshot
+    final List<String> tithiParts = [];
+    if (_record?.hindiMonth != null && _record!.hindiMonth!.isNotEmpty) {
+      tithiParts.add(_record!.hindiMonth!);
+    }
+    if (_record?.paksh != null && _record!.paksh!.isNotEmpty) {
+      tithiParts.add(_record!.paksh!);
+    }
+    if (_record?.tithi != null && _record!.tithi!.isNotEmpty) {
+      tithiParts.add(_record!.tithi!);
+    }
+    final tithiStr = tithiParts.join(' ');
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          // Certificate Style Card
-          Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: const BorderSide(color: Color(0xFFFF6B00), width: 2),
+          // Elegant Card mimicking the web snapshot
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF9F2), // Light cream background
+              border: Border.all(color: const Color(0xFFFF6B00), width: 4), // Orange border
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            color: Colors.white,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-              child: Column(
-                children: [
-                  const Icon(Icons.flag, color: Color(0xFFFF6B00), size: 48),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'राष्ट्रीय स्वयंसेवक संघ',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFFFF6B00)),
-                  ),
-                  const Text(
-                    'शाखा दैनिक वृत्त स्नैपशॉट',
-                    style: TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.bold),
-                  ),
-                  const Divider(height: 30, color: Color(0xFFFF6B00), thickness: 1.5),
-                  
-                  _buildSnapshotRow('दिनांक / तिथि', date),
-                  if (_utsav.isNotEmpty) _buildSnapshotRow('उत्सव / पर्व', _utsav),
-                  const SizedBox(height: 10),
-                  
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF8E1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Column(
-                      children: [
-                        _buildSnapshotRow('✅ उपस्थित स्वयंसेवक', '$_presentCount'),
-                        _buildSnapshotRow('❌ अनुपस्थित स्वयंसेवक', '$_absentCount'),
-                        _buildSnapshotRow('📊 कुल संख्या', '$_totalCount'),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildSnapshotRow('🎯 गतिविधियाँ पूर्ण', '$_activitiesCount'),
-                  
-                  if (_customMessage.isNotEmpty) ...[
-                    const Divider(height: 24),
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'विशेष संदेश / टिप्पणी:',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.brown),
+            child: Stack(
+              children: [
+                // Corner Mandalas / Ornaments (❁) in 4 corners
+                const Positioned(
+                  top: 4,
+                  left: 8,
+                  child: Text('❁', style: TextStyle(color: Color(0xFFFF6B00), fontSize: 24, fontWeight: FontWeight.bold)),
+                ),
+                const Positioned(
+                  top: 4,
+                  right: 8,
+                  child: Text('❁', style: TextStyle(color: Color(0xFFFF6B00), fontSize: 24, fontWeight: FontWeight.bold)),
+                ),
+                const Positioned(
+                  bottom: 4,
+                  left: 8,
+                  child: Text('❁', style: TextStyle(color: Color(0xFFFF6B00), fontSize: 24, fontWeight: FontWeight.bold)),
+                ),
+                const Positioned(
+                  bottom: 4,
+                  right: 8,
+                  child: Text('❁', style: TextStyle(color: Color(0xFFFF6B00), fontSize: 24, fontWeight: FontWeight.bold)),
+                ),
+                
+                // Content Column
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Top Panchang/Samvat Header box (matches web's top banner)
+                    if ((_record?.yugabdh != null && _record!.yugabdh!.isNotEmpty) || tithiStr.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFFE0B2),
+                          border: Border(bottom: BorderSide(color: Color(0xFFFFB74D), width: 2)),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              '${_record?.yugabdh != null && _record!.yugabdh!.isNotEmpty ? "युगाब्द: ${_record!.yugabdh!} | " : ""}'
+                              '${_record?.vikramSamvat != null && _record!.vikramSamvat!.isNotEmpty ? "विक्रम संवत्: ${_record!.vikramSamvat!}" : ""}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFD84315),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            if (tithiStr.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                tithiStr,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFD84315),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                            const SizedBox(height: 4),
+                            Text(
+                              '($date)',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF8D6E63),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFFE0B2),
+                          border: Border(bottom: BorderSide(color: Color(0xFFFFB74D), width: 2)),
+                        ),
+                        child: Text(
+                          date,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFFD84315),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 6),
+
+                    // Main Saffron Header
                     Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(8),
+                      color: const Color(0xFFFF6B00),
+                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                      child: Column(
+                        children: [
+                          const Icon(Icons.flag, color: Colors.white, size: 36),
+                          const SizedBox(height: 6),
+                          Text(
+                            '🚩 $_shakhaName 🚩',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'घाटकोपर पूर्व, मुंबई',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white.withValues(alpha: 0.9),
+                              fontWeight: FontWeight.normal,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
-                      child: Text(
-                        _customMessage,
-                        style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.black87),
+                    ),
+
+                    // Inner Body
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Attendance Summary box
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFE0B2),
+                              border: Border.all(color: const Color(0xFFFFB74D)),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  '✅ कुल उपस्थित: $_presentCount',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFFBF360C),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'बाल-$_baalCount, तरुण-$_tarunCount, प्रौढ़-$_praudhCount, अभ्यागत-$_abhyagatCount',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFFE65100),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Activities section
+                          const SizedBox(height: 15),
+                          _buildSectionTitle('📋 दैनिक गतिविधियाँ'),
+                          const SizedBox(height: 6),
+                          if (_conductedActivities.isNotEmpty)
+                            ..._conductedActivities.map((act) => Container(
+                                  margin: const EdgeInsets.only(bottom: 5),
+                                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF1F8E9), // Light green background for done
+                                    border: Border.all(color: const Color(0xFFC5E1A5)),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Row(
+                                          children: [
+                                            const Text('✅ ', style: TextStyle(fontSize: 12)),
+                                            Expanded(
+                                              child: Text(
+                                                act['name'] ?? '',
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color(0xFF2E7D32),
+                                                  fontSize: 14,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      if (act['conductor'] != null && act['conductor']!.isNotEmpty)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFFFF3E0),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Text(
+                                            '👤 ${act['conductor']}',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Color(0xFF5D4037),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ))
+                          else
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 6),
+                              child: Text(
+                                'कोई गतिविधि पूर्ण नहीं हुई',
+                                style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+
+                          // Special notes section
+                          if (_customMessage.isNotEmpty) ...[
+                            const SizedBox(height: 15),
+                            _buildSectionTitle('💬 विशेष संदेश'),
+                            const SizedBox(height: 6),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF3E0),
+                                border: Border.all(color: const Color(0xFFFFB74D)),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                _customMessage,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontStyle: FontStyle.italic,
+                                  color: Color(0xFF4E342E),
+                                ),
+                              ),
+                            ),
+                          ],
+
+                          // Footer
+                          const SizedBox(height: 20),
+                          const Divider(color: Color(0xFFFFCC80), thickness: 2),
+                          const SizedBox(height: 5),
+                          const Center(
+                            child: Text(
+                              'जय श्री राम 🏹',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFFF3D00),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
-                ],
-              ),
+                ),
+              ],
             ),
           ),
+          
           const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: _shareSnapshot,
             icon: const Icon(Icons.share, color: Colors.white),
-            label: const Text('वृत्त साझा करें (Share Report)', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            label: const Text(
+              'वृत्त साझा करें (Share Report)',
+              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFFF6B00),
               minimumSize: const Size(double.infinity, 50),
@@ -281,6 +613,23 @@ $message
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(left: BorderSide(color: Color(0xFFFF6B00), width: 4)),
+      ),
+      padding: const EdgeInsets.only(left: 10),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: Color(0xFFE64A19),
+        ),
       ),
     );
   }

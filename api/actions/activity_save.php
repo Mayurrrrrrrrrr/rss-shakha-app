@@ -68,8 +68,18 @@ if ($action === 'add' || $action === 'edit') {
             echo json_encode(['success' => false, 'message' => 'Invalid input data provided.']);
             exit;
         }
-        $stmt = $pdo->prepare("UPDATE activities SET name = ?, sort_order = ?, updated_at = NOW() WHERE id = ? AND shakha_id = ?");
-        $stmt->execute([$name, $sortOrder, $id, $shakhaId]);
+        // Verify that this activity belongs to this shakha OR is a default activity (shakha_id IS NULL)
+        $checkStmt = $pdo->prepare("SELECT shakha_id FROM activities WHERE id = ?");
+        $checkStmt->execute([$id]);
+        $row = $checkStmt->fetch();
+        if (!$row || ($row['shakha_id'] !== null && $row['shakha_id'] != $shakhaId)) {
+            http_response_code(403);
+            header('Content-Type: application/json; charset=UTF-8');
+            echo json_encode(['success' => false, 'message' => 'Unauthorized access to this activity.']);
+            exit;
+        }
+        $stmt = $pdo->prepare("UPDATE activities SET name = ?, sort_order = ?, updated_at = NOW() WHERE id = ?");
+        $stmt->execute([$name, $sortOrder, $id]);
         header('Location: ../../pages/activities.php?success=गतिविधि अपडेट की गई');
     }
 } elseif ($action === 'delete') {

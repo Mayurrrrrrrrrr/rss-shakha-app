@@ -5,6 +5,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../../core/models/models.dart';
 import '../../core/providers/providers.dart';
 import 'record_detail_screen.dart';
+import 'daily_record_screen.dart';
 
 class RecordsCalendarScreen extends ConsumerStatefulWidget {
   const RecordsCalendarScreen({super.key});
@@ -357,6 +358,41 @@ class _RecordsCalendarScreenState extends ConsumerState<RecordsCalendarScreen> {
     );
   }
 
+  void _showCreatePromptDialog(DateTime date) {
+    final formattedDate = DateFormat('dd MMMM yyyy').format(date);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('नया रिकॉर्ड बनाएं?', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Text('$formattedDate के लिए कोई दैनिक रिकॉर्ड नहीं है। क्या आप नया रिकॉर्ड बनाना चाहते हैं?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('रद्द करें', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFF6B00),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (ctx) => DailyRecordScreen(initialDate: date),
+                ),
+              ).then((_) => _loadRecords());
+            },
+            child: const Text('बनाएं', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -397,7 +433,14 @@ class _RecordsCalendarScreenState extends ConsumerState<RecordsCalendarScreen> {
                               final record = _recordsMap[key];
                               if (record != null) {
                                 _showAttendanceBottomSheet(selectedDay, record);
+                              } else {
+                                _showCreatePromptDialog(selectedDay);
                               }
+                            },
+                            onPageChanged: (focusedDay) {
+                              setState(() {
+                                _focusedDay = focusedDay;
+                              });
                             },
                             eventLoader: _getEventsForDay,
                             calendarStyle: CalendarStyle(
