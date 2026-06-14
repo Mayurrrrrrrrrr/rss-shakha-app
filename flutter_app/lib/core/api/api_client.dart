@@ -21,6 +21,7 @@ class ApiClient {
             '/api/get_notices.php',
             '/api/sync/push.php',
             '/api/sync/pull.php',
+            '/api/get_personalities.php',
           ];
           if (versionedPaths.contains(options.path)) {
             options.path = options.path.replaceFirst('/api/', '/api/v1/');
@@ -66,6 +67,14 @@ class ApiClient {
   Future<Response> fetchPanchang(String date) async {
     try {
       return await get('/api/fetch_panchang.php', queryParameters: {'date': date});
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Response> fetchPersonalities() async {
+    try {
+      return await post('/api/get_personalities.php');
     } catch (e) {
       rethrow;
     }
