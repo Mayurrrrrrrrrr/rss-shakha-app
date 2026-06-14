@@ -20,7 +20,7 @@ $activities = $stmt->fetchAll();
 
 <div class="page-header">
     <h1>📋 गतिविधियाँ</h1>
-    <button type="button" class="btn btn-primary" onclick="openModal('addActivityModal')">➕ नई गतिविधि जोड़ें</button>
+    <button type="button" class="btn btn-primary" onclick="openAddActivityModal()">➕ नई गतिविधि जोड़ें</button>
 </div>
 
 <div class="card">
@@ -91,38 +91,73 @@ $activities = $stmt->fetchAll();
 </div>
 
 <!-- Add/Edit Activity Modal -->
-<div id="addActivityModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 id="modalTitle">नई गतिविधि जोड़ें</h2>
-            <button class="close-modal" onclick="closeModal('addActivityModal')">&times;</button>
+<div class="modal-overlay" id="activityModalOverlay">
+    <div id="addActivityModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">नई गतिविधि जोड़ें</h2>
+                <button type="button" class="close-modal" onclick="closeModal('addActivityModal')">&times;</button>
+            </div>
+            <form id="activityForm" method="POST" action="../api/actions/activity_save.php">
+                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                <input type="hidden" name="action" id="formAction" value="add">
+                <input type="hidden" name="id" id="activityId" value="">
+
+                <div class="form-group">
+                    <label for="name">गतिविधि का नाम <span style="color:red;">*</span></label>
+                    <input type="text" id="name" name="name" class="form-control" required placeholder="जैसे: ध्वज प्रणाम">
+                </div>
+
+                <div class="form-group">
+                    <label for="sort_order">क्रम (Sort Order)</label>
+                    <input type="number" id="sort_order" name="sort_order" class="form-control" value="10">
+                    <small>छोटी संख्या वाली गतिविधियाँ पहले दिखाई देंगी</small>
+                </div>
+
+                <div class="form-actions" style="margin-top: 20px;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('addActivityModal')">रद्द
+                        करें</button>
+                    <button type="submit" class="btn btn-primary">💾 सहेजें</button>
+                </div>
+            </form>
         </div>
-        <form id="activityForm" method="POST" action="../api/actions/activity_save.php">
-            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-            <input type="hidden" name="action" id="formAction" value="add">
-            <input type="hidden" name="id" id="activityId" value="">
-
-            <div class="form-group">
-                <label for="name">गतिविधि का नाम <span style="color:red;">*</span></label>
-                <input type="text" id="name" name="name" class="form-control" required placeholder="जैसे: ध्वज प्रणाम">
-            </div>
-
-            <div class="form-group">
-                <label for="sort_order">क्रम (Sort Order)</label>
-                <input type="number" id="sort_order" name="sort_order" class="form-control" value="10">
-                <small>छोटी संख्या वाली गतिविधियाँ पहले दिखाई देंगी</small>
-            </div>
-
-            <div class="form-actions" style="margin-top: 20px;">
-                <button type="button" class="btn btn-outline" onclick="closeModal('addActivityModal')">रद्द
-                    करें</button>
-                <button type="submit" class="btn btn-primary">💾 सहेजें</button>
-            </div>
-        </form>
     </div>
 </div>
 
 <script>
+    window.openModal = function (id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+        const overlay = modal.closest('.modal-overlay');
+        if (overlay) {
+            overlay.classList.add('active');
+        } else {
+            modal.style.display = 'block';
+        }
+        document.body.style.overflow = 'hidden';
+    }
+
+    window.closeModal = function (id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+        const overlay = modal.closest('.modal-overlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+        } else {
+            modal.style.display = 'none';
+        }
+        document.body.style.overflow = '';
+    }
+
+    function openAddActivityModal() {
+        document.getElementById('modalTitle').innerText = 'नई गतिविधि जोड़ें';
+        document.getElementById('formAction').value = 'add';
+        document.getElementById('activityId').value = '';
+        document.getElementById('name').value = '';
+        document.getElementById('sort_order').value = '10';
+        openModal('addActivityModal');
+    }
+
     function editActivity(act) {
         document.getElementById('modalTitle').innerText = 'गतिविधि एडिट करें';
         document.getElementById('formAction').value = 'edit';
@@ -132,153 +167,149 @@ $activities = $stmt->fetchAll();
         openModal('addActivityModal');
     }
 
-    // Reset form when opening to add new
-    const originalOpenModal = window.openModal;
-    window.openModal = function (id) {
-        if (id === 'addActivityModal' && document.getElementById('formAction').value === 'edit') {
-            // If it was opened via edit button, we don't clear.
-            // If it's opened via "Add New" button, we clear it.
-            if (arguments.length === 1) { // called from Add New button
-                document.getElementById('modalTitle').innerText = 'नई गतिविधि जोड़ें';
-                document.getElementById('formAction').value = 'add';
-                document.getElementById('activityId').value = '';
-                document.getElementById('name').value = '';
-                document.getElementById('sort_order').value = '10';
+    // Close modal when clicking outside of it (on the overlay)
+    document.addEventListener('DOMContentLoaded', () => {
+        const overlay = document.getElementById('activityModalOverlay');
+        if (overlay) {
+            overlay.addEventListener('click', function (e) {
+                if (e.target === this) {
+                    closeModal('addActivityModal');
+                }
+            });
+        }
+
+        // HTML5 Drag and Drop ordering of activities
+        const tbody = document.getElementById('sortable-activities');
+        let dragSrcEl = null;
+
+        if (tbody) {
+            tbody.querySelectorAll('.draggable-row').forEach(row => {
+                row.addEventListener('dragstart', handleDragStart);
+                row.addEventListener('dragover', handleDragOver);
+                row.addEventListener('dragenter', handleDragEnter);
+                row.addEventListener('dragleave', handleDragLeave);
+                row.addEventListener('drop', handleDrop);
+                row.addEventListener('dragend', handleDragEnd);
+            });
+        }
+
+        function handleDragStart(e) {
+            this.style.opacity = '0.5';
+            dragSrcEl = this;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.innerHTML);
+            this.classList.add('dragging');
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        }
+
+        function handleDragEnter(e) {
+            this.classList.add('over');
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('over');
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+            
+            if (dragSrcEl !== this) {
+                let allRows = Array.from(tbody.querySelectorAll('.draggable-row'));
+                let srcIndex = allRows.indexOf(dragSrcEl);
+                let targetIndex = allRows.indexOf(this);
+                
+                if (srcIndex < targetIndex) {
+                    this.parentNode.insertBefore(dragSrcEl, this.nextSibling);
+                } else {
+                    this.parentNode.insertBefore(dragSrcEl, this);
+                }
+                
+                saveNewOrder();
+            }
+            return false;
+        }
+
+        function handleDragEnd(e) {
+            this.style.opacity = '1.0';
+            tbody.querySelectorAll('.draggable-row').forEach(row => {
+                row.classList.remove('over');
+                row.classList.remove('dragging');
+            });
+        }
+        
+        function saveNewOrder() {
+            const rows = Array.from(tbody.querySelectorAll('.draggable-row'));
+            const orderIds = rows.map(r => r.getAttribute('data-id'));
+            
+            showToast('⏳ क्रम सहेजा जा रहा है...');
+            
+            const formData = new FormData();
+            formData.append('csrf_token', '<?php echo csrf_token(); ?>');
+            formData.append('order_ids', JSON.stringify(orderIds));
+            
+            fetch('../api/actions/activities_reorder.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('✅ क्रम सफलतापूर्वक अपडेट किया गया!', 2000);
+                    rows.forEach((row, index) => {
+                        const orderCell = row.cells[2];
+                        if (orderCell) {
+                            orderCell.textContent = (index + 1) * 10;
+                        }
+                    });
+                } else {
+                    showToast('⚠️ त्रुटि: ' + data.message, 3000);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showToast('⚠️ नेटवर्क त्रुटि हुई', 3000);
+            });
+        }
+        
+        function showToast(message, duration = 3000) {
+            let toast = document.getElementById('sort-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'sort-toast';
+                toast.style.position = 'fixed';
+                toast.style.bottom = '80px';
+                toast.style.left = '50%';
+                toast.style.transform = 'translateX(-50%)';
+                toast.style.background = '#4E342E';
+                toast.style.color = '#fff';
+                toast.style.padding = '10px 20px';
+                toast.style.borderRadius = '20px';
+                toast.style.zIndex = '9999';
+                toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+                toast.style.fontSize = '14px';
+                toast.style.fontWeight = 'bold';
+                toast.style.transition = 'opacity 0.3s ease';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = message;
+            toast.style.opacity = '1';
+            
+            if (duration > 0) {
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                }, duration);
             }
         }
-        originalOpenModal(id);
-    }
-
-    // HTML5 Drag and Drop ordering of activities
-    const tbody = document.getElementById('sortable-activities');
-    let dragSrcEl = null;
-
-    tbody.querySelectorAll('.draggable-row').forEach(row => {
-        row.addEventListener('dragstart', handleDragStart);
-        row.addEventListener('dragover', handleDragOver);
-        row.addEventListener('dragenter', handleDragEnter);
-        row.addEventListener('dragleave', handleDragLeave);
-        row.addEventListener('drop', handleDrop);
-        row.addEventListener('dragend', handleDragEnd);
     });
-
-    function handleDragStart(e) {
-        this.style.opacity = '0.5';
-        dragSrcEl = this;
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/html', this.innerHTML);
-        this.classList.add('dragging');
-    }
-
-    function handleDragOver(e) {
-        if (e.preventDefault) {
-            e.preventDefault();
-        }
-        e.dataTransfer.dropEffect = 'move';
-        return false;
-    }
-
-    function handleDragEnter(e) {
-        this.classList.add('over');
-    }
-
-    function handleDragLeave(e) {
-        this.classList.remove('over');
-    }
-
-    function handleDrop(e) {
-        if (e.stopPropagation) {
-            e.stopPropagation();
-        }
-        
-        if (dragSrcEl !== this) {
-            let allRows = Array.from(tbody.querySelectorAll('.draggable-row'));
-            let srcIndex = allRows.indexOf(dragSrcEl);
-            let targetIndex = allRows.indexOf(this);
-            
-            if (srcIndex < targetIndex) {
-                this.parentNode.insertBefore(dragSrcEl, this.nextSibling);
-            } else {
-                this.parentNode.insertBefore(dragSrcEl, this);
-            }
-            
-            saveNewOrder();
-        }
-        return false;
-    }
-
-    function handleDragEnd(e) {
-        this.style.opacity = '1.0';
-        tbody.querySelectorAll('.draggable-row').forEach(row => {
-            row.classList.remove('over');
-            row.classList.remove('dragging');
-        });
-    }
-    
-    function saveNewOrder() {
-        const rows = Array.from(tbody.querySelectorAll('.draggable-row'));
-        const orderIds = rows.map(r => r.getAttribute('data-id'));
-        
-        showToast('⏳ क्रम सहेजा जा रहा है...');
-        
-        const formData = new FormData();
-        formData.append('csrf_token', '<?php echo csrf_token(); ?>');
-        formData.append('order_ids', JSON.stringify(orderIds));
-        
-        fetch('../api/actions/activities_reorder.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                showToast('✅ क्रम सफलतापूर्वक अपडेट किया गया!', 2000);
-                rows.forEach((row, index) => {
-                    const orderCell = row.cells[2];
-                    if (orderCell) {
-                        orderCell.textContent = (index + 1) * 10;
-                    }
-                });
-            } else {
-                showToast('⚠️ त्रुटि: ' + data.message, 3000);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            showToast('⚠️ नेटवर्क त्रुटि हुई', 3000);
-        });
-    }
-    
-    function showToast(message, duration = 3000) {
-        let toast = document.getElementById('sort-toast');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.id = 'sort-toast';
-            toast.style.position = 'fixed';
-            toast.style.bottom = '80px';
-            toast.style.left = '50%';
-            toast.style.transform = 'translateX(-50%)';
-            toast.style.background = '#4E342E';
-            toast.style.color = '#fff';
-            toast.style.padding = '10px 20px';
-            toast.style.borderRadius = '20px';
-            toast.style.zIndex = '9999';
-            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
-            toast.style.fontSize = '14px';
-            toast.style.fontWeight = 'bold';
-            toast.style.transition = 'opacity 0.3s ease';
-            document.body.appendChild(toast);
-        }
-        toast.textContent = message;
-        toast.style.opacity = '1';
-        
-        if (duration > 0) {
-            setTimeout(() => {
-                toast.style.opacity = '0';
-            }, duration);
-        }
-    }
-});
 </script>
 
 <style>
