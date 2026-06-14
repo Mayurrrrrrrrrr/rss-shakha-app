@@ -44,7 +44,7 @@ $shakhaName = $stmtShakha->fetchColumn() ?: 'शाखा';
 
 if ($geetId) {
     // Fetch the geet (allow viewing from any shakha)
-    $stmt = $pdo->prepare("SELECT * FROM geet WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT * FROM geet WHERE id = ? AND is_deleted = 0");
     $stmt->execute([$geetId]);
     $existing = $stmt->fetch();
     if ($existing) {
@@ -74,19 +74,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             if ($geetIdToSave) {
                 // Security check
-                $stmtCheck = $pdo->prepare("SELECT shakha_id FROM geet WHERE id = ?");
+                $stmtCheck = $pdo->prepare("SELECT shakha_id FROM geet WHERE id = ? AND is_deleted = 0");
                 $stmtCheck->execute([$geetIdToSave]);
                 if ($stmtCheck->fetchColumn() != $shakhaId) {
                     $error = "त्रुटि: आप केवल अपनी शाखा के गीत अपडेट कर सकते हैं।";
                 } else {
                     // Update
-                    $stmt = $pdo->prepare("UPDATE geet SET title = ?, geet_type = ?, lyrics = ?, meaning_or_context = ?, geet_date = ? WHERE id = ? AND shakha_id = ?");
+                    $stmt = $pdo->prepare("UPDATE geet SET title = ?, geet_type = ?, lyrics = ?, meaning_or_context = ?, geet_date = ?, updated_at = NOW() WHERE id = ? AND shakha_id = ?");
                     $stmt->execute([$title, $geet_type, $lyrics, $meaning, $geetDate, $geetIdToSave, $shakhaId]);
                     $success = "गीत सफलतापूर्वक अपडेट किया गया!";
                 }
             } else {
                 // Insert
-                $stmt = $pdo->prepare("INSERT INTO geet (shakha_id, title, geet_type, lyrics, meaning_or_context, geet_date, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt = $pdo->prepare("INSERT INTO geet (shakha_id, title, geet_type, lyrics, meaning_or_context, geet_date, created_by, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
                 $stmt->execute([$shakhaId, $title, $geet_type, $lyrics, $meaning, $geetDate, $createdBy]);
                 $success = "गीत सफलतापूर्वक सहेजा गया!";
                 
@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Fetch recent geet from all shakhas
-$stmt = $pdo->prepare("SELECT g.id, g.title, g.geet_type, g.geet_date, g.shakha_id, sh.name as origin_shakha_name FROM geet g JOIN shakhas sh ON g.shakha_id = sh.id ORDER BY g.geet_date DESC LIMIT 30");
+$stmt = $pdo->prepare("SELECT g.id, g.title, g.geet_type, g.geet_date, g.shakha_id, sh.name as origin_shakha_name FROM geet g JOIN shakhas sh ON g.shakha_id = sh.id WHERE g.is_deleted = 0 ORDER BY g.geet_date DESC LIMIT 30");
 $stmt->execute();
 $recentGeet = $stmt->fetchAll();
 

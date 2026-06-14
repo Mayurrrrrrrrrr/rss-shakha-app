@@ -30,23 +30,14 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
     });
 
     try {
-      final apiClient = ref.read(apiClientProvider);
-      final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
-      final response = await apiClient.fetchPanchang(dateStr);
-
-      if (response.statusCode == 200 && response.data != null && response.data['status'] == 'success') {
+      final panchang = await _getPanchang(_selectedDate);
+      if (panchang != null) {
         setState(() {
-          final panchangData = response.data['panchang'];
-          if (panchangData != null) {
-            _panchang = Panchang.fromJson(panchangData as Map<String, dynamic>);
-          } else {
-            _panchang = null;
-            _error = 'पंचांग जानकारी प्राप्त करने में विफल।';
-          }
+          _panchang = panchang;
         });
       } else {
         setState(() {
-          _error = response.data?['message'] ?? 'पंचांग जानकारी प्राप्त करने में विफल।';
+          _error = 'पंचांग जानकारी प्राप्त करने में विफल।';
         });
       }
     } catch (e) {
@@ -59,6 +50,43 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  Future<Panchang?> _getPanchang(DateTime date) async {
+    final repo = ref.read(localRepoProvider);
+    final dateStr = DateFormat('yyyy-MM-dd').format(date);
+    
+    // 1. Try to load from SQLite cache
+    final cached = await repo.getCachedPanchang(dateStr);
+    if (cached != null) {
+      return Panchang.fromJson(cached);
+    }
+    
+    // 2. Fetch the whole month and cache it
+    try {
+      final apiClient = ref.read(apiClientProvider);
+      final year = date.year.toString();
+      final month = date.month.toString();
+      
+      final response = await apiClient.get('/api/fetch_panchang.php', queryParameters: {
+        'year': year,
+        'month': month,
+      });
+      
+      if (response.statusCode == 200 && response.data != null && response.data['status'] == 'success') {
+        final List<dynamic> list = response.data['panchang_list'] ?? [];
+        if (list.isNotEmpty) {
+          await repo.cachePanchangList(list);
+          final freshCached = await repo.getCachedPanchang(dateStr);
+          if (freshCached != null) {
+            return Panchang.fromJson(freshCached);
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Sync Panchang fetch failed: $e');
+    }
+    return null;
   }
 
   Future<void> _pickDate() async {

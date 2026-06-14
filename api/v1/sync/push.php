@@ -1,9 +1,9 @@
 <?php
 /**
- * Sync Push API - स्थानीय रिकॉर्ड्स सर्वर पर अपलोड करें
+ * Sync Push API - स्थानीय रिकॉर्ड्स सर्वर पर अपलोड करें (Versioned API)
  */
 require_once __DIR__ . '/auth_api.php';
-require_once __DIR__ . '/../../config/db.php';
+require_once __DIR__ . '/../../../config/db.php';
 
 // Authenticate user request
 $userContext = authenticateAPIRequest();
@@ -29,10 +29,10 @@ $response = [
     'errors' => []
 ];
 
-    // Auto-create column in case missing (run outside transaction to avoid implicit commits)
-    try {
-        $pdo->exec("ALTER TABLE daily_records ADD COLUMN utsav VARCHAR(255) DEFAULT NULL AFTER tithi");
-    } catch (PDOException $e) { }
+// Auto-create column in case missing (run outside transaction to avoid implicit commits)
+try {
+    $pdo->exec("ALTER TABLE daily_records ADD COLUMN utsav VARCHAR(255) DEFAULT NULL AFTER tithi");
+} catch (PDOException $e) { }
 
 try {
     $pdo->beginTransaction();
@@ -58,7 +58,6 @@ try {
             }
 
             // Check if it is a new Swayamsevak or an edit
-            // New swayamsevaks have temporary/offline string or negative IDs
             if (!$offlineId || strpos((string)$offlineId, 'temp_') === 0 || intval($offlineId) <= 0) {
                 // Insert new record
                 $clientCreatedAt = $s['created_at'] ?? date('Y-m-d H:i:s');
@@ -143,13 +142,11 @@ try {
             $attStmt = $pdo->prepare("INSERT INTO attendance (daily_record_id, swayamsevak_id, is_present, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, ?)");
             
             foreach ($attendanceData as $swayId => $isPresent) {
-                // If this is a newly created swayamsevak in this batch, replace the temp ID with the server ID
                 $mappedSwayId = $swayId;
                 if (isset($swayamsevakMappings[$swayId])) {
                     $mappedSwayId = $swayamsevakMappings[$swayId];
                 }
 
-                // If mapped ID is still temporary or empty, skip it
                 if (strpos((string)$mappedSwayId, 'temp_') === 0 || intval($mappedSwayId) <= 0) {
                     continue;
                 }
@@ -165,7 +162,6 @@ try {
                 $isDone = isset($details['is_done']) ? ($details['is_done'] ? 1 : 0) : 0;
                 $conductor = isset($details['conducted_by']) ? $details['conducted_by'] : null;
 
-                // Resolve conductor temp ID if any
                 if ($conductor && isset($swayamsevakMappings[$conductor])) {
                     $conductor = $swayamsevakMappings[$conductor];
                 }

@@ -16,11 +16,11 @@ if (isset($inputs['id'])) {
     if (!isAdmin()) {
         // Mukhyashikshaks can only delete their shakha's events
         $shakha_id = $_SESSION['shakha_id'];
-        $stmt = $pdo->prepare("UPDATE events SET is_active = 0 WHERE id = ? AND shakha_id = ?");
+        $stmt = $pdo->prepare("UPDATE events SET is_active = 0, is_deleted = 1, updated_at = NOW() WHERE id = ? AND shakha_id = ?");
         $stmt->execute([$event_id, $shakha_id]);
     } else {
         // Admins can delete anything
-        $stmt = $pdo->prepare("UPDATE events SET is_active = 0 WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE events SET is_active = 0, is_deleted = 1, updated_at = NOW() WHERE id = ?");
         $stmt->execute([$event_id]);
     }
 

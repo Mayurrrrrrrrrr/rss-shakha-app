@@ -52,20 +52,17 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
   bool _isFetchingPanchang = false;
   Future<void> _fetchPanchang() async {
     setState(() => _isFetchingPanchang = true);
-    final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
     try {
-      final apiClient = ref.read(apiClientProvider);
-      final response = await apiClient.get('/api/fetch_panchang.php', queryParameters: {'date': dateStr});
-      if (response.statusCode == 200 && response.data != null && response.data['status'] == 'success') {
-        final panchang = response.data['panchang'];
+      final panchang = await _getPanchang(_selectedDate);
+      if (panchang != null) {
         setState(() {
-          _yugabdhController.text = panchang['yugabdha']?.toString() ?? '५१२८';
-          _vikramController.text = panchang['vikram_samvat']?.toString() ?? '';
-          _shakaController.text = panchang['shaka_samvat']?.toString() ?? '';
-          _updateMonth(panchang['vikram_month']?.toString() ?? '');
-          _updatePaksh(panchang['paksha']?.toString() ?? '');
-          _updateTithi(panchang['tithi']?.toString() ?? '');
-          _utsavController.text = panchang['utsav']?.toString() ?? '';
+          _yugabdhController.text = panchang.yugabdha.isNotEmpty ? panchang.yugabdha : '५१२८';
+          _vikramController.text = panchang.vikramSamvat;
+          _shakaController.text = panchang.shakaSamvat;
+          _updateMonth(panchang.vikramMonth);
+          _updatePaksh(panchang.paksha);
+          _updateTithi(panchang.tithi);
+          _utsavController.text = panchang.utsav ?? '';
         });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -73,7 +70,7 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
           );
         }
       } else {
-        throw Exception(response.data?['message'] ?? 'त्रुटि');
+        throw Exception('पंचांग डेटा अनुपलब्ध (Offline / server error)');
       }
     } catch (e) {
       debugPrint('Sync Panchang fetch failed: $e');
@@ -87,6 +84,43 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
         setState(() => _isFetchingPanchang = false);
       }
     }
+  }
+
+  Future<Panchang?> _getPanchang(DateTime date) async {
+    final repo = ref.read(localRepoProvider);
+    final dateStr = DateFormat('yyyy-MM-dd').format(date);
+    
+    // 1. Try to load from SQLite cache
+    final cached = await repo.getCachedPanchang(dateStr);
+    if (cached != null) {
+      return Panchang.fromJson(cached);
+    }
+    
+    // 2. Fetch the whole month and cache it
+    try {
+      final apiClient = ref.read(apiClientProvider);
+      final year = date.year.toString();
+      final month = date.month.toString();
+      
+      final response = await apiClient.get('/api/fetch_panchang.php', queryParameters: {
+        'year': year,
+        'month': month,
+      });
+      
+      if (response.statusCode == 200 && response.data != null && response.data['status'] == 'success') {
+        final List<dynamic> list = response.data['panchang_list'] ?? [];
+        if (list.isNotEmpty) {
+          await repo.cachePanchangList(list);
+          final freshCached = await repo.getCachedPanchang(dateStr);
+          if (freshCached != null) {
+            return Panchang.fromJson(freshCached);
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Sync Panchang fetch failed: $e');
+    }
+    return null;
   }
 
   // Panchang states
@@ -138,21 +172,19 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
     // 1. Fetch swayamsevaks and activities from SQLite
     _swayamsevaks = await repo.getAllSwayamsevaks();
     _activities = await repo.getActiveActivities();
-
-    // 2. Fetch today's Panchang/utsav from API if online, otherwise pre-fill defaults
     final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
+
+    // 2. Fetch today's Panchang/utsav from cache or API
     try {
-      final apiClient = ref.read(apiClientProvider);
-      final response = await apiClient.get('/api/fetch_panchang.php', queryParameters: {'date': dateStr});
-      if (response.statusCode == 200 && response.data != null && response.data['status'] == 'success') {
-        final panchang = response.data['panchang'];
-        _yugabdhController.text = '५१२८';
-        _vikramController.text = panchang['vikram_samvat']?.toString() ?? '';
-        _shakaController.text = panchang['shaka_samvat']?.toString() ?? '';
-        _updateMonth(panchang['vikram_month']?.toString() ?? '');
-        _updatePaksh(panchang['paksha']?.toString() ?? '');
-        _updateTithi(panchang['tithi']?.toString() ?? '');
-        _utsavController.text = panchang['utsav']?.toString() ?? '';
+      final panchang = await _getPanchang(_selectedDate);
+      if (panchang != null) {
+        _yugabdhController.text = panchang.yugabdha.isNotEmpty ? panchang.yugabdha : '५१२८';
+        _vikramController.text = panchang.vikramSamvat;
+        _shakaController.text = panchang.shakaSamvat;
+        _updateMonth(panchang.vikramMonth);
+        _updatePaksh(panchang.paksha);
+        _updateTithi(panchang.tithi);
+        _utsavController.text = panchang.utsav ?? '';
       }
     } catch (e) {
       debugPrint('Sync Panchang fetch failed: $e');

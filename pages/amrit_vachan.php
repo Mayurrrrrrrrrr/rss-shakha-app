@@ -31,7 +31,7 @@ $error = '';
 
 // Handle Delete
 if (isset($_POST['delete_id'])) {
-    $stmt = $pdo->prepare("DELETE FROM amrit_vachan WHERE id = ? AND (shakha_id = ? OR ? = 1)");
+    $stmt = $pdo->prepare("UPDATE amrit_vachan SET is_deleted = 1, updated_at = NOW() WHERE id = ? AND (shakha_id = ? OR ? = 1)");
     $stmt->execute([$_POST['delete_id'], $shakhaId, isAdmin() ? 1 : 0]);
     $success = 'अमृत वचन हटा दिया गया है।';
 }
@@ -47,11 +47,11 @@ if (isset($_POST['save_vachan'])) {
         $error = 'सामग्री अनिवार्य है।';
     } else {
         if ($id) {
-            $stmt = $pdo->prepare("UPDATE amrit_vachan SET content = ?, author = ?, vachan_date = ? WHERE id = ? AND (shakha_id = ? OR ? = 1)");
+            $stmt = $pdo->prepare("UPDATE amrit_vachan SET content = ?, author = ?, vachan_date = ?, updated_at = NOW() WHERE id = ? AND (shakha_id = ? OR ? = 1)");
             $stmt->execute([$content, $author, $vachan_date, $id, $shakhaId, isAdmin() ? 1 : 0]);
             $success = 'अमृत वचन अपडेट कर दिया गया है।';
         } else {
-            $stmt = $pdo->prepare("INSERT INTO amrit_vachan (shakha_id, content, author, vachan_date, created_by) VALUES (?, ?, ?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO amrit_vachan (shakha_id, content, author, vachan_date, created_by, updated_at) VALUES (?, ?, ?, ?, ?, NOW())");
             $stmt->execute([$shakhaId, $content, $author, $vachan_date, $_SESSION['user_id']]);
             $success = 'नया अमृत वचन जोड़ दिया गया है।';
         }
@@ -62,12 +62,12 @@ $pageTitle = 'अमृत वचन';
 require_once '../includes/header.php';
 
 // Fetch items for all (Admin and Mukhya Shikshak see all now, but can only edit their own)
-$stmt = $pdo->query("SELECT a.*, s.name as shakha_name FROM amrit_vachan a LEFT JOIN shakhas s ON a.shakha_id = s.id ORDER BY vachan_date DESC LIMIT 30");
+$stmt = $pdo->query("SELECT a.*, s.name as shakha_name FROM amrit_vachan a LEFT JOIN shakhas s ON a.shakha_id = s.id WHERE a.is_deleted = 0 ORDER BY vachan_date DESC LIMIT 30");
 $items = $stmt->fetchAll();
 
 $editItem = null;
 if (isset($_GET['edit'])) {
-    $stmt = $pdo->prepare("SELECT * FROM amrit_vachan WHERE id = ? AND (shakha_id = ? OR ? = 1)");
+    $stmt = $pdo->prepare("SELECT * FROM amrit_vachan WHERE id = ? AND is_deleted = 0 AND (shakha_id = ? OR ? = 1)");
     $stmt->execute([$_GET['edit'], $shakhaId, isAdmin() ? 1 : 0]);
     $editItem = $stmt->fetch();
 }

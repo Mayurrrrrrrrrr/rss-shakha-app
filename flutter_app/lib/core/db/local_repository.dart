@@ -40,13 +40,13 @@ class LocalRepository {
 
   Future<List<Swayamsevak>> getAllSwayamsevaks() async {
     final db = await _dbHelper.database;
-    final maps = await db.query('swayamsevaks', where: 'is_active = 1', orderBy: 'name ASC');
+    final maps = await db.query('swayamsevaks', where: 'is_active = 1 AND is_deleted = 0', orderBy: 'name ASC');
     return maps.map((m) => Swayamsevak.fromJson(m)).toList();
   }
 
   Future<Swayamsevak?> getSwayamsevakById(int id) async {
     final db = await _dbHelper.database;
-    final maps = await db.query('swayamsevaks', where: 'id = ?', whereArgs: [id]);
+    final maps = await db.query('swayamsevaks', where: 'id = ? AND is_deleted = 0', whereArgs: [id]);
     if (maps.isEmpty) return null;
     return Swayamsevak.fromJson(maps.first);
   }
@@ -57,30 +57,23 @@ class LocalRepository {
 
     if (swayamsevak.id != null) {
       id = swayamsevak.id!;
+      final data = swayamsevak.toJson();
+      data['updated_at'] = DateTime.now().toIso8601String();
       await db.update(
         'swayamsevaks',
-        swayamsevak.toJson(),
+        data,
         where: 'id = ?',
         whereArgs: [id],
       );
     } else {
       // Generate temporary negative ID for offline insert
       id = (DateTime.now().millisecondsSinceEpoch % 1000000) * -1;
-      final newSway = Swayamsevak(
-        id: id,
-        name: swayamsevak.name,
-        address: swayamsevak.address,
-        phone: swayamsevak.phone,
-        age: swayamsevak.age,
-        username: swayamsevak.username,
-        shakhaId: swayamsevak.shakhaId,
-        category: swayamsevak.category,
-        gat: swayamsevak.gat,
-        isGatNayak: swayamsevak.isGatNayak,
-        isActive: swayamsevak.isActive,
-        updatedAt: DateTime.now().toIso8601String(),
-      );
-      await db.insert('swayamsevaks', newSway.toJson());
+      final data = swayamsevak.toJson();
+      data['id'] = id;
+      data['created_at'] = DateTime.now().toIso8601String();
+      data['updated_at'] = DateTime.now().toIso8601String();
+      data['is_deleted'] = 0;
+      await db.insert('swayamsevaks', data);
     }
 
     if (sync) {
@@ -100,19 +93,31 @@ class LocalRepository {
 
   Future<void> deleteSwayamsevak(int id, {bool sync = true}) async {
     final db = await _dbHelper.database;
+    final nowStr = DateTime.now().toIso8601String();
     await db.update(
       'swayamsevaks',
-      {'is_active': 0, 'updated_at': DateTime.now().toIso8601String()},
+      {
+        'is_active': 0,
+        'is_deleted': 1,
+        'updated_at': nowStr
+      },
       where: 'id = ?',
       whereArgs: [id],
     );
 
     if (sync) {
-      await queueAction(
-        'delete_swayamsevak',
-        '/api/actions/swayamsevak_delete.php',
-        {'id': id.toString()},
-      );
+      final maps = await db.query('swayamsevaks', where: 'id = ?', whereArgs: [id]);
+      if (maps.isNotEmpty) {
+        final data = Map<String, dynamic>.from(maps.first);
+        await queueAction(
+          'save_swayamsevak',
+          '/api/actions/swayamsevak_save.php',
+          {
+            'offline_id': id.toString(),
+            ...data,
+          },
+        );
+      }
     }
   }
 
@@ -156,20 +161,20 @@ class LocalRepository {
 
   Future<DailyRecord?> getDailyRecordByDate(String date) async {
     final db = await _dbHelper.database;
-    final maps = await db.query('daily_records', where: 'record_date = ? AND is_active = 1', whereArgs: [date]);
+    final maps = await db.query('daily_records', where: 'record_date = ? AND is_active = 1 AND is_deleted = 0', whereArgs: [date]);
     if (maps.isEmpty) return null;
     return DailyRecord.fromJson(maps.first);
   }
 
   Future<List<Attendance>> getAttendanceForRecord(int recordId) async {
     final db = await _dbHelper.database;
-    final maps = await db.query('attendance', where: 'daily_record_id = ?', whereArgs: [recordId]);
+    final maps = await db.query('attendance', where: 'daily_record_id = ? AND is_deleted = 0', whereArgs: [recordId]);
     return maps.map((m) => Attendance.fromJson(m)).toList();
   }
 
   Future<List<DailyActivity>> getActivitiesForRecord(int recordId) async {
     final db = await _dbHelper.database;
-    final maps = await db.query('daily_activities', where: 'daily_record_id = ?', whereArgs: [recordId]);
+    final maps = await db.query('daily_activities', where: 'daily_record_id = ? AND is_deleted = 0', whereArgs: [recordId]);
     return maps.map((m) => DailyActivity.fromJson(m)).toList();
   }
 
@@ -189,6 +194,7 @@ class LocalRepository {
         if (sync) {
           data['pending_sync'] = 1;
         }
+        data['updated_at'] = DateTime.now().toIso8601String();
         await txn.update(
           'daily_records',
           data,
@@ -196,48 +202,37 @@ class LocalRepository {
           whereArgs: [recordId],
         );
       } else {
-        final newRecord = DailyRecord(
-          id: recordId,
-          recordDate: record.recordDate,
-          yugabdh: record.yugabdh,
-          vikramSamvat: record.vikramSamvat,
-          shakaSamvat: record.shakaSamvat,
-          hindiMonth: record.hindiMonth,
-          paksh: record.paksh,
-          tithi: record.tithi,
-          utsav: record.utsav,
-          customMessage: record.customMessage,
-          shakhaId: record.shakhaId,
-          isActive: record.isActive,
-          pendingSync: sync ? 1 : record.pendingSync,
-          updatedAt: DateTime.now().toIso8601String(),
-        );
-        await txn.insert('daily_records', newRecord.toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
+        final data = record.toJson();
+        data['id'] = recordId;
+        if (sync) {
+          data['pending_sync'] = 1;
+        }
+        data['created_at'] = DateTime.now().toIso8601String();
+        data['updated_at'] = DateTime.now().toIso8601String();
+        data['is_deleted'] = 0;
+        await txn.insert('daily_records', data, conflictAlgorithm: ConflictAlgorithm.replace);
       }
 
       // Save attendance list
       await txn.delete('attendance', where: 'daily_record_id = ?', whereArgs: [recordId]);
       for (var att in attendance) {
-        final newAtt = Attendance(
-          dailyRecordId: recordId,
-          swayamsevakId: att.swayamsevakId,
-          isPresent: att.isPresent,
-          updatedAt: DateTime.now().toIso8601String(),
-        );
-        await txn.insert('attendance', newAtt.toJson());
+        final data = att.toJson();
+        data['daily_record_id'] = recordId;
+        data['created_at'] = DateTime.now().toIso8601String();
+        data['updated_at'] = DateTime.now().toIso8601String();
+        data['is_deleted'] = 0;
+        await txn.insert('attendance', data);
       }
 
       // Save activities list
       await txn.delete('daily_activities', where: 'daily_record_id = ?', whereArgs: [recordId]);
       for (var act in activities) {
-        final newAct = DailyActivity(
-          dailyRecordId: recordId,
-          activityId: act.activityId,
-          isDone: act.isDone,
-          conductedBy: act.conductedBy,
-          updatedAt: DateTime.now().toIso8601String(),
-        );
-        await txn.insert('daily_activities', newAct.toJson());
+        final data = act.toJson();
+        data['daily_record_id'] = recordId;
+        data['created_at'] = DateTime.now().toIso8601String();
+        data['updated_at'] = DateTime.now().toIso8601String();
+        data['is_deleted'] = 0;
+        await txn.insert('daily_activities', data);
       }
     });
 
@@ -363,62 +358,62 @@ class LocalRepository {
 
   Future<List<Subhashit>> getSubhashits() async {
     final db = await _dbHelper.database;
-    final maps = await db.query('subhashits', where: 'is_active = 1', orderBy: 'subhashit_date DESC');
+    final maps = await db.query('subhashits', where: 'is_active = 1 AND is_deleted = 0', orderBy: 'subhashit_date DESC');
     return maps.map((m) => Subhashit.fromJson(m)).toList();
   }
 
   Future<List<AmritVachan>> getAmritVachans() async {
     final db = await _dbHelper.database;
-    final maps = await db.query('amrit_vachan', where: 'is_active = 1', orderBy: 'vachan_date DESC');
+    final maps = await db.query('amrit_vachan', where: 'is_active = 1 AND is_deleted = 0', orderBy: 'vachan_date DESC');
     return maps.map((m) => AmritVachan.fromJson(m)).toList();
   }
 
   Future<List<Geet>> getGeets() async {
     final db = await _dbHelper.database;
-    final maps = await db.query('geet', where: 'is_active = 1', orderBy: 'geet_date DESC');
+    final maps = await db.query('geet', where: 'is_active = 1 AND is_deleted = 0', orderBy: 'geet_date DESC');
     return maps.map((m) => Geet.fromJson(m)).toList();
   }
 
   Future<List<Ghoshna>> getGhoshnayein() async {
     final db = await _dbHelper.database;
-    final maps = await db.query('ghoshnayein', where: 'is_active = 1', orderBy: 'ghoshna_date DESC');
+    final maps = await db.query('ghoshnayein', where: 'is_active = 1 AND is_deleted = 0', orderBy: 'ghoshna_date DESC');
     return maps.map((m) => Ghoshna.fromJson(m)).toList();
   }
 
   Future<List<Event>> getEvents() async {
     final db = await _dbHelper.database;
-    final maps = await db.query('events', where: 'is_active = 1', orderBy: 'event_date DESC, event_time DESC');
+    final maps = await db.query('events', where: 'is_active = 1 AND is_deleted = 0', orderBy: 'event_date DESC, event_time DESC');
     return maps.map((m) => Event.fromJson(m)).toList();
   }
 
   Future<List<Activity>> getActiveActivities() async {
     final db = await _dbHelper.database;
-    final maps = await db.query('activities', where: 'is_active = 1', orderBy: 'name ASC');
+    final maps = await db.query('activities', where: 'is_active = 1 AND is_deleted = 0', orderBy: 'name ASC');
     return maps.map((m) => Activity.fromJson(m)).toList();
   }
 
   Future<List<TimetableDefault>> getTimetableDefaults() async {
     final db = await _dbHelper.database;
-    final maps = await db.query('timetable_defaults', where: 'is_active = 1');
+    final maps = await db.query('timetable_defaults', where: 'is_active = 1 AND is_deleted = 0');
     return maps.map((m) => TimetableDefault.fromJson(m)).toList();
   }
 
   Future<TimetableOverride?> getTimetableOverrideForDate(String date) async {
     final db = await _dbHelper.database;
-    final maps = await db.query('timetable_overrides', where: 'override_date = ? AND is_active = 1', whereArgs: [date]);
+    final maps = await db.query('timetable_overrides', where: 'override_date = ? AND is_active = 1 AND is_deleted = 0', whereArgs: [date]);
     if (maps.isEmpty) return null;
     return TimetableOverride.fromJson(maps.first);
   }
 
   Future<int> getTotalSwayamsevaks() async {
     final db = await _dbHelper.database;
-    final result = await db.rawQuery('SELECT COUNT(*) as count FROM swayamsevaks WHERE is_active = 1');
+    final result = await db.rawQuery('SELECT COUNT(*) as count FROM swayamsevaks WHERE is_active = 1 AND is_deleted = 0');
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
   Future<int> getTotalDailyRecords() async {
     final db = await _dbHelper.database;
-    final result = await db.rawQuery('SELECT COUNT(*) as count FROM daily_records WHERE is_active = 1');
+    final result = await db.rawQuery('SELECT COUNT(*) as count FROM daily_records WHERE is_active = 1 AND is_deleted = 0');
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
@@ -426,7 +421,7 @@ class LocalRepository {
     final db = await _dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
       'daily_records',
-      where: 'is_active = 1',
+      where: 'is_active = 1 AND is_deleted = 0',
       orderBy: 'record_date DESC',
       limit: limit,
     );
@@ -437,7 +432,7 @@ class LocalRepository {
     final db = await _dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
       'daily_records',
-      where: 'is_active = 1',
+      where: 'is_active = 1 AND is_deleted = 0',
       orderBy: 'record_date DESC',
     );
     return _enrichRecords(maps);
@@ -502,6 +497,36 @@ class LocalRepository {
         
         await txn.insert(
           tableName,
+          data,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+    });
+  }
+
+  // ==========================================
+  // OFFLINE PANCHANG CACHE
+  // ==========================================
+
+  Future<Map<String, dynamic>?> getCachedPanchang(String date) async {
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'panchang_cache',
+      where: 'date = ?',
+      whereArgs: [date],
+    );
+    if (maps.isEmpty) return null;
+    return maps.first;
+  }
+
+  Future<void> cachePanchangList(List<dynamic> list) async {
+    if (list.isEmpty) return;
+    final db = await _dbHelper.database;
+    await db.transaction((txn) async {
+      for (var entry in list) {
+        final data = Map<String, dynamic>.from(entry);
+        await txn.insert(
+          'panchang_cache',
           data,
           conflictAlgorithm: ConflictAlgorithm.replace,
         );

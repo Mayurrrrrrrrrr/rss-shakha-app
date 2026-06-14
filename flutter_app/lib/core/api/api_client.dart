@@ -15,6 +15,17 @@ class ApiClient {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
+          final versionedPaths = [
+            '/api/login.php',
+            '/api/fetch_panchang.php',
+            '/api/get_notices.php',
+            '/api/sync/push.php',
+            '/api/sync/pull.php',
+          ];
+          if (versionedPaths.contains(options.path)) {
+            options.path = options.path.replaceFirst('/api/', '/api/v1/');
+          }
+
           final prefs = await SharedPreferences.getInstance();
           final token = prefs.getString('api_token');
           if (token != null && token.isNotEmpty) {

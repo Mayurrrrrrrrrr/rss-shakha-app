@@ -16,7 +16,7 @@ $id = $inputs['id'] ?? null;
 
 if ($id) {
     $shakhaId = getCurrentShakhaId();
-    $stmt = $pdo->prepare("UPDATE swayamsevaks SET is_active = 0 WHERE id = ? AND shakha_id = ?");
+    $stmt = $pdo->prepare("UPDATE swayamsevaks SET is_active = 0, is_deleted = 1, updated_at = NOW() WHERE id = ? AND shakha_id = ?");
     $stmt->execute([$id, $shakhaId]);
 }
 

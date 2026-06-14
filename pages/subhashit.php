@@ -44,7 +44,7 @@ $subhashit_date = date('Y-m-d');
 $panchang_text = '';
 
 if ($subhashitId) {
-    $stmt = $pdo->prepare("SELECT * FROM subhashits WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT * FROM subhashits WHERE id = ? AND is_deleted = 0");
     $stmt->execute([$subhashitId]);
     $existing = $stmt->fetch();
     if ($existing) {
@@ -87,17 +87,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             if ($subhashitIdToSave) {
                 // Security check
-                $stmtCheck = $pdo->prepare("SELECT shakha_id FROM subhashits WHERE id = ?");
+                $stmtCheck = $pdo->prepare("SELECT shakha_id FROM subhashits WHERE id = ? AND is_deleted = 0");
                 $stmtCheck->execute([$subhashitIdToSave]);
                 if ($stmtCheck->fetchColumn() != $shakhaId) {
                     $error = "त्रुटि: आप केवल अपनी शाखा के सुभाषित अपडेट कर सकते हैं।";
                 } else {
-                    $stmt = $pdo->prepare("UPDATE subhashits SET sanskrit_text = ?, hindi_meaning = ?, shabdarth = ?, subhashit_date = ?, panchang_text = ? WHERE id = ? AND shakha_id = ?");
+                    $stmt = $pdo->prepare("UPDATE subhashits SET sanskrit_text = ?, hindi_meaning = ?, shabdarth = ?, subhashit_date = ?, panchang_text = ?, updated_at = NOW() WHERE id = ? AND shakha_id = ?");
                     $stmt->execute([$sanskrit_text, $hindi_meaning, $shabdarthJson, $subhashit_date, $panchang_text, $subhashitIdToSave, $shakhaId]);
                     $success = "सुभाषित सफलतापूर्वक अपडेट किया गया!";
                 }
             } else {
-                $stmt = $pdo->prepare("INSERT INTO subhashits (shakha_id, sanskrit_text, hindi_meaning, shabdarth, subhashit_date, panchang_text, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt = $pdo->prepare("INSERT INTO subhashits (shakha_id, sanskrit_text, hindi_meaning, shabdarth, subhashit_date, panchang_text, created_by, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
                 $stmt->execute([$shakhaId, $sanskrit_text, $hindi_meaning, $shabdarthJson, $subhashit_date, $panchang_text, $createdBy]);
                 $success = "सुभाषित सफलतापूर्वक सहेजा गया!";
                 $sanskrit_text = ''; $hindi_meaning = ''; $shabdarth = []; $panchang_text = ''; $subhashitId = null;
@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$stmt = $pdo->prepare("SELECT s.*, sh.name as origin_shakha_name FROM subhashits s JOIN shakhas sh ON s.shakha_id = sh.id ORDER BY s.subhashit_date DESC LIMIT 30");
+$stmt = $pdo->prepare("SELECT s.*, sh.name as origin_shakha_name FROM subhashits s JOIN shakhas sh ON s.shakha_id = sh.id WHERE s.is_deleted = 0 ORDER BY s.subhashit_date DESC LIMIT 30");
 $stmt->execute();
 $recentSubhashits = $stmt->fetchAll();
 

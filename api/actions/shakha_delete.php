@@ -15,7 +15,7 @@ if ($id) {
     try {
         // Warning: This could delete a lot of associated data depending on ON DELETE actions.
         // It relies on the ON DELETE CASCADE / SET NULL from migration script.
-        $stmt = $pdo->prepare("DELETE FROM shakhas WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE shakhas SET is_deleted = 1, updated_at = NOW() WHERE id = ?");
         $stmt->execute([$id]);
         header('Location: ../../pages/shakhas.php?msg=deleted');
     } catch (PDOException $e) {

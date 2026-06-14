@@ -22,7 +22,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 3,
+      version: 5,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -51,6 +51,54 @@ class DatabaseHelper {
       }
       await _createDB(db, newVersion);
     }
+
+    if (oldVersion < 4) {
+      final tables = [
+        'shakhas',
+        'swayamsevaks',
+        'daily_records',
+        'attendance',
+        'activities',
+        'daily_activities',
+        'timetable_defaults',
+        'timetable_overrides',
+        'events',
+        'subhashits',
+        'amrit_vachan',
+        'geet',
+        'ghoshnayein'
+      ];
+      for (var table in tables) {
+        try {
+          await db.execute('ALTER TABLE $table ADD COLUMN created_at TEXT');
+        } catch (_) {}
+        try {
+          await db.execute('ALTER TABLE $table ADD COLUMN is_deleted INTEGER DEFAULT 0');
+        } catch (_) {}
+        try {
+          await db.execute('ALTER TABLE $table ADD COLUMN updated_at TEXT');
+        } catch (_) {}
+      }
+    }
+
+    if (oldVersion < 5) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS panchang_cache (
+          date TEXT PRIMARY KEY,
+          tithi TEXT,
+          paksha TEXT,
+          vikram_month TEXT,
+          shaka_month TEXT,
+          vikram_samvat TEXT,
+          shaka_samvat TEXT,
+          yugabdha TEXT,
+          utsav TEXT,
+          nakshatra TEXT,
+          sunrise TEXT,
+          sunset TEXT
+        )
+      ''');
+    }
   }
 
   Future<void> _createDB(Database db, int version) async {
@@ -65,7 +113,9 @@ class DatabaseHelper {
         name $textType,
         openai_api_key $textType,
         use_ai_crosscheck $integerType,
-        updated_at $textType
+        created_at $textType,
+        updated_at $textType,
+        is_deleted $integerType DEFAULT 0
       )
     ''');
 
@@ -83,7 +133,9 @@ class DatabaseHelper {
         gat $textType,
         is_gat_nayak $integerType,
         is_active $integerType DEFAULT 1,
-        updated_at $textType
+        created_at $textType,
+        updated_at $textType,
+        is_deleted $integerType DEFAULT 0
       )
     ''');
 
@@ -103,7 +155,9 @@ class DatabaseHelper {
         shakha_id $integerType,
         is_active $integerType DEFAULT 1,
         pending_sync $integerType DEFAULT 0,
-        updated_at $textType
+        created_at $textType,
+        updated_at $textType,
+        is_deleted $integerType DEFAULT 0
       )
     ''');
 
@@ -113,7 +167,9 @@ class DatabaseHelper {
         daily_record_id $integerType,
         swayamsevak_id $integerType,
         is_present $integerType,
+        created_at $textType,
         updated_at $textType,
+        is_deleted $integerType DEFAULT 0,
         PRIMARY KEY (daily_record_id, swayamsevak_id)
       )
     ''');
@@ -125,7 +181,9 @@ class DatabaseHelper {
         name $textType,
         is_active $integerType DEFAULT 1,
         shakha_id $integerType,
-        updated_at $textType
+        created_at $textType,
+        updated_at $textType,
+        is_deleted $integerType DEFAULT 0
       )
     ''');
 
@@ -136,7 +194,9 @@ class DatabaseHelper {
         activity_id $integerType,
         is_done $integerType,
         conducted_by $integerType,
+        created_at $textType,
         updated_at $textType,
+        is_deleted $integerType DEFAULT 0,
         PRIMARY KEY (daily_record_id, activity_id)
       )
     ''');
@@ -147,8 +207,10 @@ class DatabaseHelper {
         shakha_id $integerType,
         day_of_week $integerType,
         slots $textType,
-        updated_at $textType,
         is_active $integerType DEFAULT 1,
+        created_at $textType,
+        updated_at $textType,
+        is_deleted $integerType DEFAULT 0,
         PRIMARY KEY (shakha_id, day_of_week)
       )
     ''');
@@ -159,8 +221,10 @@ class DatabaseHelper {
         shakha_id $integerType,
         override_date $textType,
         slots $textType,
-        updated_at $textType,
         is_active $integerType DEFAULT 1,
+        created_at $textType,
+        updated_at $textType,
+        is_deleted $integerType DEFAULT 0,
         PRIMARY KEY (shakha_id, override_date)
       )
     ''');
@@ -178,7 +242,9 @@ class DatabaseHelper {
         meeting_link $textType,
         created_by $integerType,
         is_active $integerType DEFAULT 1,
-        updated_at $textType
+        created_at $textType,
+        updated_at $textType,
+        is_deleted $integerType DEFAULT 0
       )
     ''');
 
@@ -194,7 +260,9 @@ class DatabaseHelper {
         panchang_text $textType,
         created_by $integerType,
         is_active $integerType DEFAULT 1,
-        updated_at $textType
+        created_at $textType,
+        updated_at $textType,
+        is_deleted $integerType DEFAULT 0
       )
     ''');
 
@@ -208,7 +276,9 @@ class DatabaseHelper {
         vachan_date $textType,
         created_by $integerType,
         is_active $integerType DEFAULT 1,
-        updated_at $textType
+        created_at $textType,
+        updated_at $textType,
+        is_deleted $integerType DEFAULT 0
       )
     ''');
 
@@ -224,7 +294,9 @@ class DatabaseHelper {
         geet_date $textType,
         created_by $integerType,
         is_active $integerType DEFAULT 1,
-        updated_at $textType
+        created_at $textType,
+        updated_at $textType,
+        is_deleted $integerType DEFAULT 0
       )
     ''');
 
@@ -239,7 +311,9 @@ class DatabaseHelper {
         ghoshna_date $textType,
         created_by $integerType,
         is_active $integerType DEFAULT 1,
-        updated_at $textType
+        created_at $textType,
+        updated_at $textType,
+        is_deleted $integerType DEFAULT 0
       )
     ''');
 
@@ -251,6 +325,24 @@ class DatabaseHelper {
         endpoint $textType NOT NULL,
         payload $textType NOT NULL,
         created_at $textType NOT NULL
+      )
+    ''');
+
+    // 15. Panchang Cache Table
+    await db.execute('''
+      CREATE TABLE panchang_cache (
+        date $textType PRIMARY KEY,
+        tithi $textType,
+        paksha $textType,
+        vikram_month $textType,
+        shaka_month $textType,
+        vikram_samvat $textType,
+        shaka_samvat $textType,
+        yugabdha $textType,
+        utsav $textType,
+        nakshatra $textType,
+        sunrise $textType,
+        sunset $textType
       )
     ''');
   }
@@ -271,7 +363,8 @@ class DatabaseHelper {
       'amrit_vachan',
       'geet',
       'ghoshnayein',
-      'offline_actions_queue'
+      'offline_actions_queue',
+      'panchang_cache'
     ];
     for (var table in tables) {
       await db.delete(table);
