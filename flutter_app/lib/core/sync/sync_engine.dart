@@ -38,7 +38,7 @@ class SyncEngine {
 
   void _startPeriodicSync() {
     _periodicSyncTimer?.cancel();
-    _periodicSyncTimer = Timer.periodic(const Duration(minutes: 15), (timer) {
+    _periodicSyncTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
       debugPrint('Sync: Periodic background sync triggered.');
       sync();
     });
@@ -252,6 +252,12 @@ class SyncEngine {
         }
         if (tablesData['ghoshnayein'] != null) {
           await localRepo.bulkUpsert('ghoshnayein', tablesData['ghoshnayein']);
+        }
+        if (tablesData['notices'] != null) {
+          await localRepo.bulkUpsert('notices', tablesData['notices']);
+        }
+        if (tablesData['personalities'] != null) {
+          await localRepo.bulkUpsert('personalities', tablesData['personalities']);
         }
 
         // Save new sync timestamp

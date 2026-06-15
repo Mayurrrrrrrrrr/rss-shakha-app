@@ -202,6 +202,7 @@ class Activity {
   final String name;
   final int isActive;
   final int? shakhaId;
+  final int sortOrder;
   final String? updatedAt;
 
   Activity({
@@ -209,6 +210,7 @@ class Activity {
     required this.name,
     required this.isActive,
     this.shakhaId,
+    this.sortOrder = 10,
     this.updatedAt,
   });
 
@@ -218,6 +220,7 @@ class Activity {
       name: json['name'] ?? '',
       isActive: json['is_active'] is String ? int.parse(json['is_active']) : (json['is_active'] ?? 1),
       shakhaId: json['shakha_id'] != null ? (json['shakha_id'] is String ? int.parse(json['shakha_id']) : json['shakha_id']) : null,
+      sortOrder: json['sort_order'] != null ? (json['sort_order'] is String ? int.parse(json['sort_order']) : json['sort_order']) : 10,
       updatedAt: json['updated_at'],
     );
   }
@@ -227,6 +230,7 @@ class Activity {
         'name': name,
         'is_active': isActive,
         'shakha_id': shakhaId,
+        'sort_order': sortOrder,
         'updated_at': updatedAt,
       };
 }
@@ -686,5 +690,113 @@ class Panchang {
         'nakshatra': nakshatra,
         'sunrise': sunrise,
         'sunset': sunset,
+      };
+}
+
+class Notice {
+  final int? id;
+  final int? shakhaId;
+  final String subject;
+  final String? noticeDate;
+  final String? tithi;
+  final String? location;
+  final String message;
+  final int? createdBy;
+  final String? createdAt;
+  final String? updatedAt;
+  final int isDeleted;
+
+  Notice({
+    this.id,
+    this.shakhaId,
+    required this.subject,
+    this.noticeDate,
+    this.tithi,
+    this.location,
+    required this.message,
+    this.createdBy,
+    this.createdAt,
+    this.updatedAt,
+    this.isDeleted = 0,
+  });
+
+  factory Notice.fromJson(Map<String, dynamic> json) {
+    return Notice(
+      id: json['id'] != null ? (json['id'] is String ? int.parse(json['id']) : json['id']) : null,
+      shakhaId: json['shakha_id'] != null ? (json['shakha_id'] is String ? int.parse(json['shakha_id']) : json['shakha_id']) : null,
+      subject: json['subject'] ?? '',
+      noticeDate: json['notice_date'],
+      tithi: json['tithi'],
+      location: json['location'],
+      message: json['message'] ?? '',
+      createdBy: json['created_by'] != null ? (json['created_by'] is String ? int.parse(json['created_by']) : json['created_by']) : null,
+      createdAt: json['created_at'],
+      updatedAt: json['updated_at'],
+      isDeleted: json['is_deleted'] is String ? int.parse(json['is_deleted']) : (json['is_deleted'] ?? 0),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'shakha_id': shakhaId,
+        'subject': subject,
+        'notice_date': noticeDate,
+        'tithi': tithi,
+        'location': location,
+        'message': message,
+        'created_by': createdBy,
+        'created_at': createdAt,
+        'updated_at': updatedAt,
+        'is_deleted': isDeleted,
+      };
+}
+
+class Personality {
+  final int? id;
+  final String name;
+  final String? title;
+  final String? description;
+  final String? imagePath;
+  final int displayOrder;
+  final String? createdAt;
+  final String? updatedAt;
+  final int isDeleted;
+
+  Personality({
+    this.id,
+    required this.name,
+    this.title,
+    this.description,
+    this.imagePath,
+    this.displayOrder = 0,
+    this.createdAt,
+    this.updatedAt,
+    this.isDeleted = 0,
+  });
+
+  factory Personality.fromJson(Map<String, dynamic> json) {
+    return Personality(
+      id: json['id'] != null ? (json['id'] is String ? int.parse(json['id']) : json['id']) : null,
+      name: json['name'] ?? '',
+      title: json['title'],
+      description: json['description'],
+      imagePath: json['image_path'],
+      displayOrder: json['display_order'] != null ? (json['display_order'] is String ? int.parse(json['display_order']) : json['display_order']) : 0,
+      createdAt: json['created_at'],
+      updatedAt: json['updated_at'],
+      isDeleted: json['is_deleted'] is String ? int.parse(json['is_deleted']) : (json['is_deleted'] ?? 0),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'title': title,
+        'description': description,
+        'image_path': imagePath,
+        'display_order': displayOrder,
+        'created_at': createdAt,
+        'updated_at': updatedAt,
+        'is_deleted': isDeleted,
       };
 }

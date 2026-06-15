@@ -399,7 +399,7 @@ class LocalRepository {
 
   Future<List<Activity>> getActiveActivities() async {
     final db = await _dbHelper.database;
-    final maps = await db.query('activities', where: 'is_active = 1 AND is_deleted = 0', orderBy: 'name ASC');
+    final maps = await db.query('activities', where: 'is_active = 1 AND is_deleted = 0', orderBy: 'sort_order ASC, name ASC');
     return maps.map((m) => Activity.fromJson(m)).toList();
   }
 
@@ -543,5 +543,25 @@ class LocalRepository {
         );
       }
     });
+  }
+
+  // ==========================================
+  // NOTICES
+  // ==========================================
+
+  Future<List<Notice>> getNotices() async {
+    final db = await _dbHelper.database;
+    final maps = await db.query('notices', where: 'is_deleted = 0', orderBy: 'created_at DESC');
+    return maps.map((m) => Notice.fromJson(m)).toList();
+  }
+
+  // ==========================================
+  // PERSONALITIES
+  // ==========================================
+
+  Future<List<Personality>> getPersonalities() async {
+    final db = await _dbHelper.database;
+    final maps = await db.query('personalities', where: 'is_deleted = 0', orderBy: 'display_order ASC, name ASC');
+    return maps.map((m) => Personality.fromJson(m)).toList();
   }
 }

@@ -22,7 +22,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 5,
+      version: 6,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -98,6 +98,45 @@ class DatabaseHelper {
           sunset TEXT
         )
       ''');
+    }
+
+    if (oldVersion < 6) {
+      // Add notices table
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS notices (
+          id INTEGER PRIMARY KEY,
+          shakha_id INTEGER,
+          subject TEXT,
+          notice_date TEXT,
+          tithi TEXT,
+          location TEXT,
+          message TEXT,
+          created_by INTEGER,
+          created_at TEXT,
+          updated_at TEXT,
+          is_deleted INTEGER DEFAULT 0
+        )
+      ''');
+
+      // Add personalities table
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS personalities (
+          id INTEGER PRIMARY KEY,
+          name TEXT NOT NULL,
+          title TEXT,
+          description TEXT,
+          image_path TEXT,
+          display_order INTEGER DEFAULT 0,
+          created_at TEXT,
+          updated_at TEXT,
+          is_deleted INTEGER DEFAULT 0
+        )
+      ''');
+
+      // Add sort_order column to activities table
+      try {
+        await db.execute('ALTER TABLE activities ADD COLUMN sort_order INTEGER DEFAULT 10');
+      } catch (_) {}
     }
   }
 
@@ -181,6 +220,7 @@ class DatabaseHelper {
         name $textType,
         is_active $integerType DEFAULT 1,
         shakha_id $integerType,
+        sort_order $integerType DEFAULT 10,
         created_at $textType,
         updated_at $textType,
         is_deleted $integerType DEFAULT 0
@@ -345,6 +385,38 @@ class DatabaseHelper {
         sunset $textType
       )
     ''');
+
+    // 16. Notices Table
+    await db.execute('''
+      CREATE TABLE notices (
+        id $integerType PRIMARY KEY,
+        shakha_id $integerType,
+        subject $textType,
+        notice_date $textType,
+        tithi $textType,
+        location $textType,
+        message $textType,
+        created_by $integerType,
+        created_at $textType,
+        updated_at $textType,
+        is_deleted $integerType DEFAULT 0
+      )
+    ''');
+
+    // 17. Personalities Table
+    await db.execute('''
+      CREATE TABLE personalities (
+        id $integerType PRIMARY KEY,
+        name $textType NOT NULL,
+        title $textType,
+        description $textType,
+        image_path $textType,
+        display_order $integerType DEFAULT 0,
+        created_at $textType,
+        updated_at $textType,
+        is_deleted $integerType DEFAULT 0
+      )
+    ''');
   }
 
   Future<void> clearAllData() async {
@@ -364,7 +436,9 @@ class DatabaseHelper {
       'geet',
       'ghoshnayein',
       'offline_actions_queue',
-      'panchang_cache'
+      'panchang_cache',
+      'notices',
+      'personalities'
     ];
     for (var table in tables) {
       await db.delete(table);

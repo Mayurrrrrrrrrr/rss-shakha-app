@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'personality_detail_screen.dart';
 
 class PersonalityGridItem extends ConsumerWidget {
@@ -59,21 +60,29 @@ class PersonalityGridItem extends ConsumerWidget {
         return defaultFallback();
       }
 
-      if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-        return Image.network(
-          imagePath,
+      String imageUrl = imagePath;
+      if (imagePath.startsWith('/')) {
+        imageUrl = 'https://sanghasthan.yuktaa.com$imagePath';
+      }
+
+      if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+        return CachedNetworkImage(
+          imageUrl: imageUrl,
           fit: BoxFit.cover,
-          errorBuilder: (ctx, err, stack) {
-            if (fallbackAsset != null) return loadAsset(fallbackAsset);
-            return defaultFallback();
-          },
-        );
-      } else if (imagePath.startsWith('/')) {
-        final fullUrl = 'https://sanghasthan.yuktaa.com$imagePath';
-        return Image.network(
-          fullUrl,
-          fit: BoxFit.cover,
-          errorBuilder: (ctx, err, stack) {
+          placeholder: (ctx, url) => Container(
+            color: const Color(0xFFFFE0B2),
+            child: const Center(
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Color(0xFFFF6B00),
+                ),
+              ),
+            ),
+          ),
+          errorWidget: (ctx, url, err) {
             if (fallbackAsset != null) return loadAsset(fallbackAsset);
             return defaultFallback();
           },

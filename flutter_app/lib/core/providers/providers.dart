@@ -136,3 +136,13 @@ final eventsListProvider = FutureProvider<List<Event>>((ref) async {
   final repo = ref.watch(localRepoProvider);
   return await repo.getEvents();
 });
+
+final noticesListProvider = FutureProvider<List<Notice>>((ref) async {
+  final repo = ref.watch(localRepoProvider);
+  return await repo.getNotices();
+});
+
+final personalitiesListProvider = FutureProvider<List<Personality>>((ref) async {
+  final repo = ref.watch(localRepoProvider);
+  return await repo.getPersonalities();
+});

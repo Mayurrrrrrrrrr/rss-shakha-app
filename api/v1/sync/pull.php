@@ -36,7 +36,9 @@ $response = [
         'subhashits' => [],
         'amrit_vachan' => [],
         'geet' => [],
-        'ghoshnayein' => []
+        'ghoshnayein' => [],
+        'notices' => [],
+        'personalities' => []
     ]
 ];
 
@@ -46,8 +48,8 @@ try {
     $stmt->execute([$lastSync, $shakhaId]);
     $response['data']['shakhas'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // 2. Swayamsevaks
-    $stmt = $pdo->prepare("SELECT * FROM swayamsevaks WHERE updated_at > ? AND shakha_id = ?");
+    // 2. Swayamsevaks (exclude password for security)
+    $stmt = $pdo->prepare("SELECT id, name, address, phone, age, username, shakha_id, category, gat, is_gat_nayak, is_active, created_at, updated_at, is_deleted FROM swayamsevaks WHERE updated_at > ? AND shakha_id = ?");
     $stmt->execute([$lastSync, $shakhaId]);
     $response['data']['swayamsevaks'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -109,6 +111,37 @@ try {
     $stmt = $pdo->prepare("SELECT * FROM ghoshnayein WHERE updated_at > ? AND (shakha_id = ? OR shakha_id IS NULL)");
     $stmt->execute([$lastSync, $shakhaId]);
     $response['data']['ghoshnayein'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // 14. Notices
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM notices WHERE updated_at > ? AND shakha_id = ?");
+        $stmt->execute([$lastSync, $shakhaId]);
+        $response['data']['notices'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        // notices table may not have updated_at yet, fallback to all recent
+        try {
+            $stmt = $pdo->prepare("SELECT * FROM notices WHERE shakha_id = ? ORDER BY created_at DESC LIMIT 50");
+            $stmt->execute([$shakhaId]);
+            $response['data']['notices'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e2) {
+            $response['data']['notices'] = [];
+        }
+    }
+
+    // 15. Personalities (global, not shakha-specific)
+    try {
+        $stmt = $pdo->prepare("SELECT id, name, title, description, image_path, display_order, created_at, updated_at FROM personalities WHERE updated_at > ? ORDER BY display_order ASC, name ASC");
+        $stmt->execute([$lastSync]);
+        $response['data']['personalities'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        // personalities table may not have updated_at, fallback to all
+        try {
+            $stmt = $pdo->query("SELECT id, name, title, description, image_path, display_order FROM personalities ORDER BY display_order ASC, name ASC");
+            $response['data']['personalities'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e2) {
+            $response['data']['personalities'] = [];
+        }
+    }
 
     echo json_encode($response, JSON_UNESCAPED_UNICODE);
 

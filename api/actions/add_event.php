@@ -33,8 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        $stmt = $pdo->prepare("INSERT INTO events (shakha_id, title, description, event_date, event_time, location, meeting_link, created_by) 
-                               VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO events (shakha_id, title, description, event_date, event_time, location, meeting_link, created_by, created_at, updated_at) 
+                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())");
         $stmt->execute([$shakha_id, $title, $description, $event_date, $event_time, $location, $meeting_link, $created_by]);
         header("Location: ../../pages/events.php?msg=Event+added+successfully!");
     } catch (PDOException $e) {
