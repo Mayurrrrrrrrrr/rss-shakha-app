@@ -1,6 +1,6 @@
-<?php
 require_once '../includes/auth.php';
 require_once '../config/db.php';
+require_once '../includes/PanchangHelper.php';
 requireLogin();
 
 $shakhaId = getCurrentShakhaId();
@@ -27,6 +27,7 @@ if (isset($cityMap[$checkCity])) {
 }
 
 $selectedDate = $_GET['date'] ?? date('Y-m-d');
+$initialPanchang = PanchangHelper::getForDate($pdo, $selectedDate, $shakhaId);
 
 $pageTitle = 'दैनिक पंचांग (Daily Panchang)';
 require_once '../includes/header.php';
@@ -157,27 +158,13 @@ require_once '../includes/header.php';
 <div class="panchang-controls">
     <div class="form-group" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center;">
         <input type="date" id="panchang-date" value="<?php echo $selectedDate; ?>">
-        
-        <select id="panchang-provider" style="padding: 10px 14px; background: rgba(15, 15, 20, 0.6); border: 1px solid var(--border-light); border-radius: 10px; color: var(--text-primary); font-size: 1rem; outline: none;">
-            <option value="all">🔄 All (Cross-check)</option>
-            <option value="gemini">♊ Google Gemini</option>
-            <option value="groq">⚡ Groq (Llama 3.1)</option>
-            <option value="openai">🤖 OpenAI (ChatGPT)</option>
-        </select>
-
-        <select id="panchang-model" style="padding: 10px 14px; background: rgba(15, 15, 20, 0.6); border: 1px solid var(--border-light); border-radius: 10px; color: var(--text-primary); font-size: 1rem; outline: none; display:none;">
-            <option value="flash">Flash</option>
-        </select>
-
-        <button id="btn-fetch" class="btn btn-primary" onclick="loadPanchang(false)" style="padding: 10px 20px;">✨ पंचांग प्राप्त करें</button>
-        <button id="btn-refetch" class="btn btn-outline" onclick="loadPanchang(true)" style="padding: 10px 20px; border-color: var(--primary); color: var(--primary);">🔄 दोबारा प्राप्त करें (Refetch)</button>
-        <button id="btn-clear-cache" class="btn btn-outline" onclick="clearPanchangCache()" style="padding: 10px 20px; border-color: var(--danger); color: var(--danger); opacity: 0.8;">🗑️ कैश साफ़ करें</button>
+        <button id="btn-fetch" class="btn btn-primary" onclick="loadPanchang()" style="padding: 10px 20px;">✨ पंचांग प्राप्त करें</button>
     </div>
 </div>
 
 <div class="share-actions" style="justify-content: center; margin-bottom: 15px; gap: 16px; display: flex;">
-    <button id="btn-download" class="btn btn-success" disabled>⬇️ डाउनलोड (JPG)</button>
-    <button id="btn-share" class="btn btn-whatsapp" disabled>📱 व्हाट्सएप शेयर</button>
+    <button id="btn-download" class="btn btn-success">⬇️ डाउनलोड (JPG)</button>
+    <button id="btn-share" class="btn btn-whatsapp">📱 व्हाट्सएप शेयर</button>
 </div>
 
 <!-- Loading -->
@@ -189,16 +176,9 @@ require_once '../includes/header.php';
 <!-- Error -->
 <div id="panchang-error"></div>
 
-<!-- Initial Placeholder -->
-<div id="panchang-placeholder" style="text-align: center; padding: 40px 20px; border: 1px dashed var(--border-light); border-radius: 12px; margin: 20px auto; max-width: 550px; background: rgba(255,255,255,0.02);">
-    <div style="font-size: 3rem; margin-bottom: 15px;">🕉️</div>
-    <h3 style="color: var(--text-primary);">दैनिक पंचांग देखने के लिए तैयार</h3>
-    <p style="color: var(--text-muted);">कृपया तारीख चुनें और "पंचांग प्राप्त करें" बटन पर क्लिक करें।</p>
-</div>
-
 <!-- Capture Area -->
 <div style="overflow-x: auto; padding-bottom: 40px; text-align: center;">
-    <div id="capture-area" class="panchang-capture-container" style="display: none;">
+    <div id="capture-area" class="panchang-capture-container">
         <div class="panchang-capture-inner">
             <!-- Corner SVGs -->
             <svg class="corner-svg tl" viewBox="0 0 100 100"><path d="M0,0 Q50,0 50,50 Q0,50 0,0 M10,10 Q40,10 40,40 Q10,40 10,10 M0,20 Q20,20 20,40 M20,0 Q20,20 40,20" /></svg>
@@ -279,7 +259,7 @@ require_once '../includes/header.php';
             <div class="p-footer">
                 <div class="p-shakha" style="margin-top: 0; font-size: 11px; opacity: 0.6; font-weight: normal; letter-spacing: 0.5px;">🚩 <?php echo htmlspecialchars($shakhaName); ?> 🚩</div>
                 <div style="font-size: 8px; opacity: 0.4; margin-top: 5px; font-weight: normal; line-height: 1.2;">
-                    यह पंचांग AI द्वारा निर्मित है। महत्वपूर्ण निर्णयों के लिए कृपया अपने ज्योतिषाचार्य से परामर्श लें।
+                    सूर्य सिद्धान्त आधारित गणना।
                 </div>
             </div>
         </div>
@@ -295,33 +275,22 @@ function formatHindiDate(dateStr) {
     return `${d.getDate()} ${hindiMonths[d.getMonth()]} ${d.getFullYear()}, ${hindiDays[d.getDay()]}`;
 }
 
-async function loadPanchang(force = false) {
+async function loadPanchang() {
     const date = document.getElementById('panchang-date').value;
-    const provider = document.getElementById('panchang-provider').value;
     if (!date) return alert('कृपया तारीख चुनें');
 
     document.getElementById('panchang-loading').style.display = 'block';
     document.getElementById('capture-area').style.display = 'none';
-    document.getElementById('panchang-placeholder').style.display = 'none';
     document.getElementById('panchang-error').style.display = 'none';
     document.getElementById('btn-download').disabled = true;
     document.getElementById('btn-share').disabled = true;
 
     const btnFetch = document.getElementById('btn-fetch');
-    const btnRefetch = document.getElementById('btn-refetch');
-    
-    if (force) {
-        btnRefetch.innerHTML = '⏳ रिफ्रेश हो रहा है...';
-    } else {
-        btnFetch.innerHTML = '⏳ लोड हो रहा है...';
-    }
+    btnFetch.innerHTML = '⏳ लोड हो रहा है...';
     btnFetch.disabled = true;
-    btnRefetch.disabled = true;
 
     try {
-        // Add timestamp to bypass browser cache
-        const ts = new Date().getTime();
-        const url = `../api/fetch_panchang_ai.php?date=${date}&provider=${provider}${force ? '&force=true' : ''}&t=${ts}`;
+        const url = `../api/v1/panchang.php?date=${date}`;
         const res = await fetch(url);
         const data = await res.json();
 
@@ -349,28 +318,7 @@ async function loadPanchang(force = false) {
 
     document.getElementById('panchang-loading').style.display = 'none';
     btnFetch.innerHTML = '✨ पंचांग प्राप्त करें';
-    btnRefetch.innerHTML = '🔄 दोबारा प्राप्त करें (Refetch)';
     btnFetch.disabled = false;
-    btnRefetch.disabled = false;
-}
-
-async function clearPanchangCache() {
-    const date = document.getElementById('panchang-date').value;
-    if (!date) return;
-    if (!confirm('क्या आप इस तारीख का कैश साफ़ करना चाहते हैं?')) return;
-    
-    try {
-        const res = await fetch(`../api/clear_panchang_cache.php?date=${date}`);
-        const data = await res.json();
-        if (data.success) {
-            alert('कैश साफ़ कर दिया गया है।');
-            loadPanchang(false);
-        } else {
-            alert('त्रुटि: ' + data.message);
-        }
-    } catch(e) {
-        alert('त्रुटि: ' + e.message);
-    }
 }
 
 function populateCard(data, date) {
@@ -523,10 +471,14 @@ document.getElementById('btn-share').addEventListener('click', async () => {
     btn.innerHTML = '📱 व्हाट्सएप शेयर'; btn.disabled = false;
 });
 
-// Auto-load for today removed to avoid API demand issues and as per user request
+// Auto-load for today
 window.addEventListener('DOMContentLoaded', () => {
-    // Show a placeholder or instructions if needed
-    console.log('Panchang page loaded. Click the button to fetch data.');
+    // Initial render from PHP variable
+    const initialData = {
+        success: true,
+        panchang: <?php echo json_encode($initialPanchang); ?>
+    };
+    populateCard(initialData, '<?php echo $selectedDate; ?>');
 });
 </script>
 

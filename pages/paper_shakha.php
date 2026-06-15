@@ -5,7 +5,7 @@ require_once '../includes/auth.php';
  * 8-Panel Zine Fold Layout (A4 Landscape)
  */
 require_once '../config/db.php';
-require_once '../includes/PanchangCalculator.php';
+require_once '../includes/PanchangHelper.php';
 
 requireLogin();
 
@@ -36,60 +36,13 @@ if ($record && !empty($record['tithi'])) {
     if (!empty($record['utsav'])) {
         $tithiStr .= ' - ' . $record['utsav'];
     }
-} else {
-    // Check AI Panchang cache
-    $cacheKey = "shakha_{$shakha_id}_{$date}";
-    $stmtC = $pdo->prepare("SELECT response_json FROM ai_content_cache WHERE content_type='panchang' AND content_key=?");
-    $stmtC->execute([$cacheKey]);
-    $cached = $stmtC->fetchColumn();
-    if ($cached) {
-        $aiData = json_decode($cached, true);
-        if ($aiData) {
-            $t = $aiData['tithi'] ?? '';
-            $p = $aiData['paksha'] ?? '';
-            $m = '';
-            if (isset($aiData['maah'])) {
-                $m = $aiData['maah']['purnimant'] ?? ($aiData['maah']['amant'] ?? '');
-            }
-            $v = '';
-            $y = '';
-            if (isset($aiData['samvat'])) {
-                $v = $aiData['samvat']['vikram'] ?? '';
-                $y = $aiData['samvat']['yugabdha'] ?? '';
-            }
-            $tithiParts = [];
-            if ($t) {
-                $tithiParts[] = $t;
-            }
-            if ($p && mb_strpos($t, $p) === false) {
-                $tithiParts[] = $p;
-            }
-            if ($m && mb_strpos($t, $m) === false) {
-                $tithiParts[] = $m;
-            }
-            $tithiStr = implode(' ', $tithiParts);
-            
-            $samvatParts = [];
-            if ($v) {
-                $samvatParts[] = "संवत् " . $v;
-            }
-            if ($y) {
-                $samvatParts[] = "युगाब्द " . $y;
-            }
-            if (!empty($samvatParts)) {
-                $tithiStr .= ' (' . implode(', ', $samvatParts) . ')';
-            }
-            if (!empty($aiData['vrat_tyohar']) && $aiData['vrat_tyohar'] !== 'null') {
-                $tithiStr .= ' - ' . $aiData['vrat_tyohar'];
-            }
-        }
-    }
-    
-    if (empty($tithiStr)) {
-        $calc = new PanchangCalculator();
-        $panchang = $calc->getPanchang($date);
-        if ($panchang) {
-            $tithiStr = $panchang['tithi'] . ' ' . $panchang['paksha'] . ', ' . $panchang['maah'] . ' (संवत् ' . $panchang['vikram_samvat'] . ', युगाब्द ' . $panchang['yugabdh'] . ')';
+    // Fallback to PanchangHelper if record is missing or incomplete
+    require_once '../includes/PanchangHelper.php';
+    $panchang = PanchangHelper::getForDate($pdo, $date, $shakha_id);
+    if ($panchang) {
+        $tithiStr = $panchang['tithi'] . ' ' . $panchang['paksha'] . ', ' . $panchang['vikram_month'] . ' (संवत् ' . $panchang['vikram_samvat'] . ', युगाब्द ' . $panchang['yugabdha'] . ')';
+        if (!empty($panchang['utsav'])) {
+            $tithiStr .= ' - ' . $panchang['utsav'];
         }
     }
 }

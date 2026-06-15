@@ -13,6 +13,11 @@ if (isSwayamsevak()) {
     exit;
 }
 
+require_once '../includes/PanchangHelper.php';
+$shakhaId = getCurrentShakhaId();
+$date = $_GET['date'] ?? date('Y-m-d');
+$autoPanchang = PanchangHelper::getForDate($pdo, $date, $shakhaId);
+
 $date = $_GET['date'] ?? date('Y-m-d');
 $editId = $_GET['id'] ?? null;
 $existingRecord = null;
@@ -73,14 +78,11 @@ $activities = $stmt->fetchAll();
 
 $hindiMonths = ['जनवरी','फ़रवरी','मार्च','अप्रैल','मई','जून','जुलाई','अगस्त','सितंबर','अक्टूबर','नवंबर','दिसंबर'];
 
-// Auto-calculate approximate Samvats for the selected date
-$dt = strtotime($date);
-$yy = (int)date('Y', $dt);
-$mm = (int)date('n', $dt);
-// Starts in Chaitra (roughly mid-March/April)
-$autoYg = ($mm >= 4) ? $yy + 3102 : $yy + 3101;
-$autoVs = ($mm >= 4) ? $yy + 57 : $yy + 56;
-$autoSs = ($mm >= 4) ? $yy - 78 : $yy - 79;
+// Use calculated Samvats as fallback if not in DB
+$autoYg = !empty($autoPanchang['yugabdha']) ? $autoPanchang['yugabdha'] : (($mm >= 4) ? $yy + 3102 : $yy + 3101);
+$autoVs = !empty($autoPanchang['vikram_samvat']) ? $autoPanchang['vikram_samvat'] : (($mm >= 4) ? $yy + 57 : $yy + 56);
+$autoSs = !empty($autoPanchang['shaka_samvat']) ? $autoPanchang['shaka_samvat'] : (($mm >= 4) ? $yy - 78 : $yy - 79);
+
 ?>
 
 <div class="page-header">
@@ -182,8 +184,15 @@ $autoSs = ($mm >= 4) ? $yy - 78 : $yy - 79;
                     <option value="">-- चुनें --</option>
                     <?php 
                         $hMonths = ['चैत्र', 'वैशाख', 'ज्येष्ठ', 'आषाढ़', 'श्रावण', 'भाद्रपद', 'आश्विन', 'कार्तिक', 'मार्गशीर्ष', 'पौष', 'माघ', 'फाल्गुन'];
+                        // Add Adhik Mas dynamically if calculated
+                        $calcMonth = $autoPanchang['vikram_month'] ?? '';
+                        if ($calcMonth && !in_array($calcMonth, $hMonths)) {
+                            array_unshift($hMonths, $calcMonth);
+                        }
                         foreach($hMonths as $hm) {
-                            $sel = ($existingRecord && isset($existingRecord['hindi_month']) && $existingRecord['hindi_month'] == $hm) ? 'selected' : '';
+                            $isDbMatch = ($existingRecord && isset($existingRecord['hindi_month']) && $existingRecord['hindi_month'] == $hm);
+                            $isAutoMatch = (!$existingRecord && $calcMonth == $hm);
+                            $sel = ($isDbMatch || $isAutoMatch) ? 'selected' : '';
                             echo "<option value='$hm' $sel>$hm</option>";
                         }
                     ?>
@@ -194,8 +203,8 @@ $autoSs = ($mm >= 4) ? $yy - 78 : $yy - 79;
                 <label>पक्ष</label>
                 <select name="paksh" class="form-control">
                     <option value="">-- चुनें --</option>
-                    <option value="शुक्ल पक्ष" <?php echo ($existingRecord && isset($existingRecord['paksh']) && $existingRecord['paksh'] == 'शुक्ल पक्ष') ? 'selected' : ''; ?>>शुक्ल पक्ष</option>
-                    <option value="कृष्ण पक्ष" <?php echo ($existingRecord && isset($existingRecord['paksh']) && $existingRecord['paksh'] == 'कृष्ण पक्ष') ? 'selected' : ''; ?>>कृष्ण पक्ष</option>
+                    <option value="शुक्ल पक्ष" <?php echo (($existingRecord && isset($existingRecord['paksh']) && $existingRecord['paksh'] == 'शुक्ल पक्ष') || (!$existingRecord && isset($autoPanchang['paksha']) && strpos($autoPanchang['paksha'], 'शुक्ल') !== false)) ? 'selected' : ''; ?>>शुक्ल पक्ष</option>
+                    <option value="कृष्ण पक्ष" <?php echo (($existingRecord && isset($existingRecord['paksh']) && $existingRecord['paksh'] == 'कृष्ण पक्ष') || (!$existingRecord && isset($autoPanchang['paksha']) && strpos($autoPanchang['paksha'], 'कृष्ण') !== false)) ? 'selected' : ''; ?>>कृष्ण पक्ष</option>
                 </select>
             </div>
 
@@ -206,7 +215,9 @@ $autoSs = ($mm >= 4) ? $yy - 78 : $yy - 79;
                     <?php 
                         $tithis = ['प्रतिपदा', 'द्वितीया', 'तृतीया', 'चतुर्थी', 'पंचमी', 'षष्ठी', 'सप्तमी', 'अष्टमी', 'नवमी', 'दशमी', 'एकादशी', 'द्वादशी', 'त्रयोदशी', 'चतुर्दशी', 'पूर्णिमा', 'अमावस्या'];
                         foreach($tithis as $t) {
-                            $sel = ($existingRecord && isset($existingRecord['tithi']) && $existingRecord['tithi'] == $t) ? 'selected' : '';
+                            $isDbMatch = ($existingRecord && isset($existingRecord['tithi']) && $existingRecord['tithi'] == $t);
+                            $isAutoMatch = (!$existingRecord && isset($autoPanchang['tithi']) && $autoPanchang['tithi'] == $t);
+                            $sel = ($isDbMatch || $isAutoMatch) ? 'selected' : '';
                             echo "<option value='$t' $sel>$t</option>";
                         }
                     ?>
@@ -220,17 +231,8 @@ $autoSs = ($mm >= 4) ? $yy - 78 : $yy - 79;
 
         </div>
     </div>
-        <div class="card-header">📅 तारीख चुनें</div>
-        <div class="form-group">
-            <label for="record_date">तारीख</label>
-            <input type="date" id="record_date" name="record_date" class="form-control" 
-                   value="<?php echo $date; ?>" required
-                   onchange="window.location.href='../pages/daily_record.php?date='+this.value">
-        </div>
-        <?php if ($existingRecord): ?>
-            <div class="alert alert-info">ℹ️ इस तारीख का रिकॉर्ड पहले से मौजूद है। संपादन किया जा सकता है।</div>
-        <?php endif; ?>
     </div>
+
 
     <!-- Attendance -->
     <div class="card">

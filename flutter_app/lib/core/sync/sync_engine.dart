@@ -260,6 +260,20 @@ class SyncEngine {
           await localRepo.bulkUpsert('personalities', tablesData['personalities']);
         }
 
+        // Fetch current month panchang
+        try {
+          final now = DateTime.now();
+          final panchangUrl = '/api/v1/panchang.php?year=${now.year}&month=${now.month}';
+          final pResponse = await apiClient.get(panchangUrl);
+          if (pResponse.statusCode == 200 && pResponse.data != null && pResponse.data['success'] == true || pResponse.data['status'] == 'success') {
+             if (pResponse.data['panchang_list'] != null) {
+                await localRepo.cachePanchangList(pResponse.data['panchang_list'] as List);
+             }
+          }
+        } catch (e) {
+          debugPrint('Pull Sync: Failed to fetch monthly panchang: $e');
+        }
+
         // Save new sync timestamp
         await prefs.setString('last_sync_timestamp', serverTimestamp);
         lastSyncTime.value = serverTimestamp;

@@ -1,6 +1,7 @@
 <?php
 require_once '../includes/auth.php';
 require_once '../config/db.php';
+require_once '../includes/PanchangHelper.php';
 requireLogin();
 
 if (!isMukhyashikshak() && !isAdmin()) {
@@ -57,9 +58,23 @@ if ($subhashitId) {
     } else {
         $subhashitId = null;
         $isReadOnly = false;
+        
+        // Auto-fetch Panchang for today
+        $autoPanchang = PanchangHelper::getForDate($pdo, $subhashit_date, $shakhaId);
+        $panchangParts = [];
+        if (!empty($autoPanchang['vikram_samvat'])) $panchangParts[] = "विक्रम संवत् " . $autoPanchang['vikram_samvat'] . " (" . $autoPanchang['vikram_month'] . " " . $autoPanchang['paksha'] . " " . $autoPanchang['tithi'] . ")";
+        if (!empty($autoPanchang['shaka_samvat'])) $panchangParts[] = "शक संवत् " . $autoPanchang['shaka_samvat'] . " (" . $autoPanchang['shaka_month'] . " " . $autoPanchang['paksha'] . " " . $autoPanchang['tithi'] . ")";
+        $panchang_text = implode("\n", $panchangParts);
     }
 } else {
     $isReadOnly = false;
+    
+    // Auto-fetch Panchang for today
+    $autoPanchang = PanchangHelper::getForDate($pdo, $subhashit_date, $shakhaId);
+    $panchangParts = [];
+    if (!empty($autoPanchang['vikram_samvat'])) $panchangParts[] = "विक्रम संवत् " . $autoPanchang['vikram_samvat'] . " (" . $autoPanchang['vikram_month'] . " " . $autoPanchang['paksha'] . " " . $autoPanchang['tithi'] . ")";
+    if (!empty($autoPanchang['shaka_samvat'])) $panchangParts[] = "शक संवत् " . $autoPanchang['shaka_samvat'] . " (" . $autoPanchang['shaka_month'] . " " . $autoPanchang['paksha'] . " " . $autoPanchang['tithi'] . ")";
+    $panchang_text = implode("\n", $panchangParts);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
