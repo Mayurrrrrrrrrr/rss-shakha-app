@@ -4,7 +4,7 @@ require_once '../../config/db.php';
 requireLogin();
 csrf_verify();
 if (!isAdmin()) {
-    header('Location: ../../pages/index.php');
+    header('Location: ../../login.php');
     exit;
 }
 

@@ -6,7 +6,7 @@ require_once '../config/db.php';
 requireLogin();
 
 if (!isAdmin() && !isMukhyashikshak()) {
-    header("Location: ../index.php");
+    header("Location: ../login.php");
     exit;
 }
 

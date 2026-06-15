@@ -4,7 +4,7 @@
 User-agent: *
 
 # Public pages — ALLOW
-Allow: /home.php
+Allow: /index.php
 Allow: /prarthna/
 Allow: /ekatmata-stotra/
 Allow: /subhashit/
@@ -19,7 +19,7 @@ Allow: /robots.txt
 Allow: /sitemap.xml
 
 # Login & Dashboard — BLOCK
-Disallow: /index.php
+Disallow: /login.php
 Disallow: /pages/
 Disallow: /api/
 Disallow: /config/

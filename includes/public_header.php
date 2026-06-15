@@ -44,12 +44,12 @@ require_once __DIR__ . '/../config/db.php';
 <body>
     <nav class="home-nav <?php echo isset($isHome) && !$isHome ? 'scrolled' : ''; ?>" id="home-nav">
         <div class="nav-inner">
-            <a href="/home.php" class="nav-logo-link">
+            <a href="/index.php" class="nav-logo-link">
                 <img src="/assets/images/flag_icon.png" alt="ध्वज" class="nav-flag">
                 <span class="nav-title">संघस्थान</span>
             </a>
             <div class="nav-links" id="nav-links">
-                <a href="/home.php#sanskriti" class="nav-link">संस्कृति</a>
+                <a href="/index.php#sanskriti" class="nav-link">संस्कृति</a>
                 <a href="/ekatmata-mantra/" class="nav-link">एकात्मता मन्त्र</a>
                 <a href="/ekatmata-stotra/" class="nav-link">एकात्मता स्तोत्र</a>
                 <a href="/pages/vyaktitv_view.php" class="nav-link">व्यक्तित्व</a>
@@ -58,7 +58,7 @@ require_once __DIR__ . '/../config/db.php';
                 <?php if ($isLoggedIn): ?>
                     <a href="<?php echo $dashUrl; ?>" class="nav-link nav-link-cta">🚩 डैशबोर्ड</a>
                 <?php else: ?>
-                    <a href="/index.php" class="nav-link nav-link-cta">🔑 लॉगिन</a>
+                    <a href="/login.php" class="nav-link nav-link-cta">🔑 लॉगिन</a>
                 <?php endif; ?>
             </div>
             <button class="nav-hamburger" id="nav-hamburger" aria-label="मेनू"><span></span><span></span><span></span></button>

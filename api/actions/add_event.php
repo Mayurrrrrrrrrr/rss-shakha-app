@@ -5,7 +5,7 @@ csrf_verify();
 
 // Only allow Admins and Mukhyashikshaks
 if (!isLoggedIn() || (!isAdmin() && !isMukhyashikshak())) {
-    header("Location: ../index.php");
+    header("Location: ../login.php");
     exit;
 }
 

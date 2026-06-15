@@ -4,7 +4,7 @@ require_once '../../config/db.php';
 csrf_verify();
 
 if (!isLoggedIn() || (!isAdmin() && !isMukhyashikshak())) {
-    header("Location: ../index.php");
+    header("Location: ../login.php");
     exit;
 }
 

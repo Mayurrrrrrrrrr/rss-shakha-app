@@ -68,7 +68,7 @@ if (empty($_SESSION['csrf_token'])) {
 if (isset($_SESSION['last_active']) && (time() - $_SESSION['last_active']) > 1800) {
     $_SESSION = [];
     session_destroy();
-    header('Location: /index.php?timeout=1');
+    header('Location: /login.php?timeout=1');
     exit;
 }
 if (isset($_SESSION['user_id'])) {
@@ -81,7 +81,7 @@ if (isset($_SESSION['user_id'])) {
 function requireLogin()
 {
     if (!isset($_SESSION['user_id'])) {
-        header('Location: /index.php');
+        header('Location: /login.php');
         exit;
     }
 }

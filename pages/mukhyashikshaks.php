@@ -9,7 +9,7 @@ require_once '../config/db.php';
 requireLogin();
 
 if (!isAdmin()) {
-    header('Location: index.php');
+    header('Location: ../login.php');
     exit;
 }
 

@@ -3,7 +3,7 @@ const API_CACHE_NAME = 'sanghasthan-api-v1';
 
 const STATIC_ASSETS = [
   '/',
-  '/index.php',
+  '/login.php',
   '/manifest.json',
   '/assets/images/favicon.png',
   '/assets/images/logo.svg',

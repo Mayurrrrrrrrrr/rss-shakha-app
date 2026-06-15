@@ -23,7 +23,7 @@
                 <a href="/terms.php" style="color: inherit; text-decoration: none;">नियम और शर्तें</a> | 
                 <a href="/privacy.php" style="color: inherit; text-decoration: none;">गोपनीयता नीति</a>
             </div>
-            <a href="/home.php" class="footer-back">← संघस्थान मुख्य पृष्ठ</a>
+            <a href="/index.php" class="footer-back">← संघस्थान मुख्य पृष्ठ</a>
         </div>
     </footer>
 
@@ -88,5 +88,26 @@
         }
     });
     </script>
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav-bar">
+        <div class="bottom-nav-inner">
+            <a href="/index.php" class="bottom-nav-item">
+                <span class="icon">🏠</span>
+                <span class="label">मुख्य पृष्ठ</span>
+            </a>
+            <a href="/index.php#sanskriti" class="bottom-nav-item">
+                <span class="icon">🕉️</span>
+                <span class="label">संस्कृति</span>
+            </a>
+            <a href="/index.php#panchang" class="bottom-nav-item">
+                <span class="icon">📅</span>
+                <span class="label">पंचांग</span>
+            </a>
+            <a href="/login.php" class="bottom-nav-item">
+                <span class="icon">👤</span>
+                <span class="label">लॉगिन</span>
+            </a>
+        </div>
+    </nav>
 </body>
 </html>

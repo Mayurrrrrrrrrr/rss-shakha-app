@@ -92,7 +92,7 @@
 <body>
     <nav class="home-nav" style="background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: relative;">
         <div class="nav-inner" style="justify-content: center;">
-            <a href="/home.php" class="nav-logo-link">
+            <a href="/index.php" class="nav-logo-link">
                 <img src="/assets/images/flag_icon.png" alt="ध्वज" class="nav-flag">
                 <span class="nav-title">संघस्थान</span>
             </a>
@@ -110,7 +110,7 @@
             <!-- These are likely cached if the user visited the home page -->
             <a href="/ekatmata-stotra/" class="cached-link">एकात्मता स्तोत्र (यदि कैश हो)</a>
             <a href="/prarthna/" class="cached-link">प्रार्थना (यदि कैश हो)</a>
-            <a href="/home.php" class="cached-link">मुखपृष्ठ (यदि कैश हो)</a>
+            <a href="/index.php" class="cached-link">मुखपृष्ठ (यदि कैश हो)</a>
         </div>
     </main>
 </body>
