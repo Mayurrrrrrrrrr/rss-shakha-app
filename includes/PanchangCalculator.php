@@ -182,9 +182,9 @@ class PanchangCalculator {
         $gMonth = (int) date('n', $ts);
         $gDay   = (int) date('j', $ts);
 
-        // Use 00:00 UTC (05:30 IST) as the reference time — this is near sunrise
-        // in India and aligns with Hindu calendar sunrise calculations.
-        $hourUtc = 0.0; // 00:00 UTC = 05:30 IST
+        // Use 06:00 IST (00:30 UTC) as the reference time — this is near sunrise
+        // and gives the tithi that is active at the start of the Hindu day.
+        $hourUtc = 0.5; // 00:30 UTC = 06:00 IST
 
         $targetJdn = $this->gregorianToJDN($gYear, $gMonth, $gDay) + $hourUtc / 24.0;
 
@@ -289,7 +289,9 @@ class PanchangCalculator {
         $elapsedInTithi = $phase - $tithiStartPhase;
         if ($elapsedInTithi < 0) $elapsedInTithi += 360.0;
         
-        $isSecondHalf = ($elapsedInTithi >= 6.0);
+        // Minor boundary correction: If phase is within 0.2 degrees of the boundary,
+        // it means we are practically at the transition.
+        $isSecondHalf = ($elapsedInTithi >= 5.8);
         
         // Compute karana number:
         // If we are in the first half of tithiNum, the active karana index in the 60-karana cycle is:
