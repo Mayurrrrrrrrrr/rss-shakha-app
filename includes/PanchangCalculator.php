@@ -280,8 +280,26 @@ class PanchangCalculator {
         $yogaHindi = $this->yogasHindi[$yogaIndex] ?? '—';
 
         // Calculate Karana (Half of a Tithi, covering 6 degrees of lunar phase each)
-        $karanaNum = (int) floor($phase / 6.0) + 1;
+        // Hindu day calculation at Sunrise:
+        // A tithi has 2 Karanas.
+        // We want the Karana active at sunrise. Since we derived $tithiNum (which is active at sunrise),
+        // we can check how much of the tithi has elapsed to determine if we are in the first or second half.
+        // Let's compute the exact elapsed percentage of the current tithi.
+        $tithiStartPhase = ($tithiNum - 1) * 12.0;
+        $elapsedInTithi = $phase - $tithiStartPhase;
+        if ($elapsedInTithi < 0) $elapsedInTithi += 360.0;
+        
+        $isSecondHalf = ($elapsedInTithi >= 6.0);
+        
+        // Compute karana number:
+        // If we are in the first half of tithiNum, the active karana index in the 60-karana cycle is:
+        // karanaNum = 2 * (tithiNum - 1) + 1
+        // If we are in the second half, it is:
+        // karanaNum = 2 * (tithiNum - 1) + 2
+        $karanaNum = 2 * ($tithiNum - 1) + ($isSecondHalf ? 2 : 1);
         if ($karanaNum > 60) $karanaNum = 60;
+        if ($karanaNum < 1) $karanaNum = 1;
+
         if ($karanaNum === 1) {
             $karanaHindi = 'किंस्तुघ्न';
         } elseif ($karanaNum === 58) {
