@@ -182,9 +182,9 @@ class PanchangCalculator {
         $gMonth = (int) date('n', $ts);
         $gDay   = (int) date('j', $ts);
 
-        // Use 06:00 IST (00:30 UTC) as the reference time — this is near sunrise
-        // and gives the tithi that is active at the start of the Hindu day.
-        $hourUtc = 0.5; // 00:30 UTC = 06:00 IST
+        // Use 00:00 UTC (05:30 IST) as the reference time — this is near sunrise
+        // in India and aligns with Hindu calendar sunrise calculations.
+        $hourUtc = 0.0; // 00:00 UTC = 05:30 IST
 
         $targetJdn = $this->gregorianToJDN($gYear, $gMonth, $gDay) + $hourUtc / 24.0;
 
