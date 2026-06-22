@@ -1,3 +1,4 @@
+<?php
 require_once '../includes/auth.php';
 require_once '../config/db.php';
 require_once '../includes/PanchangHelper.php';
@@ -271,7 +272,14 @@ const hindiDays = ['रविवार', 'सोमवार', 'मंगलव�
 const hindiMonths = ['जनवरी', 'फ़रवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'];
 
 function formatHindiDate(dateStr) {
-    const d = new Date(dateStr);
+    if (!dateStr) return '—';
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return '—';
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10);
+    const d = new Date(year, month, day);
+    if (isNaN(d.getTime())) return '—';
     return `${d.getDate()} ${hindiMonths[d.getMonth()]} ${d.getFullYear()}, ${hindiDays[d.getDay()]}`;
 }
 
@@ -290,11 +298,11 @@ async function loadPanchang() {
     btnFetch.disabled = true;
 
     try {
-        const url = `../api/v1/panchang.php?date=${date}`;
+        const url = `../api/fetch_panchang.php?date=${date}`;
         const res = await fetch(url);
         const data = await res.json();
 
-        if (!data.success) {
+        if (data.status !== 'success') {
             const err = new Error(data.message || 'API Error');
             err.debug_raw = data.debug_raw;
             throw err;
@@ -322,21 +330,21 @@ async function loadPanchang() {
 }
 
 function populateCard(data, date) {
-    const p = data.panchang;
+    const p = data.panchang || {};
 
     // Date
     document.getElementById('p-day').textContent = data.day || formatHindiDate(date).split(',')[1]?.trim();
     document.getElementById('p-date-text').textContent = data.formatted_date || formatHindiDate(date);
 
     // Surya-Chandra
-    document.getElementById('p-surya-udaya').textContent = p.surya?.udaya || '—';
-    document.getElementById('p-surya-asta').textContent = p.surya?.asta || '—';
-    document.getElementById('p-chandra-udaya').textContent = p.chandra?.udaya || '—';
-    document.getElementById('p-chandra-asta').textContent = p.chandra?.asta || '—';
-    document.getElementById('p-chandra-rashi').textContent = p.chandra?.rashi || '—';
+    document.getElementById('p-surya-udaya').textContent = p.surya?.udaya || p.sunrise || '—';
+    document.getElementById('p-surya-asta').textContent = p.surya?.asta || p.sunset || '—';
+    document.getElementById('p-chandra-udaya').textContent = p.chandra?.udaya || p.chandra_udaya || '—';
+    document.getElementById('p-chandra-asta').textContent = p.chandra?.asta || p.chandra_asta || '—';
+    document.getElementById('p-chandra-rashi').textContent = p.chandra?.rashi || p.chandra_rashi || '—';
 
     // Samvat & Tithi
-    document.getElementById('p-vikram').textContent = p.samvat?.vikram || '—';
+    document.getElementById('p-vikram').textContent = p.samvat?.vikram || p.vikram_samvat || '—';
     
     let maahText = '—';
     if (p.maah) {
@@ -352,6 +360,8 @@ function populateCard(data, date) {
         } else {
             maahText = purnimant || amant || '—';
         }
+    } else {
+        maahText = p.vikram_month || '—';
     }
     document.getElementById('p-maah').textContent = maahText;
     document.getElementById('p-paksha').textContent = p.paksha || '—';

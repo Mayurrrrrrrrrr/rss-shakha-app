@@ -154,6 +154,23 @@ class PanchangCalculator {
         55=>'दुंदुभी',56=>'रुधिरोद्गारी',57=>'रक्ताक्षी',58=>'क्रोधन',59=>'अक्षय',
     ];
 
+    // Yogas in Hindi (27)
+    private $yogasHindi = [
+        1 => 'विष्कम्भ', 2 => 'प्रीति', 3 => 'आयुष्मान्', 4 => 'सौभाग्य',
+        5 => 'शोभन', 6 => 'अतिगण्ड', 7 => 'सुकर्मा', 8 => 'धृति',
+        9 => 'शूल', 10 => 'गण्ड', 11 => 'वृद्धि', 12 => 'ध्रुव',
+        13 => 'व्याघात', 14 => 'हर्षण', 15 => 'वज्र', 16 => 'सिद्धि',
+        17 => 'व्यतिपात', 18 => 'वरीयान', 19 => 'परिघ', 20 => 'शिव',
+        21 => 'सिद्ध', 22 => 'साध्य', 23 => 'शुभ', 24 => 'शुक्ल',
+        25 => 'ब्रह्म', 26 => 'ऐन्द्र', 27 => 'वैधृति'
+    ];
+
+    // Karanas in Hindi (7 repeating and 4 fixed)
+    private $karanasHindi = [
+        0 => 'बव', 1 => 'बालव', 2 => 'कौलव', 3 => 'तैतिल',
+        4 => 'गर', 5 => 'वणिज', 6 => 'विष्टि (भद्रा)'
+    ];
+
     /**
      * Main method — returns verified panchang data for a given date.
      * @param string $dateString  Format: 'YYYY-MM-DD' or 'YYYY-MM-DD HH:MM:SS'
@@ -210,22 +227,73 @@ class PanchangCalculator {
         }
 
         // ── Step 3: Moon longitude → Nakshatra & Rashi ──────────────────────
-        // Approximate moon longitude:
-        // At new moon, moon ≈ sun. Sun longitude at new moon + motion since then.
-        // Sun longitude (rough): L = 280.46 + 0.9856474 * n  where n = JDN - 2451545
-        $n_nm   = $refJdn - 2451545.0;
-        $sunAtNm = fmod(280.46646 + 0.9856474 * $n_nm, 360.0);
-        if ($sunAtNm < 0) $sunAtNm += 360.0;
-
-        // Moon movement since new moon: 13.176 degrees/day
-        $moonLon = fmod($sunAtNm + $daysSince * 13.176 + 360.0, 360.0);
-
-        // Apply ayanamsa (sidereal correction) — Lahiri ayanamsa ≈ 24.19° in 2026
         $ayanamsa = 24.19;
-        $moonLonSidereal = fmod($moonLon - $ayanamsa + 360.0, 360.0);
+        $n = $targetJdn - 2451545.0;
+        $sunMeanLon = fmod(280.46646 + 0.9856474 * $n, 360.0);
+        $sunMeanAnomaly = fmod(357.529 + 0.98560028 * $n, 360.0);
+        if ($sunMeanLon < 0) $sunMeanLon += 360.0;
+        if ($sunMeanAnomaly < 0) $sunMeanAnomaly += 360.0;
+        
+        $equationOfCenter = 1.915 * sin(deg2rad($sunMeanAnomaly)) + 0.020 * sin(deg2rad(2 * $sunMeanAnomaly));
+        $sunLonTropical = fmod($sunMeanLon + $equationOfCenter, 360.0);
+        if ($sunLonTropical < 0) $sunLonTropical += 360.0;
+        
+        // High precision Moon Longitude calculation with major perturbations
+        $d = $targetJdn - 2451545.0;
+        
+        // Moon mean longitude
+        $moonMeanLon = fmod(218.3165 + 13.176396 * $d, 360.0);
+        // Moon mean anomaly
+        $moonMeanAnomaly = fmod(134.9629 + 13.064993 * $d, 360.0);
+        // Moon mean elongation
+        $moonElongation = fmod(297.8502 + 12.190749 * $d, 360.0);
+        // Sun mean anomaly (already computed above as $sunMeanAnomaly)
+        
+        if ($moonMeanLon < 0) $moonMeanLon += 360.0;
+        if ($moonMeanAnomaly < 0) $moonMeanAnomaly += 360.0;
+        if ($moonElongation < 0) $moonElongation += 360.0;
+        
+        // Perturbations in longitude (in degrees)
+        $moonPerturbation = 6.289 * sin(deg2rad($moonMeanAnomaly))
+            + 1.274 * sin(deg2rad(2 * $moonElongation - $moonMeanAnomaly))
+            + 0.658 * sin(deg2rad(2 * $moonElongation))
+            - 0.186 * sin(deg2rad($sunMeanAnomaly))
+            - 0.214 * sin(deg2rad(2 * $moonMeanAnomaly))
+            + 0.151 * sin(deg2rad(2 * $moonElongation - $sunMeanAnomaly))
+            + 0.124 * sin(deg2rad(2 * $moonElongation + $moonMeanAnomaly))
+            - 0.114 * sin(deg2rad(2 * $moonElongation - 2 * $moonMeanAnomaly));
+            
+        $moonLonTropical = fmod($moonMeanLon + $moonPerturbation, 360.0);
+        if ($moonLonTropical < 0) $moonLonTropical += 360.0;
+        
+        $moonLonSidereal = fmod($moonLonTropical - $ayanamsa + 360.0, 360.0);
+        $moonLon = $moonLonTropical;
 
         // Get nakshatra from sidereal moon longitude
         $nakshatraData = $this->getNakshatra($moonLonSidereal);
+
+        $sunLonSidereal = fmod($sunLonTropical - $ayanamsa + 360.0, 360.0);
+        // Calculate Yoga (Sidereal Sum of Sun and Moon Longitudes)
+        $yogaLon = fmod($sunLonSidereal + $moonLonSidereal, 360.0);
+        $yogaIndex = (int) floor($yogaLon / 13.333333) + 1;
+        if ($yogaIndex > 27) $yogaIndex = 27;
+        $yogaHindi = $this->yogasHindi[$yogaIndex] ?? '—';
+
+        // Calculate Karana (Half of a Tithi, covering 6 degrees of lunar phase each)
+        $karanaNum = (int) floor($phase / 6.0) + 1;
+        if ($karanaNum > 60) $karanaNum = 60;
+        if ($karanaNum === 1) {
+            $karanaHindi = 'किंस्तुघ्न';
+        } elseif ($karanaNum === 58) {
+            $karanaHindi = 'शकुनि';
+        } elseif ($karanaNum === 59) {
+            $karanaHindi = 'चतुष्पद';
+        } elseif ($karanaNum === 60) {
+            $karanaHindi = 'नाग';
+        } else {
+            $idx = ($karanaNum - 2) % 7;
+            $karanaHindi = $this->karanasHindi[$idx] ?? '—';
+        }
 
         // ── Step 4: Maah (lunar month) ───────────────────────────────────────
         $maahData = $this->getMaah($gYear, $gMonth, $gDay, $paksha);
@@ -265,6 +333,8 @@ class PanchangCalculator {
             'nakshatra'        => $nakshatraData['hindi'],
             'nakshatra_en'     => $nakshatraData['en'],
             'chandra_rashi'    => $nakshatraData['rashi'],
+            'yoga'             => $yogaHindi,
+            'karana'           => $karanaHindi,
 
             // Maah
             'maah_purnimant'   => $maahData['purnimant'],

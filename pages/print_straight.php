@@ -193,7 +193,7 @@ if (!$is_print_mode) {
 }
 
 // Render Standard printout screen
-$appUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]/home.php";
+$appUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]/index.php";
 $qrUrl = "https://chart.googleapis.com/chart?cht=qr&chs=120x120&chl=" . urlencode($appUrl);
 $hindiDays = ['रविवार', 'सोमवार', 'मंगलवार', 'बुधवार', 'गुरुवार', 'शुक्रवार', 'शनिवार'];
 $dayName = $hindiDays[date('w', $ts)];

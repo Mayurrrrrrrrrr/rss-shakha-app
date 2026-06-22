@@ -1,6 +1,14 @@
 <?php
-require_once 'includes/PanchangCalculator.php';
-$calc = new PanchangCalculator();
-$date = '2026-05-11';
-$res = $calc->getPanchang($date . ' 05:30:00');
-echo json_encode($res, JSON_PRETTY_PRINT);
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../includes/PanchangHelper.php';
+
+$shakhaId = 1;
+$date = '2026-06-20';
+
+try {
+    $data = PanchangHelper::getForDate($pdo, $date, $shakhaId);
+    echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage() . "\n";
+}
+?>

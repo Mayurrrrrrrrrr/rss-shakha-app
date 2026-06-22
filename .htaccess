@@ -71,8 +71,8 @@ CGIPassAuth On
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Public homepage: root goes to home.php
-    RewriteRule ^$ /home.php [L]
+    # Public homepage: root goes to index.php
+    RewriteRule ^$ /index.php [L]
 
     # Allow public content directories (standalone)
     RewriteRule ^ekatmata-stotra/ - [L]
@@ -94,9 +94,9 @@ CGIPassAuth On
 </IfModule>
 
 # ── Error pages ─────────────────────────────────────────────
-ErrorDocument 403 /home.php
-ErrorDocument 404 /home.php
-ErrorDocument 500 /home.php
+ErrorDocument 403 /index.php
+ErrorDocument 404 /index.php
+ErrorDocument 500 /index.php
 
 # ── PHP hardening ────────────────────────────────────────────
 <IfModule mod_php.c>
