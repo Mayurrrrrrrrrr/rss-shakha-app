@@ -291,7 +291,7 @@ class PanchangCalculator {
         
         // Minor boundary correction: If phase is within 0.2 degrees of the boundary,
         // it means we are practically at the transition.
-        $isSecondHalf = ($elapsedInTithi >= 5.8);
+        $isSecondHalf = ($elapsedInTithi >= 0.1);
         
         // Compute karana number:
         // If we are in the first half of tithiNum, the active karana index in the 60-karana cycle is:
