@@ -142,11 +142,8 @@ class PanchangHelper {
         ];
 
         // The duration of a Nakshatra is typically around 60 ghatis (24 hours), but it varies.
-        // If we don't have the exact start/end times of the Nakshatra, we approximate the Nakshatra's duration
-        // as 24 hours, and the Nakshatra start relative to sunrise.
-        // Let's estimate the Nakshatra transition time (when the current Nakshatra ends).
         // A Nakshatra ends when moon longitude crosses a multiple of 13.3333 degrees.
-        // We can estimate the time when this happens. Moon travels roughly 13.176 degrees per 24 hours (0.549 degrees per hour).
+        // Moon travels roughly 13.176 degrees per 24 hours (0.549 degrees per hour).
         $currentMoonLon = $result['moon_lon_sidereal'] ?? 0.0;
         $nakshatraIndex = (int) floor($currentMoonLon / 13.333333);
         $nextNakshatraBoundary = ($nakshatraIndex + 1) * 13.333333;
@@ -168,9 +165,28 @@ class PanchangHelper {
         $amritStart = $nakshatraStartTs + $amritStartOffset;
         $amritEnd = $amritStart + (96 * 60); // Amrit Kaal always lasts 4 ghatis = 96 minutes
 
-        // If Amrit Kaal ended before today's sunrise, or starts after tomorrow's sunrise,
-        // it might belong to the next/previous Nakshatra's calculation.
-        // If it starts late, it naturally prints the correct time (e.g. next morning).
+        // If the calculated Amrit Kaal ends before sunrise, it belongs to the previous day/night.
+        // If it starts after the next Nakshatra is active, or if it falls into a timeframe where we should
+        // calculate it for the NEXT Nakshatra starting during this Hindu day:
+        // Let's check if there is a Nakshatra transition during the day (before next sunrise).
+        $nextDaySunriseTs = $sunriseTs + (24 * 3600);
+        
+        if ($amritEnd < $sunriseTs && $nakshatraEndTs < $nextDaySunriseTs) {
+            // The current Nakshatra's Amrit Kaal is already in the past.
+            // Calculate for the NEXT Nakshatra which starts today at $nakshatraEndTs.
+            $nextNakshatraIndex = ($nakshatraIndex + 1) % 27;
+            $nextNakshatraData = $calc->getPanchang(date('Y-m-d H:i:s', $nakshatraEndTs + 3600)); // Get next day details
+            $nextNakshatraName = $nextNakshatraData['nakshatra'] ?? '';
+            
+            $nextStartGhati = $nakshatraAmritGhatiOffsets[$nextNakshatraName] ?? 20;
+            // Approximate next Nakshatra duration as 24 hours
+            $nextNakshatraDuration = 24 * 3600;
+            $nextAmritStartOffset = ($nextStartGhati / 60.0) * $nextNakshatraDuration;
+            
+            $amritStart = $nakshatraEndTs + $nextAmritStartOffset;
+            $amritEnd = $amritStart + (96 * 60);
+        }
+
         $amritKaal = date('h:i A', $amritStart) . ' से ' . date('h:i A', $amritEnd);
 
         // Ravi Yoga
