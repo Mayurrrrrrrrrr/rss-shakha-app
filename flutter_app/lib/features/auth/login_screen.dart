@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/api/api_client.dart';
 import '../../core/providers/providers.dart';
+import '../../core/config/app_config.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -188,7 +188,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       const SizedBox(height: 16),
                       const Text(
-                        'संस्करण (Version) 1.0.2+3',
+                        'संस्करण (Version) ${AppConfig.versionName}+${AppConfig.versionCode}',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.black38,

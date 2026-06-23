@@ -4,11 +4,10 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/models/models.dart';
 import '../../core/providers/providers.dart';
 import '../../core/db/database_helper.dart';
+import '../../core/config/app_config.dart';
 
 enum PlaceholderType {
   snapshot,
-  paperShakha,
-  flipbook,
   greetings,
   settings,
 }
@@ -286,10 +285,6 @@ $message
     switch (widget.type) {
       case PlaceholderType.snapshot:
         return _buildSnapshotLayout();
-      case PlaceholderType.paperShakha:
-        return _buildPaperShakhaLayout();
-      case PlaceholderType.flipbook:
-        return _buildFlipbookLayout();
       case PlaceholderType.greetings:
         return _buildGreetingsLayout();
       case PlaceholderType.settings:
@@ -647,189 +642,7 @@ $message
     );
   }
 
-  // 2. Paper Shakha Layout
-  Widget _buildPaperShakhaLayout() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          Card(
-            elevation: 3,
-            color: const Color(0xFFFFFDF9), // parchment style color
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: Colors.brown.shade200, width: 1),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.print_outlined, color: Colors.brown.shade700),
-                      const SizedBox(width: 8),
-                      Text(
-                        'शाखा पत्रक (Paper Shakha Program)',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.brown.shade800),
-                      ),
-                    ],
-                  ),
-                  const Divider(height: 24, color: Colors.brown),
-                  
-                  _buildPaperItem('१. ध्वजारोहण व प्रणाम', '06:00 AM - 06:10 AM', 'ध्वज फहराना, सूर्य प्रणाम व संगठन का पहला प्रणाम।'),
-                  _buildPaperItem('२. शारीरिक कार्यक्रम', '06:10 AM - 06:30 AM', 'योगासन, सूर्य नमस्कार व स्फूर्तिदायक खेल।'),
-                  _buildPaperItem('३. बौद्धिक कार्यक्रम', '06:30 AM - 06:45 AM', 'अमृतवचन पाठन, सुभाषित गान व सामयिक विषयों पर चर्चा।'),
-                  _buildPaperItem('४. प्रार्थना व ध्वजावतरण', '06:45 AM - 07:00 AM', 'राष्ट्र कल्याण प्रार्थना व पूर्ण निष्ठा के साथ ध्वज को उतारना।'),
-                  
-                  const SizedBox(height: 20),
-                  Text(
-                    'नोट: शाखा पत्रक का प्रिंट या साझा करने के लिए नीचे दिए बटन का उपयोग करें। यह 100% शुद्ध स्थानीय रूप से उपलब्ध है।',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Colors.grey.shade600),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton.icon(
-            onPressed: _sharePaperShakha,
-            icon: const Icon(Icons.share, color: Colors.white),
-            label: const Text('पत्रक साझा करें (Share Program)', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00838F),
-              minimumSize: const Size(double.infinity, 50),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildPaperItem(String title, String time, String desc) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF5D4037))),
-                Text(time, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.brown)),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(desc, style: const TextStyle(fontSize: 13, color: Colors.black54)),
-            const SizedBox(height: 6),
-            const Divider(height: 1, thickness: 0.5),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // 3. Digital Flipbook Layout
-  Widget _buildFlipbookLayout() {
-    final PageController controller = PageController();
-    return Column(
-      children: [
-        const Padding(
-          padding: EdgeInsets.all(12.0),
-          child: Text(
-            '↔️ पेजों को पलटने के लिए स्वाइप करें (Swipe left/right to flip pages)',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.brown),
-          ),
-        ),
-        Expanded(
-          child: PageView(
-            controller: controller,
-            children: [
-              _buildFlipbookPage(
-                gradient: const [Color(0xFFFF6B00), Color(0xFFFF9E00)],
-                icon: Icons.menu_book,
-                title: 'डिजिटल वृत्त फ्लिपबुक\n(Digital Flipbook)',
-                body: 'नमस्ते स्वयंसेवक बंधु!\nयह आपके दैनिक बौद्धिक विकास के लिए संकलित प्रेरणा पुस्तक है। पन्ने पलटें और सुभाषित, अमृतवचन व गीतों को आत्मसात करें।',
-                pageNo: '१ / ४',
-              ),
-              _buildFlipbookPage(
-                gradient: const [Color(0xFF8D0B0B), Color(0xFFC2185B)],
-                icon: Icons.brightness_high,
-                title: 'आज का सुभाषित\n(Subhashit)',
-                body: 'सत्यं ब्रूयात् प्रियं ब्रूयात् न ब्रूयात् सत्यमप्रियम्।\nप्रियं च नानृतं ब्रूयात् एष धर्मः सनातनः॥\n\nअर्थ: सत्य बोलना चाहिए, प्रिय बोलना चाहिए, लेकिन अप्रिय सत्य नहीं बोलना चाहिए और प्रिय असत्य भी नहीं बोलना चाहिए। यही सनातन धर्म है।',
-                pageNo: '२ / ४',
-              ),
-              _buildFlipbookPage(
-                gradient: const [Color(0xFF005C53), Color(0xFF042940)],
-                icon: Icons.format_quote,
-                title: 'अमृत वचन\n(Inspirational Quote)',
-                body: '"मनुष्य अपने विचारों से निर्मित एक प्राणी है, वह जैसा सोचता है वैसा ही बन जाता है।"\n\n- महात्मा गांधी',
-                pageNo: '३ / ४',
-              ),
-              _buildFlipbookPage(
-                gradient: const [Color(0xFF00796B), Color(0xFF004D40)],
-                icon: Icons.music_note,
-                title: 'शाखा गीत\n(Shakha Geet)',
-                body: 'चलो जलाएं दीप वहाँ, जहाँ अभी भी अंधियारा है।\nअपने ज्ञान और पुरुषार्थ से, चमकेगा भारत प्यारा है।\n\nएक-एक घर में राष्ट्रभक्ति का अलख जगाना लक्ष्य हमारा है।',
-                pageNo: '४ / ४',
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFlipbookPage({
-    required List<Color> gradient,
-    required IconData icon,
-    required String title,
-    required String body,
-    required String pageNo,
-  }) {
-    return Card(
-      elevation: 6,
-      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(colors: gradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
-        ),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 54, color: Colors.white),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            const Divider(color: Colors.white54, height: 32, thickness: 1),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Text(
-                  body,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16, color: Colors.white, height: 1.5, fontWeight: FontWeight.w500),
-                ),
-              ),
-            ),
-            Text(
-              'पृष्ठ संख्या: $pageNo',
-              style: const TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   // 4. Greetings Generator Layout
   Widget _buildGreetingsLayout() {
@@ -1015,7 +828,7 @@ $message
         ListTile(
           leading: const Icon(Icons.info_outline, color: Colors.blue),
           title: const Text('संघस्थान ऐप संस्करण (App Version)', style: TextStyle(fontWeight: FontWeight.bold)),
-          subtitle: const Text('1.0.5 (Build 6) | 100% Native Build'),
+          subtitle: const Text('${AppConfig.versionName} (Build ${AppConfig.versionCode}) | 100% Native Build'),
           trailing: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(10)),

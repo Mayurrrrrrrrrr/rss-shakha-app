@@ -68,7 +68,7 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
       final year = date.year.toString();
       final month = date.month.toString();
       
-      final response = await apiClient.get('/api/v1/panchang.php', queryParameters: {
+      final response = await apiClient.get('/api/fetch_panchang.php', queryParameters: {
         'year': year,
         'month': month,
       });

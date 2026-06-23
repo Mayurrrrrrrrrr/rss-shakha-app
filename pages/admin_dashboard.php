@@ -75,17 +75,7 @@ function formatHindiDate($dateStr)
     <h1>👑 नमस्ते, <?php echo htmlspecialchars(getAdminName()); ?> (सुपर एडमिन)</h1>
 </div>
 
-<!-- Quick Actions -->
-<div class="admin-quick-bar fade-in">
-    <div style="font-weight: 600; color: #333; margin-right: 10px;">शाखा सामग्री देखें:</div>
-    <select id="sel-shakha" class="form-control" style="width: auto; display: inline-block;">
-        <?php foreach ($shakhas as $s): ?>
-            <option value="<?php echo $s['id']; ?>"><?php echo htmlspecialchars($s['name']); ?></option>
-        <?php endforeach; ?>
-    </select>
-    <button onclick="openFlipbook()" class="btn" style="background: linear-gradient(135deg, #4CAF50, #2E7D32); color: white; border: none;">📱 डिजिटल वृत्त (Flipbook)</button>
-    <button onclick="openZine()" class="btn" style="background: #fff; color: #ff5722; border: 1px solid #ff5722;">🖨️ Paper Shakha (Zine)</button>
-</div>
+
 
 <!-- Stats -->
 <div style="display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap;" class="fade-in" style="animation-delay: 0.1s;">
@@ -148,21 +138,6 @@ function formatHindiDate($dateStr)
     <?php endif; ?>
 </div>
 
-<script>
-function openFlipbook() {
-    const shakhaId = document.getElementById('sel-shakha').value;
-    const date = '<?php echo date("Y-m-d"); ?>';
-    // Flipbook relies on session shakha_id via getCurrentShakhaId() usually, 
-    // but if we pass ?shakha_id= it could override.
-    // Wait, getCurrentShakhaId() doesn't read $_GET['shakha_id'] by default unless modified!
-    // For now, let's just open the flipbook. The flipbook might need an update to read $_GET['shakha_id'].
-    window.open('../pages/daily_flipbook.php?date=' + date + '&shakha_id=' + shakhaId, '_blank');
-}
-function openZine() {
-    const shakhaId = document.getElementById('sel-shakha').value;
-    const date = '<?php echo date("Y-m-d"); ?>';
-    window.open('../pages/paper_shakha.php?date=' + date + '&shakha_id=' + shakhaId, '_blank');
-}
-</script>
+
 
 <?php require_once '../includes/footer.php'; ?>

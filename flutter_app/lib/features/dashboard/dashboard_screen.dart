@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/models/models.dart';
 import '../../core/providers/providers.dart';
 import '../../core/sync/sync_engine.dart';
+import '../../core/config/app_config.dart';
 import '../swayamsevaks/swayamsevak_screen.dart';
 import '../records/daily_record_screen.dart';
 import '../records/records_list_screen.dart';
@@ -61,6 +63,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       syncEngine.isSyncing.addListener(_onSyncStateChanged);
       // Auto-sync in the background on startup
       syncEngine.sync();
+      
+      // Check for updates
+      _checkForUpdates();
     });
   }
 
@@ -77,6 +82,114 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final isSyncing = ref.read(syncEngineProvider).isSyncing.value;
     if (!isSyncing) {
       _refreshDashboardData();
+    }
+  }
+
+  Future<void> _checkForUpdates() async {
+    try {
+      final apiClient = ref.read(apiClientProvider);
+      final response = await apiClient.get('/api/app_version.php');
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data;
+        if (data['status'] == 'success') {
+          final serverVersionCode = data['version_code'] as int;
+          final serverVersionName = data['version_name'] as String;
+          final downloadUrl = data['download_url'] as String;
+          final forceUpdate = data['force_update'] as bool? ?? false;
+          final message = data['message'] as String? ?? 'नया संस्करण उपलब्ध है। कृपया अपडेट करें।';
+
+          if (serverVersionCode > AppConfig.versionCode) {
+            if (!mounted) return;
+            
+            showDialog(
+              context: context,
+              barrierDismissible: !forceUpdate,
+              builder: (context) {
+                return PopScope(
+                  canPop: !forceUpdate,
+                  child: AlertDialog(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    title: const Row(
+                      children: [
+                        Icon(Icons.system_update_alt, color: Color(0xFFFF6B00), size: 28),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'नया अपडेट उपलब्ध है 🚩',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFFF6B00),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'संस्करण (Version): $serverVersionName',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          message,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        if (forceUpdate) ...[
+                          const SizedBox(height: 16),
+                          Text(
+                            '* सुचारू संचालन के लिए यह अपडेट अनिवार्य है।',
+                            style: TextStyle(color: Colors.red.shade700, fontSize: 14, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ],
+                    ),
+                    actions: [
+                      if (!forceUpdate)
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text(
+                            'बाद में (Later)',
+                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                          ),
+                        ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFFF6B00),
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(120, 48),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        onPressed: () async {
+                          final Uri url = Uri.parse(downloadUrl);
+                          if (await canLaunchUrl(url)) {
+                            await launchUrl(url, mode: LaunchMode.externalApplication);
+                          } else {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('अपडेट लिंक खोलने में असमर्थ।')),
+                              );
+                            }
+                          }
+                        },
+                        child: const Text(
+                          'अभी अपडेट करें (Update Now)',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error checking for updates: $e');
     }
   }
 
@@ -167,55 +280,83 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _currentTab == 0
-          ? _buildHomeTab()
-          : _currentTab == 1
-              ? const PanchangScreen()
-              : _buildMoreTab(),
-      bottomNavigationBar: _buildBottomNav(),
+      drawer: _buildDrawer(),
+      body: _buildHomeTab(),
     );
   }
 
-  Widget _buildBottomNav() {
-    return Container(
-      decoration: const BoxDecoration(
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, -2))],
+  Widget _buildDrawer() {
+    final session = ref.watch(sessionProvider);
+    return Drawer(
+      child: Container(
+        color: const Color(0xFFF9F6F0),
+        child: Column(
+          children: [
+            UserAccountsDrawerHeader(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFFF6B00), Color(0xFFFF9E00)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+              accountName: Text(session.userName ?? "मुख्य शिक्षक", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              accountEmail: Text('शाखा आईडी: ${session.shakhaId ?? 0}', style: const TextStyle(fontSize: 14)),
+              currentAccountPicture: const CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Text('🚩', style: TextStyle(fontSize: 24)),
+              ),
+            ),
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  _buildDrawerItem(Icons.assignment_outlined, 'उपस्थिति भरें', () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const DailyRecordScreen())).then((_) => _refreshDashboardData())),
+                  _buildDrawerItem(Icons.calendar_month, 'रिकॉर्ड कैलेंडर', () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const RecordsCalendarScreen()))),
+                  _buildDrawerItem(Icons.people_outline, 'स्वयंसेवक सूची', () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const SwayamsevakScreen())).then((_) => _refreshDashboardData())),
+                  const Divider(),
+                  _buildDrawerItem(Icons.card_giftcard_outlined, 'बधाई पत्रक', () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const NativePlaceholderScreen(type: PlaceholderType.greetings, title: '🎨 बधाई जनरेटर')))),
+                  _buildDrawerItem(Icons.settings_outlined, 'शाखा सेटिंग्स', () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const NativePlaceholderScreen(type: PlaceholderType.settings, title: '⚙️ शाखा सेटिंग्स')))),
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.sync, color: Colors.green),
+                    title: const Text('सिंक करें', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+                    onTap: () {
+                      Navigator.pop(context);
+                      ref.read(syncEngineProvider).sync().then((_) => _refreshDashboardData());
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.logout, color: Colors.red.shade700),
+                    title: Text('लॉगआउट', style: TextStyle(color: Colors.red.shade700, fontWeight: FontWeight.bold)),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _showLogoutDialog(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
-      child: BottomNavigationBar(
-        currentIndex: _currentTab,
-        onTap: (index) {
-          setState(() {
-            _currentTab = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFFFF6B00),
-        unselectedItemColor: Colors.grey,
-        selectedFontSize: 15,
-        unselectedFontSize: 13,
-        iconSize: 30,
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
-            label: 'होम',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.brightness_5_rounded),
-            label: 'पंचांग',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.menu_rounded),
-            label: 'अन्य',
-          ),
-        ],
-      ),
+    );
+  }
+
+  Widget _buildDrawerItem(IconData icon, String title, VoidCallback onTap) {
+    return ListTile(
+      leading: Icon(icon, color: const Color(0xFF5D4037)),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF5D4037), fontSize: 16)),
+      trailing: const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
+      onTap: () {
+        Navigator.pop(context); // Close drawer
+        onTap();
+      },
     );
   }
 
   // =============================================
-  // TAB 1: HOME
+  // HOME TAB
   // =============================================
   Widget _buildHomeTab() {
     final session = ref.watch(sessionProvider);
@@ -255,14 +396,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       _refreshDashboardData();
                     },
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.logout, color: Colors.white, size: 28),
-                    tooltip: 'लॉगआउट',
-                    onPressed: () => _showLogoutDialog(context),
-                  ),
                 ],
                 flexibleSpace: FlexibleSpaceBar(
-                  titlePadding: const EdgeInsets.only(left: 16.0, bottom: 16.0),
+                  titlePadding: const EdgeInsets.only(left: 60.0, bottom: 16.0),
                   title: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -299,7 +435,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         ),
                         Positioned(
                           left: 16,
-                          top: 50,
+                          top: 80,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -307,16 +443,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 'नमस्ते, ${session.userName ?? "मुख्य शिक्षक"} जी 🙏',
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.95),
-                                  fontSize: 15,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'शाखा आईडी: ${session.shakhaId ?? 0}',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.85),
-                                  fontSize: 13,
                                 ),
                               ),
                             ],
@@ -337,35 +465,44 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     _buildCompactSyncStatus(syncEngine),
                     const SizedBox(height: 14),
 
-                    // Enhanced Panchang card
+                    // 1. Panchang card
                     _buildEnhancedPanchangCard(data),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 16),
 
-                    // Quick Actions (only 2 primary)
-                    _buildQuickActions(context),
-                    const SizedBox(height: 14),
+                    // 2. & 3. Baudhik Samagri & Prerak Vyaktitv
+                    _buildMenuSectionHeader('📖 ज्ञान और प्रेरणा'),
+                    _buildMenuItem(
+                      icon: Icons.menu_book_outlined,
+                      color: const Color(0xFF8D6E63),
+                      title: 'बौद्धिक सामग्री',
+                      subtitle: 'सुभाषित, अमृतवचन, गीत एवं घोषणाएं',
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const ContentScreen())),
+                    ),
+                    _buildMenuItem(
+                      icon: Icons.flag_outlined,
+                      color: const Color(0xFFFF8F00),
+                      title: 'प्रेरक व्यक्तित्व',
+                      subtitle: 'महान व्यक्तित्वों की प्रेरणादायक कथाएं',
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const VyaktitvScreen())),
+                    ),
+                    const SizedBox(height: 16),
 
-                    // Today's attendance status
-                    _buildTodayAttendanceCard(data),
-                    const SizedBox(height: 14),
+                    // 4. Soochnayein (Notices)
+                    _buildMenuSectionHeader('📢 शाखा की जानकारी'),
+                    _buildMenuItem(
+                      icon: Icons.campaign_outlined,
+                      color: const Color(0xFFD32F2F),
+                      title: 'सूचना पट्ट',
+                      subtitle: 'शाखा से संबंधित सभी सूचनाएं',
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const NoticesScreen())),
+                    ),
+                    const SizedBox(height: 12),
 
-                    // Recent notices
+                    // Recent notices list
                     if (recentNotices.isNotEmpty) ...[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            '📢 हालिया सूचनाएं',
-                            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Color(0xFF5D4037)),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (ctx) => const NoticesScreen()),
-                            ),
-                            child: const Text('सभी देखें ❯', style: TextStyle(color: Color(0xFFFF6B00), fontWeight: FontWeight.bold, fontSize: 15)),
-                          ),
-                        ],
+                      const Text(
+                        ' हालिया सूचनाएं:',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF5D4037)),
                       ),
                       const SizedBox(height: 8),
                       _buildRecentNoticesList(recentNotices),
@@ -620,146 +757,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildQuickActions(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildQuickActionButton(
-            context,
-            title: 'उपस्थिति भरें',
-            subtitle: 'Attendance',
-            icon: Icons.assignment_outlined,
-            color: const Color(0xFFE55B00),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (ctx) => const DailyRecordScreen()),
-            ).then((_) => _refreshDashboardData()),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildQuickActionButton(
-            context,
-            title: 'रिकॉर्ड कैलेंडर',
-            subtitle: 'Calendar',
-            icon: Icons.calendar_month,
-            color: const Color(0xFF3F51B5),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (ctx) => const RecordsCalendarScreen()),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildQuickActionButton(
-    BuildContext context, {
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        splashColor: color.withValues(alpha: 0.1),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 14.0),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, size: 32, color: color),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF5D4037)),
-                    ),
-                    Text(
-                      subtitle,
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(Icons.arrow_forward_ios, color: Colors.grey.shade400, size: 16),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTodayAttendanceCard(DashboardData? data) {
-    final todayAttendanceText = data?.todayAttendanceText ?? (data?.todayRecord != null ? 'पूर्ण' : 'उपस्थिति अपूर्ण ⏳');
-    final hasRecord = data?.todayRecord != null;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: hasRecord ? const Color(0xFFE8F5E9) : const Color(0xFFFFF3E0),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: hasRecord ? Colors.green.shade200 : Colors.amber.shade200, width: 1),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            hasRecord ? Icons.check_circle_outline : Icons.pending_actions_outlined,
-            color: hasRecord ? Colors.green.shade800 : Colors.amber.shade800,
-            size: 28,
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'आज की उपस्थिति',
-                  style: TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.bold,
-                    color: hasRecord ? Colors.green.shade800 : Colors.amber.shade800,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  todayAttendanceText,
-                  style: TextStyle(
-                    fontSize: 17, fontWeight: FontWeight.bold,
-                    color: hasRecord ? Colors.green.shade900 : Colors.amber.shade900,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Quick stats
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text('👥 ${data?.totalSwayamsevaks ?? 0}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF5D4037))),
-              Text('📊 ${data?.totalRecords ?? 0} रिकॉर्ड', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildRecentNoticesList(List<Event> notices) {
     return ListView.builder(
       shrinkWrap: true,
@@ -808,183 +805,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     }
   }
 
-  // =============================================
-  // TAB 3: MORE (अन्य)
-  // =============================================
-  Widget _buildMoreTab() {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          '☰ सभी सेवाएं',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
-        ),
-        backgroundColor: const Color(0xFFFF6B00),
-        automaticallyImplyLeading: false,
-      ),
-      body: Container(
-        color: const Color(0xFFF9F6F0),
-        child: ListView(
-          padding: const EdgeInsets.all(12),
-          children: [
-            // Section: Daily Tasks
-            _buildMenuSectionHeader('📋 दैनिक कार्य'),
-            _buildMenuItem(
-              icon: Icons.assignment_outlined,
-              color: const Color(0xFFE55B00),
-              title: 'उपस्थिति भरें',
-              subtitle: 'दैनिक हाजिरी भरें और गतिविधि दर्ज करें',
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const DailyRecordScreen())).then((_) => _refreshDashboardData()),
-            ),
-            _buildMenuItem(
-              icon: Icons.calendar_month,
-              color: const Color(0xFF3F51B5),
-              title: 'रिकॉर्ड कैलेंडर',
-              subtitle: 'कैलेंडर दृश्य में रिकॉर्ड देखें',
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const RecordsCalendarScreen())),
-            ),
-            _buildMenuItem(
-              icon: Icons.calendar_today_outlined,
-              color: const Color(0xFF1E88E5),
-              title: 'समय-सारणी',
-              subtitle: 'साप्ताहिक शाखा कार्यक्रम सूची',
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const TimetableScreen())),
-            ),
-            _buildMenuItem(
-              icon: Icons.timer_outlined,
-              color: const Color(0xFFF4511E),
-              title: 'शाखा टाइमर',
-              subtitle: 'शाखा संचालन हेतु सीटी टाइमर',
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const ShakhaTimerScreen())),
-            ),
 
-            const SizedBox(height: 8),
-            const Divider(),
-
-            // Section: Reports
-            _buildMenuSectionHeader('📊 रिपोर्ट एवं रिकॉर्ड'),
-            _buildMenuItem(
-              icon: Icons.history_edu_outlined,
-              color: const Color(0xFF7B1FA2),
-              title: 'रिकॉर्ड इतिहास',
-              subtitle: 'सभी दैनिक रिकॉर्ड्स की सूची',
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const RecordsListScreen())).then((_) => _refreshDashboardData()),
-            ),
-            _buildMenuItem(
-              icon: Icons.analytics_outlined,
-              color: const Color(0xFF00796B),
-              title: 'मासिक रिपोर्ट',
-              subtitle: 'मासिक उपस्थिति एवं गतिविधि सारांश',
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const MonthlyReportScreen())),
-            ),
-
-            const SizedBox(height: 8),
-            const Divider(),
-
-            // Section: Information
-            _buildMenuSectionHeader('📢 सूचना'),
-            _buildMenuItem(
-              icon: Icons.campaign_outlined,
-              color: const Color(0xFFD32F2F),
-              title: 'सूचना पट्ट',
-              subtitle: 'शाखा से संबंधित सभी सूचनाएं',
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const NoticesScreen())),
-            ),
-            _buildMenuItem(
-              icon: Icons.people_outline,
-              color: const Color(0xFF43A047),
-              title: 'स्वयंसेवक सूची',
-              subtitle: 'सभी स्वयंसेवकों की विस्तृत सूची',
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const SwayamsevakScreen())).then((_) => _refreshDashboardData()),
-            ),
-
-            const SizedBox(height: 8),
-            const Divider(),
-
-            // Section: Content
-            _buildMenuSectionHeader('📖 बौद्धिक सामग्री'),
-            _buildMenuItem(
-              icon: Icons.menu_book_outlined,
-              color: const Color(0xFF8D6E63),
-              title: 'बौद्धिक सामग्री',
-              subtitle: 'सुभाषित, अमृतवचन, गीत एवं घोषणाएं',
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const ContentScreen())),
-            ),
-            _buildMenuItem(
-              icon: Icons.flag_outlined,
-              color: const Color(0xFFFF8F00),
-              title: 'प्रेरक व्यक्तित्व',
-              subtitle: 'महान व्यक्तित्वों की प्रेरणादायक कथाएं',
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const VyaktitvScreen())),
-            ),
-            _buildMenuItem(
-              icon: Icons.print_outlined,
-              color: const Color(0xFF00838F),
-              title: 'पत्रक शाखा',
-              subtitle: 'शाखा कार्यक्रम का प्रिंट करने योग्य प्रारूप',
-              onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (ctx) => const NativePlaceholderScreen(type: PlaceholderType.paperShakha, title: '🖨️ पत्रक शाखा'),
-              )),
-            ),
-            _buildMenuItem(
-              icon: Icons.menu_book,
-              color: const Color(0xFF2E7D32),
-              title: 'डिजिटल फ्लिपबुक',
-              subtitle: 'डिजिटल वृत्त - स्वाइप करके पढ़ें',
-              onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (ctx) => const NativePlaceholderScreen(type: PlaceholderType.flipbook, title: '📱 डिजिटल वृत्त'),
-              )),
-            ),
-
-            const SizedBox(height: 8),
-            const Divider(),
-
-            // Section: Tools
-            _buildMenuSectionHeader('🔧 उपकरण'),
-            _buildMenuItem(
-              icon: Icons.brightness_5_outlined,
-              color: const Color(0xFFE65100),
-              title: 'दैनिक पंचांग',
-              subtitle: 'तिथि, नक्षत्र, योग, राहुकाल एवं शुभ मुहूर्त',
-              onTap: () => setState(() => _currentTab = 1),
-            ),
-            _buildMenuItem(
-              icon: Icons.card_giftcard_outlined,
-              color: const Color(0xFFC2185B),
-              title: 'बधाई पत्रक',
-              subtitle: 'शुभकामना संदेश बनाएं और साझा करें',
-              onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (ctx) => const NativePlaceholderScreen(type: PlaceholderType.greetings, title: '🎨 बधाई जनरेटर'),
-              )),
-            ),
-
-            const SizedBox(height: 8),
-            const Divider(),
-
-            // Section: Settings
-            _buildMenuSectionHeader('⚙️ सेटिंग्स'),
-            _buildMenuItem(
-              icon: Icons.settings_outlined,
-              color: const Color(0xFF37474F),
-              title: 'शाखा सेटिंग्स',
-              subtitle: 'ऐप की सेटिंग्स और विकल्प',
-              onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (ctx) => const NativePlaceholderScreen(type: PlaceholderType.settings, title: '⚙️ शाखा सेटिंग्स'),
-              )),
-            ),
-            _buildMenuItem(
-              icon: Icons.logout,
-              color: Colors.red.shade700,
-              title: 'लॉगआउट',
-              subtitle: 'संघस्थान से बाहर निकलें',
-              onTap: () => _showLogoutDialog(context),
-            ),
-
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildMenuSectionHeader(String title) {
     return Padding(

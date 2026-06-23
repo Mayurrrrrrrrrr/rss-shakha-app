@@ -97,41 +97,6 @@ try {
 ?>
 <style>
 /* Modern Overrides */
-.hero-flipbook {
-    background: linear-gradient(135deg, #FF6B00 0%, #FF9800 100%);
-    border-radius: 16px;
-    padding: 24px;
-    text-align: center;
-    color: white;
-    box-shadow: 0 8px 20px rgba(255,107,0,0.3);
-    margin-bottom: 30px;
-    position: relative;
-    overflow: hidden;
-}
-.hero-flipbook::after {
-    content: '📖';
-    position: absolute;
-    right: -20px;
-    top: -10px;
-    font-size: 100px;
-    opacity: 0.2;
-    transform: rotate(15deg);
-}
-.hero-flipbook h2 { margin: 0 0 10px 0; font-family: 'Tiro Devanagari Hindi', serif; font-size: 28px; }
-.hero-flipbook p { margin: 0 0 20px 0; font-size: 15px; opacity: 0.9; }
-.btn-flipbook {
-    background: white;
-    color: #FF6B00;
-    padding: 12px 25px;
-    border-radius: 30px;
-    font-weight: 700;
-    font-size: 16px;
-    text-decoration: none;
-    display: inline-block;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
-}
-.btn-flipbook:hover { transform: scale(1.05); }
 
 .glass-card {
     background: rgba(255, 255, 255, 0.9);
@@ -157,12 +122,7 @@ try {
     <h1>🙏 नमस्ते, <?php echo htmlspecialchars(getUserName()); ?></h1>
 </div>
 
-<!-- ═══════ HERO FLIPBOOK ═══════ -->
-<div class="hero-flipbook fade-in">
-    <h2>आज का डिजिटल वृत्त</h2>
-    <p>उपस्थिति, सुभाषित, गीत और आज के सभी कार्यक्रम एक ही स्थान पर देखें।</p>
-    <a href="../pages/daily_flipbook.php?date=<?php echo $today; ?>" class="btn-flipbook">📖 3D फ्लिपबुक खोलें</a>
-</div>
+
 
 <!-- ═══════ STATS MINI ═══════ -->
 <div style="display: flex; gap: 15px; margin-bottom: 24px; flex-wrap: wrap;">
@@ -222,14 +182,14 @@ try {
                 if ($hasRecord) $classes .= ' has-record';
             ?>
                 <?php if ($hasRecord): ?>
-                    <a href="../pages/daily_flipbook.php?date=<?php echo $currentDate; ?>" class="<?php echo $classes; ?>" title="<?php echo $calRecords[$d]['present_count']; ?> उपस्थित">
+                    <div class="<?php echo $classes; ?>" title="<?php echo $calRecords[$d]['present_count']; ?> उपस्थित">
                         <?php echo $d; ?>
                         <?php
                         $dow = date('w', strtotime($currentDate));
                         if (in_array($currentDate, $ttOverrideDates) || in_array($dow, $ttDefaultDays)): ?>
                             <span style="font-size: 0.5rem; display: block; margin-top: 1px;">📋</span>
                         <?php endif; ?>
-                    </a>
+                    </div>
                 <?php else: ?>
                     <div class="<?php echo $classes; ?>" style="color: inherit;">
                         <?php echo $d; ?>
@@ -249,7 +209,7 @@ try {
             <?php endfor; ?>
         </div>
         <div style="font-size: 12px; color: #666; text-align: center; margin-top: 15px;">
-            🟠 भगवा हाइलाइट वाले दिन पर क्लिक करके उस दिन का वृत्त (Flipbook) देखें।
+            🟠 भगवा रंग उपस्थिति रिकॉर्ड को दर्शाता है।
         </div>
     </div>
 </div>

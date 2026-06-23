@@ -103,7 +103,7 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
       final year = date.year.toString();
       final month = date.month.toString();
       
-      final response = await apiClient.get('/api/v1/panchang.php', queryParameters: {
+      final response = await apiClient.get('/api/fetch_panchang.php', queryParameters: {
         'year': year,
         'month': month,
       });
@@ -380,16 +380,24 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
                         elevation: 2,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         color: Colors.white,
-                        child: ListTile(
-                          leading: const Icon(Icons.calendar_today, color: Color(0xFFFF6B00)),
-                          title: Text(
-                            'दिनांक: $displayDate',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          trailing: ElevatedButton(
-                            onPressed: _pickDate,
-                            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF6B00)),
-                            child: const Text('बदलें', style: TextStyle(color: Colors.white)),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.calendar_today, color: Color(0xFFFF6B00)),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  'दिनांक: $displayDate',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: _pickDate,
+                                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF6B00)),
+                                child: const Text('बदलें', style: TextStyle(color: Colors.white)),
+                              ),
+                            ],
                           ),
                         ),
                       ),
