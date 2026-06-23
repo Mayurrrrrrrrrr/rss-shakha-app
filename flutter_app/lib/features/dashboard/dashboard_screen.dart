@@ -626,7 +626,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         color: const Color(0xFFFFF8E1),
         child: InkWell(
-          onTap: () => setState(() => _currentTab = 1),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PanchangScreen())),
           borderRadius: BorderRadius.circular(16),
           child: Container(
             width: double.infinity,
@@ -652,7 +652,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
-        onTap: () => setState(() => _currentTab = 1),
+        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PanchangScreen())),
         borderRadius: BorderRadius.circular(16),
         child: Container(
           decoration: BoxDecoration(

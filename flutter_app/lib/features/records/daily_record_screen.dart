@@ -97,25 +97,20 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
       return Panchang.fromJson(cached);
     }
     
-    // 2. Fetch the whole month and cache it
+    // 2. Fetch from API
     try {
       final apiClient = ref.read(apiClientProvider);
-      final year = date.year.toString();
-      final month = date.month.toString();
       
       final response = await apiClient.get('/api/fetch_panchang.php', queryParameters: {
-        'year': year,
-        'month': month,
+        'date': dateStr,
       });
       
       if (response.statusCode == 200 && response.data != null && response.data['status'] == 'success') {
-        final List<dynamic> list = response.data['panchang_list'] ?? [];
-        if (list.isNotEmpty) {
-          await repo.cachePanchangList(list);
-          final freshCached = await repo.getCachedPanchang(dateStr);
-          if (freshCached != null) {
-            return Panchang.fromJson(freshCached);
-          }
+        final Map<String, dynamic>? panchangData = response.data['panchang'];
+        if (panchangData != null) {
+          // Cache the single panchang
+          await repo.cachePanchangList([panchangData]);
+          return Panchang.fromJson(panchangData);
         }
       }
     } catch (e) {
@@ -376,9 +371,11 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Date Selector
-                      Card(
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      SizedBox(
+                        width: double.infinity,
+                        child: Card(
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         color: Colors.white,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -399,6 +396,7 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
                               ),
                             ],
                           ),
+                        ),
                         ),
                       ),
                       const SizedBox(height: 16),

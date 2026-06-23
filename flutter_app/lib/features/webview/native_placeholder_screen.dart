@@ -64,7 +64,6 @@ class _NativePlaceholderScreenState extends ConsumerState<NativePlaceholderScree
   ];
 
   // Settings Specific State
-  bool _darkMode = false;
   bool _soundEffects = true;
   bool _notifications = true;
   bool _autoSync = true;
@@ -770,8 +769,10 @@ $message
           icon: Icons.dark_mode_outlined,
           title: 'डार्क मोड (Dark Mode Theme)',
           subtitle: 'रात में उपयोग को सुगम बनाने के लिए',
-          value: _darkMode,
-          onChanged: (val) => setState(() => _darkMode = val),
+          value: ref.watch(themeProvider) == ThemeMode.dark,
+          onChanged: (val) {
+            ref.read(themeProvider.notifier).toggleTheme(val);
+          },
         ),
         _buildSwitchTile(
           icon: Icons.volume_up_outlined,
