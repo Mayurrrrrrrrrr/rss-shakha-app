@@ -22,7 +22,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 6,
+      version: 7,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -137,6 +137,24 @@ class DatabaseHelper {
       try {
         await db.execute('ALTER TABLE activities ADD COLUMN sort_order INTEGER DEFAULT 10');
       } catch (_) {}
+    }
+
+    if (oldVersion < 7) {
+      // Add new Panchang V2 columns to panchang_cache
+      final newCols = [
+        'yoga TEXT',
+        'karana TEXT',
+        'rahukaal TEXT',
+        'chandra_rashi TEXT',
+        'chandra_udaya TEXT',
+        'chandra_asta TEXT',
+        'shubh_muhurt TEXT',
+      ];
+      for (var col in newCols) {
+        try {
+          await db.execute('ALTER TABLE panchang_cache ADD COLUMN $col');
+        } catch (_) {}
+      }
     }
   }
 
@@ -382,7 +400,14 @@ class DatabaseHelper {
         utsav $textType,
         nakshatra $textType,
         sunrise $textType,
-        sunset $textType
+        sunset $textType,
+        yoga $textType,
+        karana $textType,
+        rahukaal $textType,
+        chandra_rashi $textType,
+        chandra_udaya $textType,
+        chandra_asta $textType,
+        shubh_muhurt $textType
       )
     ''');
 

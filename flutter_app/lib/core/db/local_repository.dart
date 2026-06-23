@@ -527,15 +527,31 @@ class LocalRepository {
       whereArgs: [date],
     );
     if (maps.isEmpty) return null;
-    return maps.first;
+    // Deserialize shubh_muhurt from JSON string to Map
+    final result = Map<String, dynamic>.from(maps.first);
+    if (result['shubh_muhurt'] is String && (result['shubh_muhurt'] as String).isNotEmpty) {
+      try {
+        result['shubh_muhurt'] = jsonDecode(result['shubh_muhurt'] as String);
+      } catch (_) {}
+    }
+    return result;
   }
 
   Future<void> cachePanchangList(List<dynamic> list) async {
     if (list.isEmpty) return;
     final db = await _dbHelper.database;
+    // Get columns of the panchang_cache table to filter out unknown keys
+    final List<Map<String, dynamic>> columnsInfo = await db.rawQuery('PRAGMA table_info(panchang_cache)');
+    final Set<String> existingColumns = columnsInfo.map((col) => col['name'] as String).toSet();
     await db.transaction((txn) async {
       for (var entry in list) {
         final data = Map<String, dynamic>.from(entry);
+        // Serialize shubh_muhurt map to JSON string for TEXT column
+        if (data['shubh_muhurt'] is Map) {
+          data['shubh_muhurt'] = jsonEncode(data['shubh_muhurt']);
+        }
+        // Filter out keys that don't exist as columns
+        data.removeWhere((key, value) => !existingColumns.contains(key));
         await txn.insert(
           'panchang_cache',
           data,

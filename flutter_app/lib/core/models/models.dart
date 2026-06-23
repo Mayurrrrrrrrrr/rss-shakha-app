@@ -1,3 +1,4 @@
+import 'dart:convert';
 
 class Shakha {
   final int id;
@@ -647,6 +648,13 @@ class Panchang {
   final String nakshatra;
   final String sunrise;
   final String sunset;
+  final String yoga;
+  final String karana;
+  final String rahukaal;
+  final String chandraRashi;
+  final String chandraUdaya;
+  final String chandraAsta;
+  final Map<String, String>? shubhMuhurt;
 
   Panchang({
     required this.tithi,
@@ -660,9 +668,34 @@ class Panchang {
     required this.nakshatra,
     required this.sunrise,
     required this.sunset,
+    this.yoga = '—',
+    this.karana = '—',
+    this.rahukaal = '—',
+    this.chandraRashi = '—',
+    this.chandraUdaya = '—',
+    this.chandraAsta = '—',
+    this.shubhMuhurt,
   });
 
   factory Panchang.fromJson(Map<String, dynamic> json) {
+    // Parse shubh_muhurt — can be a JSON string or a Map
+    Map<String, String>? parsedShubhMuhurt;
+    if (json['shubh_muhurt'] != null) {
+      if (json['shubh_muhurt'] is String && json['shubh_muhurt'].toString().isNotEmpty) {
+        try {
+          final decoded = Map<String, dynamic>.from(
+            (json['shubh_muhurt'] as String).startsWith('{')
+                ? jsonDecode(json['shubh_muhurt'] as String)
+                : {},
+          );
+          parsedShubhMuhurt = decoded.map((k, v) => MapEntry(k, v?.toString() ?? ''));
+        } catch (_) {}
+      } else if (json['shubh_muhurt'] is Map) {
+        parsedShubhMuhurt = Map<String, dynamic>.from(json['shubh_muhurt'])
+            .map((k, v) => MapEntry(k, v?.toString() ?? ''));
+      }
+    }
+
     return Panchang(
       tithi: json['tithi'] ?? '',
       paksha: json['paksha'] ?? '',
@@ -675,6 +708,13 @@ class Panchang {
       nakshatra: json['nakshatra'] ?? '-',
       sunrise: json['sunrise'] ?? '06:00 AM',
       sunset: json['sunset'] ?? '06:30 PM',
+      yoga: json['yoga']?.toString() ?? '—',
+      karana: json['karana']?.toString() ?? '—',
+      rahukaal: json['rahukaal']?.toString() ?? '—',
+      chandraRashi: json['chandra_rashi']?.toString() ?? '—',
+      chandraUdaya: json['chandra_udaya']?.toString() ?? '—',
+      chandraAsta: json['chandra_asta']?.toString() ?? '—',
+      shubhMuhurt: parsedShubhMuhurt,
     );
   }
 
@@ -690,6 +730,13 @@ class Panchang {
         'nakshatra': nakshatra,
         'sunrise': sunrise,
         'sunset': sunset,
+        'yoga': yoga,
+        'karana': karana,
+        'rahukaal': rahukaal,
+        'chandra_rashi': chandraRashi,
+        'chandra_udaya': chandraUdaya,
+        'chandra_asta': chandraAsta,
+        'shubh_muhurt': shubhMuhurt,
       };
 }
 

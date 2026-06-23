@@ -39,11 +39,23 @@ class MyApp extends ConsumerWidget {
           primary: const Color(0xFFFF6B00),
           secondary: const Color(0xFFFFB300),
           surface: Colors.white,
-          background: const Color(0xFFF9F6F0), // Soft cream
+          surfaceContainerLowest: const Color(0xFFF9F6F0), // Soft cream
         ),
+        // Senior-friendly: larger base font sizes
         textTheme: GoogleFonts.notoSansDevanagariTextTheme(
-          Theme.of(context).textTheme,
+          Theme.of(context).textTheme.copyWith(
+            bodyLarge: const TextStyle(fontSize: 18),
+            bodyMedium: const TextStyle(fontSize: 16),
+            bodySmall: const TextStyle(fontSize: 14),
+            titleLarge: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            titleMedium: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            titleSmall: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            labelLarge: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
         ),
+        // Comfortable density for larger touch targets
+        visualDensity: VisualDensity.comfortable,
+        materialTapTargetSize: MaterialTapTargetSize.padded,
         cardTheme: const CardThemeData(
           color: Colors.white,
           surfaceTintColor: Colors.transparent,
@@ -53,8 +65,16 @@ class MyApp extends ConsumerWidget {
           disabledColor: Colors.grey.shade100,
           selectedColor: const Color(0xFFFF6B00),
           secondarySelectedColor: const Color(0xFFFFB300),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+        // Senior-friendly: larger buttons
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(double.infinity, 56),
+            textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
         ),
       ),
       debugShowCheckedModeBanner: false,
