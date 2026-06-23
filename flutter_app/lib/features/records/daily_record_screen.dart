@@ -380,15 +380,22 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
                         color: Colors.white,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                          child: Row(
+                          child: Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 16,
+                            runSpacing: 12,
+                            alignment: WrapAlignment.spaceBetween,
                             children: [
-                              const Icon(Icons.calendar_today, color: Color(0xFFFF6B00)),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Text(
-                                  'दिनांक: $displayDate',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                ),
+                              Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 12,
+                                children: [
+                                  const Icon(Icons.calendar_today, color: Color(0xFFFF6B00)),
+                                  Text(
+                                    'दिनांक: $displayDate',
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  ),
+                                ],
                               ),
                               ElevatedButton(
                                 onPressed: _pickDate,

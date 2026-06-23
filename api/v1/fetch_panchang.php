@@ -8,11 +8,6 @@ header('Content-Type: application/json; charset=UTF-8');
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET");
 
-$userContext = authenticateAPIRequest();
-$shakhaId = $userContext['shakha_id'];
-
-$calc = new PanchangCalculator();
-
 // Helper function to build daily panchang object
 function getDailyPanchang($date, $shakhaId, $pdo, $calc, $userContext) {
     // 1. Fetch AI credentials from shakhas table
@@ -96,6 +91,10 @@ function getMonthlyPanchangs($year, $month, $shakhaId, $pdo, $calc) {
 }
 
 try {
+    $userContext = authenticateAPIRequest();
+    $shakhaId = $userContext['shakha_id'];
+    $calc = new PanchangCalculator();
+
     if (isset($_GET['date'])) {
         $date = $_GET['date'];
         if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
