@@ -212,7 +212,9 @@ class _ContentReadingScreenState extends State<ContentReadingScreen> {
         ),
       ),
       body: Container(
-        color: const Color(0xFFFFFDF9), // Warm reading parchment style
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).colorScheme.surfaceContainerLowest
+            : const Color(0xFFFFFDF9), // Warm reading parchment style
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(20.0),
@@ -273,7 +275,7 @@ class _ContentReadingScreenState extends State<ContentReadingScreen> {
         _buildSectionHeader('📜 प्रार्थना का इतिहास'),
         Text(
           prarthnaHistory,
-          style: TextStyle(fontSize: _fontSize - 2, height: 1.5, color: Colors.black87),
+          style: TextStyle(fontSize: _fontSize - 2, height: 1.5, color: Theme.of(context).colorScheme.onSurface),
         ),
         const Divider(height: 40),
 
@@ -328,7 +330,7 @@ class _ContentReadingScreenState extends State<ContentReadingScreen> {
                   verse['meaning']!,
                   style: TextStyle(
                     fontSize: _fontSize - 2,
-                    color: Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                     height: 1.5,
                   ),
                 ),
@@ -352,8 +354,8 @@ class _ContentReadingScreenState extends State<ContentReadingScreen> {
         Table(
           border: TableBorder.all(color: Colors.grey.shade200, width: 1, borderRadius: BorderRadius.circular(8)),
           columnWidths: const {
-            0: FixedColumnWidth(140),
-            1: FlexColumnWidth(),
+            0: FlexColumnWidth(1),
+            1: FlexColumnWidth(1.5),
           },
           children: prarthnaShabdarth.map((item) {
             return TableRow(
@@ -369,7 +371,7 @@ class _ContentReadingScreenState extends State<ContentReadingScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
                   child: Text(
                     item['meaning']!,
-                    style: TextStyle(fontSize: _fontSize - 2, color: Colors.black87),
+                    style: TextStyle(fontSize: _fontSize - 2, color: Theme.of(context).colorScheme.onSurface),
                   ),
                 ),
               ],
@@ -443,7 +445,9 @@ class _ContentReadingScreenState extends State<ContentReadingScreen> {
         const SizedBox(height: 10),
         Card(
           elevation: 0,
-          color: const Color(0xFFFFFDE7),
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Theme.of(context).cardColor
+              : const Color(0xFFFFFDE7),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: const BorderSide(color: Color(0xFFFFD54F), width: 1.5),
@@ -518,7 +522,7 @@ class _ContentReadingScreenState extends State<ContentReadingScreen> {
           widget.extra ?? 'कोई भावार्थ उपलब्ध नहीं है।',
           style: TextStyle(
             fontSize: _fontSize - 2,
-            color: Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
             height: 1.5,
           ),
         ),
@@ -529,8 +533,8 @@ class _ContentReadingScreenState extends State<ContentReadingScreen> {
           Table(
             border: TableBorder.all(color: Colors.grey.shade200, width: 1, borderRadius: BorderRadius.circular(8)),
             columnWidths: const {
-              0: FixedColumnWidth(120),
-              1: FlexColumnWidth(),
+              0: FlexColumnWidth(1),
+              1: FlexColumnWidth(1.5),
             },
             children: shabdarthList.map((item) {
               final word = item['shabd'] ?? '';
@@ -548,7 +552,7 @@ class _ContentReadingScreenState extends State<ContentReadingScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
                     child: Text(
                       meaning,
-                      style: TextStyle(fontSize: _fontSize - 2, color: Colors.black87),
+                      style: TextStyle(fontSize: _fontSize - 2, color: Theme.of(context).colorScheme.onSurface),
                     ),
                   ),
                 ],

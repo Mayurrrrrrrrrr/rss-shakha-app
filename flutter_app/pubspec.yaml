@@ -19,7 +19,6 @@ dependencies:
   connectivity_plus: ^6.0.5
   shared_preferences: ^2.3.2
   intl: ^0.19.0
-  google_fonts: ^6.2.1
   uuid: ^4.5.1
   audioplayers: ^6.0.0
   table_calendar: ^3.1.2
@@ -44,9 +43,9 @@ flutter:
     - assets/audio/whistle.mp3
     - assets/data/personalities.json
     - assets/images/personalities/
-  # fonts:
-  #   - family: Noto Sans Devanagari
-  #     fonts:
-  #       - asset: assets/fonts/NotoSansDevanagari-Regular.ttf
-  #       - asset: assets/fonts/NotoSansDevanagari-Bold.ttf
-  #         weight: 700
+  fonts:
+    - family: Noto Sans Devanagari
+      fonts:
+        - asset: assets/fonts/NotoSansDevanagari-Regular.ttf
+        - asset: assets/fonts/NotoSansDevanagari-Bold.ttf
+          weight: 700

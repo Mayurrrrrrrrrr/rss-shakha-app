@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'core/providers/providers.dart';
 import 'features/auth/login_screen.dart';
 import 'features/dashboard/dashboard_screen.dart';
@@ -43,17 +42,16 @@ class MyApp extends ConsumerWidget {
           surface: Colors.white,
           surfaceContainerLowest: const Color(0xFFF9F6F0), // Soft cream
         ),
+        fontFamily: 'Noto Sans Devanagari',
         // Senior-friendly: larger base font sizes
-        textTheme: GoogleFonts.notoSansDevanagariTextTheme(
-          Theme.of(context).textTheme.copyWith(
-            bodyLarge: const TextStyle(fontSize: 18),
-            bodyMedium: const TextStyle(fontSize: 16),
-            bodySmall: const TextStyle(fontSize: 14),
-            titleLarge: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            titleMedium: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            titleSmall: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            labelLarge: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
+        textTheme: Theme.of(context).textTheme.copyWith(
+          bodyLarge: const TextStyle(fontSize: 18),
+          bodyMedium: const TextStyle(fontSize: 16),
+          bodySmall: const TextStyle(fontSize: 14),
+          titleLarge: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          titleMedium: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          titleSmall: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          labelLarge: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         // Comfortable density for larger touch targets
         visualDensity: VisualDensity.comfortable,
@@ -91,16 +89,15 @@ class MyApp extends ConsumerWidget {
           surface: const Color(0xFF1E1E1E),
           surfaceContainerLowest: const Color(0xFF121212),
         ),
-        textTheme: GoogleFonts.notoSansDevanagariTextTheme(
-          ThemeData.dark().textTheme.copyWith(
-            bodyLarge: const TextStyle(fontSize: 18),
-            bodyMedium: const TextStyle(fontSize: 16),
-            bodySmall: const TextStyle(fontSize: 14),
-            titleLarge: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            titleMedium: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            titleSmall: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            labelLarge: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
+        fontFamily: 'Noto Sans Devanagari',
+        textTheme: ThemeData.dark().textTheme.copyWith(
+          bodyLarge: const TextStyle(fontSize: 18),
+          bodyMedium: const TextStyle(fontSize: 16),
+          bodySmall: const TextStyle(fontSize: 14),
+          titleLarge: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          titleMedium: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          titleSmall: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          labelLarge: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         cardTheme: const CardThemeData(
           color: Color(0xFF2C2C2C),

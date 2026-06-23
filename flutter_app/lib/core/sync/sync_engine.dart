@@ -265,7 +265,9 @@ class SyncEngine {
           final now = DateTime.now();
           final panchangUrl = '/api/v1/panchang.php?year=${now.year}&month=${now.month}';
           final pResponse = await apiClient.get(panchangUrl);
-          if (pResponse.statusCode == 200 && pResponse.data != null && pResponse.data['success'] == true || pResponse.data['status'] == 'success') {
+          if (pResponse.statusCode == 200 &&
+              pResponse.data != null &&
+              (pResponse.data['success'] == true || pResponse.data['status'] == 'success')) {
              if (pResponse.data['panchang_list'] != null) {
                 await localRepo.cachePanchangList(pResponse.data['panchang_list'] as List);
              }

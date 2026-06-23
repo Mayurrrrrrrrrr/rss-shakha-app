@@ -108,6 +108,7 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
       if (response.statusCode == 200 && response.data != null && response.data['status'] == 'success') {
         final Map<String, dynamic>? panchangData = response.data['panchang'];
         if (panchangData != null) {
+          panchangData['date'] ??= dateStr;
           // Cache the single panchang
           await repo.cachePanchangList([panchangData]);
           return Panchang.fromJson(panchangData);

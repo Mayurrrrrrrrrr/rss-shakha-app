@@ -41,7 +41,7 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
         });
       }
     } catch (e) {
-      debugPrint('Error fetching panchang details: \$e');
+      debugPrint('Error fetching panchang details: $e');
       setState(() {
         _error = 'नेटवर्क त्रुटि या सर्वर उपलब्ध नहीं है।';
       });
@@ -84,7 +84,7 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
         }
       }
     } catch (e) {
-      debugPrint('Sync Panchang fetch failed: \$e');
+      debugPrint('Sync Panchang fetch failed: $e');
     }
     return null;
   }
@@ -95,12 +95,15 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
       initialDate: _selectedDate,
       firstDate: DateTime(2025),
       lastDate: DateTime.now().add(const Duration(days: 365)),
-      builder: (ctx, child) => Theme(
-        data: Theme.of(ctx).copyWith(
-          colorScheme: const ColorScheme.light(primary: Color(0xFFFF6B00)),
-        ),
-        child: child!,
-      ),
+      builder: (ctx, child) {
+        final scheme = Theme.of(ctx).colorScheme;
+        return Theme(
+          data: Theme.of(ctx).copyWith(
+            colorScheme: scheme.copyWith(primary: const Color(0xFFFF6B00)),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null) {
       setState(() {
@@ -129,6 +132,12 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
     return days[weekday - 1];
   }
 
+  String _formatPakshaSubtitle(String paksha) {
+    final value = paksha.trim();
+    if (value.isEmpty || value == '-' || value == '—') return '';
+    return value.endsWith('पक्ष') ? value : '$value पक्ष';
+  }
+
   @override
   Widget build(BuildContext context) {
     final dateDisplay = DateFormat('dd MMMM yyyy').format(_selectedDate);
@@ -144,7 +153,7 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Container(
-        color: const Color(0xFFFFF9F2),
+        color: Theme.of(context).colorScheme.surfaceContainerLowest,
         child: Column(
           children: [
             // Date Navigation Header
@@ -153,7 +162,7 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
               child: Card(
                 elevation: 3,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
                   child: Row(
@@ -179,10 +188,10 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
                                     const SizedBox(width: 8),
                                     Text(
                                       dateDisplay,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 17,
                                         fontWeight: FontWeight.bold,
-                                        color: Color(0xFF5D4037),
+                                        color: Theme.of(context).colorScheme.onSurface,
                                       ),
                                     ),
                                   ],
@@ -190,7 +199,7 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
                                 const SizedBox(height: 2),
                                 Text(
                                   hindiDay,
-                                  style: const TextStyle(fontSize: 14, color: Colors.brown, fontWeight: FontWeight.w500),
+                                  style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
                                 ),
                               ],
                             ),
@@ -266,7 +275,7 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
           const SizedBox(height: 8),
           Row(
             children: [
-              Expanded(child: _buildCorePanchangCard('तिथि', p.tithi, '${p.paksha} पक्ष', Icons.brightness_5_rounded, const Color(0xFFFF6B00), const Color(0xFFFFE0B2))),
+              Expanded(child: _buildCorePanchangCard('तिथि', p.tithi, _formatPakshaSubtitle(p.paksha), Icons.brightness_5_rounded, const Color(0xFFFF6B00), const Color(0xFFFFE0B2))),
               const SizedBox(width: 8),
               Expanded(child: _buildCorePanchangCard('नक्षत्र', p.nakshatra, '', Icons.auto_awesome_rounded, const Color(0xFFE65100), const Color(0xFFFFF3E0))),
             ],

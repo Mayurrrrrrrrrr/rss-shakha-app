@@ -546,6 +546,12 @@ class LocalRepository {
     await db.transaction((txn) async {
       for (var entry in list) {
         final data = Map<String, dynamic>.from(entry);
+        if (!data.containsKey('date') && data['panchang_date'] != null) {
+          data['date'] = data['panchang_date'];
+        }
+        if (data['date'] == null || data['date'].toString().isEmpty) {
+          continue;
+        }
         // Serialize shubh_muhurt map to JSON string for TEXT column
         if (data['shubh_muhurt'] is Map) {
           data['shubh_muhurt'] = jsonEncode(data['shubh_muhurt']);

@@ -32,12 +32,15 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
       appBar: AppBar(
         title: const Text(
           '📖 बौद्धिक सामग्री संग्रह',
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFFFF6B00),
         iconTheme: const IconThemeData(color: Colors.white),
         bottom: TabBar(
           controller: _tabController,
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
           indicatorColor: Colors.white,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
@@ -51,7 +54,7 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
         ),
       ),
       body: Container(
-        color: const Color(0xFFF9F6F0),
+        color: Theme.of(context).colorScheme.surfaceContainerLowest,
         child: Column(
           children: [
             // Search field
@@ -63,7 +66,7 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
                   hintText: 'सामग्री खोजें...',
                   prefixIcon: const Icon(Icons.search, color: Color(0xFFFF6B00)),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: Theme.of(context).colorScheme.surface,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide.none,
@@ -97,7 +100,7 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
         elevation: 4,
         shadowColor: const Color(0xFFFF6B00).withValues(alpha: 0.15),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         child: Column(
           children: [
             Container(
@@ -136,13 +139,13 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 children: [
-                  const Text(
+                  Text(
                     'नमस्ते सदा वत्सले मातृभूमे,\nत्वया हिन्दुभूमे सुखं वर्धितोऽहम्।\nमहामङ्गले पुण्यभूमे त्वदर्थे।\nपतत्वेष कायो नमस्ते नमस्ते ॥१॥',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF4E342E),
+                      color: Theme.of(context).colorScheme.onSurface,
                       height: 1.6,
                     ),
                   ),
@@ -152,7 +155,7 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey.shade700,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       height: 1.5,
                     ),
                   ),
@@ -212,7 +215,7 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
               elevation: 2,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               margin: const EdgeInsets.only(bottom: 16),
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               child: InkWell(
                 borderRadius: BorderRadius.circular(16),
                 onTap: () {
@@ -257,10 +260,10 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
                         sub.sanskritText,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF5D4037),
+                          color: Theme.of(context).colorScheme.onSurface,
                           height: 1.4,
                         ),
                       ),
@@ -271,7 +274,7 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey.shade700,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           height: 1.4,
                         ),
                       ),
@@ -307,7 +310,9 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
               elevation: 2,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               margin: const EdgeInsets.only(bottom: 16),
-              color: const Color(0xFFFFFDE7), // Light yellow card
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Theme.of(context).cardColor
+                  : const Color(0xFFFFFDE7),
               child: InkWell(
                 borderRadius: BorderRadius.circular(16),
                 onTap: () {
@@ -340,10 +345,10 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
                         vachan.content,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF3E2723),
+                          color: Theme.of(context).colorScheme.onSurface,
                           height: 1.5,
                         ),
                       ),
@@ -391,7 +396,7 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
               elevation: 2,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               margin: const EdgeInsets.only(bottom: 16),
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               child: InkWell(
                 borderRadius: BorderRadius.circular(16),
                 onTap: () {
@@ -415,11 +420,11 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
                   ),
                   title: Text(
                     geet.title,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF5D4037)),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
                   ),
                   subtitle: Text(
                     'श्रेणी: ${geet.geetType == "Sanghik" ? "संघिक गीत" : "एकल गीत"}',
-                    style: TextStyle(color: Colors.grey.shade600),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
                 ),
@@ -453,7 +458,7 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
               elevation: 2,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               margin: const EdgeInsets.only(bottom: 12),
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               child: InkWell(
                 borderRadius: BorderRadius.circular(16),
                 onTap: () {
@@ -474,7 +479,7 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
@@ -486,17 +491,17 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
                               SizedBox(width: 12),
                               Text(
                                 'घोषणा (Slogan)',
-                                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+                                style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant),
                               ),
                             ],
                           ),
-                          Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+                          const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
                         ],
                       ),
                       const SizedBox(height: 12),
                       Text(
                         gh.sloganSanskrit,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                           color: Color(0xFFFF6B00),
@@ -508,9 +513,11 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
                         gh.sloganHindi,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF388E3C),
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? const Color(0xFFA5D6A7)
+                              : const Color(0xFF388E3C),
                           fontWeight: FontWeight.bold,
                           height: 1.4,
                         ),
