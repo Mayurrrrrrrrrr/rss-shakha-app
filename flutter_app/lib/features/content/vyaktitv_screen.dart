@@ -102,7 +102,7 @@ class _VyaktitvScreenState extends ConsumerState<VyaktitvScreen> {
                     children: [
                       const Icon(Icons.error_outline, size: 64, color: Colors.orange),
                       const SizedBox(height: 16),
-                      const Text(
+                      Text(
                         'व्यक्तित्व जानकारी लोड करने में विफल।',
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),

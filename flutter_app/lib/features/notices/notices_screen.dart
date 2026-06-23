@@ -141,7 +141,7 @@ class _NoticesScreenState extends ConsumerState<NoticesScreen> {
                           const SizedBox(height: 12),
                           Text(
                             notice.subject,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context).colorScheme.onSurface,

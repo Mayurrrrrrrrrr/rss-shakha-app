@@ -558,7 +558,7 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
                       const SizedBox(height: 20),
 
                       // Swayamsevak Attendance List
-                      const Text('👥 स्वयंसेवक उपस्थिति (Attendance)',
+                      Text('👥 स्वयंसेवक उपस्थिति (Attendance)',
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
                       const SizedBox(height: 8),
                       Card(
@@ -585,7 +585,7 @@ class _DailyRecordScreenState extends ConsumerState<DailyRecordScreen> {
                       const SizedBox(height: 20),
 
                       // Activities Performed List
-                      const Text('🚩 दैनिक संघ कार्यक्रम (Activities)',
+                      Text('🚩 दैनिक संघ कार्यक्रम (Activities)',
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
                       const SizedBox(height: 8),
                       Card(

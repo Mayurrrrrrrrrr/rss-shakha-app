@@ -527,7 +527,7 @@ $message
                                           ),
                                           child: Text(
                                             '👤 ${act['conductor']}',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 12,
                                               color: Theme.of(context).colorScheme.onSurface,
                                             ),
@@ -704,7 +704,7 @@ $message
           const SizedBox(height: 24),
           
           // Theme selector
-          const Text('🎨 कार्ड बैकग्राउंड चुनें (Select Theme Color):', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+          Text('🎨 कार्ड बैकग्राउंड चुनें (Select Theme Color):', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
           const SizedBox(height: 10),
           Row(
             children: List.generate(_cardGradients.length, (index) {
@@ -729,7 +729,7 @@ $message
           const SizedBox(height: 20),
           
           // Edit Message
-          const Text('✍️ शुभकामना संदेश संपादित करें (Edit Message):', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+          Text('✍️ शुभकामना संदेश संपादित करें (Edit Message):', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
           const SizedBox(height: 8),
           TextField(
             controller: _greetingMsgController,

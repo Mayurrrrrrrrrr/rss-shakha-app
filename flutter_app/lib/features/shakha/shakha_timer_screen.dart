@@ -329,8 +329,8 @@ class _ShakhaTimerScreenState extends ConsumerState<ShakhaTimerScreen> {
             const SizedBox(height: 24),
 
             // Slots list title
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(

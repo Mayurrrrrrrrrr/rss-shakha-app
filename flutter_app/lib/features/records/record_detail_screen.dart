@@ -139,7 +139,7 @@ class _RecordDetailScreenState extends ConsumerState<RecordDetailScreen> {
                                     children: [
                                       Text(
                                         widget.formattedDate,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                           color: Theme.of(context).colorScheme.onSurface,
@@ -218,7 +218,7 @@ class _RecordDetailScreenState extends ConsumerState<RecordDetailScreen> {
                         const SizedBox(height: 24),
 
                         // Attendance section
-                        const Text(
+                        Text(
                           '👥 स्वयंसेवक उपस्थिति',
                           style: TextStyle(
                             fontSize: 18,
@@ -269,7 +269,7 @@ class _RecordDetailScreenState extends ConsumerState<RecordDetailScreen> {
                         const SizedBox(height: 24),
 
                         // Activities section
-                        const Text(
+                        Text(
                           '🚩 दैनिक गतिविधियाँ',
                           style: TextStyle(
                             fontSize: 18,
@@ -321,7 +321,7 @@ class _RecordDetailScreenState extends ConsumerState<RecordDetailScreen> {
 
                         // Custom Notes
                         if (_record!.customMessage != null && _record!.customMessage!.trim().isNotEmpty) ...[
-                          const Text(
+                          Text(
                             '💬 विशेष संदेश / टिप्पणी',
                             style: TextStyle(
                               fontSize: 18,

@@ -128,7 +128,7 @@ class _RecordsCalendarScreenState extends ConsumerState<RecordsCalendarScreen> {
                     children: [
                       Text(
                         formattedDate,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).colorScheme.onSurface,
@@ -193,7 +193,7 @@ class _RecordsCalendarScreenState extends ConsumerState<RecordsCalendarScreen> {
                   '${yugabdh != null && yugabdh.isNotEmpty ? "युगाब्द: $yugabdh  " : ""}'
                   '${vikramSamvat != null && vikramSamvat.isNotEmpty ? "वि.सं.: $vikramSamvat  " : ""}'
                   '${shakaSamvat != null && shakaSamvat.isNotEmpty ? "शक: $shakaSamvat" : ""}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).colorScheme.onSurface,
@@ -228,7 +228,7 @@ class _RecordsCalendarScreenState extends ConsumerState<RecordsCalendarScreen> {
                   const SizedBox(width: 16),
                   Text(
                     '$presentCount / $totalCount उपस्थित',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.onSurface,
@@ -465,10 +465,10 @@ class _RecordsCalendarScreenState extends ConsumerState<RecordsCalendarScreen> {
                                 color: Colors.green,
                                 shape: BoxShape.circle,
                               ),
-                              defaultTextStyle: const TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                              defaultTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                               weekendTextStyle: TextStyle(color: Colors.red.shade700),
                             ),
-                            headerStyle: const HeaderStyle(
+                            headerStyle: HeaderStyle(
                               formatButtonVisible: false,
                               titleCentered: true,
                               titleTextStyle: TextStyle(
@@ -476,8 +476,8 @@ class _RecordsCalendarScreenState extends ConsumerState<RecordsCalendarScreen> {
                                 fontWeight: FontWeight.bold,
                                 color: Theme.of(context).colorScheme.onSurface,
                               ),
-                              leftChevronIcon: Icon(Icons.chevron_left, color: Color(0xFFFF6B00)),
-                              rightChevronIcon: Icon(Icons.chevron_right, color: Color(0xFFFF6B00)),
+                              leftChevronIcon: const Icon(Icons.chevron_left, color: Color(0xFFFF6B00)),
+                              rightChevronIcon: const Icon(Icons.chevron_right, color: Color(0xFFFF6B00)),
                             ),
                             calendarBuilders: CalendarBuilders(
                               markerBuilder: (context, date, events) {
@@ -525,7 +525,7 @@ class _RecordsCalendarScreenState extends ConsumerState<RecordsCalendarScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'रंग संकेत (Attendance Legend):',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
