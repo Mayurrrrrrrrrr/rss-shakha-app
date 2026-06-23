@@ -529,7 +529,7 @@ $message
                                             '👤 ${act['conductor']}',
                                             style: const TextStyle(
                                               fontSize: 12,
-                                              color: Color(0xFF5D4037),
+                                              color: Theme.of(context).colorScheme.onSurface,
                                             ),
                                           ),
                                         ),
@@ -634,7 +634,7 @@ $message
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF5D4037))),
+          Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
           Text(value, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
         ],
       ),
@@ -704,7 +704,7 @@ $message
           const SizedBox(height: 24),
           
           // Theme selector
-          const Text('🎨 कार्ड बैकग्राउंड चुनें (Select Theme Color):', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF5D4037))),
+          const Text('🎨 कार्ड बैकग्राउंड चुनें (Select Theme Color):', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
           const SizedBox(height: 10),
           Row(
             children: List.generate(_cardGradients.length, (index) {
@@ -729,7 +729,7 @@ $message
           const SizedBox(height: 20),
           
           // Edit Message
-          const Text('✍️ शुभकामना संदेश संपादित करें (Edit Message):', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF5D4037))),
+          const Text('✍️ शुभकामना संदेश संपादित करें (Edit Message):', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
           const SizedBox(height: 8),
           TextField(
             controller: _greetingMsgController,

@@ -289,11 +289,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final session = ref.watch(sessionProvider);
     return Drawer(
       child: Container(
-        color: const Color(0xFFF9F6F0),
+        color: Theme.of(context).colorScheme.surfaceContainerLowest,
         child: Column(
           children: [
             UserAccountsDrawerHeader(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [Color(0xFFFF6B00), Color(0xFFFF9E00)],
                   begin: Alignment.topCenter,
@@ -345,8 +345,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Widget _buildDrawerItem(IconData icon, String title, VoidCallback onTap) {
     return ListTile(
-      leading: Icon(icon, color: const Color(0xFF5D4037)),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF5D4037), fontSize: 16)),
+      leading: Icon(icon, color: Theme.of(context).colorScheme.onSurface),
+      title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface, fontSize: 16)),
       trailing: const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
       onTap: () {
         Navigator.pop(context); // Close drawer
@@ -415,7 +415,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ],
                   ),
                   background: Container(
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [Color(0xFFFF6B00), Color(0xFFFF9E00)],
                         begin: Alignment.topCenter,
@@ -500,9 +500,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
                     // Recent notices list
                     if (recentNotices.isNotEmpty) ...[
-                      const Text(
+                      Text(
                         ' हालिया सूचनाएं:',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF5D4037)),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                       ),
                       const SizedBox(height: 8),
                       _buildRecentNoticesList(recentNotices),
@@ -542,7 +542,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       children: [
                         Container(
                           width: 10, height: 10,
-                          decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.green),
+                          decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.green),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -624,7 +624,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       return Card(
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        color: const Color(0xFFFFF8E1),
+        color: Theme.of(context).cardColor,
         child: InkWell(
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PanchangScreen())),
           borderRadius: BorderRadius.circular(16),
@@ -657,8 +657,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            gradient: const LinearGradient(
-              colors: [Color(0xFFFFF8E1), Color(0xFFFFFDF5)],
+            gradient: LinearGradient(
+              colors: [Theme.of(context).cardColor, Theme.of(context).cardColor],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -750,7 +750,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.bold,
-            color: isRahu ? const Color(0xFFC62828) : const Color(0xFF5D4037),
+            color: isRahu ? const Color(0xFFC62828) : Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ],
@@ -778,7 +778,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
             title: Text(
               notice.title,
-              style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF5D4037), fontSize: 16),
+              style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
             ),
             subtitle: Text(
               notice.eventDate.isNotEmpty ? _formatNoticeDate(notice.eventDate) : '',
@@ -844,7 +844,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         title: Text(
           title,
-          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF5D4037)),
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
         ),
         subtitle: Text(
           subtitle,

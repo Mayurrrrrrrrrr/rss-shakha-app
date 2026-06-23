@@ -131,7 +131,7 @@ class _RecordsCalendarScreenState extends ConsumerState<RecordsCalendarScreen> {
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF5D4037),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       if (utsav != null && utsav.isNotEmpty) ...[
@@ -196,7 +196,7 @@ class _RecordsCalendarScreenState extends ConsumerState<RecordsCalendarScreen> {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF5D4037),
+                    color: Theme.of(context).colorScheme.onSurface,
                     height: 1.4,
                   ),
                 ),
@@ -231,7 +231,7 @@ class _RecordsCalendarScreenState extends ConsumerState<RecordsCalendarScreen> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF5D4037),
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -465,7 +465,7 @@ class _RecordsCalendarScreenState extends ConsumerState<RecordsCalendarScreen> {
                                 color: Colors.green,
                                 shape: BoxShape.circle,
                               ),
-                              defaultTextStyle: const TextStyle(color: Color(0xFF5D4037)),
+                              defaultTextStyle: const TextStyle(color: Theme.of(context).colorScheme.onSurface),
                               weekendTextStyle: TextStyle(color: Colors.red.shade700),
                             ),
                             headerStyle: const HeaderStyle(
@@ -474,7 +474,7 @@ class _RecordsCalendarScreenState extends ConsumerState<RecordsCalendarScreen> {
                               titleTextStyle: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF5D4037),
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                               leftChevronIcon: Icon(Icons.chevron_left, color: Color(0xFFFF6B00)),
                               rightChevronIcon: Icon(Icons.chevron_right, color: Color(0xFFFF6B00)),
@@ -530,7 +530,7 @@ class _RecordsCalendarScreenState extends ConsumerState<RecordsCalendarScreen> {
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
-                                  color: Color(0xFF5D4037),
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                               const SizedBox(height: 12),

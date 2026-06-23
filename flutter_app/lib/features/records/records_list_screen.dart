@@ -127,7 +127,7 @@ class _RecordsListScreenState extends ConsumerState<RecordsListScreen> {
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
-                                            color: Color(0xFF5D4037),
+                                            color: Theme.of(context).colorScheme.onSurface,
                                           ),
                                         ),
                                       ),

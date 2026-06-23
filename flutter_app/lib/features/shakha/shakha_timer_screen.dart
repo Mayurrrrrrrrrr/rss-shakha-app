@@ -335,7 +335,7 @@ class _ShakhaTimerScreenState extends ConsumerState<ShakhaTimerScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'समय-सारणी विभाजन (Timetable Slots)',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF5D4037)),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                 ),
               ),
             ),
@@ -381,7 +381,7 @@ class _ShakhaTimerScreenState extends ConsumerState<ShakhaTimerScreen> {
                               slot['topic'] as String,
                               style: TextStyle(
                                 fontWeight: isSlotActive ? FontWeight.bold : FontWeight.normal,
-                                color: const Color(0xFF5D4037),
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                           ),

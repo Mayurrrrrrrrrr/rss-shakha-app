@@ -144,7 +144,7 @@ class _NoticesScreenState extends ConsumerState<NoticesScreen> {
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF5D4037),
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           if (notice.location != null && notice.location!.isNotEmpty) ...[

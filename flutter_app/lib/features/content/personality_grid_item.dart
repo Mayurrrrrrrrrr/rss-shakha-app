@@ -138,7 +138,7 @@ class PersonalityGridItem extends ConsumerWidget {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF5D4037),
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 3),

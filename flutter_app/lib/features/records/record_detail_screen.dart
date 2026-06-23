@@ -142,7 +142,7 @@ class _RecordDetailScreenState extends ConsumerState<RecordDetailScreen> {
                                         style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
-                                          color: Color(0xFF5D4037),
+                                          color: Theme.of(context).colorScheme.onSurface,
                                         ),
                                       ),
                                       if (_record!.utsav != null && _record!.utsav!.trim().isNotEmpty) ...[
@@ -223,7 +223,7 @@ class _RecordDetailScreenState extends ConsumerState<RecordDetailScreen> {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF5D4037),
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -274,7 +274,7 @@ class _RecordDetailScreenState extends ConsumerState<RecordDetailScreen> {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF5D4037),
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -326,7 +326,7 @@ class _RecordDetailScreenState extends ConsumerState<RecordDetailScreen> {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF5D4037),
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -447,7 +447,7 @@ class _RecordDetailScreenState extends ConsumerState<RecordDetailScreen> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Text(value, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF5D4037))),
+          child: Text(value, style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
         ),
       ],
     );

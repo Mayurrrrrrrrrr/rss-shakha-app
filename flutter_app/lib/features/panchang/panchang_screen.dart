@@ -41,14 +41,17 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
         });
       }
     } catch (e) {
-      debugPrint('Error fetching panchang details: $e');
-      setState(() {
-        _error = 'नेटवर्क त्रुटि या सर्वर उपलब्ध नहीं है।';
-      });
+      if (mounted) {
+        setState(() {
+          _error = 'सर्वर से संपर्क करने में समस्या: $e';
+        });
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -82,9 +85,12 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
             return Panchang.fromJson(freshCached);
           }
         }
+      } else {
+        throw Exception('API Error: ${response.statusCode} - ${response.data}');
       }
     } catch (e) {
       debugPrint('Sync Panchang fetch failed: $e');
+      rethrow;
     }
     return null;
   }
@@ -233,7 +239,7 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
                                 Text(
                                   _error!,
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(fontSize: 18, color: Color(0xFF5D4037), fontWeight: FontWeight.bold),
+                                  style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
                                 ),
                                 const SizedBox(height: 24),
                                 ElevatedButton(
@@ -407,7 +413,7 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
               const SizedBox(height: 10),
               Text(
                 label,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF5D4037)),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
               ),
               const SizedBox(height: 4),
               Text(
@@ -483,7 +489,7 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF5D4037)),
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
         ),
         const SizedBox(height: 6),
         Text(
@@ -520,7 +526,7 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF5D4037)),
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
           ),
           Flexible(
             child: Text(
@@ -644,7 +650,7 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
           const SizedBox(height: 4),
           Text(
             value,
-            style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Color(0xFF5D4037)),
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
           ),
           const SizedBox(height: 4),
           const Divider(height: 1, color: Color(0xFFEEEEEE)),

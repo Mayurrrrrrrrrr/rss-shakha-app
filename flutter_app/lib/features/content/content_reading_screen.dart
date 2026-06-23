@@ -427,7 +427,7 @@ class _ContentReadingScreenState extends State<ContentReadingScreen> {
             style: TextStyle(
               fontSize: _fontSize,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF5D4037),
+              color: Theme.of(context).colorScheme.onSurface,
               height: 1.7,
             ),
           ),
@@ -510,7 +510,7 @@ class _ContentReadingScreenState extends State<ContentReadingScreen> {
             style: TextStyle(
               fontSize: _fontSize,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF5D4037),
+              color: Theme.of(context).colorScheme.onSurface,
               height: 1.6,
             ),
           ),
