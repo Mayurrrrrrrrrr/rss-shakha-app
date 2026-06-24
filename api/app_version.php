@@ -9,9 +9,9 @@ header("Access-Control-Allow-Methods: GET");
 // Return the latest application release meta info
 echo json_encode([
     'status' => 'success',
-    'version_name' => '1.0.8',
-    'version_code' => 9,
+    'version_name' => '1.0.9',
+    'version_code' => 10,
     'download_url' => 'https://sanghasthan.yuktaa.com/api/download_apk.php',
     'force_update' => false,
-    'message' => 'नया संस्करण (1.0.8) उपलब्ध है! इस अपडेट में बहुप्रतीक्षित डार्क मोड (Dark Mode) जोड़ा गया है और पंचांग व उपस्थिति स्क्रीन की त्रुटियों को सुधारा गया है।'
+    'message' => 'नया संस्करण (1.0.9) उपलब्ध है! इस अपडेट में बिना लॉगिन के बौद्धिक और पंचांग देखने की सुविधा (अतिथि मोड), होम स्क्रीन पर कैलेंडर एकीकरण, और सुरक्षा सुधार शामिल हैं।'
 ], JSON_UNESCAPED_UNICODE);
