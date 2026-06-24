@@ -11,11 +11,19 @@ if (!is_array($data)) {
     sendResponse(false, 'Invalid input data provided.');
 }
 
-// Validate shakha_id (expected integer)
+$userContext = authenticateAPIRequest();
+
 $shakhaIdRaw = $data['shakha_id'] ?? null;
 $shakhaId = filter_var($shakhaIdRaw, FILTER_VALIDATE_INT);
 if ($shakhaId === false) {
     sendResponse(false, 'Invalid input data provided.');
+}
+
+if ($userContext['user_type'] === 'swayamsevak') {
+    sendResponse(false, 'Unauthorized: Swayamsevaks cannot update attendance.');
+}
+if ($shakhaId !== (int)$userContext['shakha_id'] && $userContext['user_type'] !== 'admin') {
+    sendResponse(false, 'Unauthorized access to this Shakha.');
 }
 
 // Validate record_date

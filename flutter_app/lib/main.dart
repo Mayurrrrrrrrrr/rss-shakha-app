@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/providers/providers.dart';
-import 'features/auth/login_screen.dart';
 import 'features/dashboard/dashboard_screen.dart';
 
 void main() {
@@ -26,7 +25,6 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final session = ref.watch(sessionProvider);
     final themeMode = ref.watch(themeProvider);
 
     return MaterialApp(
@@ -120,7 +118,7 @@ class MyApp extends ConsumerWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home: session.isLoggedIn ? const DashboardScreen() : const LoginScreen(),
+      home: const DashboardScreen(),
     );
   }
 }

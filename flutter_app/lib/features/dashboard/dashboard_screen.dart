@@ -3,18 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:table_calendar/table_calendar.dart';
 import '../../core/models/models.dart';
 import '../../core/providers/providers.dart';
 import '../../core/sync/sync_engine.dart';
 import '../../core/config/app_config.dart';
+import '../auth/login_screen.dart';
 import '../swayamsevaks/swayamsevak_screen.dart';
 import '../records/daily_record_screen.dart';
-import '../records/records_list_screen.dart';
 import '../content/content_screen.dart';
-import '../shakha/shakha_timer_screen.dart';
-import '../shakha/timetable_screen.dart';
 import '../records/records_calendar_screen.dart';
-import '../reports/monthly_report_screen.dart';
 import '../notices/notices_screen.dart';
 import '../panchang/panchang_screen.dart';
 import '../content/vyaktitv_screen.dart';
@@ -29,6 +27,7 @@ class DashboardData {
   final DailyRecord? todayRecord;
   final Map<String, String>? cachedPanchang;
   final Panchang? panchangData;
+  final Map<String, Map<String, dynamic>> recordsMap;
 
   DashboardData({
     required this.totalSwayamsevaks,
@@ -39,6 +38,7 @@ class DashboardData {
     this.todayRecord,
     this.cachedPanchang,
     this.panchangData,
+    required this.recordsMap,
   });
 }
 
@@ -51,7 +51,6 @@ class DashboardScreen extends ConsumerStatefulWidget {
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Future<DashboardData>? _dashboardDataFuture;
-  int _currentTab = 0;
 
   @override
   void initState() {
@@ -61,8 +60,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final syncEngine = ref.read(syncEngineProvider);
       syncEngine.isSyncing.addListener(_onSyncStateChanged);
-      // Auto-sync in the background on startup
-      syncEngine.sync();
+      // Auto-sync in the background on startup if logged in
+      if (ref.read(sessionProvider).isLoggedIn) {
+        syncEngine.sync();
+      }
       
       // Check for updates
       _checkForUpdates();
@@ -242,6 +243,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       }
     } catch (_) {}
 
+    // 5. Fetch all records for the calendar
+    final Map<String, Map<String, dynamic>> recordsMap = {};
+    try {
+      final records = await repo.getAllDailyRecords();
+      for (var rec in records) {
+        final dateStr = rec['record_date'] as String;
+        recordsMap[dateStr] = rec;
+      }
+    } catch (_) {}
+
     return DashboardData(
       totalSwayamsevaks: totalSw,
       totalRecords: totalRec,
@@ -251,6 +262,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       todayRecord: todayRec,
       cachedPanchang: panchang,
       panchangData: panchangObj,
+      recordsMap: recordsMap,
     );
   }
 
@@ -287,21 +299,30 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Widget _buildDrawer() {
     final session = ref.watch(sessionProvider);
+    final isGuest = !session.isLoggedIn;
+    final isSwayamsevak = session.role == 'swayamsevak';
+
     return Drawer(
       child: Container(
         color: Theme.of(context).colorScheme.surfaceContainerLowest,
         child: Column(
           children: [
             UserAccountsDrawerHeader(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [Color(0xFFFF6B00), Color(0xFFFF9E00)],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
               ),
-              accountName: Text(session.userName ?? "मुख्य शिक्षक", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-              accountEmail: Text('शाखा आईडी: ${session.shakhaId ?? 0}', style: const TextStyle(fontSize: 14)),
+              accountName: Text(
+                isGuest ? "अतिथि स्वयंसेवक" : (session.userName ?? "स्वयंसेवक जी"),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              accountEmail: Text(
+                isGuest ? "लॉगिन नहीं है" : 'शाखा आईडी: ${session.shakhaId ?? 0}',
+                style: const TextStyle(fontSize: 14),
+              ),
               currentAccountPicture: const CircleAvatar(
                 backgroundColor: Colors.white,
                 child: Text('🚩', style: TextStyle(fontSize: 24)),
@@ -311,29 +332,102 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  _buildDrawerItem(Icons.assignment_outlined, 'उपस्थिति भरें', () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const DailyRecordScreen())).then((_) => _refreshDashboardData())),
-                  _buildDrawerItem(Icons.calendar_month, 'रिकॉर्ड कैलेंडर', () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const RecordsCalendarScreen()))),
-                  _buildDrawerItem(Icons.people_outline, 'स्वयंसेवक सूची', () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const SwayamsevakScreen())).then((_) => _refreshDashboardData())),
-                  const Divider(),
-                  _buildDrawerItem(Icons.card_giftcard_outlined, 'बधाई पत्रक', () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const NativePlaceholderScreen(type: PlaceholderType.greetings, title: '🎨 बधाई जनरेटर')))),
-                  _buildDrawerItem(Icons.settings_outlined, 'शाखा सेटिंग्स', () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const NativePlaceholderScreen(type: PlaceholderType.settings, title: '⚙️ शाखा सेटिंग्स')))),
-                  const Divider(),
-                  ListTile(
-                    leading: const Icon(Icons.sync, color: Colors.green),
-                    title: const Text('सिंक करें', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
-                    onTap: () {
-                      Navigator.pop(context);
-                      ref.read(syncEngineProvider).sync().then((_) => _refreshDashboardData());
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.logout, color: Colors.red.shade700),
-                    title: Text('लॉगआउट', style: TextStyle(color: Colors.red.shade700, fontWeight: FontWeight.bold)),
-                    onTap: () {
-                      Navigator.pop(context);
-                      _showLogoutDialog(context);
-                    },
-                  ),
+                  if (isGuest) ...[
+                    _buildDrawerItem(
+                      Icons.menu_book_outlined,
+                      'बौद्धिक सामग्री',
+                      () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const ContentScreen())),
+                    ),
+                    _buildDrawerItem(
+                      Icons.calendar_month,
+                      'दैनिक पंचांग',
+                      () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const PanchangScreen())),
+                    ),
+                    const Divider(),
+                    ListTile(
+                      leading: const Icon(Icons.login, color: Color(0xFFFF6B00)),
+                      title: const Text('लॉगिन करें (Shakha Login)', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFF6B00))),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (ctx) => const LoginScreen()));
+                      },
+                    ),
+                  ] else if (isSwayamsevak) ...[
+                    _buildDrawerItem(
+                      Icons.people_outline,
+                      'स्वयंसेवक एवं गट सूची',
+                      () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const SwayamsevakScreen())).then((_) => _refreshDashboardData()),
+                    ),
+                    _buildDrawerItem(
+                      Icons.calendar_month,
+                      'रिकॉर्ड कैलेंडर',
+                      () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const RecordsCalendarScreen())),
+                    ),
+                    _buildDrawerItem(
+                      Icons.menu_book_outlined,
+                      'बौद्धिक सामग्री',
+                      () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const ContentScreen())),
+                    ),
+                    _buildDrawerItem(
+                      Icons.explore_outlined,
+                      'दैनिक पंचांग',
+                      () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const PanchangScreen())),
+                    ),
+                    const Divider(),
+                    ListTile(
+                      leading: Icon(Icons.logout, color: Colors.red.shade700),
+                      title: Text('लॉगआउट', style: TextStyle(color: Colors.red.shade700, fontWeight: FontWeight.bold)),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _showLogoutDialog(context);
+                      },
+                    ),
+                  ] else ...[
+                    // Mukhya Shikshak / Admin
+                    _buildDrawerItem(
+                      Icons.assignment_outlined,
+                      'उपस्थिति भरें',
+                      () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const DailyRecordScreen())).then((_) => _refreshDashboardData()),
+                    ),
+                    _buildDrawerItem(
+                      Icons.calendar_month,
+                      'रिकॉर्ड कैलेंडर',
+                      () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const RecordsCalendarScreen())),
+                    ),
+                    _buildDrawerItem(
+                      Icons.people_outline,
+                      'स्वयंसेवक सूची',
+                      () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const SwayamsevakScreen())).then((_) => _refreshDashboardData()),
+                    ),
+                    const Divider(),
+                    _buildDrawerItem(
+                      Icons.card_giftcard_outlined,
+                      'बधाई पत्रक',
+                      () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const NativePlaceholderScreen(type: PlaceholderType.greetings, title: '🎨 बधाई जनरेटर'))),
+                    ),
+                    _buildDrawerItem(
+                      Icons.settings_outlined,
+                      'शाखा सेटिंग्स',
+                      () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const NativePlaceholderScreen(type: PlaceholderType.settings, title: '⚙️ शाखा सेटिंग्स'))),
+                    ),
+                    const Divider(),
+                    ListTile(
+                      leading: const Icon(Icons.sync, color: Colors.green),
+                      title: const Text('सिंक करें', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+                      onTap: () {
+                        Navigator.pop(context);
+                        ref.read(syncEngineProvider).sync().then((_) => _refreshDashboardData());
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.logout, color: Colors.red.shade700),
+                      title: Text('लॉगआउट', style: TextStyle(color: Colors.red.shade700, fontWeight: FontWeight.bold)),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _showLogoutDialog(context);
+                      },
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -358,13 +452,110 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   // =============================================
   // HOME TAB
   // =============================================
+  Widget _buildDashboardCalendarCard(DashboardData? data) {
+    final session = ref.watch(sessionProvider);
+    final recordsMap = data?.recordsMap ?? {};
+
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              child: Row(
+                children: [
+                  Icon(Icons.calendar_month, color: Color(0xFFFF6B00), size: 24),
+                  SizedBox(width: 8),
+                  Text(
+                    'शाखा उपस्थिति कैलेंडर',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFFF6B00)),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            TableCalendar(
+              firstDay: DateTime.utc(2025, 1, 1),
+              lastDay: DateTime.utc(2035, 12, 31),
+              focusedDay: DateTime.now(),
+              currentDay: DateTime.now(),
+              calendarFormat: CalendarFormat.month,
+              headerStyle: const HeaderStyle(
+                formatButtonVisible: false,
+                titleCentered: true,
+                titleTextStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.brown),
+              ),
+              calendarStyle: CalendarStyle(
+                todayDecoration: BoxDecoration(
+                  color: const Color(0xFFFF6B00).withOpacity(0.15),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFFF6B00), width: 1.5),
+                ),
+                todayTextStyle: const TextStyle(color: Color(0xFFFF6B00), fontWeight: FontWeight.bold),
+                selectedDecoration: const BoxDecoration(
+                  color: Color(0xFFFF6B00),
+                  shape: BoxShape.circle,
+                ),
+                markerSize: 6,
+                markersAnchor: 1.4,
+              ),
+              eventLoader: (day) {
+                if (!session.isLoggedIn) return [];
+                final dateStr = '${day.year.toString().padLeft(4, '0')}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
+                final record = recordsMap[dateStr];
+                return record != null ? [record] : [];
+              },
+              calendarBuilders: CalendarBuilders(
+                markerBuilder: (context, date, events) {
+                  if (events.isNotEmpty) {
+                    return Positioned(
+                      bottom: 4,
+                      child: Container(
+                        width: 6,
+                        height: 6,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFFFF6B00), // Orange dot for shakha presence
+                        ),
+                      ),
+                    );
+                  }
+                  return null;
+                },
+              ),
+            ),
+            if (session.isLoggedIn) ...[
+              const SizedBox(height: 8),
+              const Center(
+                child: Text(
+                  '🟠 बिंदु वाले दिन शाखा संचालित की गई थी।',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  // =============================================
+  // HOME TAB
+  // =============================================
   Widget _buildHomeTab() {
     final session = ref.watch(sessionProvider);
     final syncEngine = ref.watch(syncEngineProvider);
 
     return RefreshIndicator(
       onRefresh: () async {
-        await syncEngine.sync();
+        if (session.isLoggedIn) {
+          await syncEngine.sync();
+        }
         _refreshDashboardData();
       },
       color: const Color(0xFFFF6B00),
@@ -388,14 +579,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 pinned: true,
                 backgroundColor: const Color(0xFFFF6B00),
                 actions: [
-                  IconButton(
-                    icon: const Icon(Icons.sync, color: Colors.white, size: 28),
-                    tooltip: 'सिंक करें',
-                    onPressed: () async {
-                      await syncEngine.sync();
-                      _refreshDashboardData();
-                    },
-                  ),
+                  if (session.isLoggedIn)
+                    IconButton(
+                      icon: const Icon(Icons.sync, color: Colors.white, size: 28),
+                      tooltip: 'सिंक करें',
+                      onPressed: () async {
+                        await syncEngine.sync();
+                        _refreshDashboardData();
+                      },
+                    ),
                 ],
                 flexibleSpace: FlexibleSpaceBar(
                   titlePadding: const EdgeInsets.only(left: 60.0, bottom: 16.0),
@@ -440,7 +632,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'नमस्ते, ${session.userName ?? "मुख्य शिक्षक"} जी 🙏',
+                                session.isLoggedIn
+                                    ? 'नमस्ते, ${session.userName ?? "स्वयंसेवक"} जी 🙏'
+                                    : 'नमस्ते, अतिथि जी 🙏',
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.95),
                                   fontSize: 16,
@@ -462,14 +656,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     // Sync status (compact)
-                    _buildCompactSyncStatus(syncEngine),
-                    const SizedBox(height: 14),
+                    if (session.isLoggedIn) ...[
+                      _buildCompactSyncStatus(syncEngine),
+                      const SizedBox(height: 14),
+                    ],
 
                     // 1. Panchang card
                     _buildEnhancedPanchangCard(data),
                     const SizedBox(height: 16),
 
-                    // 2. & 3. Baudhik Samagri & Prerak Vyaktitv
+                    // 2. Embedded Table Calendar (Front Page Always)
+                    _buildDashboardCalendarCard(data),
+                    const SizedBox(height: 16),
+
+                    // 3. & 4. Baudhik Samagri & Prerak Vyaktitv
                     _buildMenuSectionHeader('📖 ज्ञान और प्रेरणा'),
                     _buildMenuItem(
                       icon: Icons.menu_book_outlined,
@@ -485,27 +685,70 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       subtitle: 'महान व्यक्तित्वों की प्रेरणादायक कथाएं',
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const VyaktitvScreen())),
                     ),
-                    const SizedBox(height: 16),
-
-                    // 4. Soochnayein (Notices)
-                    _buildMenuSectionHeader('📢 शाखा की जानकारी'),
-                    _buildMenuItem(
-                      icon: Icons.campaign_outlined,
-                      color: const Color(0xFFD32F2F),
-                      title: 'सूचना पट्ट',
-                      subtitle: 'शाखा से संबंधित सभी सूचनाएं',
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const NoticesScreen())),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Recent notices list
-                    if (recentNotices.isNotEmpty) ...[
-                      Text(
-                        ' हालिया सूचनाएं:',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+                    
+                    // Guest login card
+                    if (!session.isLoggedIn) ...[
+                      const SizedBox(height: 16),
+                      Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        color: const Color(0xFFFFF3E0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            children: [
+                              const Icon(Icons.lock_outline, color: Color(0xFFFF6B00), size: 48),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'सुरक्षित शाखा प्रबंधन पोर्टल',
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFE65100)),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'सूचना पट्ट, उपस्थिति रिकॉर्ड और स्वयंसेवक सूची देखने के लिए कृपया लॉगिन करें।',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 14, color: Colors.black87),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFFF6B00),
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                                onPressed: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (ctx) => const LoginScreen()));
+                                },
+                                child: const Text('लॉगिन करें (Login Now)'),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 8),
-                      _buildRecentNoticesList(recentNotices),
+                    ],
+
+                    // 5. Soochnayein (Notices) - only for logged in users
+                    if (session.isLoggedIn) ...[
+                      const SizedBox(height: 16),
+                      _buildMenuSectionHeader('📢 शाखा की जानकारी'),
+                      _buildMenuItem(
+                        icon: Icons.campaign_outlined,
+                        color: const Color(0xFFD32F2F),
+                        title: 'सूचना पट्ट',
+                        subtitle: 'शाखा से संबंधित सभी सूचनाएं',
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const NoticesScreen())),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Recent notices list
+                      if (recentNotices.isNotEmpty) ...[
+                        Text(
+                          ' हालिया सूचनाएं:',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildRecentNoticesList(recentNotices),
+                      ],
                     ],
                     const SizedBox(height: 16),
                   ]),

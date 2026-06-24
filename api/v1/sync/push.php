@@ -9,6 +9,12 @@ require_once __DIR__ . '/../../../config/db.php';
 $userContext = authenticateAPIRequest();
 $shakhaId = $userContext['shakha_id'];
 
+if (($userContext['user_type'] ?? '') === 'swayamsevak') {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized: Swayamsevaks cannot push updates.']);
+    exit;
+}
+
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");

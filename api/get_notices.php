@@ -6,11 +6,17 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     sendResponse(false, 'Invalid request method');
 }
 
+$userContext = authenticateAPIRequest();
+
 $data = json_decode(file_get_contents("php://input"));
 $shakhaId = $data->shakha_id ?? null;
 
 if (!$shakhaId) {
     sendResponse(false, 'Shakha ID is required');
+}
+
+if ($shakhaId != $userContext['shakha_id'] && $userContext['user_type'] !== 'admin') {
+    sendResponse(false, 'Unauthorized access to this Shakha');
 }
 
 try {

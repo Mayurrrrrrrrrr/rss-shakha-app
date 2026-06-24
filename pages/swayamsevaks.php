@@ -8,10 +8,7 @@ require_once '../includes/header.php';
 require_once '../config/db.php';
 requireLogin();
 
-if (isSwayamsevak()) {
-    header('Location: swayamsevak_dashboard.php');
-    exit;
-}
+$isReadOnly = isSwayamsevak();
 
 $msg = $_GET['msg'] ?? '';
 $editId = $_GET['edit'] ?? null;
@@ -40,6 +37,7 @@ $swayamsevaks = $stmt->fetchAll();
 <?php endif; ?>
 
 <!-- Add/Edit Form -->
+<?php if (!$isReadOnly): ?>
 <div class="card">
     <div class="card-header">
         <?php echo $editData ? '✏️ स्वयंसेवक संपादित करें' : '➕ नया स्वयंसेवक जोड़ें'; ?>
@@ -110,6 +108,7 @@ $swayamsevaks = $stmt->fetchAll();
         </div>
     </form>
 </div>
+<?php endif; ?>
 
 <!-- List -->
 <div class="card">
@@ -122,6 +121,7 @@ $swayamsevaks = $stmt->fetchAll();
             <p>अभी तक कोई स्वयंसेवक नहीं जोड़ा गया।</p>
         </div>
     <?php else: ?>
+        <?php if (!$isReadOnly): ?>
         <form method="POST" action="../api/actions/swayamsevaks_batch_gat.php" id="batch-gat-form">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             
@@ -131,28 +131,37 @@ $swayamsevaks = $stmt->fetchAll();
                 <input type="text" name="batch_gat" class="form-control" placeholder="गट का नाम दर्ज करें (उदा. शिवाजी गट)" style="max-width: 250px; margin: 0; padding: 6px 12px; height: auto;" required>
                 <button type="submit" class="btn btn-primary" style="padding: 6px 16px; height: auto; font-size: 0.95rem;">गट बदलें / असाइन करें</button>
             </div>
+        <?php endif; ?>
 
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
+                            <?php if (!$isReadOnly): ?>
                             <th style="width: 40px; text-align: center;"><input type="checkbox" id="select-all" style="width: 18px; height: 18px; cursor: pointer;"></th>
+                            <?php endif; ?>
                             <th>#</th>
                             <th>नाम</th>
                             <th>गट (गट नायक)</th>
                             <th>श्रेणी</th>
+                            <?php if (!$isReadOnly): ?>
                             <th>फ़ोन</th>
+                            <?php endif; ?>
                             <th>उम्र</th>
+                            <?php if (!$isReadOnly): ?>
                             <th>पता</th>
                             <th>कार्रवाई</th>
+                            <?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($swayamsevaks as $i => $s): ?>
                             <tr>
+                                <?php if (!$isReadOnly): ?>
                                 <td style="text-align: center;">
                                     <input type="checkbox" name="selected_ids[]" value="<?php echo $s['id']; ?>" class="swayamsevak-select" style="width: 18px; height: 18px; cursor: pointer;">
                                 </td>
+                                <?php endif; ?>
                                 <td>
                                     <?php echo $i + 1; ?>
                                 </td>
@@ -177,12 +186,15 @@ $swayamsevaks = $stmt->fetchAll();
                                     echo $catMap[$s['category'] ?? 'Tarun'] ?? 'तरुण'; 
                                     ?>
                                 </td>
+                                <?php if (!$isReadOnly): ?>
                                 <td>
                                     <?php echo htmlspecialchars($s['phone'] ?: '-'); ?>
                                 </td>
+                                <?php endif; ?>
                                 <td>
                                     <?php echo $s['age'] ?: '-'; ?>
                                 </td>
+                                <?php if (!$isReadOnly): ?>
                                 <td>
                                     <?php echo htmlspecialchars($s['address'] ?: '-'); ?>
                                 </td>
@@ -194,12 +206,15 @@ $swayamsevaks = $stmt->fetchAll();
                                             data-confirm="क्या आप इस स्वयंसेवक को हटाना चाहते हैं?">🗑️</a>
                                     </div>
                                 </td>
+                                <?php endif; ?>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
+        <?php if (!$isReadOnly): ?>
         </form>
+        <?php endif; ?>
     <?php endif; ?>
 </div>
 

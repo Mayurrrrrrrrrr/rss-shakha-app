@@ -61,12 +61,14 @@ class _SwayamsevakScreenState extends ConsumerState<SwayamsevakScreen> {
   @override
   Widget build(BuildContext context) {
     final listAsync = ref.watch(swayamsevaksListProvider);
+    final session = ref.watch(sessionProvider);
+    final isSwayamsevak = session.role == 'swayamsevak';
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          '👥 स्वयंसेवक निर्देशिका',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: Text(
+          isSwayamsevak ? '👥 स्वयंसेवक एवं गट सूची' : '👥 स्वयंसेवक निर्देशिका',
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFFFF6B00),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -81,7 +83,7 @@ class _SwayamsevakScreenState extends ConsumerState<SwayamsevakScreen> {
               child: TextField(
                 onChanged: (val) => setState(() => _searchQuery = val.trim()),
                 decoration: InputDecoration(
-                  hintText: 'नाम या मोबाइल नंबर से खोजें...',
+                  hintText: isSwayamsevak ? 'नाम से खोजें...' : 'नाम या मोबाइल नंबर से खोजें...',
                   prefixIcon: const Icon(Icons.search, color: Color(0xFFFF6B00)),
                   filled: true,
                   fillColor: Colors.white,
@@ -136,7 +138,7 @@ class _SwayamsevakScreenState extends ConsumerState<SwayamsevakScreen> {
                   // Apply local filters
                   final filtered = list.where((sway) {
                     final matchesQuery = sway.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                        (sway.phone ?? '').contains(_searchQuery);
+                        (!isSwayamsevak && (sway.phone ?? '').contains(_searchQuery));
                     final matchesCat = _selectedCategory == 'सभी' || sway.category == _selectedCategory;
                     return matchesQuery && matchesCat;
                   }).toList();
@@ -170,7 +172,7 @@ class _SwayamsevakScreenState extends ConsumerState<SwayamsevakScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const SizedBox(height: 4),
-                              if (sway.phone != null && sway.phone!.isNotEmpty)
+                              if (!isSwayamsevak && sway.phone != null && sway.phone!.isNotEmpty)
                                 Row(
                                   children: [
                                     const Icon(Icons.phone, size: 14, color: Colors.grey),
@@ -200,19 +202,21 @@ class _SwayamsevakScreenState extends ConsumerState<SwayamsevakScreen> {
                               ),
                             ],
                           ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.blue),
-                                onPressed: () => _showAddEditModal(swayamsevak: sway),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete_outline, color: Colors.red),
-                                onPressed: () => _handleDelete(sway),
-                              ),
-                            ],
-                          ),
+                          trailing: isSwayamsevak
+                              ? null
+                              : Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.edit, color: Colors.blue),
+                                      onPressed: () => _showAddEditModal(swayamsevak: sway),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                      onPressed: () => _handleDelete(sway),
+                                    ),
+                                  ],
+                                ),
                         ),
                       );
                     },
@@ -225,11 +229,13 @@ class _SwayamsevakScreenState extends ConsumerState<SwayamsevakScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddEditModal(),
-        backgroundColor: const Color(0xFFFF6B00),
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
+      floatingActionButton: isSwayamsevak
+          ? null
+          : FloatingActionButton(
+              onPressed: () => _showAddEditModal(),
+              backgroundColor: const Color(0xFFFF6B00),
+              child: const Icon(Icons.add, color: Colors.white),
+            ),
     );
   }
 }

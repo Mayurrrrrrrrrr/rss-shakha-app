@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/providers.dart';
+import '../auth/login_screen.dart';
 
 class NoticesScreen extends ConsumerStatefulWidget {
   const NoticesScreen({super.key});
@@ -20,6 +21,7 @@ class _NoticesScreenState extends ConsumerState<NoticesScreen> {
 
   /// Trigger a sync in the background to pull latest notices from server
   Future<void> _backgroundRefresh() async {
+    if (!ref.read(sessionProvider).isLoggedIn) return;
     setState(() => _isRefreshing = true);
     try {
       final syncEngine = ref.read(syncEngineProvider);
@@ -50,6 +52,42 @@ class _NoticesScreenState extends ConsumerState<NoticesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final session = ref.watch(sessionProvider);
+    if (!session.isLoggedIn) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            '📢 सूचना पट्ट (Notice Board)',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: const Color(0xFFFF6B00),
+          iconTheme: const IconThemeData(color: Colors.white),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+              const SizedBox(height: 16),
+              const Text('सूचना पट्ट केवल लॉगिन स्वयंसेवकों के लिए उपलब्ध है।'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFF6B00),
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(180, 48),
+                ),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (ctx) => const LoginScreen()));
+                },
+                child: const Text('लॉगिन करें'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     final asyncNotices = ref.watch(noticesListProvider);
 
     return Scaffold(
