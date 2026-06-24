@@ -56,7 +56,7 @@ if (!function_exists('validateAPIToken')) {
 }
 
 if (!function_exists('authenticateAPIRequest')) {
-    function authenticateAPIRequest() {
+    function authenticateAPIRequest($requireAuth = true) {
         $headers = getallheaders();
         $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
         
@@ -96,10 +96,14 @@ if (!function_exists('authenticateAPIRequest')) {
             ];
         }
         
-        http_response_code(401);
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
-        exit;
+        if ($requireAuth) {
+            http_response_code(401);
+            header("Content-Type: application/json; charset=UTF-8");
+            echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
+            exit;
+        }
+        
+        return null;
     }
 }
 ?>

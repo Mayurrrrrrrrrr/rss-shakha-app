@@ -9,14 +9,12 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET");
 
 // Could be called with normal web session or API token
-$shakhaId = null;
-try {
-    $userContext = authenticateAPIRequest();
+$shakhaId = 1; // Default to shakha ID 1 for guests
+$userContext = authenticateAPIRequest(false);
+if ($userContext && isset($userContext['shakha_id'])) {
     $shakhaId = $userContext['shakha_id'];
-} catch (Exception $e) {
-    if (isset($_SESSION['shakha_id'])) {
-        $shakhaId = $_SESSION['shakha_id'];
-    }
+} elseif (isset($_SESSION['shakha_id'])) {
+    $shakhaId = $_SESSION['shakha_id'];
 }
 
 $date = $_GET['date'] ?? date('Y-m-d');

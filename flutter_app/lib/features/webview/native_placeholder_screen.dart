@@ -766,15 +766,6 @@ $message
       children: [
         _buildSettingsHeader('सामान्य सेटिंग्स (General Settings)'),
         _buildSwitchTile(
-          icon: Icons.dark_mode_outlined,
-          title: 'डार्क मोड (Dark Mode Theme)',
-          subtitle: 'रात में उपयोग को सुगम बनाने के लिए',
-          value: ref.watch(themeProvider) == ThemeMode.dark,
-          onChanged: (val) {
-            ref.read(themeProvider.notifier).toggleTheme(val);
-          },
-        ),
-        _buildSwitchTile(
           icon: Icons.volume_up_outlined,
           title: 'ध्वनि प्रभाव (Sound Effects)',
           subtitle: 'शाखा टाइमर के दौरान सिटी ध्वनि प्रभाव',

@@ -91,7 +91,14 @@ function getMonthlyPanchangs($year, $month, $shakhaId, $pdo, $calc) {
 }
 
 try {
-    $userContext = authenticateAPIRequest();
+    $userContext = authenticateAPIRequest(false);
+    if (!$userContext) {
+        $userContext = [
+            'user_id' => 0,
+            'user_type' => 'guest',
+            'shakha_id' => 1
+        ];
+    }
     $shakhaId = $userContext['shakha_id'];
     $calc = new PanchangCalculator();
 

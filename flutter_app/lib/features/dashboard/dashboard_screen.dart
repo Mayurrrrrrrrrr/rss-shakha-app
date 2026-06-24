@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -661,13 +662,29 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       const SizedBox(height: 14),
                     ],
 
+                    // News Ticker & Flyer Carousel for Guest Users (Exciting Guest landing page)
+                    if (!session.isLoggedIn) ...[
+                      const ScrollingTicker(items: [
+                        "राष्ट्र प्रथम, सदैव प्रथम 🚩",
+                        "शारीरिक एवं मानसिक रूप से सुदृढ़ बनें 🚩",
+                        "स्वदेशी अपनाएं, देश बचाएं 🚩",
+                        "नित्य शाखा, नित्य सेवा 🚩",
+                        "वसुधैव कुटुम्बकम् 🚩"
+                      ]),
+                      const SizedBox(height: 12),
+                      const FlyerCarousel(),
+                      const SizedBox(height: 16),
+                    ],
+
                     // 1. Panchang card
                     _buildEnhancedPanchangCard(data),
                     const SizedBox(height: 16),
 
-                    // 2. Embedded Table Calendar (Front Page Always)
-                    _buildDashboardCalendarCard(data),
-                    const SizedBox(height: 16),
+                    // 2. Embedded Table Calendar (Front Page Always) - ONLY FOR LOGGED IN USERS
+                    if (session.isLoggedIn) ...[
+                      _buildDashboardCalendarCard(data),
+                      const SizedBox(height: 16),
+                    ],
 
                     // 3. & 4. Baudhik Samagri & Prerak Vyaktitv
                     _buildMenuSectionHeader('📖 ज्ञान और प्रेरणा'),
@@ -1095,6 +1112,215 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         trailing: const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: onTap,
+      ),
+    );
+  }
+}
+
+class ScrollingTicker extends StatefulWidget {
+  final List<String> items;
+  const ScrollingTicker({super.key, required this.items});
+
+  @override
+  State<ScrollingTicker> createState() => _ScrollingTickerState();
+}
+
+class _ScrollingTickerState extends State<ScrollingTicker> {
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startScrolling();
+    });
+  }
+
+  void _startScrolling() {
+    if (!_scrollController.hasClients) return;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final duration = Duration(seconds: (maxScroll / 25).clamp(10, 60).toInt());
+    
+    _scrollController.animateTo(
+      maxScroll,
+      duration: duration,
+      curve: Curves.linear,
+    ).then((_) {
+      if (mounted) {
+        _scrollController.jumpTo(0.0);
+        _startScrolling();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 38,
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF3E0),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Center(
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          scrollDirection: Axis.horizontal,
+          physics: const NeverScrollableScrollPhysics(),
+          child: Row(
+            children: widget.items.map((item) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Text(
+                item,
+                style: const TextStyle(
+                  color: Color(0xFFE65100),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+            )).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class FlyerCarousel extends StatefulWidget {
+  const FlyerCarousel({super.key});
+
+  @override
+  State<FlyerCarousel> createState() => _FlyerCarouselState();
+}
+
+class _FlyerCarouselState extends State<FlyerCarousel> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+  late Timer _timer;
+
+  final List<Map<String, String>> flyers = [
+    {
+      'title': 'संघशक्ति सर्वोपरि 🚩',
+      'desc': 'संगठन में ही शक्ति है। नित्य शाखा में भाग लेकर समाज को सुदृढ़ बनाएं।',
+      'icon': '🚩'
+    },
+    {
+      'title': 'बौद्धिक विकास 📖',
+      'desc': 'हमारे समृद्ध इतिहास, संस्कृति और जीवन मूल्यों से जुड़ें। बिना लॉगिन के बौद्धिक सामग्री पढ़ें।',
+      'icon': '📖'
+    },
+    {
+      'title': 'शारीरिक सुदृढ़ता 💪',
+      'desc': 'योग, खेल और व्यायाम द्वारा स्वस्थ और सशक्त जीवन अपनाएं।',
+      'icon': '💪'
+    },
+    {
+      'title': 'सेवा ही परम धर्म 🤝',
+      'desc': 'संकट के समय समाज के साथ खड़े रहकर सेवा कार्यों में सहभागिता करें।',
+      'icon': '🤝'
+    }
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (_currentPage < flyers.length - 1) {
+        _currentPage++;
+      } else {
+        _currentPage = 0;
+      }
+      if (_pageController.hasClients) {
+        _pageController.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 160,
+      child: PageView.builder(
+        controller: _pageController,
+        onPageChanged: (value) {
+          setState(() {
+            _currentPage = value;
+          });
+        },
+        itemCount: flyers.length,
+        itemBuilder: (context, index) {
+          final flyer = flyers[index];
+          return Card(
+            elevation: 4,
+            margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFF9800), Color(0xFFFF5722)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            flyer['title']!,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            flyer['desc']!,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white.withOpacity(0.9),
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      flyer['icon']!,
+                      style: const TextStyle(fontSize: 40),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
