@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../core/providers/providers.dart';
 import '../../core/models/models.dart';
 
@@ -100,8 +101,8 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
-      firstDate: DateTime(2025),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      firstDate: DateTime(1000),
+      lastDate: DateTime(9999),
       builder: (ctx, child) {
         final scheme = Theme.of(ctx).colorScheme;
         return Theme(
@@ -118,6 +119,36 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
       });
       _fetchPanchang();
     }
+  }
+
+  void _sharePanchang() {
+    if (_panchang == null) return;
+    final p = _panchang!;
+    final dateDisplay = DateFormat('dd MMMM yyyy').format(_selectedDate);
+    final hindiDay = _getHindiDay(_selectedDate.weekday);
+    
+    final shareText = '''
+🕉️ *दैनिक पंचांग* 🕉️
+📅 *दिनांक:* $dateDisplay ($hindiDay)
+
+✨ *विक्रम संवत:* ${p.vikramSamvat}
+✨ *शक संवत:* ${p.shakaSamvat}
+✨ *युगाब्द:* ${p.yugabdha}
+
+🌕 *माह:* ${p.vikramMonth} (${p.paksha})
+🌙 *तिथि:* ${p.tithi}
+⭐ *नक्षत्र:* ${p.nakshatra}
+💫 *योग:* ${p.yoga}
+🔥 *करण:* ${p.karana}
+
+🌅 *सूर्योदय:* ${p.sunrise}
+🌇 *सूर्यास्त:* ${p.sunset}
+⏳ *राहुकाल:* ${p.rahukaal}
+
+🚩 *संघस्थान ऐप*
+''';
+
+    Share.share(shareText);
   }
 
   void _nextDay() {
@@ -158,6 +189,14 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
         ),
         backgroundColor: const Color(0xFFFF6B00),
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          if (_panchang != null)
+            IconButton(
+              icon: const Icon(Icons.share, color: Colors.white),
+              onPressed: _sharePanchang,
+              tooltip: 'पंचांग साझा करें (Share Panchang)',
+            ),
+        ],
       ),
       body: Container(
         color: Theme.of(context).colorScheme.surfaceContainerLowest,

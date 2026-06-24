@@ -26,7 +26,7 @@ try {
     } else {
         $year = isset($_GET['year']) ? intval($_GET['year']) : intval(date('Y'));
         $month = isset($_GET['month']) ? intval($_GET['month']) : intval(date('m'));
-        if ($year < 2020 || $year > 2040 || $month < 1 || $month > 12) {
+        if ($year < 1000 || $year > 9999 || $month < 1 || $month > 12) {
             echo json_encode(['status' => 'error', 'message' => 'Invalid year or month']);
             exit;
         }
