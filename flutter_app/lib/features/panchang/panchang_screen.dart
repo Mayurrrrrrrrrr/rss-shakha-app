@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../core/providers/providers.dart';
@@ -231,27 +232,43 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
                       ? Center(
                           child: Padding(
                             padding: const EdgeInsets.all(24.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.info_outline, size: 64, color: Colors.orange),
-                                const SizedBox(height: 16),
-                                Text(
-                                  _error!,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 24),
-                                ElevatedButton(
-                                  onPressed: _fetchPanchang,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFFF6B00),
-                                    foregroundColor: Colors.white,
-                                    minimumSize: const Size(200, 56),
+                            child: SingleChildScrollView(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.info_outline, size: 64, color: Colors.orange),
+                                  const SizedBox(height: 16),
+                                  SelectableText(
+                                    _error!,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
                                   ),
-                                  child: const Text('पुनः प्रयास करें', style: TextStyle(fontSize: 18)),
-                                ),
-                              ],
+                                  const SizedBox(height: 16),
+                                  TextButton.icon(
+                                    onPressed: () {
+                                      Clipboard.setData(ClipboardData(text: _error ?? ''));
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('त्रुटि विवरण कॉपी किया गया (Error copied to clipboard)')),
+                                      );
+                                    },
+                                    icon: const Icon(Icons.copy, color: Color(0xFFFF6B00)),
+                                    label: const Text(
+                                      'त्रुटि कॉपी करें (Copy Error)',
+                                      style: TextStyle(color: Color(0xFFFF6B00), fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  ElevatedButton(
+                                    onPressed: _fetchPanchang,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFFFF6B00),
+                                      foregroundColor: Colors.white,
+                                      minimumSize: const Size(200, 56),
+                                    ),
+                                    child: const Text('पुनः प्रयास करें', style: TextStyle(fontSize: 18)),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         )
