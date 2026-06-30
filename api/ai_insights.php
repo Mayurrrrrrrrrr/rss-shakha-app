@@ -36,17 +36,21 @@ if (!$fromDate || !$toDate) {
 
 // 1. Check Cache
 $cacheKey = "shakha_{$shakhaId}_{$fromDate}_{$toDate}";
-try {
-    $stmtCache = $pdo->prepare("SELECT response_json FROM ai_content_cache WHERE content_type = 'insights' AND content_key = ?");
-    $stmtCache->execute([$cacheKey]);
-    $cachedData = $stmtCache->fetchColumn();
-    if ($cachedData) {
-        $result = json_decode($cachedData, true);
-        $result['source'] = 'cache';
-        echo json_encode($result);
-        exit;
-    }
-} catch (Exception $e) {}
+$refresh = isset($_GET['refresh']) && $_GET['refresh'] == '1';
+
+if (!$refresh) {
+    try {
+        $stmtCache = $pdo->prepare("SELECT response_json FROM ai_content_cache WHERE content_type = 'insights' AND content_key = ?");
+        $stmtCache->execute([$cacheKey]);
+        $cachedData = $stmtCache->fetchColumn();
+        if ($cachedData) {
+            $result = json_decode($cachedData, true);
+            $result['source'] = 'cache';
+            echo json_encode($result);
+            exit;
+        }
+    } catch (Exception $e) {}
+}
 
 // Rate limiting: 5 AI requests per user per hour
 if (session_status() === PHP_SESSION_NONE) {

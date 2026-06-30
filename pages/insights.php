@@ -335,6 +335,10 @@ $fromDate = date('Y-m-d', strtotime('-30 days'));
         <label for="to-date">📅 तक:</label>
         <input type="date" id="to-date" value="<?php echo $toDate; ?>">
     </div>
+    <div style="display: flex; align-items: center; background: rgba(255,255,255,0.06); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12);">
+        <input type="checkbox" id="force-refresh" style="margin-right: 8px; transform: scale(1.2); cursor: pointer;">
+        <label for="force-refresh" style="margin:0; color:#FFF; cursor:pointer; font-size: 0.85rem;">नया विश्लेषण (Cache Reset)</label>
+    </div>
     <button class="btn-generate" id="btn-generate" onclick="generateInsights()">
         <span id="btn-text">🧠 Insights बनाएं</span>
     </button>
@@ -417,6 +421,8 @@ $fromDate = date('Y-m-d', strtotime('-30 days'));
     async function generateInsights() {
         const from = fromInput.value;
         const to = toInput.value;
+        const refresh = document.getElementById('force-refresh').checked ? '&refresh=1' : '';
+        
         if (!from || !to) {
             alert('कृपया दोनों तारीख चुनें।');
             return;
@@ -427,7 +433,7 @@ $fromDate = date('Y-m-d', strtotime('-30 days'));
         btnText.textContent = '⏳ विश्लेषण जारी...';
 
         try {
-            const response = await fetch(`../api/ai_insights.php?from=${from}&to=${to}`);
+            const response = await fetch(`../api/ai_insights.php?from=${from}&to=${to}${refresh}`);
             const data = await response.json();
 
             if (data.success) {
