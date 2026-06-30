@@ -51,6 +51,7 @@ try {
             if ($gat === '') $gat = null;
             $isGatNayak = isset($s['is_gat_nayak']) ? intval($s['is_gat_nayak']) : 0;
             $isActive = isset($s['is_active']) ? intval($s['is_active']) : 1;
+            $role = trim($s['role'] ?? 'Swayamsevak');
 
             if (empty($name)) {
                 $response['errors'][] = "Swayamsevak name is empty";
@@ -65,9 +66,9 @@ try {
                 $clientUpdatedAt = $s['updated_at'] ?? date('Y-m-d H:i:s');
                 $isDeleted = isset($s['is_deleted']) ? intval($s['is_deleted']) : 0;
 
-                $stmt = $pdo->prepare("INSERT INTO swayamsevaks (name, address, phone, age, shakha_id, category, gat, is_gat_nayak, is_active, is_deleted, created_at, updated_at) 
-                                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$name, $address, $phone, $age, $shakhaId, $category, $gat, $isGatNayak, $isActive, $isDeleted, $clientCreatedAt, $clientUpdatedAt]);
+                $stmt = $pdo->prepare("INSERT INTO swayamsevaks (name, address, phone, age, shakha_id, category, gat, is_gat_nayak, role, is_active, is_deleted, created_at, updated_at) 
+                                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$name, $address, $phone, $age, $shakhaId, $category, $gat, $isGatNayak, $role, $isActive, $isDeleted, $clientCreatedAt, $clientUpdatedAt]);
                 $serverId = $pdo->lastInsertId();
                 if ($offlineId) {
                     $swayamsevakMappings[$offlineId] = (int)$serverId;
@@ -84,9 +85,9 @@ try {
                 $serverRow = $existStmt->fetch();
 
                 if (!$serverRow || strtotime($clientUpdatedAt) > strtotime($serverRow['updated_at'])) {
-                    $stmt = $pdo->prepare("UPDATE swayamsevaks SET name = ?, address = ?, phone = ?, age = ?, category = ?, gat = ?, is_gat_nayak = ?, is_active = ?, is_deleted = ?, updated_at = ? 
+                    $stmt = $pdo->prepare("UPDATE swayamsevaks SET name = ?, address = ?, phone = ?, age = ?, category = ?, gat = ?, is_gat_nayak = ?, role = ?, is_active = ?, is_deleted = ?, updated_at = ? 
                                            WHERE id = ? AND shakha_id = ?");
-                    $stmt->execute([$name, $address, $phone, $age, $category, $gat, $isGatNayak, $isActive, $isDeleted, $clientUpdatedAt, $serverId, $shakhaId]);
+                    $stmt->execute([$name, $address, $phone, $age, $category, $gat, $isGatNayak, $role, $isActive, $isDeleted, $clientUpdatedAt, $serverId, $shakhaId]);
                 }
                 $swayamsevakMappings[$offlineId] = $serverId;
             }

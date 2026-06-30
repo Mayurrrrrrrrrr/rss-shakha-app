@@ -135,7 +135,7 @@ if ($pdo && isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                             </ul>
                                         </li>
                                         
-                                        <?php $repActive = in_array($currentPage, ['records_list', 'records_calendar', 'monthly_report', 'gat_report', 'shreni_report', 'analytics', 'insights']) ? 'open' : ''; ?>
+                                        <?php $repActive = in_array($currentPage, ['records_list', 'records_calendar', 'monthly_report', 'gat_report', 'shreni_report', 'analytics', 'insights', 'ai_instruction']) ? 'open' : ''; ?>
                                         <li class="nav-group <?php echo $repActive; ?>">
                                             <div class="nav-group-header"><span>📊 रिपोर्ट्स (Reports)</span> <span class="chevron">▼</span></div>
                                             <ul class="nav-group-items">
@@ -146,6 +146,7 @@ if ($pdo && isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                                 <li><a href="../pages/shreni_report.php" class="<?php echo $currentPage === 'shreni_report' ? 'active' : ''; ?>">📊 श्रेणीवार उपस्थिति</a></li>
                                                 <li><a href="../pages/analytics.php" class="<?php echo $currentPage === 'analytics' ? 'active' : ''; ?>">📈 एनालिटिक्स</a></li>
                                                 <li><a href="../pages/insights.php" class="<?php echo $currentPage === 'insights' ? 'active' : ''; ?>">🧠 AI Insights</a></li>
+                                                <li><a href="../pages/ai_instruction.php" class="<?php echo $currentPage === 'ai_instruction' ? 'active' : ''; ?>">⚙️ AI निर्देश (Prompt)</a></li>
                                             </ul>
                                         </li>
                                         

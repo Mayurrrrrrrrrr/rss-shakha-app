@@ -12,10 +12,12 @@ $shakhaId = $userContext['shakha_id'];
 
 header('Content-Type: application/json; charset=UTF-8');
 
-// Fetch Shakha-specific Gemini Key
-$stmtKey = $pdo->prepare("SELECT gemini_api_key FROM shakhas WHERE id = ?");
+// Fetch Shakha-specific Gemini Key and Custom Prompt
+$stmtKey = $pdo->prepare("SELECT gemini_api_key, ai_insight_prompt FROM shakhas WHERE id = ?");
 $stmtKey->execute([$shakhaId]);
-$apiKey = $stmtKey->fetchColumn();
+$shakhaRow = $stmtKey->fetch();
+$apiKey = $shakhaRow['gemini_api_key'] ?? '';
+$customPrompt = $shakhaRow['ai_insight_prompt'] ?? '';
 
 if (empty($apiKey)) {
     echo json_encode(['success' => false, 'message' => 'इस शाखा के लिए AI अंतर्दृष्टि सक्रिय नहीं है। कृपया शाखा सेटिंग्स में अपनी Gemini API Key डालें।']);
@@ -333,7 +335,7 @@ if ($totalDays === 0 && empty($notices) && empty($subhashits) && empty($events))
 }
 
 // ===== GEMINI API CALL =====
-$systemPrompt = "तुम एक RSS शाखा (Rashtriya Swayamsevak Sangh शाखा) के data analyst हो। तुम्हें शाखा की गतिविधियों का विश्लेषण करना है और actionable insights देनी हैं।
+$systemPrompt = !empty($customPrompt) ? $customPrompt : "तुम एक RSS शाखा (Rashtriya Swayamsevak Sangh शाखा) के data analyst हो। तुम्हें शाखा की गतिविधियों का विश्लेषण करना है और actionable insights देनी हैं।
 
 महत्वपूर्ण संदर्भ:
 - स्वयंसेवकों की श्रेणियाँ: बाल (Baal - बच्चे), तरुण (Tarun - युवा), प्रौढ़ (Praudh - वयस्क)

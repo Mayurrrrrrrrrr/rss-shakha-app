@@ -24,6 +24,13 @@ if ($editId) {
 $stmt = $pdo->prepare("SELECT * FROM swayamsevaks WHERE is_active = 1 AND shakha_id = ? ORDER BY FIELD(category, 'Baal', 'Tarun', 'Praudh', 'Abhyagat'), COALESCE(NULLIF(gat, ''), 'zzzzzzzz') ASC, is_gat_nayak DESC, name ASC");
 $stmt->execute([$shakhaId]);
 $swayamsevaks = $stmt->fetchAll();
+
+// Fetch active categories and customizable roles for this Shakha
+$stmtShakha = $pdo->prepare("SELECT shakha_gat, shakha_roles FROM shakhas WHERE id = ?");
+$stmtShakha->execute([$shakhaId]);
+$shakhaDetails = $stmtShakha->fetch();
+$activeGats = !empty($shakhaDetails['shakha_gat']) ? explode(',', $shakhaDetails['shakha_gat']) : ['Baal', 'Tarun', 'Praudh', 'Abhyagat'];
+$shakhaRoles = !empty($shakhaDetails['shakha_roles']) ? array_map('trim', explode(',', $shakhaDetails['shakha_roles'])) : ['Swayamsevak', 'Seva Karyakarta', 'Mukhya Shikshak', 'Shakha Karyavaah', 'Gat Nayak'];
 ?>
 
 <div class="page-header">
@@ -67,10 +74,31 @@ $swayamsevaks = $stmt->fetchAll();
             <div class="form-group">
                 <label for="category">श्रेणी *</label>
                 <select id="category" name="category" class="form-control" required>
-                    <option value="Tarun" <?php echo (($editData['category'] ?? '') === 'Tarun') ? 'selected' : ''; ?>>तरुण</option>
-                    <option value="Baal" <?php echo (($editData['category'] ?? '') === 'Baal') ? 'selected' : ''; ?>>बाल</option>
-                    <option value="Praudh" <?php echo (($editData['category'] ?? '') === 'Praudh') ? 'selected' : ''; ?>>प्रौढ़</option>
-                    <option value="Abhyagat" <?php echo (($editData['category'] ?? '') === 'Abhyagat') ? 'selected' : ''; ?>>अभ्यागत</option>
+                    <?php
+                    $catMap = ['Baal' => 'बाल', 'Tarun' => 'तरुण', 'Praudh' => 'प्रौढ़', 'Abhyagat' => 'अभ्यागत'];
+                    $showGats = $activeGats;
+                    if ($editData && !empty($editData['category']) && !in_array($editData['category'], $showGats)) {
+                        $showGats[] = $editData['category'];
+                    }
+                    foreach ($showGats as $cat):
+                        $label = $catMap[$cat] ?? $cat;
+                        $selected = (($editData['category'] ?? '') === $cat) ? 'selected' : '';
+                        if (!$editData && $cat === 'Tarun' && in_array('Tarun', $activeGats)) {
+                            $selected = 'selected';
+                        }
+                    ?>
+                        <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo $selected; ?>><?php echo htmlspecialchars($label); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="role">भूमिका / पद</label>
+                <select id="role" name="role" class="form-control">
+                    <?php foreach ($shakhaRoles as $r): 
+                        $selected = (($editData['role'] ?? 'Swayamsevak') === $r) ? 'selected' : '';
+                    ?>
+                        <option value="<?php echo htmlspecialchars($r); ?>" <?php echo $selected; ?>><?php echo htmlspecialchars($r); ?></option>
+                    <?php endforeach; ?>
                 </select>
             </div>
             <div class="form-group">
@@ -142,6 +170,7 @@ $swayamsevaks = $stmt->fetchAll();
                             <?php endif; ?>
                             <th>#</th>
                             <th>नाम</th>
+                            <th>भूमिका / पद</th>
                             <th>गट (गट नायक)</th>
                             <th>श्रेणी</th>
                             <?php if (!$isReadOnly): ?>
@@ -168,6 +197,9 @@ $swayamsevaks = $stmt->fetchAll();
                                 <td><strong>
                                         <?php echo htmlspecialchars($s['name']); ?>
                                     </strong></td>
+                                <td>
+                                    <?php echo htmlspecialchars($s['role'] ?? 'Swayamsevak'); ?>
+                                </td>
                                 <td>
                                     <?php 
                                     if (!empty($s['gat'])) {

@@ -160,6 +160,9 @@ if ($shakhaId !== null && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $groqKey = trim($_POST['groq_api_key'] ?? '');
         $useCrossCheck = isset($_POST['use_ai_crosscheck']) ? 1 : 0;
         $cityName = trim($_POST['city_name'] ?? '');
+        $shakhaGat = isset($_POST['shakha_gat']) && is_array($_POST['shakha_gat']) ? implode(',', $_POST['shakha_gat']) : 'Baal,Tarun,Praudh,Abhyagat';
+        $shakhaRoles = trim($_POST['shakha_roles'] ?? 'Swayamsevak, Seva Karyakarta, Mukhya Shikshak, Shakha Karyavaah, Gat Nayak');
+
         if (!empty($newName)) {
             if ($logoPath) {
                 // Also get old logo to delete if exists
@@ -170,11 +173,11 @@ if ($shakhaId !== null && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     unlink("../" . $oldLogo);
                 }
 
-                $stmt = $pdo->prepare("UPDATE shakhas SET name = ?, logo = ?, gemini_api_key = ?, openai_api_key = ?, groq_api_key = ?, use_ai_crosscheck = ?, city_name = ? WHERE id = ?");
-                $stmt->execute([$newName, $logoPath, $geminiKey, $openaiKey, $groqKey, $useCrossCheck, $cityName, $shakhaId]);
+                $stmt = $pdo->prepare("UPDATE shakhas SET name = ?, logo = ?, gemini_api_key = ?, openai_api_key = ?, groq_api_key = ?, use_ai_crosscheck = ?, city_name = ?, shakha_gat = ?, shakha_roles = ? WHERE id = ?");
+                $stmt->execute([$newName, $logoPath, $geminiKey, $openaiKey, $groqKey, $useCrossCheck, $cityName, $shakhaGat, $shakhaRoles, $shakhaId]);
             } else {
-                $stmt = $pdo->prepare("UPDATE shakhas SET name = ?, gemini_api_key = ?, openai_api_key = ?, groq_api_key = ?, use_ai_crosscheck = ?, city_name = ? WHERE id = ?");
-                $stmt->execute([$newName, $geminiKey, $openaiKey, $groqKey, $useCrossCheck, $cityName, $shakhaId]);
+                $stmt = $pdo->prepare("UPDATE shakhas SET name = ?, gemini_api_key = ?, openai_api_key = ?, groq_api_key = ?, use_ai_crosscheck = ?, city_name = ?, shakha_gat = ?, shakha_roles = ? WHERE id = ?");
+                $stmt->execute([$newName, $geminiKey, $openaiKey, $groqKey, $useCrossCheck, $cityName, $shakhaGat, $shakhaRoles, $shakhaId]);
             }
             $success = 'शाखा सेटिंग्स सफलतापूर्वक अपडेट कर दी गईं।';
         } else {
@@ -253,6 +256,34 @@ require_once '../includes/header.php';
             <input type="text" id="city_name" name="city_name" class="form-control"
                 value="<?php echo htmlspecialchars($shakha['city_name'] ?? 'मुम्बई'); ?>" placeholder="उदा. मुम्बई, पुणे, दिल्ली (हिंदी में लिखें)">
             <small style="color: #888;">AI इसी शहर के अनुसार पंचांग की गणना करेगा। कृपया शहर का नाम **हिंदी** में ही लिखें।</small>
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+            <label style="font-weight: bold; display: block; margin-bottom: 8px;">सक्रिय शाखा गट / श्रेणियाँ (Active Age Groups)</label>
+            <?php
+            $activeGat = explode(',', $shakha['shakha_gat'] ?? 'Baal,Tarun,Praudh,Abhyagat');
+            $allGats = [
+                'Baal' => 'बाल (Baal)',
+                'Tarun' => 'तरुण (Tarun)',
+                'Praudh' => 'प्रौढ़ (Praudh)',
+                'Abhyagat' => 'अभ्यागत (Abhyagat)'
+            ];
+            foreach ($allGats as $key => $label):
+                $checked = in_array($key, $activeGat) ? 'checked' : '';
+            ?>
+                <label style="display: inline-flex; align-items: center; margin-right: 20px; font-weight: normal; cursor: pointer;">
+                    <input type="checkbox" name="shakha_gat[]" value="<?php echo $key; ?>" <?php echo $checked; ?> style="width: 18px; height: 18px; margin-right: 6px;">
+                    <?php echo $label; ?>
+                </label>
+            <?php endforeach; ?>
+            <small style="color: #888; display: block; margin-top: 6px;">स्वयंसेवक जोड़ते/संपादित करते समय केवल चुनी हुई श्रेणियां ही दिखाई देंगी।</small>
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+            <label for="shakha_roles">स्वयंसेवक पद / भूमिकाएँ (Custom roles - अल्पविराम ',' से अलग करें)</label>
+            <input type="text" id="shakha_roles" name="shakha_roles" class="form-control"
+                value="<?php echo htmlspecialchars($shakha['shakha_roles'] ?? 'Swayamsevak, Seva Karyakarta, Mukhya Shikshak, Shakha Karyavaah, Gat Nayak'); ?>" placeholder="उदा. Swayamsevak, Seva Karyakarta, Mukhya Shikshak">
+            <small style="color: #888;">मुख्य शिक्षक द्वारा कस्टमाइज्ड पद/भूमिकाएँ। उदा. Swayamsevak, Mukhya Shikshak, Gat Nayak, Gat Pramukh</small>
         </div>
 
         <div class="form-group">

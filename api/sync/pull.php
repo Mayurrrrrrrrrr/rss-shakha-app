@@ -49,7 +49,7 @@ try {
     $response['data']['shakhas'] = $stmt->fetchAll();
 
     // 2. Swayamsevaks (exclude password for security)
-    $stmt = $pdo->prepare("SELECT id, name, address, phone, age, username, shakha_id, category, gat, is_gat_nayak, is_active, created_at, updated_at, is_deleted FROM swayamsevaks WHERE updated_at > ? AND shakha_id = ?");
+    $stmt = $pdo->prepare("SELECT id, name, address, phone, age, username, shakha_id, category, gat, is_gat_nayak, role, is_active, created_at, updated_at, is_deleted FROM swayamsevaks WHERE updated_at > ? AND shakha_id = ?");
     $stmt->execute([$lastSync, $shakhaId]);
     $response['data']['swayamsevaks'] = $stmt->fetchAll();
 
