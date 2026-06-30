@@ -13,11 +13,13 @@ $shakhaId = $userContext['shakha_id'];
 header('Content-Type: application/json; charset=UTF-8');
 
 // Fetch Shakha-specific Gemini Key and Custom Prompt
-$stmtKey = $pdo->prepare("SELECT gemini_api_key, ai_insight_prompt FROM shakhas WHERE id = ?");
+$stmtKey = $pdo->prepare("SELECT gemini_api_key, ai_insight_prompt, shakha_gat FROM shakhas WHERE id = ?");
 $stmtKey->execute([$shakhaId]);
 $shakhaRow = $stmtKey->fetch();
 $apiKey = $shakhaRow['gemini_api_key'] ?? '';
 $customPrompt = $shakhaRow['ai_insight_prompt'] ?? '';
+$shakhaGatStr = $shakhaRow['shakha_gat'] ?? '';
+$activeGats = array_filter(array_map('trim', explode(',', $shakhaGatStr)));
 
 if (empty($apiKey)) {
     echo json_encode(['success' => false, 'message' => 'इस शाखा के लिए AI अंतर्दृष्टि सक्रिय नहीं है। कृपया शाखा सेटिंग्स में अपनी Gemini API Key डालें।']);
@@ -90,7 +92,7 @@ $recordIds = array_column($dailyRecords, 'id');
 $attendanceData = [];
 if (!empty($recordIds)) {
     $placeholders = implode(',', array_fill(0, count($recordIds), '?'));
-    $stmt = $pdo->prepare("SELECT a.daily_record_id, a.is_present, s.name as swayamsevak_name, s.category 
+    $stmt = $pdo->prepare("SELECT a.daily_record_id, a.is_present, s.name as swayamsevak_name, s.category, s.role 
         FROM attendance a 
         JOIN swayamsevaks s ON a.swayamsevak_id = s.id 
         WHERE a.daily_record_id IN ($placeholders)
@@ -104,7 +106,7 @@ $activitiesData = [];
 if (!empty($recordIds)) {
     $placeholders = implode(',', array_fill(0, count($recordIds), '?'));
     $stmt = $pdo->prepare("SELECT da.daily_record_id, da.is_done, act.name as activity_name, 
-        s.name as conductor_name
+        s.name as conductor_name, s.role as conductor_role
         FROM daily_activities da 
         JOIN activities act ON da.activity_id = act.id 
         LEFT JOIN swayamsevaks s ON da.conducted_by = s.id 
@@ -135,7 +137,7 @@ $events = $stmt->fetchAll();
 // 7. New Swayamsevaks joined during the period
 $newSwayamsevaks = [];
 try {
-    $stmt = $pdo->prepare("SELECT name, category, age, created_at FROM swayamsevaks 
+    $stmt = $pdo->prepare("SELECT name, category, age, created_at, role FROM swayamsevaks 
         WHERE shakha_id = ? AND is_active = 1 AND DATE(created_at) BETWEEN ? AND ? ORDER BY created_at");
     $stmt->execute([$shakhaId, $fromDate, $toDate]);
     $newSwayamsevaks = $stmt->fetchAll();
@@ -208,12 +210,45 @@ try {
 // ===== BUILD CONTEXT =====
 $totalDays = count($dailyRecords);
 
+// Helper to check excluded roles
+function isExcludedRole($role) {
+    if (empty($role)) return false;
+    $exclude = ['padtran', 'mukhya', 'karyavaah', 'karyavah', 'पदत्राण', 'मुख्य', 'कार्यवाह'];
+    foreach ($exclude as $ex) {
+        if (mb_stripos($role, $ex) !== false) return true;
+    }
+    return false;
+}
+
 // Attendance summary
 $personAttendance = [];
+$abhyagatVisits = [];
 foreach ($attendanceData as $a) {
     $name = $a['swayamsevak_name'];
+    $cat = trim($a['category'] ?? '');
+    
+    if (isExcludedRole($a['role'] ?? '')) continue;
+    
+    if (mb_stripos($cat, 'Abhyagat') !== false || mb_stripos($cat, 'अभ्यागत') !== false) {
+        if ($a['is_present']) {
+            $abhyagatVisits[$name] = ($abhyagatVisits[$name] ?? 0) + 1;
+        }
+        continue;
+    }
+
+    if (!empty($activeGats)) {
+        $catLower = mb_strtolower($cat);
+        $isActive = false;
+        foreach ($activeGats as $ag) {
+            if (mb_strtolower(trim($ag)) === $catLower) {
+                $isActive = true; break;
+            }
+        }
+        if (!$isActive) continue;
+    }
+
     if (!isset($personAttendance[$name])) {
-        $personAttendance[$name] = ['present' => 0, 'total' => 0, 'category' => $a['category']];
+        $personAttendance[$name] = ['present' => 0, 'total' => 0, 'category' => $cat];
     }
     $personAttendance[$name]['total']++;
     if ($a['is_present']) $personAttendance[$name]['present']++;
@@ -229,8 +264,10 @@ foreach ($activitiesData as $a) {
     if ($a['is_done']) $activityCount[$actName]['done']++;
     
     if ($a['conductor_name'] && $a['is_done']) {
-        if (!isset($conductorCount[$a['conductor_name']])) $conductorCount[$a['conductor_name']] = 0;
-        $conductorCount[$a['conductor_name']]++;
+        if (!isExcludedRole($a['conductor_role'] ?? '')) {
+            if (!isset($conductorCount[$a['conductor_name']])) $conductorCount[$a['conductor_name']] = 0;
+            $conductorCount[$a['conductor_name']]++;
+        }
     }
 }
 
@@ -247,6 +284,14 @@ if (!empty($personAttendance)) {
         $pct = $data['total'] > 0 ? round(($data['present'] / $data['total']) * 100) : 0;
         $cat = $data['category'] ?? 'Unknown';
         $contextParts[] = "$name (श्रेणी: $cat): $data[present]/$data[total] दिन ({$pct}%)";
+    }
+}
+
+if (!empty($abhyagatVisits)) {
+    $contextParts[] = "\n--- अभ्यागत (Guest) प्रवास ---";
+    $contextParts[] = "नोट: अभ्यागत हमारे सम्मानित अतिथि हैं, नियमित सदस्य नहीं। उनका आना हमारा सौभाग्य है। उन पर उपस्थिति का कोई दबाव नहीं होता। कृपया उनका मूल्यांकन नियमित सदस्यों की तरह न करें।";
+    foreach ($abhyagatVisits as $name => $visits) {
+        $contextParts[] = "$name: $visits बार शाखा में पधारे।";
     }
 }
 
@@ -304,10 +349,31 @@ if (!empty($events)) {
 }
 
 // New Swayamsevaks
+$filteredNew = [];
 if (!empty($newSwayamsevaks)) {
-    $contextParts[] = "\n--- नए स्वयंसेवक (इस अवधि में जुड़े) ---";
-    $contextParts[] = "कुल नए सदस्य: " . count($newSwayamsevaks);
     foreach ($newSwayamsevaks as $ns) {
+        $cat = trim($ns['category'] ?? '');
+        if (isExcludedRole($ns['role'] ?? '')) continue;
+        if (mb_stripos($cat, 'Abhyagat') !== false || mb_stripos($cat, 'अभ्यागत') !== false) continue;
+        
+        if (!empty($activeGats)) {
+            $catLower = mb_strtolower($cat);
+            $isActive = false;
+            foreach ($activeGats as $ag) {
+                if (mb_strtolower(trim($ag)) === $catLower) {
+                    $isActive = true; break;
+                }
+            }
+            if (!$isActive) continue;
+        }
+        $filteredNew[] = $ns;
+    }
+}
+
+if (!empty($filteredNew)) {
+    $contextParts[] = "\n--- नए स्वयंसेवक (इस अवधि में जुड़े) ---";
+    $contextParts[] = "कुल नए सदस्य: " . count($filteredNew);
+    foreach ($filteredNew as $ns) {
         $catMap = ['Baal' => 'बाल', 'Tarun' => 'तरुण', 'Praudh' => 'प्रौढ़', 'Abhyagat' => 'अभ्यागत'];
         $cat = $catMap[$ns['category'] ?? ''] ?? $ns['category'];
         $age = $ns['age'] ? " (उम्र: $ns[age])" : '';
