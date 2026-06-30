@@ -29,7 +29,10 @@ $swayamsevaks = $stmt->fetchAll();
 $stmtShakha = $pdo->prepare("SELECT shakha_gat, shakha_roles FROM shakhas WHERE id = ?");
 $stmtShakha->execute([$shakhaId]);
 $shakhaDetails = $stmtShakha->fetch();
-$activeGats = !empty($shakhaDetails['shakha_gat']) ? explode(',', $shakhaDetails['shakha_gat']) : ['Baal', 'Tarun', 'Praudh', 'Abhyagat'];
+$activeGats = !empty($shakhaDetails['shakha_gat']) ? array_map('trim', explode(',', $shakhaDetails['shakha_gat'])) : ['Baal', 'Tarun', 'Praudh', 'Abhyagat'];
+if (!in_array('Abhyagat', $activeGats)) {
+    $activeGats[] = 'Abhyagat';
+}
 $shakhaRoles = !empty($shakhaDetails['shakha_roles']) ? array_map('trim', explode(',', $shakhaDetails['shakha_roles'])) : ['Swayamsevak', 'Seva Karyakarta', 'Mukhya Shikshak', 'Shakha Karyavaah', 'Gat Nayak'];
 ?>
 
