@@ -11,6 +11,9 @@ define('BASE_PATH', dirname(__DIR__));
 require_once BASE_PATH . '/app/Core/Autoloader.php';
 \App\Core\Autoloader::register();
 
+// 4. Exception Handling
+\App\Core\ExceptionHandler::register();
+
 // 3. Database connection
 require_once BASE_PATH . '/config/db.php';
 \App\Core\DB::init($pdo);
