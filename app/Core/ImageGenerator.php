@@ -6,22 +6,13 @@ namespace App\Core;
  * ImageGenerator — Generates beautiful daily creative cards using HTML + wkhtmltoimage.
  * 
  * HTML rendering ensures flawless Devanagari typography (complex text layout)
- * with modern CSS styling, which PHP GD cannot do.
+ * with modern CSS styling.
  */
 class ImageGenerator
 {
     private $width = 1080;
     private $height = 1920;
 
-    /**
-     * Generate the daily creative card.
-     *
-     * @param array $panchang  Panchang data row from panchang_data table
-     * @param array $subhashit Subhashit row (sanskrit_text, hindi_meaning)
-     * @param string $logoPath Absolute path to shakha logo
-     * @param string $shakhaName Name of the shakha
-     * @return string Absolute path to the generated image
-     */
     public function generate(array $panchang, ?array $subhashit, string $logoPath, string $shakhaName): string
     {
         $date = $panchang['panchang_date'] ?? date('Y-m-d');
@@ -37,7 +28,6 @@ class ImageGenerator
         file_put_contents($htmlPath, $html);
 
         // Call wkhtmltoimage
-        // --quality 95 --width 1080 --disable-smart-width
         $cmd = sprintf(
             'wkhtmltoimage --quality 95 --width %d --disable-smart-width %s %s',
             $this->width,
@@ -45,12 +35,10 @@ class ImageGenerator
             escapeshellarg($outputPath)
         );
         
-        // Execute the command
         $output = [];
         $returnVar = 0;
         exec($cmd . ' 2>&1', $output, $returnVar);
 
-        // Clean up temp HTML
         if (file_exists($htmlPath)) {
             unlink($htmlPath);
         }
@@ -62,14 +50,45 @@ class ImageGenerator
         return $outputPath;
     }
 
+    private function getSvgIcon(string $name): string
+    {
+        $color = '#FF6700';
+        switch ($name) {
+            case 'flag':
+                // RSS style Bhagwa Dhwaj
+                return '<svg width="50" height="50" viewBox="0 0 100 100" style="vertical-align: middle; margin: 0 10px;">
+                    <!-- Pole -->
+                    <rect x="20" y="10" width="6" height="85" fill="#8B4513" rx="3"/>
+                    <!-- Flag body -->
+                    <path d="M 26 15 L 95 35 L 55 50 L 95 70 L 26 80 Z" fill="#FF6700"/>
+                </svg>';
+            case 'om':
+                return '<svg width="40" height="40" viewBox="0 0 100 100" style="vertical-align: middle; margin-right: 15px;">
+                    <text x="50" y="70" font-family="Noto Sans Devanagari" font-size="60" font-weight="bold" fill="#FF6700" text-anchor="middle">ॐ</text>
+                </svg>';
+            case 'scroll':
+                return '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FF6700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 15px;">
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                </svg>';
+        }
+        return '';
+    }
+
     private function buildHtml(array $panchang, ?array $subhashit, string $logoPath, string $shakhaName): string
     {
-        // Convert logo to base64 so wkhtmltoimage doesn't have path resolution issues
+        // Fix for logo mime type to ensure wkhtmltoimage parses it correctly
         $logoBase64 = '';
         if (file_exists($logoPath)) {
-            $ext = pathinfo($logoPath, PATHINFO_EXTENSION);
+            $ext = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION));
+            if ($ext === 'svg') {
+                $mime = 'image/svg+xml';
+            } elseif ($ext === 'jpg' || $ext === 'jpeg') {
+                $mime = 'image/jpeg';
+            } else {
+                $mime = 'image/png';
+            }
             $logoData = file_get_contents($logoPath);
-            $logoBase64 = 'data:image/' . $ext . ';base64,' . base64_encode($logoData);
+            $logoBase64 = 'data:' . $mime . ';base64,' . base64_encode($logoData);
         }
 
         // Date formatting
@@ -90,7 +109,7 @@ class ImageGenerator
 
         $utsavHtml = '';
         if (!empty($panchang['utsav'])) {
-            $utsavHtml = '<div class="utsav">🎉 ' . htmlspecialchars($panchang['utsav']) . '</div>';
+            $utsavHtml = '<div class="utsav">' . $this->getSvgIcon('flag') . htmlspecialchars($panchang['utsav']) . $this->getSvgIcon('flag') . '</div>';
         }
 
         $subhashitHtml = '';
@@ -98,7 +117,7 @@ class ImageGenerator
             $sanskrit = nl2br(htmlspecialchars($subhashit['sanskrit_text'] ?? ''));
             $hindi = nl2br(htmlspecialchars($subhashit['hindi_meaning'] ?? ''));
             $subhashitHtml = "
-                <div class='section-title'>📜 आज का सुभाषित</div>
+                <div class='section-title'>{$this->getSvgIcon('scroll')} आज का सुभाषित</div>
                 <div class='card subhashit-card'>
                     <div class='sanskrit'>{$sanskrit}</div>
                     <div class='hindi'>{$hindi}</div>
@@ -125,6 +144,9 @@ class ImageGenerator
             ";
         }
 
+        $flagIcon = $this->getSvgIcon('flag');
+        $omIcon = $this->getSvgIcon('om');
+
         return <<<HTML
 <!DOCTYPE html>
 <html lang="hi">
@@ -138,22 +160,42 @@ body {
     height: 1920px;
     margin: 0;
     padding: 0;
-    background: linear-gradient(145deg, #1A0A02, #4A1A05, #1A0A02);
-    color: #fff;
+    background: #FFFFFF;
+    color: #333333;
     font-family: 'Noto Sans Devanagari', sans-serif;
     position: relative;
     overflow: hidden;
 }
-.saffron-bar {
-    height: 16px;
-    background: #FF6700;
-    width: 100%;
+.outer-border {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    right: 25px;
+    bottom: 25px;
+    border: 12px solid #FFCC00;
+    border-radius: 40px;
+    z-index: 1;
+    pointer-events: none;
+}
+.inner-border {
+    position: absolute;
+    top: 45px;
+    left: 45px;
+    right: 45px;
+    bottom: 45px;
+    border: 6px solid #FF6700;
+    border-radius: 25px;
+    z-index: 1;
+    pointer-events: none;
 }
 .container {
-    padding: 60px 80px;
-    height: calc(1920px - 16px);
+    padding: 80px 100px;
+    height: 1920px;
     display: flex;
     flex-direction: column;
+    position: relative;
+    z-index: 2;
+    background: radial-gradient(circle at center, #FFFFFF 0%, #FFF8F0 100%);
 }
 .header { text-align: center; }
 .logo {
@@ -162,107 +204,113 @@ body {
     object-fit: contain;
     border-radius: 50%;
     border: 6px solid #FF6700;
-    box-shadow: 0 0 50px rgba(255, 103, 0, 0.4);
+    box-shadow: 0 10px 25px rgba(255, 103, 0, 0.2);
     background: #fff;
 }
 .shakha-name {
     font-family: 'Yatra One', cursive;
     font-size: 72px;
-    color: #FF8800;
+    color: #D35400;
     margin: 30px 0 10px;
-    text-shadow: 3px 3px 15px rgba(0,0,0,0.8);
     line-height: 1.2;
 }
 .subtitle {
-    font-size: 32px;
-    color: #FFDDAA;
-    opacity: 0.8;
+    font-size: 34px;
+    color: #555555;
+    font-weight: 600;
 }
 .date-section {
     text-align: center;
-    margin: 50px 0;
+    margin: 40px 0;
     padding: 30px;
-    background: rgba(255, 103, 0, 0.1);
+    background: #FFF3E0;
     border-radius: 20px;
-    border: 2px solid rgba(255, 103, 0, 0.2);
+    border: 2px solid #FFB74D;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
 }
-.date-day { font-size: 64px; font-weight: 800; color: #FFCC00; text-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
-.date-greg { font-size: 42px; color: #FFF3E0; margin-top: 15px; font-weight: 600; }
-.date-samvat { font-size: 32px; color: #FF9933; margin-top: 15px; font-weight: 600;}
+.date-day { font-size: 64px; font-weight: 800; color: #E65100; }
+.date-greg { font-size: 42px; color: #424242; margin-top: 15px; font-weight: 700; }
+.date-samvat { font-size: 32px; color: #D84315; margin-top: 15px; font-weight: 600;}
 .utsav {
-    font-size: 54px;
-    color: #FFEB3B;
+    font-size: 50px;
+    color: #C62828;
     font-weight: 800;
-    margin-top: 40px;
+    margin-top: 20px;
     text-align: center;
-    text-shadow: 0 0 25px rgba(255, 235, 59, 0.6);
 }
 .section-title {
     text-align: center;
-    font-size: 42px;
+    font-size: 44px;
     font-weight: 800;
-    color: #FF6700;
-    margin: 40px 0 25px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+    color: #E65100;
+    margin: 30px 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .card {
-    background: rgba(0, 0, 0, 0.4);
-    border: 2px solid rgba(255, 103, 0, 0.3);
+    background: #FFFFFF;
+    border: 3px solid #FFCC80;
     border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    padding: 35px 45px;
+    box-shadow: 0 10px 30px rgba(255, 152, 0, 0.1);
 }
 .panchang-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px 40px;
+    gap: 15px 40px;
 }
 .panchang-row {
     display: flex;
     font-size: 34px;
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
-    padding-bottom: 15px;
+    border-bottom: 2px dotted #FFE0B2;
+    padding-bottom: 12px;
 }
 .panchang-label {
     width: 45%;
-    color: #FF9933;
-    font-weight: 700;
+    color: #D84315;
+    font-weight: 800;
 }
 .panchang-val {
     width: 55%;
-    color: #FFF3E0;
-    font-weight: 600;
+    color: #424242;
+    font-weight: 700;
 }
 .subhashit-card {
     text-align: center;
     margin-bottom: auto;
+    background: #FFF8E1;
+    border-color: #FFCA28;
 }
 .sanskrit {
     font-size: 38px;
-    color: #FFCC00;
+    color: #BF360C;
     font-weight: 800;
     line-height: 1.6;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 .hindi {
     font-size: 32px;
-    color: #FFF3E0;
-    line-height: 1.5;
-    font-weight: 400;
+    color: #424242;
+    line-height: 1.6;
+    font-weight: 600;
 }
 .footer {
     text-align: center;
-    margin-top: 50px;
-    padding-bottom: 40px;
-    font-size: 32px;
-    color: #FF8800;
-    font-weight: 700;
+    margin-top: 40px;
+    padding-bottom: 20px;
+    font-size: 36px;
+    color: #E65100;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 </style>
 </head>
 <body>
-    <div class="saffron-bar"></div>
+    <div class="outer-border"></div>
+    <div class="inner-border"></div>
     <div class="container">
         
         <div class="header">
@@ -279,7 +327,7 @@ body {
 
         {$utsavHtml}
 
-        <div class="section-title">🕉️ आज का पंचांग</div>
+        <div class="section-title">{$omIcon} आज का पंचांग</div>
         <div class="card">
             <div class="panchang-grid">
                 {$panchangItemsHtml}
@@ -289,7 +337,7 @@ body {
         {$subhashitHtml}
 
         <div class="footer">
-            🚩 हर हर महादेव | भारत माता की जय 🚩
+            {$flagIcon} हर हर महादेव &nbsp;|&nbsp; भारत माता की जय {$flagIcon}
         </div>
     </div>
 </body>
