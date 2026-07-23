@@ -1,5 +1,6 @@
 <?php
-$_SERVER['REQUEST_METHOD'] = 'GET';
+$_SERVER['REQUEST_METHOD'] = 'POST';
+$_POST['action'] = 'test_send';
 session_start();
 $_SESSION['user_type'] = 'mukhyashikshak';
 $_SESSION['user_id'] = 1;
