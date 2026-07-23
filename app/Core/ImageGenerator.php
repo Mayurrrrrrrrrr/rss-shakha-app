@@ -76,8 +76,12 @@ class ImageGenerator
 
     private function buildHtml(array $panchang, ?array $subhashit, string $logoPath, string $shakhaName): string
     {
-        // Fix for logo mime type to ensure wkhtmltoimage parses it correctly
+        // Fix for logo mime type and fallback
         $logoBase64 = '';
+        if (!file_exists($logoPath)) {
+            $logoPath = BASE_PATH . '/assets/images/logo.png';
+        }
+        
         if (file_exists($logoPath)) {
             $ext = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION));
             if ($ext === 'svg') {
@@ -159,43 +163,28 @@ body {
     width: 1080px;
     height: 1920px;
     margin: 0;
-    padding: 0;
-    background: #FFFFFF;
+    padding: 25px;
+    background: #FFF8F0;
     color: #333333;
     font-family: 'Noto Sans Devanagari', sans-serif;
-    position: relative;
-    overflow: hidden;
 }
-.outer-border {
-    position: absolute;
-    top: 25px;
-    left: 25px;
-    right: 25px;
-    bottom: 25px;
+.outer-wrapper {
+    width: 1030px;
+    height: 1870px;
     border: 12px solid #FFCC00;
     border-radius: 40px;
-    z-index: 1;
-    pointer-events: none;
+    padding: 20px;
+    background: #FFFFFF;
 }
-.inner-border {
-    position: absolute;
-    top: 45px;
-    left: 45px;
-    right: 45px;
-    bottom: 45px;
+.inner-wrapper {
+    width: 966px;
+    height: 1806px;
     border: 6px solid #FF6700;
     border-radius: 25px;
-    z-index: 1;
-    pointer-events: none;
-}
-.container {
-    padding: 80px 100px;
-    height: 1920px;
+    background: radial-gradient(circle at center, #FFFFFF 0%, #FFF8F0 100%);
+    padding: 50px 70px;
     display: flex;
     flex-direction: column;
-    position: relative;
-    z-index: 2;
-    background: radial-gradient(circle at center, #FFFFFF 0%, #FFF8F0 100%);
 }
 .header { text-align: center; }
 .logo {
@@ -212,38 +201,39 @@ body {
     font-size: 72px;
     color: #D35400;
     margin: 30px 0 10px;
-    line-height: 1.2;
+    line-height: 1.3;
 }
 .subtitle {
-    font-size: 34px;
+    font-size: 36px;
     color: #555555;
     font-weight: 600;
 }
 .date-section {
     text-align: center;
-    margin: 40px 0;
-    padding: 30px;
+    margin: 35px 0;
+    padding: 25px;
     background: #FFF3E0;
     border-radius: 20px;
     border: 2px solid #FFB74D;
     box-shadow: 0 5px 15px rgba(0,0,0,0.05);
 }
-.date-day { font-size: 64px; font-weight: 800; color: #E65100; }
-.date-greg { font-size: 42px; color: #424242; margin-top: 15px; font-weight: 700; }
+.date-day { font-size: 60px; font-weight: 800; color: #E65100; }
+.date-greg { font-size: 40px; color: #424242; margin-top: 15px; font-weight: 700; }
 .date-samvat { font-size: 32px; color: #D84315; margin-top: 15px; font-weight: 600;}
 .utsav {
-    font-size: 50px;
+    font-size: 46px;
     color: #C62828;
     font-weight: 800;
-    margin-top: 20px;
+    margin-top: 15px;
     text-align: center;
+    line-height: 1.4;
 }
 .section-title {
     text-align: center;
-    font-size: 44px;
+    font-size: 42px;
     font-weight: 800;
     color: #E65100;
-    margin: 30px 0 20px;
+    margin: 25px 0 15px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -252,7 +242,7 @@ body {
     background: #FFFFFF;
     border: 3px solid #FFCC80;
     border-radius: 20px;
-    padding: 35px 45px;
+    padding: 30px 40px;
     box-shadow: 0 10px 30px rgba(255, 152, 0, 0.1);
 }
 .panchang-grid {
@@ -262,9 +252,10 @@ body {
 }
 .panchang-row {
     display: flex;
-    font-size: 34px;
+    font-size: 32px;
     border-bottom: 2px dotted #FFE0B2;
     padding-bottom: 12px;
+    line-height: 1.4;
 }
 .panchang-label {
     width: 45%;
@@ -283,22 +274,22 @@ body {
     border-color: #FFCA28;
 }
 .sanskrit {
-    font-size: 38px;
+    font-size: 36px;
     color: #BF360C;
     font-weight: 800;
-    line-height: 1.6;
-    margin-bottom: 20px;
+    line-height: 1.8;
+    margin-bottom: 25px;
 }
 .hindi {
-    font-size: 32px;
+    font-size: 30px;
     color: #424242;
-    line-height: 1.6;
+    line-height: 1.8;
     font-weight: 600;
 }
 .footer {
     text-align: center;
-    margin-top: 40px;
-    padding-bottom: 20px;
+    margin-top: 30px;
+    padding-bottom: 10px;
     font-size: 36px;
     color: #E65100;
     font-weight: 800;
@@ -309,35 +300,34 @@ body {
 </style>
 </head>
 <body>
-    <div class="outer-border"></div>
-    <div class="inner-border"></div>
-    <div class="container">
-        
-        <div class="header">
-            <img src="{$logoBase64}" class="logo" />
-            <div class="shakha-name">{$shakhaName}</div>
-            <div class="subtitle">दैनिक पंचांग एवं सुभाषित</div>
-        </div>
-
-        <div class="date-section">
-            <div class="date-day">{$dayName}</div>
-            <div class="date-greg">{$gregorianDate}</div>
-            <div class="date-samvat">{$vikramText}</div>
-        </div>
-
-        {$utsavHtml}
-
-        <div class="section-title">{$omIcon} आज का पंचांग</div>
-        <div class="card">
-            <div class="panchang-grid">
-                {$panchangItemsHtml}
+    <div class="outer-wrapper">
+        <div class="inner-wrapper">
+            <div class="header">
+                <img src="{$logoBase64}" class="logo" />
+                <div class="shakha-name">{$shakhaName}</div>
+                <div class="subtitle">दैनिक पंचांग एवं सुभाषित</div>
             </div>
-        </div>
 
-        {$subhashitHtml}
+            <div class="date-section">
+                <div class="date-day">{$dayName}</div>
+                <div class="date-greg">{$gregorianDate}</div>
+                <div class="date-samvat">{$vikramText}</div>
+            </div>
 
-        <div class="footer">
-            {$flagIcon} हर हर महादेव &nbsp;|&nbsp; भारत माता की जय {$flagIcon}
+            {$utsavHtml}
+
+            <div class="section-title">{$omIcon} आज का पंचांग</div>
+            <div class="card">
+                <div class="panchang-grid">
+                    {$panchangItemsHtml}
+                </div>
+            </div>
+
+            {$subhashitHtml}
+
+            <div class="footer">
+                {$flagIcon} जय श्री राम &nbsp;|&nbsp; भारत माता की जय {$flagIcon}
+            </div>
         </div>
     </div>
 </body>
