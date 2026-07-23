@@ -1,6 +1,7 @@
 <?php
 $_SERVER['REQUEST_METHOD'] = 'POST';
 $_POST['action'] = 'test_send';
+session_start();
 $_SESSION['user_id'] = 1;
 $_SESSION['shakha_id'] = 1;
 $_SESSION['role'] = 'mukhya_shikshak';
