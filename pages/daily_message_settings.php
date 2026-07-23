@@ -1,7 +1,5 @@
 <?php
 require_once '../includes/auth.php';
-$pageTitle = 'दैनिक संदेश सेटिंग्स';
-require_once '../includes/header.php';
 require_once '../config/db.php';
 requireLogin();
 if (!isMukhyashikshak() && !isAdmin()) {
@@ -140,6 +138,9 @@ function buildTestCaption($panchang, $subhashit, $shakhaName) {
     $lines[] = ""; $lines[] = "🚩 _जय श्री राम | भारत माता की जय_";
     return implode("\n", $lines);
 }
+
+$pageTitle = 'दैनिक संदेश सेटिंग्स';
+require_once '../includes/header.php';
 ?>
 
 <div class="page-header">
@@ -167,70 +168,80 @@ function buildTestCaption($panchang, $subhashit, $shakhaName) {
 <?php endif; ?>
 
 <!-- WhatsApp Configuration -->
-<div class="card">
-    <div class="card-header">📱 WhatsApp कॉन्फ़िगरेशन</div>
+<div class="card premium-card">
+    <div class="card-header premium-header">
+        <h2 style="margin: 0; font-size: 1.25rem;">📱 WhatsApp कॉन्फ़िगरेशन</h2>
+    </div>
     <form method="POST">
         <input type="hidden" name="action" value="save">
-        <div style="padding: 16px;">
-            <div style="background: #FFF3E0; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #FFCC80;">
-                <strong>📋 सेटअप के चरण:</strong><br>
-                1. <a href="https://green-api.com" target="_blank" style="color: #E65100;">green-api.com</a> पर जाएं और फ्री ट्रायल अकाउंट बनाएं<br>
-                2. QR कोड स्कैन करके अपना WhatsApp कनेक्ट करें<br>
-                3. Instance ID और API Token नीचे डालें<br>
-                4. "ग्रुप लिस्ट लाएं" बटन से अपना ग्रुप चुनें
+        <div class="card-body">
+            <div class="alert alert-warning" style="border-radius: var(--radius-md); font-size: 0.95rem; line-height: 1.5;">
+                <h4 style="margin-top: 0; color: var(--saffron);"><i class="fas fa-info-circle"></i> सेटअप के चरण:</h4>
+                <ol style="margin-bottom: 0; padding-left: 20px;">
+                    <li><a href="https://green-api.com" target="_blank" style="color: var(--saffron); font-weight: bold; text-decoration: underline;">green-api.com</a> पर जाएं और फ्री ट्रायल अकाउंट बनाएं।</li>
+                    <li>QR कोड स्कैन करके अपना WhatsApp कनेक्ट करें।</li>
+                    <li>Instance ID और API Token नीचे डालें।</li>
+                    <li>"ग्रुप लिस्ट लाएं" बटन से अपना ग्रुप चुनें।</li>
+                </ol>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" name="whatsapp_enabled" value="1" <?= $config['whatsapp_enabled'] ? 'checked' : '' ?> style="width: 18px; height: 18px; margin-right: 8px;">
-                        WhatsApp दैनिक संदेश सक्रिय करें
-                    </label>
-                </div>
+            <div class="form-group" style="margin-bottom: 24px; padding: 12px; background: var(--bg-secondary); border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                <label style="display: flex; align-items: center; cursor: pointer; margin: 0; font-weight: 600; color: var(--text-primary);">
+                    <input type="checkbox" name="whatsapp_enabled" value="1" <?= $config['whatsapp_enabled'] ? 'checked' : '' ?> style="width: 20px; height: 20px; margin-right: 12px; accent-color: var(--saffron);">
+                    WhatsApp दैनिक संदेश सक्रिय करें
+                </label>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 16px;">
+            <div class="settings-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
                 <div class="form-group">
-                    <label for="whatsapp_api_instance">Instance ID (Green API)</label>
-                    <input type="text" id="whatsapp_api_instance" name="whatsapp_api_instance" class="form-control" 
+                    <label for="whatsapp_api_instance" class="form-label">Instance ID (Green API)</label>
+                    <input type="text" id="whatsapp_api_instance" name="whatsapp_api_instance" class="form-control premium-input" 
                            placeholder="e.g., 1101234567" value="<?= htmlspecialchars($config['whatsapp_api_instance'] ?? '') ?>">
                 </div>
                 <div class="form-group">
-                    <label for="whatsapp_api_token">API Token</label>
-                    <input type="text" id="whatsapp_api_token" name="whatsapp_api_token" class="form-control" 
+                    <label for="whatsapp_api_token" class="form-label">API Token</label>
+                    <input type="text" id="whatsapp_api_token" name="whatsapp_api_token" class="form-control premium-input" 
                            placeholder="e.g., abc123def456..." value="<?= htmlspecialchars($config['whatsapp_api_token'] ?? '') ?>">
                 </div>
                 <div class="form-group">
-                    <label for="whatsapp_group_id">WhatsApp Group ID</label>
-                    <input type="text" id="whatsapp_group_id" name="whatsapp_group_id" class="form-control" 
+                    <label for="whatsapp_group_id" class="form-label">WhatsApp Group ID</label>
+                    <input type="text" id="whatsapp_group_id" name="whatsapp_group_id" class="form-control premium-input" 
                            placeholder="e.g., 120363XXXXXXXXX@g.us" value="<?= htmlspecialchars($config['whatsapp_group_id'] ?? '') ?>">
                 </div>
                 <div class="form-group">
-                    <label for="send_time">भेजने का समय (IST)</label>
-                    <input type="time" id="send_time" name="send_time" class="form-control" 
+                    <label for="send_time" class="form-label">भेजने का समय (IST)</label>
+                    <input type="time" id="send_time" name="send_time" class="form-control premium-input" 
                            value="<?= htmlspecialchars($config['send_time'] ?? '06:00') ?>">
                 </div>
             </div>
 
-            <div class="d-flex gap-1" style="margin-top: 16px; flex-wrap: wrap;">
-                <button type="submit" class="btn btn-primary">💾 सेटिंग्स सहेजें</button>
+            <div class="form-actions" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-light); display: flex; gap: 12px; flex-wrap: wrap;">
+                <button type="submit" class="btn btn-primary" style="flex: 1; min-width: 200px;">
+                    <i class="fas fa-save"></i> सेटिंग्स सहेजें
+                </button>
             </div>
         </div>
     </form>
 
-    <div style="padding: 0 16px 16px 16px;">
-        <div class="d-flex gap-1" style="flex-wrap: wrap;">
-            <form method="POST" style="display: inline;">
+    <div class="card-footer" style="background: var(--bg-secondary); padding: 16px 20px; border-top: 1px solid var(--border-light); border-radius: 0 0 var(--radius-lg) var(--radius-lg);">
+        <div class="d-flex gap-2" style="flex-wrap: wrap;">
+            <form method="POST" style="flex: 1; min-width: 150px;">
                 <input type="hidden" name="action" value="test_status">
-                <button type="submit" class="btn btn-outline">🔗 कनेक्शन जांचें</button>
+                <button type="submit" class="btn btn-outline" style="width: 100%;">
+                    <i class="fas fa-link"></i> कनेक्शन जांचें
+                </button>
             </form>
-            <form method="POST" style="display: inline;">
+            <form method="POST" style="flex: 1; min-width: 150px;">
                 <input type="hidden" name="action" value="fetch_groups">
-                <button type="submit" class="btn btn-outline">📋 ग्रुप लिस्ट लाएं</button>
+                <button type="submit" class="btn btn-outline" style="width: 100%;">
+                    <i class="fas fa-users"></i> ग्रुप लिस्ट लाएं
+                </button>
             </form>
-            <form method="POST" style="display: inline;">
+            <form method="POST" style="flex: 1; min-width: 150px;">
                 <input type="hidden" name="action" value="test_send">
-                <button type="submit" class="btn btn-primary" style="background: #4CAF50;">🧪 टेस्ट संदेश भेजें</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%; background: linear-gradient(135deg, #4CAF50, #45a049); border: none;">
+                    <i class="fas fa-paper-plane"></i> टेस्ट संदेश भेजें
+                </button>
             </form>
         </div>
     </div>
