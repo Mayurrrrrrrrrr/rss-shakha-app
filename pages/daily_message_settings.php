@@ -84,22 +84,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sub->execute([$shakhaId]);
         $subhashit = $sub->fetch();
 
-        $logoPath = dirname(__DIR__) . '/' . ($shakha['logo'] ?: 'assets/images/logo.svg');
-        
-        $generator = new \App\Core\ImageGenerator();
-        $imagePath = $generator->generate($panchang, $subhashit ?: null, $logoPath, $shakha['name']);
-
-        if (!empty($config['whatsapp_api_instance']) && !empty($config['whatsapp_api_token']) && !empty($config['whatsapp_group_id'])) {
-            // Build caption
-            $caption = buildTestCaption($panchang, $subhashit, $shakha['name']);
+        try {
+            $logoPath = dirname(__DIR__) . '/' . ($shakha['logo'] ?: 'assets/images/logo.svg');
             
-            $wa = new \App\Core\WhatsAppService($config['whatsapp_api_instance'], $config['whatsapp_api_token']);
-            $result = $wa->sendImageToGroup($config['whatsapp_group_id'], $imagePath, $caption);
-            $testResult = $result['success'] ? '✅ टेस्ट संदेश सफलतापूर्वक भेजा गया!' : '❌ भेजने में त्रुटि: ' . $result['response'];
-        } else {
-            $testResult = '✅ इमेज बनाई गई: ' . basename($imagePath) . ' (WhatsApp credentials नहीं हैं, इसलिए भेजा नहीं गया)';
+            $generator = new \App\Core\ImageGenerator();
+            $imagePath = $generator->generate($panchang, $subhashit ?: null, $logoPath, $shakha['name']);
+
+            if (!empty($config['whatsapp_api_instance']) && !empty($config['whatsapp_api_token']) && !empty($config['whatsapp_group_id'])) {
+                // Build caption
+                $caption = buildTestCaption($panchang, $subhashit, $shakha['name']);
+                
+                $wa = new \App\Core\WhatsAppService($config['whatsapp_api_instance'], $config['whatsapp_api_token']);
+                $result = $wa->sendImageToGroup($config['whatsapp_group_id'], $imagePath, $caption);
+                $testResult = $result['success'] ? '✅ टेस्ट संदेश सफलतापूर्वक भेजा गया!' : '❌ भेजने में त्रुटि: ' . $result['response'];
+            } else {
+                $testResult = '✅ इमेज बनाई गई: ' . basename($imagePath) . ' (WhatsApp credentials नहीं हैं, इसलिए भेजा नहीं गया)';
+            }
+            $testImagePath = $imagePath;
+        } catch (\Throwable $e) {
+            $testResult = '❌ टेस्ट फेल: ' . $e->getMessage();
         }
-        $testImagePath = $imagePath;
     }
 }
 
