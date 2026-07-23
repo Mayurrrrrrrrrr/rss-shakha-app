@@ -150,7 +150,7 @@ if ($pdo && isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                             </ul>
                                         </li>
                                         
-                                        <?php $mngActive = in_array($currentPage, ['timetable', 'shakha_timer', 'events', 'shakha_settings', 'change_password']) ? 'open' : ''; ?>
+                                        <?php $mngActive = in_array($currentPage, ['timetable', 'shakha_timer', 'events', 'shakha_settings', 'daily_message_settings', 'change_password']) ? 'open' : ''; ?>
                                         <li class="nav-group <?php echo $mngActive; ?>">
                                             <div class="nav-group-header"><span>⚙️ प्रबंधन (Manage)</span> <span class="chevron">▼</span></div>
                                             <ul class="nav-group-items">
@@ -158,6 +158,7 @@ if ($pdo && isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                                 <li><a href="../pages/shakha_timer.php" class="<?php echo $currentPage === 'shakha_timer' ? 'active' : ''; ?>">⏱️ शाखा टाइमर</a></li>
                                                 <li><a href="../pages/events.php" class="<?php echo $currentPage === 'events' ? 'active' : ''; ?>">📅 कार्यक्रम</a></li>
                                                 <li><a href="../pages/shakha_settings.php" class="<?php echo $currentPage === 'shakha_settings' ? 'active' : ''; ?>">⚙️ शाखा सेटिंग्स</a></li>
+                                                <li><a href="../pages/daily_message_settings.php" class="<?php echo $currentPage === 'daily_message_settings' ? 'active' : ''; ?>">📩 दैनिक संदेश</a></li>
                                                 <li><a href="../pages/change_password.php" class="<?php echo $currentPage === 'change_password' ? 'active' : ''; ?>">🔑 पासवर्ड बदलें</a></li>
                                             </ul>
                                         </li>
