@@ -105,6 +105,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+function buildTestCaption(array $panchang, ?array $subhashit, string $shakhaName): string
+{
+    $dayNames = ['रविवार', 'सोमवार', 'मंगलवार', 'बुधवार', 'गुरुवार', 'शुक्रवार', 'शनिवार'];
+    $dayName = $dayNames[(int)date('w')];
+
+    $lines = [];
+    $lines[] = "🚩 *{$shakhaName}*";
+    $lines[] = "📅 *{$dayName}* | " . date('d-m-Y');
+    $lines[] = "";
+    $lines[] = "🕉️ *आज का पंचांग:*";
+
+    if (!empty($panchang['tithi'])) {
+        $tithi = $panchang['tithi'];
+        if (!empty($panchang['paksha'])) $tithi .= ' (' . $panchang['paksha'] . ')';
+        $lines[] = "तिथि: {$tithi}";
+    }
+    if (!empty($panchang['nakshatra'])) $lines[] = "नक्षत्र: {$panchang['nakshatra']}";
+    if (!empty($panchang['sunrise']))   $lines[] = "🌅 सूर्योदय: {$panchang['sunrise']}";
+    if (!empty($panchang['sunset']))    $lines[] = "🌇 सूर्यास्त: {$panchang['sunset']}";
+
+    if (!empty($panchang['utsav'])) {
+        $lines[] = "";
+        $lines[] = "🎉 *{$panchang['utsav']}*";
+    }
+
+    if ($subhashit) {
+        $lines[] = "";
+        $lines[] = "📜 *आज का सुभाषित:*";
+        $lines[] = "_{$subhashit['sanskrit_text']}_";
+        if (!empty($subhashit['hindi_meaning'])) {
+            $lines[] = "अर्थ: {$subhashit['hindi_meaning']}";
+        }
+    }
+
+    $lines[] = "";
+    $lines[] = "🚩 _जय श्री राम | भारत माता की जय_";
+
+    return implode("\n", $lines);
+}
+
 // Fetch recent logs
 $logs = $pdo->prepare("
     SELECT * FROM daily_message_log 
