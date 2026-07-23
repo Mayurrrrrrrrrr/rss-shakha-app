@@ -14,7 +14,7 @@ $today = date('Y-m-d');
 echo "Testing image generation for {$today}...\n";
 
 // Fetch panchang
-$panchang = \PanchangHelper::getForDate($today, $pdo, 'Mumbai');
+$panchang = \PanchangHelper::getForDate($pdo, $today);
 echo "Panchang: Tithi={$panchang['tithi']}, Nakshatra={$panchang['nakshatra']}\n";
 
 // Fetch shakha

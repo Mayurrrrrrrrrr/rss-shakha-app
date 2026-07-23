@@ -52,7 +52,7 @@ foreach ($configs as $config) {
 
         // 3. Get today's panchang
         $cityName = $config['city_name'] ?? 'Mumbai';
-        $panchang = \PanchangHelper::getForDate($today, $pdo, $cityName);
+        $panchang = \PanchangHelper::getForDate($pdo, $today, $shakhaId);
         if (empty($panchang)) {
             throw new \Exception("Panchang data not available for {$today}");
         }

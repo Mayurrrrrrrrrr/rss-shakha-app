@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $shakha = $shakha->fetch();
 
         // Fetch panchang
-        $panchang = \PanchangHelper::getForDate($today, $pdo, $shakha['city_name'] ?? 'Mumbai');
+        $panchang = \PanchangHelper::getForDate($pdo, $today, $shakhaId);
 
         // Fetch a random subhashit
         $sub = $pdo->prepare("SELECT * FROM subhashits WHERE shakha_id = ? AND (is_deleted IS NULL OR is_deleted = 0) ORDER BY RAND() LIMIT 1");
