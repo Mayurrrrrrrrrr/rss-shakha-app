@@ -106,6 +106,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (\Throwable $e) {
             $testResult = '❌ टेस्ट फेल: ' . $e->getMessage();
         }
+    }
+
     if ($action === 'test_send_evening') {
         require_once '../app/Core/Autoloader.php';
         \App\Core\Autoloader::register();
