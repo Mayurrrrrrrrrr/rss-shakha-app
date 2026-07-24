@@ -31,13 +31,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $apiToken = trim($_POST['whatsapp_api_token'] ?? '');
         $groupId = trim($_POST['whatsapp_group_id'] ?? '');
         $sendTime = $_POST['send_time'] ?? '06:00:00';
+        $eveningWhatsappEnabled = isset($_POST['evening_whatsapp_enabled']) ? 1 : 0;
+        $eveningSendTime = $_POST['evening_send_time'] ?? '16:00:00';
 
         $pdo->prepare("
             UPDATE daily_message_config 
             SET whatsapp_enabled = ?, whatsapp_api_instance = ?, whatsapp_api_token = ?, 
-                whatsapp_group_id = ?, send_time = ?
+                whatsapp_group_id = ?, send_time = ?, evening_whatsapp_enabled = ?, evening_send_time = ?
             WHERE shakha_id = ?
-        ")->execute([$whatsappEnabled, $apiInstance, $apiToken, $groupId, $sendTime, $shakhaId]);
+        ")->execute([$whatsappEnabled, $apiInstance, $apiToken, $groupId, $sendTime, $eveningWhatsappEnabled, $eveningSendTime, $shakhaId]);
 
         header('Location: daily_message_settings.php?msg=saved');
         exit;
@@ -99,6 +101,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $testResult = $result['success'] ? '✅ टेस्ट संदेश सफलतापूर्वक भेजा गया!' : '❌ भेजने में त्रुटि: ' . $result['response'];
             } else {
                 $testResult = '✅ इमेज बनाई गई: ' . basename($imagePath) . ' (WhatsApp credentials नहीं हैं, इसलिए भेजा नहीं गया)';
+            }
+            $testImagePath = $imagePath;
+        } catch (\Throwable $e) {
+            $testResult = '❌ टेस्ट फेल: ' . $e->getMessage();
+        }
+    if ($action === 'test_send_evening') {
+        require_once '../app/Core/Autoloader.php';
+        \App\Core\Autoloader::register();
+        define('BASE_PATH', dirname(__DIR__));
+        require_once '../includes/PanchangHelper.php';
+        \App\Core\DB::init($pdo);
+
+        $today = date('Y-m-d');
+        
+        $shakha = $pdo->prepare("SELECT * FROM shakhas WHERE id = ?");
+        $shakha->execute([$shakhaId]);
+        $shakha = $shakha->fetch();
+
+        $panchang = \PanchangHelper::getForDate($pdo, $today, $shakhaId);
+
+        $amrit = $pdo->prepare("SELECT * FROM amrit_vachan WHERE shakha_id = ? AND (is_deleted IS NULL OR is_deleted = 0) ORDER BY RAND() LIMIT 1");
+        $amrit->execute([$shakhaId]);
+        $amritVachan = $amrit->fetch();
+
+        try {
+            $logoPath = dirname(__DIR__) . '/' . ($shakha['logo'] ?: 'assets/images/logo.svg');
+            
+            $generator = new \App\Core\AmritVachanImageGenerator();
+            // Assuming amrit_vachan structure uses 'content' instead of sanskrit_text/hindi_meaning
+            $imagePath = $generator->generate($panchang, $amritVachan ?: [], $logoPath, $shakha['name']);
+
+            if (!empty($config['whatsapp_api_instance']) && !empty($config['whatsapp_api_token']) && !empty($config['whatsapp_group_id'])) {
+                $caption = "🚩 *{$shakha['name']}*\n\n📜 *आज का अमृत वचन*\n\n_{$amritVachan['content']}_\n" . ($amritVachan['author'] ? "— {$amritVachan['author']}" : "") . "\n\n🚩 _जय श्री राम | भारत माता की जय_";
+                
+                $wa = new \App\Core\WhatsAppService($config['whatsapp_api_instance'], $config['whatsapp_api_token']);
+                $result = $wa->sendImageToGroup($config['whatsapp_group_id'], $imagePath, $caption);
+                $testResult = $result['success'] ? '✅ संध्या संदेश सफलतापूर्वक भेजा गया!' : '❌ भेजने में त्रुटि: ' . $result['response'];
+            } else {
+                $testResult = '✅ इमेज बनाई गई: ' . basename($imagePath) . ' (WhatsApp credentials नहीं हैं)';
             }
             $testImagePath = $imagePath;
         } catch (\Throwable $e) {
@@ -244,11 +285,53 @@ require_once '../includes/header.php';
             <form method="POST" style="flex: 1; min-width: 150px;">
                 <input type="hidden" name="action" value="test_send">
                 <button type="submit" class="btn btn-primary" style="width: 100%; background: linear-gradient(135deg, #4CAF50, #45a049); border: none;">
-                    <i class="fas fa-paper-plane"></i> टेस्ट संदेश भेजें
+                    <i class="fas fa-sun"></i> प्रभात टेस्ट भेजें
+                </button>
+            </form>
+            <form method="POST" style="flex: 1; min-width: 150px;">
+                <input type="hidden" name="action" value="test_send_evening">
+                <button type="submit" class="btn btn-primary" style="width: 100%; background: linear-gradient(135deg, #FF6700, #D84315); border: none;">
+                    <i class="fas fa-moon"></i> संध्या टेस्ट भेजें
                 </button>
             </form>
         </div>
     </div>
+</div>
+
+<div class="card premium-card" style="margin-top: 20px;">
+    <div class="card-header premium-header" style="background: var(--saffron);">
+        <h2 style="margin: 0; font-size: 1.25rem; color: #fff;">🌅 संध्या संदेश (अमृत वचन) सेटिंग्स</h2>
+    </div>
+    <form method="POST">
+        <input type="hidden" name="action" value="save">
+        <!-- Preserve other fields -->
+        <input type="hidden" name="whatsapp_api_instance" value="<?= htmlspecialchars($config['whatsapp_api_instance'] ?? '') ?>">
+        <input type="hidden" name="whatsapp_api_token" value="<?= htmlspecialchars($config['whatsapp_api_token'] ?? '') ?>">
+        <input type="hidden" name="whatsapp_group_id" value="<?= htmlspecialchars($config['whatsapp_group_id'] ?? '') ?>">
+        <input type="hidden" name="send_time" value="<?= htmlspecialchars($config['send_time'] ?? '06:00') ?>">
+        <?php if ($config['whatsapp_enabled']): ?><input type="hidden" name="whatsapp_enabled" value="1"><?php endif; ?>
+        
+        <div class="card-body">
+            <div class="form-group" style="margin-bottom: 24px; padding: 12px; background: var(--bg-secondary); border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                <label style="display: flex; align-items: center; cursor: pointer; margin: 0; font-weight: 600; color: var(--text-primary);">
+                    <input type="checkbox" name="evening_whatsapp_enabled" value="1" <?= $config['evening_whatsapp_enabled'] ? 'checked' : '' ?> style="width: 20px; height: 20px; margin-right: 12px; accent-color: var(--saffron);">
+                    संध्या अमृत वचन संदेश सक्रिय करें
+                </label>
+            </div>
+            <div class="settings-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div class="form-group">
+                    <label for="evening_send_time" class="form-label">भेजने का समय (IST)</label>
+                    <input type="time" id="evening_send_time" name="evening_send_time" class="form-control premium-input" 
+                           value="<?= htmlspecialchars($config['evening_send_time'] ?? '16:00') ?>">
+                </div>
+            </div>
+            <div class="form-actions" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-light); display: flex; gap: 12px; flex-wrap: wrap;">
+                <button type="submit" class="btn btn-primary" style="flex: 1; min-width: 200px;">
+                    <i class="fas fa-save"></i> संध्या सेटिंग्स सहेजें
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 
 <!-- Groups List (if fetched) -->
