@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../app/Core/Autoloader.php';
+\App\Core\Autoloader::register();
 require_once __DIR__ . '/../config/db.php';
 \App\Core\DB::init($pdo);
 
