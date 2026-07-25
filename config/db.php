@@ -1,4 +1,6 @@
 <?php
+date_default_timezone_set('Asia/Kolkata');
+
 $env_file = __DIR__ . '/../.env';
 if (file_exists($env_file)) {
     $env = parse_ini_file($env_file);
