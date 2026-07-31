@@ -4,7 +4,8 @@ require_once __DIR__ . '/../config/db.php';
 $queries = [
     "ALTER TABLE daily_message_config ADD COLUMN evening_whatsapp_enabled TINYINT(1) DEFAULT 0 AFTER send_time",
     "ALTER TABLE daily_message_config ADD COLUMN evening_send_time TIME DEFAULT '16:00:00' AFTER evening_whatsapp_enabled",
-    "ALTER TABLE daily_message_config ADD COLUMN last_amritvachan_id INT DEFAULT 0 AFTER last_subhashit_id"
+    "ALTER TABLE daily_message_config ADD COLUMN last_amritvachan_id INT DEFAULT 0 AFTER last_subhashit_id",
+    "ALTER TABLE daily_message_log MODIFY COLUMN channel VARCHAR(50) NOT NULL"
 ];
 
 foreach ($queries as $sql) {
