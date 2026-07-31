@@ -1,58 +1,52 @@
 <?php
-define('BASE_PATH', dirname(__DIR__));
-require_once BASE_PATH . '/app/Core/Autoloader.php';
-\App\Core\Autoloader::register();
-require_once BASE_PATH . '/config/db.php';
-\App\Core\DB::init($pdo);
+require_once __DIR__ . '/../config/db.php';
 
-$jsonFile = BASE_PATH . '/extracted_subhashitas.json';
-if (!file_exists($jsonFile)) {
-    die("Error: JSON file not found.\n");
+$json_file = __DIR__ . '/subhashitas.json';
+if (!file_exists($json_file)) {
+    die("Error: subhashitas.json not found.\n");
 }
 
-$data = json_decode(file_get_contents($jsonFile), true);
+$data = json_decode(file_get_contents($json_file), true);
 if (!$data) {
     die("Error: Invalid JSON data.\n");
 }
 
-echo "Starting import of " . count($data) . " subhashitas...\n";
+// Fetch the maximum subhashit_date from the table to start appending after it
+$stmt = $pdo->query("SELECT MAX(subhashit_date) as max_date FROM subhashits");
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
+$start_date = $row['max_date'];
 
-// Ensure shakha_id = 1 exists as target. The requirements don't specify, but I'll use 1 or NULL if it's universal.
-// But the schema says shakha_id INT NOT NULL. So I'll default to 1.
-$shakhaId = 1;
+if (!$start_date || $start_date < date('Y-m-d')) {
+    $current_date = new DateTime('tomorrow');
+} else {
+    $current_date = new DateTime($start_date);
+    $current_date->modify('+1 day');
+}
 
-$stmt = $pdo->prepare("
-    INSERT INTO subhashits (shakha_id, sanskrit_text, hindi_meaning, shabdarth, subhashit_date, created_by, is_active, is_deleted)
-    VALUES (?, ?, ?, ?, ?, ?, 1, 0)
+$success_count = 0;
+$error_count = 0;
+
+$insert_stmt = $pdo->prepare("
+    INSERT INTO subhashits 
+    (shakha_id, sanskrit_text, hindi_meaning, subhashit_date, created_by, is_active, is_deleted) 
+    VALUES 
+    (1, :sanskrit_text, :hindi_meaning, :subhashit_date, 1, 1, 0)
 ");
 
-// Let's generate sequential dates starting from tomorrow, or simply leave subhashit_date to today since it's required (NO NULL).
-// In subhashit.php, they are randomly picked or ordered, so date can be current date.
-$today = date('Y-m-d');
-$count = 0;
-$errors = 0;
-
 foreach ($data as $item) {
-    $sanskrit = $item['sanskrit'] ?? '';
-    $hindi = $item['hindi'] ?? '';
-    $shabdarth = isset($item['shabdarth']) ? json_encode($item['shabdarth'], JSON_UNESCAPED_UNICODE) : null;
-    
-    if (empty($sanskrit)) continue;
-
     try {
-        $stmt->execute([
-            $shakhaId,
-            $sanskrit,
-            $hindi,
-            $shabdarth,
-            $today,
-            1 // created_by
+        $insert_stmt->execute([
+            ':sanskrit_text' => $item['sanskrit_text'],
+            ':hindi_meaning' => $item['hindi_meaning'],
+            ':subhashit_date' => $current_date->format('Y-m-d')
         ]);
-        $count++;
-    } catch (\PDOException $e) {
-        echo "Error inserting item {$item['id']}: " . $e->getMessage() . "\n";
-        $errors++;
+        $success_count++;
+        $current_date->modify('+1 day');
+    } catch (PDOException $e) {
+        echo "Error inserting item: " . $e->getMessage() . "\n";
+        $error_count++;
     }
 }
 
-echo "Import Complete. Successfully inserted: $count, Errors: $errors\n";
+echo "Successfully imported $success_count subhashitas. Errors: $error_count.\n";
+?>
