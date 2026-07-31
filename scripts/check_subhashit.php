@@ -1,4 +1,4 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
-$stmt = $pdo->query("SELECT id, sanskrit_text, hindi_meaning FROM subhashits WHERE id IN (48, 49, 50)");
+$stmt = $pdo->query("SELECT id, content FROM amrit_vachan WHERE id IN (14, 15, 19, 20)");
 print_r($stmt->fetchAll(PDO::FETCH_ASSOC));
