@@ -1,4 +1,4 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
-$stmt = $pdo->query("SELECT shakha_id, last_subhashit_id, last_amritvachan_id FROM daily_message_config");
+$stmt = $pdo->query("SELECT id FROM amrit_vachan ORDER BY id ASC LIMIT 20");
 print_r($stmt->fetchAll(PDO::FETCH_ASSOC));
