@@ -168,6 +168,10 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
             <a href="rooms.php">आवास (Rooms)</a>
             <a href="food.php">भोजन (Food)</a>
             <a href="schedule.php">अनुसूची (Schedule)</a>
+            <a href="tasks.php">कार्य (Tasks)</a>
+            <?php if (isset($_SESSION['event_role']) && $_SESSION['event_role'] === 'admin'): ?>
+            <a href="organizers.php">आयोजक (Organizers)</a>
+            <?php endif; ?>
             <a href="logout.php">लॉगआउट (Logout)</a>
         </div>
     </nav>
