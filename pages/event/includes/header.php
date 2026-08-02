@@ -43,12 +43,21 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
         }
         .navbar-brand {
             font-size: 1.5rem;
             font-weight: 700;
             color: white;
             text-decoration: none;
+        }
+        .menu-toggle {
+            display: none;
+            font-size: 1.8rem;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
         }
         .nav-links {
             display: flex;
@@ -63,6 +72,31 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
         }
         .nav-links a:hover {
             color: var(--amber);
+        }
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background-color: var(--saffron);
+                padding: 1rem 0;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                z-index: 1000;
+            }
+            .nav-links.active {
+                display: flex;
+            }
+            .nav-links a {
+                width: 100%;
+                text-align: center;
+                padding: 0.75rem 0;
+            }
         }
         .container {
             max-width: 1200px;
@@ -105,11 +139,17 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
             background-color: var(--saffron);
             color: white;
         }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 1rem;
             color: var(--text-color);
+            min-width: 600px;
         }
         th, td {
             padding: 0.75rem;
@@ -162,7 +202,8 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
 <?php if (isset($_SESSION['event_user_id'])): ?>
     <nav class="navbar">
         <a href="dashboard.php" class="navbar-brand">आयोजन</a>
-        <div class="nav-links">
+        <button class="menu-toggle" aria-label="Toggle navigation" id="mobile-menu-btn">☰</button>
+        <div class="nav-links" id="nav-links">
             <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
             <a href="participants.php">प्रतिभागी (Participants)</a>
             <a href="rooms.php">आवास (Rooms)</a>
@@ -172,9 +213,33 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
             <a href="tasks.php">कार्य (Tasks)</a>
             <?php if (isset($_SESSION['event_role']) && $_SESSION['event_role'] === 'admin'): ?>
             <a href="organizers.php">आयोजक (Organizers)</a>
+            <a href="room_inventory.php">कक्ष सूची (Room Inventory)</a>
             <?php endif; ?>
             <a href="logout.php">लॉगआउट (Logout)</a>
         </div>
     </nav>
 <?php endif; ?>
 <div class="container">
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const navLinks = document.getElementById('nav-links');
+        
+        if (menuBtn && navLinks) {
+            menuBtn.addEventListener('click', function() {
+                navLinks.classList.toggle('active');
+            });
+        }
+
+        // Auto-wrap tables for mobile responsiveness
+        const tables = document.querySelectorAll('table');
+        tables.forEach(table => {
+            if (!table.parentElement.classList.contains('table-responsive')) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'table-responsive';
+                table.parentNode.insertBefore(wrapper, table);
+                wrapper.appendChild(table);
+            }
+        });
+    });
+</script>
