@@ -22,12 +22,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $name = trim($_POST['name'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
     $city = trim($_POST['city'] ?? '');
-    $event_id = $_SESSION['event_id'] ?? 1; // Default to 1 if not set
+    $room_id = $_POST['room_id'] ?? null;
+    $event_id = $_SESSION['event_id'] ?? 1;
     $registered_by = $_SESSION['event_user_id'] ?? 0;
     
     if ($name && $phone) {
-        $stmt = $pdo->prepare("INSERT INTO em_participants (event_id, name, phone, city, entry_type, registered_by) VALUES (?, ?, ?, ?, 'spot', ?)");
-        $stmt->execute([$event_id, $name, $phone, $city, $registered_by]);
+        $pdo->beginTransaction();
+        try {
+            $stmt = $pdo->prepare("INSERT INTO em_participants (event_id, name, phone, city, entry_type, registered_by) VALUES (?, ?, ?, ?, 'spot', ?)");
+            $stmt->execute([$event_id, $name, $phone, $city, $registered_by]);
+            $participant_id = $pdo->lastInsertId();
+
+            if ($room_id) {
+                $stmtAllot = $pdo->prepare("INSERT INTO em_room_allotments (event_id, room_id, allottee_type, allottee_id, allotted_by) VALUES (?, ?, 'participant', ?, ?)");
+                $stmtAllot->execute([$event_id, $room_id, $participant_id, $registered_by]);
+                
+                $pdo->prepare("UPDATE em_rooms SET occupancy = occupancy + 1 WHERE id = ?")->execute([$room_id]);
+            }
+            $pdo->commit();
+        } catch (Exception $e) {
+            $pdo->rollBack();
+        }
     }
     header("Location: participants.php");
     exit;
@@ -42,11 +57,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $header = fgetcsv($handle, 1000, ","); // skip header
             $stmt = $pdo->prepare("INSERT INTO em_participants (event_id, name, category, city, phone, entry_type) VALUES (?, ?, ?, ?, ?, 'pre-registered')");
             while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-                if (count($data) >= 4) {
-                    $name = $data[1] ?? '';
-                    $category = $data[2] ?? 'सामान्य';
-                    $city = $data[3] ?? '';
-                    $phone = $data[4] ?? '';
+                if (count($data) >= 2) {
+                    $name = $data[0] ?? '';
+                    $category = $data[1] ?? 'सामान्य';
+                    $city = $data[2] ?? '';
+                    $phone = $data[3] ?? '';
                     if ($name) {
                         $stmt->execute([$event_id, $name, $category, $city, $phone]);
                     }
@@ -64,15 +79,18 @@ include 'includes/header.php';
 $search = $_GET['search'] ?? '';
 
 // Build query
-$query = "SELECT * FROM em_participants WHERE 1=1";
+$query = "SELECT p.*, r.room_name FROM em_participants p 
+          LEFT JOIN em_room_allotments ra ON ra.allottee_id = p.id AND ra.allottee_type = 'participant' 
+          LEFT JOIN em_rooms r ON r.id = ra.room_id 
+          WHERE p.is_deleted = 0";
 $params = [];
 
 if ($search) {
-    $query .= " AND (name LIKE ? OR phone LIKE ? OR city LIKE ?)";
+    $query .= " AND (p.name LIKE ? OR p.phone LIKE ? OR p.city LIKE ?)";
     $params = ["%$search%", "%$search%", "%$search%"];
 }
 
-$query .= " ORDER BY id DESC LIMIT 50";
+$query .= " ORDER BY p.id DESC LIMIT 50";
 
 try {
     $stmt = $pdo->prepare($query);
@@ -80,6 +98,13 @@ try {
     $participants = $stmt->fetchAll();
 } catch (Exception $e) {
     $participants = [];
+}
+
+// Fetch rooms with remaining capacity for allotment selection dropdown
+try {
+    $rooms = $pdo->query("SELECT id, room_name, capacity, occupancy FROM em_rooms WHERE occupancy < capacity")->fetchAll();
+} catch (Exception $e) {
+    $rooms = [];
 }
 ?>
 
@@ -110,6 +135,7 @@ try {
                     <th>श्रेणी (Category)</th>
                     <th>नगर (City)</th>
                     <th>संपर्क (Phone)</th>
+                    <th>आवास आवंटन (Room Allotment)</th>
                     <th>स्थिति (Status)</th>
                 </tr>
             </thead>
@@ -121,10 +147,11 @@ try {
                     <td><?= htmlspecialchars($p['category'] ?? 'सामान्य') ?></td>
                     <td><?= htmlspecialchars($p['city'] ?? '') ?></td>
                     <td><?= htmlspecialchars($p['phone'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($p['room_name'] ?? 'आवंटित नहीं (Not Allotted)') ?></td>
                     <td><span style="background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 12px; font-size: 0.85em;">उपस्थित</span></td>
                 </tr>
                 <?php endforeach; else: ?>
-                <tr><td colspan="6" style="text-align: center;">कोई रिकॉर्ड नहीं (No records found)</td></tr>
+                <tr><td colspan="7" style="text-align: center;">कोई रिकॉर्ड नहीं (No records found)</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
@@ -150,6 +177,15 @@ try {
                 <label>नगर (City)</label>
                 <input type="text" name="city" class="form-control">
             </div>
+            <div class="form-group">
+                <label>आवास पूर्व आवंटन (Pre-Allot Room)</label>
+                <select name="room_id" class="form-control">
+                    <option value="">-- आवंटित न करें (Do Not Allot) --</option>
+                    <?php foreach($rooms as $r): ?>
+                        <option value="<?= $r['id'] ?>"><?= htmlspecialchars($r['room_name']) ?> (बचा स्थान: <?= $r['capacity'] - $r['occupancy'] ?>)</option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
             <button type="submit" class="btn">सुरक्षित करें (Save)</button>
         </form>
     </div>
@@ -164,7 +200,7 @@ try {
             <div class="form-group">
                 <label>CSV फाइल चुनें (Select CSV File)</label>
                 <input type="file" name="csv_file" accept=".csv" class="form-control" required>
-                <p style="font-size: 0.8em; margin-top: 5px;">Format: ID, Name, Category, City, Phone</p>
+                <p style="font-size: 0.8em; margin-top: 5px;">Format: Name, Category, City, Phone</p>
             </div>
             <button type="submit" class="btn">आयात करें (Import)</button>
         </form>

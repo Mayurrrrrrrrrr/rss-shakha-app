@@ -7,10 +7,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $room_id = $_POST['room_id'] ?? 0;
     $participant_id = $_POST['participant_id'] ?? 0;
     $allotted_by = $_SESSION['event_user_id'] ?? 0;
+    $event_id = $_SESSION['event_id'] ?? 1;
     
     if ($room_id && $participant_id) {
-        $stmt = $pdo->prepare("INSERT INTO em_room_allotments (room_id, participant_id, allotted_by) VALUES (?, ?, ?)");
-        $stmt->execute([$room_id, $participant_id, $allotted_by]);
+        $stmt = $pdo->prepare("INSERT INTO em_room_allotments (event_id, room_id, allottee_type, allottee_id, allotted_by) VALUES (?, ?, 'participant', ?, ?)");
+        $stmt->execute([$event_id, $room_id, $participant_id, $allotted_by]);
         
         // Update occupancy
         $pdo->prepare("UPDATE em_rooms SET occupancy = occupancy + 1 WHERE id = ?")->execute([$room_id]);
@@ -24,8 +25,8 @@ include 'includes/header.php';
 try {
     $rooms = $pdo->query("SELECT * FROM em_rooms")->fetchAll();
     
-    // Fetch participants for the modal dropdown
-    $participants = $pdo->query("SELECT id, name FROM em_participants WHERE id NOT IN (SELECT participant_id FROM em_room_allotments) ORDER BY name ASC")->fetchAll();
+    // Fetch participants for the modal dropdown (not yet allotted to any room)
+    $participants = $pdo->query("SELECT id, name FROM em_participants WHERE id NOT IN (SELECT allottee_id FROM em_room_allotments WHERE allottee_type = 'participant') ORDER BY name ASC")->fetchAll();
 } catch (Exception $e) {
     // Mock data if table doesn't exist
     $rooms = [

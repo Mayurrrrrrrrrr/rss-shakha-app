@@ -6,13 +6,17 @@ require_once '../../config/db.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_schedule') {
     $title = trim($_POST['title'] ?? '');
     $description = trim($_POST['description'] ?? '');
-    $start_time = $_POST['start_time'] ?? '';
-    $end_time = $_POST['end_time'] ?? '';
+    $start_datetime = $_POST['start_time'] ?? '';
+    $end_datetime = $_POST['end_time'] ?? '';
     $event_id = $_SESSION['event_id'] ?? 1;
     
-    if ($title && $start_time) {
-        $stmt = $pdo->prepare("INSERT INTO em_schedule (event_id, title, description, start_time, end_time) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$event_id, $title, $description, $start_time, $end_time]);
+    if ($title && $start_datetime) {
+        $activity_date = date('Y-m-d', strtotime($start_datetime));
+        $start_time = date('H:i:s', strtotime($start_datetime));
+        $end_time = $end_datetime ? date('H:i:s', strtotime($end_datetime)) : null;
+
+        $stmt = $pdo->prepare("INSERT INTO em_schedule (event_id, activity_name, activity_date, start_time, end_time, description) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$event_id, $title, $activity_date, $start_time, $end_time, $description]);
     }
     header("Location: schedule.php");
     exit;
@@ -21,13 +25,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 include 'includes/header.php';
 
 try {
-    $schedules = $pdo->query("SELECT * FROM em_schedule ORDER BY start_time ASC")->fetchAll();
+    $schedules = $pdo->query("SELECT id, activity_name AS title, description, activity_date, start_time, end_time FROM em_schedule ORDER BY activity_date ASC, start_time ASC")->fetchAll();
 } catch (Exception $e) {
     // Mock data if table doesn't exist
     $schedules = [
-        ['id' => 1, 'title' => 'उद्घाटन सत्र', 'description' => 'मुख्य अतिथि द्वारा दीप प्रज्वलन', 'start_time' => '2026-08-05 09:00:00', 'end_time' => '2026-08-05 10:30:00'],
-        ['id' => 2, 'title' => 'चाय पान', 'description' => '', 'start_time' => '2026-08-05 10:30:00', 'end_time' => '2026-08-05 11:00:00'],
-        ['id' => 3, 'title' => 'बौद्धिक वर्ग', 'description' => 'मुख्य वक्ता का मार्गदर्शन', 'start_time' => '2026-08-05 11:00:00', 'end_time' => '2026-08-05 12:30:00'],
+        ['id' => 1, 'title' => 'उद्घाटन सत्र', 'description' => 'मुख्य अतिथि द्वारा दीप प्रज्वलन', 'activity_date' => '2026-08-05', 'start_time' => '09:00:00', 'end_time' => '10:30:00'],
+        ['id' => 2, 'title' => 'चाय पान', 'description' => '', 'activity_date' => '2026-08-05', 'start_time' => '10:30:00', 'end_time' => '11:00:00'],
+        ['id' => 3, 'title' => 'बौद्धिक वर्ग', 'description' => 'मुख्य वक्ता का मार्गदर्शन', 'activity_date' => '2026-08-05', 'start_time' => '11:00:00', 'end_time' => '12:30:00'],
     ];
 }
 ?>
