@@ -93,11 +93,11 @@ $search_city = $_GET['search_city'] ?? '';
 $sql = "
     SELECT p.id, p.name, p.city, r.id as room_id, r.room_name, r.building
     FROM em_participants p
-    LEFT JOIN em_room_allotments ra ON p.id = ra.allottee_id AND ra.allottee_type = 'participant' AND ra.event_id = :event_id
+    LEFT JOIN em_room_allotments ra ON p.id = ra.allottee_id AND ra.allottee_type = 'participant' AND ra.event_id = :event_id1
     LEFT JOIN em_rooms r ON ra.room_id = r.id
-    WHERE p.event_id = :event_id
+    WHERE p.event_id = :event_id2
 ";
-$params = [':event_id' => $event_id];
+$params = [':event_id1' => $event_id, ':event_id2' => $event_id];
 
 if ($search_name !== '') {
     $sql .= " AND p.name LIKE :name ";
