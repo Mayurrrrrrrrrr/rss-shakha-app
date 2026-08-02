@@ -27,6 +27,7 @@ class PanchangHelper {
         }
         $nakshatra = $result['nakshatra'] ?? '-';
         $vikramMonth = $result['maah_purnimant_hindi'] ?? '';
+        $amantMonth = $result['maah_amant_hindi'] ?? $vikramMonth;
         $vikramSamvat = preg_replace('/\D/', '', (string)($result['vikram_samvat'] ?? ''));
         $shakaSamvat = preg_replace('/\D/', '', (string)($result['shaka_samvat'] ?? ''));
         $yugabdha = preg_replace('/\D/', '', (string)($result['yugabdha'] ?? ''));
@@ -240,6 +241,7 @@ class PanchangHelper {
             'tithi' => $tithi,
             'paksha' => $paksha,
             'vikram_month' => $vikramMonth,
+            'amant_month' => $amantMonth,
             'shaka_month' => $vikramMonth,
             'vikram_samvat' => $vikramSamvat,
             'shaka_samvat' => $shakaSamvat,
@@ -283,6 +285,7 @@ class PanchangHelper {
             'tithi' => $dbRow['tithi'],
             'paksha' => $dbRow['paksha'],
             'vikram_month' => $dbRow['vikram_month'],
+            'amant_month' => $dbRow['amant_month'] ?? $dbRow['vikram_month'],
             'shaka_month' => $dbRow['vikram_month'],
             'vikram_samvat' => $dbRow['vikram_samvat'],
             'shaka_samvat' => $dbRow['shaka_samvat'],

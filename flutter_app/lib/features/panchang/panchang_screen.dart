@@ -135,7 +135,7 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
 ✨ *शक संवत:* ${p.shakaSamvat}
 ✨ *युगाब्द:* ${p.yugabdha}
 
-🌕 *माह:* ${p.vikramMonth} (${p.paksha})
+🌕 *माह:* पूर्णिमान्त ${p.vikramMonth} / अमान्त ${p.amantMonth} (${p.paksha})
 🌙 *तिथि:* ${p.tithi}
 ⭐ *नक्षत्र:* ${p.nakshatra}
 💫 *योग:* ${p.yoga}
@@ -685,7 +685,8 @@ class _PanchangScreenState extends ConsumerState<PanchangScreen> {
             _buildPanchangDetailRow('युगाब्द', p.yugabdha.isNotEmpty ? p.yugabdha : '५१२८'),
             _buildPanchangDetailRow('विक्रम संवत', p.vikramSamvat.isNotEmpty ? p.vikramSamvat : '-'),
             _buildPanchangDetailRow('शालिवाहन शक', p.shakaSamvat.isNotEmpty ? p.shakaSamvat : '-'),
-            _buildPanchangDetailRow('मास', p.vikramMonth.isNotEmpty ? p.vikramMonth : '-'),
+            _buildPanchangDetailRow('मास (पूर्णिमान्त)', p.vikramMonth.isNotEmpty ? p.vikramMonth : '-'),
+            _buildPanchangDetailRow('मास (अमान्त)', p.amantMonth.isNotEmpty ? p.amantMonth : '-'),
             _buildPanchangDetailRow('पक्ष', p.paksha.isNotEmpty ? p.paksha : '-'),
           ],
         ),

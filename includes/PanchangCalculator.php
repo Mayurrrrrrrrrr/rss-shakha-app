@@ -1,81 +1,32 @@
 <?php
 /**
- * PanchangCalculator.php — Fixed v3
+ * PanchangCalculator.php — v4 (Algorithmic)
  *
- * ROOT CAUSE OF ALL WRONG TITHI OUTPUT:
- * The old calculator used refJDN = 2461178.2 (May 17, 2026) as the New Moon reference.
- * The ACTUAL New Moon is May 16, 2026 at 20:01 UTC.
- * This 1-day error shifted every tithi calculation by ~1-2 tithis.
+ * UPGRADE FROM v3:
+ * v3 used hardcoded USNO New Moon/Full Moon tables limited to 2024–2030.
+ * v4 uses SolarTransitCalculator for algorithmic New Moon computation
+ * and LunarMonthCalculator for dynamic month naming with automatic
+ * Adhikamasa/Kshayamasa detection. Works for any year (1000–9999+).
  *
- * This version uses a full USNO-sourced New Moon table for 2024–2030,
- * finds the correct preceding new moon for any given date, and computes
- * tithi, paksha, nakshatra, rashi, and maah accurately.
- *
- * VERIFIED: May 11, 2026 → Krishna Navami ✓
- *           May 12, 2026 → Krishna Dashami ✓  (transitioning near Purnima in Amant)
+ * Based on:
+ * - Jean Meeus, "Astronomical Algorithms" (2nd edition)
+ * - Adhixaya research papers on Hindu Luni-Solar Calendar
+ * - Indian Calendar Reform Committee (Lahiri Ayanamsa)
  */
+
+require_once __DIR__ . '/SolarTransitCalculator.php';
+require_once __DIR__ . '/LunarMonthCalculator.php';
 
 class PanchangCalculator {
 
-    // ─── USNO New Moon reference table (UTC times) ───────────────────────────
-    // Format: [year, month, day, hour_utc, minute_utc]
-    // Source: US Naval Observatory (https://aa.usno.navy.mil/data/MoonPhases)
-    private $newMoons = [
-        // 2024
-        [2024,1,11,11,57],[2024,2,9,22,59],[2024,3,10,9,0],[2024,4,8,18,20],
-        [2024,5,8,3,22],[2024,6,6,12,38],[2024,7,5,22,57],[2024,8,4,11,13],
-        [2024,9,3,1,56],[2024,10,2,18,49],[2024,11,1,12,47],[2024,12,1,6,21],
-        [2024,12,30,22,27],
-        // 2025
-        [2025,1,29,12,36],[2025,2,28,0,44],[2025,3,29,10,58],[2025,4,27,19,31],
-        [2025,5,27,3,2],[2025,6,25,10,31],[2025,7,24,19,11],[2025,8,23,6,7],
-        [2025,9,21,19,54],[2025,10,21,12,25],[2025,11,20,6,47],[2025,12,20,1,43],
-        // 2026
-        [2026,1,18,19,52],[2026,2,17,12,1],[2026,3,19,1,23],[2026,4,17,11,52],
-        [2026,5,16,20,1], // ← KEY FIX: was wrongly set to May 17 in old code
-        [2026,6,15,2,54],[2026,7,14,9,44],[2026,8,12,17,36],
-        [2026,9,11,3,27],[2026,10,10,16,50],[2026,11,9,9,4],[2026,12,9,3,52],
-        // 2027
-        [2027,1,7,23,25],[2027,2,6,18,0],[2027,3,8,11,0],[2027,4,7,2,52],
-        [2027,5,6,17,1],[2027,6,5,5,25],[2027,7,4,15,57],[2027,8,2,0,45],
-        [2027,8,31,8,42],[2027,9,29,16,35],[2027,10,29,1,35],[2027,11,27,12,25],
-        [2027,12,27,1,52],
-        // 2028
-        [2028,1,25,18,13],[2028,2,24,12,27],[2028,3,25,6,0],[2028,4,23,22,47],
-        [2028,5,23,13,55],[2028,6,22,3,56],[2028,7,21,16,38],[2028,8,20,4,44],
-        [2028,9,18,16,47],[2028,10,18,5,57],[2028,11,16,20,19],[2028,12,16,11,7],
-        // 2029
-        [2029,1,15,2,27],[2029,2,13,18,31],[2029,3,15,11,1],[2029,4,14,3,23],
-        [2029,5,13,19,8],[2029,6,12,9,52],[2029,7,11,23,51],[2029,8,10,13,55],
-        [2029,9,9,3,45],[2029,10,8,17,16],[2029,11,7,6,22],[2029,12,6,19,52],
-        // 2030
-        [2030,1,5,9,49],[2030,2,4,0,7],[2030,3,5,14,36],[2030,4,4,5,15],
-        [2030,5,3,19,12],[2030,6,2,8,21],[2030,7,1,20,35],[2030,7,31,8,11],
-        [2030,8,29,19,43],[2030,9,28,7,54],[2030,10,27,21,36],[2030,11,26,13,47],
-        [2030,12,26,8,32],
-    ];
+    /** @var SolarTransitCalculator */
+    private $transitCalc;
 
-    // ─── Full Moon table (USNO) for maah calculation ────────────────────────
-    // Format: [year, month, day]
-    private $fullMoons = [
-        [2024,1,25],[2024,2,24],[2024,3,25],[2024,4,23],[2024,5,23],[2024,6,22],
-        [2024,7,21],[2024,8,19],[2024,9,18],[2024,10,17],[2024,11,15],[2024,12,15],
-        [2025,1,13],[2025,2,12],[2025,3,14],[2025,4,13],[2025,5,12],[2025,6,11],
-        [2025,7,10],[2025,8,9],[2025,9,7],[2025,10,7],[2025,11,5],[2025,12,4],
-        [2026,1,3],[2026,2,1],[2026,3,3],[2026,4,2],[2026,5,1],
-        [2026,5,31], // second full moon in May 2026 (Blue Moon)
-        [2026,6,29],[2026,7,29],[2026,8,28],[2026,9,26],[2026,10,26],
-        [2026,11,24],[2026,12,24],
-        [2027,1,22],[2027,2,20],[2027,3,22],[2027,4,20],[2027,5,20],[2027,6,19],
-        [2027,7,18],[2027,8,17],[2027,9,15],[2027,10,15],[2027,11,13],[2027,12,13],
-        [2028,1,12],[2028,2,10],[2028,3,11],[2028,4,10],[2028,5,9],[2028,6,8],
-        [2028,7,7],[2028,8,5],[2028,9,4],[2028,10,3],[2028,11,2],[2028,12,1],
-        [2028,12,31],
-        [2029,1,30],[2029,2,28],[2029,3,30],[2029,4,28],[2029,5,28],[2029,6,26],
-        [2029,7,25],[2029,8,24],[2029,9,22],[2029,10,22],[2029,11,20],[2029,12,20],
-        [2030,1,18],[2030,2,17],[2030,3,19],[2030,4,17],[2030,5,17],[2030,6,15],
-        [2030,7,15],[2030,8,13],[2030,9,12],[2030,10,11],[2030,11,10],[2030,12,9],
-    ];
+    /** @var LunarMonthCalculator */
+    private $monthCalc;
+
+    // Full Moon table removed in v4 — month naming is now fully algorithmic
+    // via LunarMonthCalculator which uses SolarTransitCalculator.
 
     // Tithi names in English
     private $tithiNames = [
@@ -176,6 +127,11 @@ class PanchangCalculator {
      * @param string $dateString  Format: 'YYYY-MM-DD' or 'YYYY-MM-DD HH:MM:SS'
      * @return array
      */
+    public function __construct() {
+        $this->transitCalc = new SolarTransitCalculator();
+        $this->monthCalc = new LunarMonthCalculator();
+    }
+
     public function getPanchang(string $dateString): array {
         $ts     = strtotime($dateString);
         $gYear  = (int) date('Y', $ts);
@@ -227,7 +183,8 @@ class PanchangCalculator {
         }
 
         // ── Step 3: Moon longitude → Nakshatra & Rashi ──────────────────────
-        $ayanamsa = 24.19;
+        // Dynamic Lahiri Ayanamsa (replaces fixed 24.19° from v3)
+        $ayanamsa = SolarTransitCalculator::computeAyanamsa($targetJdn);
         $n = $targetJdn - 2451545.0;
         $sunMeanLon = fmod(280.46646 + 0.9856474 * $n, 360.0);
         $sunMeanAnomaly = fmod(357.529 + 0.98560028 * $n, 360.0);
@@ -372,27 +329,10 @@ class PanchangCalculator {
 
     /**
      * Finds the JDN of the New Moon that most recently preceded the target JDN.
+     * Uses SolarTransitCalculator's algorithmic computation (no hardcoded table).
      */
     private function getPrecedingNewMoonJDN(float $targetJdn): float {
-        $best = null;
-        foreach ($this->newMoons as $nm) {
-            [$y, $mo, $d, $h, $mi] = $nm;
-            // Convert UTC to JDN
-            $nmJdn = $this->gregorianToJDN($y, $mo, $d) + ($h + $mi / 60.0) / 24.0;
-            if ($nmJdn <= $targetJdn) {
-                if ($best === null || $nmJdn > $best) {
-                    $best = $nmJdn;
-                }
-            }
-        }
-        // Fallback: if date is outside table range, use approximation
-        if ($best === null) {
-            $lunarMonth = 29.530588853;
-            $knownNm    = 2461177.334; // May 16, 2026 20:01 UTC
-            $cycles     = floor(($targetJdn - $knownNm) / $lunarMonth);
-            $best       = $knownNm + $cycles * $lunarMonth;
-        }
-        return $best;
+        return $this->transitCalc->findPrecedingNewMoon($targetJdn);
     }
 
     /**
@@ -413,100 +353,16 @@ class PanchangCalculator {
 
     /**
      * Returns the lunar month name for a given Gregorian date.
-     * Purnimant: month named for the Full Moon it contains (starts on Krishna Paksha).
-     * Amant: month named for the New Moon that ends it (starts on Shukla Paksha).
+     * Delegates to LunarMonthCalculator for algorithmic computation
+     * with automatic Adhikamasa/Kshayamasa detection.
      */
     private function getMaah(int $year, int $month, int $day, string $paksha): array {
-        // High-precision table for 2026 Amant months (starts day after Amavasya)
-        $amant2026 = [
-            '2025-12-21' => ['Pausha', 'पौष'],
-            '2026-01-19' => ['Magha', 'माघ'],
-            '2026-02-18' => ['Phalguna', 'फाल्गुन'],
-            '2026-03-20' => ['Chaitra', 'चैत्र'],
-            '2026-04-18' => ['Vaishakha', 'वैशाख'],
-            '2026-05-17' => ['Adhik Jyeshtha', 'अधिक ज्येष्ठ'],
-            '2026-06-16' => ['Nija Jyeshtha', 'निज ज्येष्ठ'],
-            '2026-07-15' => ['Ashadha', 'आषाढ़'],
-            '2026-08-13' => ['Shravana', 'श्रावण'],
-            '2026-09-12' => ['Bhadrapada', 'भाद्रपद'],
-            '2026-10-11' => ['Ashwin', 'आश्विन'],
-            '2026-11-10' => ['Kartik', 'कार्तिक'],
-            '2026-12-10' => ['Margashirsha', 'मार्गशीर्ष'],
-            '2027-01-08' => ['Pausha', 'पौष']
-        ];
-
-        $currentDate = sprintf('%04d-%02d-%02d', $year, $month, $day);
-        
-        if ($year === 2026 || ($year === 2025 && $month === 12) || ($year === 2027 && $month === 1)) {
-            $currentAmant = ['Vaishakha', 'वैशाख'];
-            $nextAmant = ['Jyeshtha', 'ज्येष्ठ'];
-            
-            $dates = array_keys($amant2026);
-            for ($i = 0; $i < count($dates) - 1; $i++) {
-                if ($currentDate >= $dates[$i] && $currentDate < $dates[$i+1]) {
-                    $currentAmant = $amant2026[$dates[$i]];
-                    $nextAmant = $amant2026[$dates[$i+1]];
-                    break;
-                }
-            }
-
-            $amantEn = $currentAmant[0];
-            $amantHi = $currentAmant[1];
-            
-            // Purnimant month is the same as Amant in Shukla Paksha, 
-            // but advances to the next month during Krishna Paksha.
-            if ($paksha === 'Krishna') {
-                $purnimantEn = $nextAmant[0];
-                $purnimantHi = $nextAmant[1];
-            } else {
-                $purnimantEn = $amantEn;
-                $purnimantHi = $amantHi;
-            }
-
-            return [
-                'purnimant'       => $purnimantEn,
-                'purnimant_hindi' => $purnimantHi,
-                'amant'           => $amantEn,
-                'amant_hindi'     => $amantHi,
-            ];
-        }
-
-        // Fallback for other years (approximate)
-        $nextFmIndex = -1;
-        foreach ($this->fullMoons as $i => $fm) {
-            [$fy, $fm2, $fd] = $fm;
-            if ($fy > $year || ($fy === $year && $fm2 > $month) || ($fy === $year && $fm2 === $month && $fd >= $day)) {
-                $nextFmIndex = $i;
-                break;
-            }
-        }
-
-        if ($nextFmIndex === -1) {
-            return ['purnimant'=>'Vaishakha','purnimant_hindi'=>'वैशाख','amant'=>'Vaishakha','amant_hindi'=>'वैशाख'];
-        }
-
-        $fm      = $this->fullMoons[$nextFmIndex];
-        $fmMonth = $fm[1];
-
-        $gregorianToPurnimant = [
-            1=>'Pausha',2=>'Magha',3=>'Phalguna',4=>'Chaitra',5=>'Vaishakha',6=>'Jyeshtha',
-            7=>'Ashadha',8=>'Shravana',9=>'Bhadrapada',10=>'Ashwin',11=>'Kartik',12=>'Margashirsha',
-        ];
-        $hindiMap = [
-            'Pausha'=>'पौष','Magha'=>'माघ','Phalguna'=>'फाल्गुन','Chaitra'=>'चैत्र',
-            'Vaishakha'=>'वैशाख','Jyeshtha'=>'ज्येष्ठ','Ashadha'=>'आषाढ़',
-            'Shravana'=>'श्रावण','Bhadrapada'=>'भाद्रपद','Ashwin'=>'आश्विन',
-            'Kartik'=>'कार्तिक','Margashirsha'=>'मार्गशीर्ष',
-        ];
-
-        $purnimant = $gregorianToPurnimant[$fmMonth] ?? 'Vaishakha';
-        $purnimantHindi = $hindiMap[$purnimant] ?? $purnimant;
-
+        $result = $this->monthCalc->getMonthForDate($year, $month, $day, $paksha);
         return [
-            'purnimant'       => $purnimant,
-            'purnimant_hindi' => $purnimantHindi,
-            'amant'           => $purnimant,
-            'amant_hindi'     => $purnimantHindi,
+            'purnimant'       => $result['purnimant'],
+            'purnimant_hindi' => $result['purnimant_hindi'],
+            'amant'           => $result['amant'],
+            'amant_hindi'     => $result['amant_hindi'],
         ];
     }
 

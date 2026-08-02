@@ -22,7 +22,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 8,
+      version: 9,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -172,6 +172,12 @@ class DatabaseHelper {
           await db.execute('ALTER TABLE panchang_cache ADD COLUMN $col');
         } catch (_) {}
       }
+    }
+    if (oldVersion < 9) {
+      // Add amant_month column for showing both Purnimant and Amant month names
+      try {
+        await db.execute('ALTER TABLE panchang_cache ADD COLUMN amant_month TEXT');
+      } catch (_) {}
     }
   }
 
@@ -424,7 +430,8 @@ class DatabaseHelper {
         chandra_rashi $textType,
         chandra_udaya $textType,
         chandra_asta $textType,
-        shubh_muhurt $textType
+        shubh_muhurt $textType,
+        amant_month $textType
       )
     ''');
 

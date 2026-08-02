@@ -654,6 +654,7 @@ class Panchang {
   final String chandraRashi;
   final String chandraUdaya;
   final String chandraAsta;
+  final String amantMonth;
   final Map<String, String>? shubhMuhurt;
 
   Panchang({
@@ -674,6 +675,7 @@ class Panchang {
     this.chandraRashi = '—',
     this.chandraUdaya = '—',
     this.chandraAsta = '—',
+    this.amantMonth = '',
     this.shubhMuhurt,
   });
 
@@ -714,6 +716,7 @@ class Panchang {
       chandraRashi: json['chandra_rashi']?.toString() ?? '—',
       chandraUdaya: json['chandra_udaya']?.toString() ?? '—',
       chandraAsta: json['chandra_asta']?.toString() ?? '—',
+      amantMonth: json['amant_month']?.toString() ?? '',
       shubhMuhurt: parsedShubhMuhurt,
     );
   }
@@ -736,6 +739,7 @@ class Panchang {
         'chandra_rashi': chandraRashi,
         'chandra_udaya': chandraUdaya,
         'chandra_asta': chandraAsta,
+        'amant_month': amantMonth,
         'shubh_muhurt': shubhMuhurt,
       };
 }
