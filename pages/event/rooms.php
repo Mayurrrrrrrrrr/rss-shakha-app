@@ -68,11 +68,7 @@ try {
     try {
         $rooms = $pdo->query("SELECT id, room_number, building, capacity, occupancy FROM em_rooms ORDER BY building, room_number")->fetchAll(PDO::FETCH_ASSOC);
     } catch (Exception $e2) {
-        $rooms = [
-            ['id' => 1, 'room_number' => 'A-101', 'capacity' => 10, 'occupancy' => 8, 'building' => 'मुख्य भवन'],
-            ['id' => 2, 'room_number' => 'A-102', 'capacity' => 10, 'occupancy' => 10, 'building' => 'मुख्य भवन'],
-            ['id' => 3, 'room_number' => 'B-201', 'capacity' => 20, 'occupancy' => 5, 'building' => 'छात्रावास'],
-        ];
+        $rooms = [];
     }
 }
 

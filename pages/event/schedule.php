@@ -27,12 +27,8 @@ include 'includes/header.php';
 try {
     $schedules = $pdo->query("SELECT id, activity_name AS title, description, activity_date, start_time, end_time FROM em_schedule ORDER BY activity_date ASC, start_time ASC")->fetchAll();
 } catch (Exception $e) {
-    // Mock data if table doesn't exist
-    $schedules = [
-        ['id' => 1, 'title' => 'उद्घाटन सत्र', 'description' => 'मुख्य अतिथि द्वारा दीप प्रज्वलन', 'activity_date' => '2026-08-05', 'start_time' => '09:00:00', 'end_time' => '10:30:00'],
-        ['id' => 2, 'title' => 'चाय पान', 'description' => '', 'activity_date' => '2026-08-05', 'start_time' => '10:30:00', 'end_time' => '11:00:00'],
-        ['id' => 3, 'title' => 'बौद्धिक वर्ग', 'description' => 'मुख्य वक्ता का मार्गदर्शन', 'activity_date' => '2026-08-05', 'start_time' => '11:00:00', 'end_time' => '12:30:00'],
-    ];
+    // Fallback if table doesn't exist
+    $schedules = [];
 }
 ?>
 
