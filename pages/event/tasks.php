@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
         if ($organizer_id && $category_id && $assignment_date) {
             try {
-                $stmt = $pdo->prepare("INSERT INTO em_work_assignments (event_id, organizer_id, category_id, description, assignment_date, time_slot, status) VALUES (?, ?, ?, ?, ?, ?, 'pending')");
+                $stmt = $pdo->prepare("INSERT INTO em_work_assignments (event_id, organizer_id, work_category_id, description, assignment_date, time_slot, status) VALUES (?, ?, ?, ?, ?, ?, 'pending')");
                 $stmt->execute([$event_id, $organizer_id, $category_id, $description, $assignment_date, $time_slot]);
                 $message = "कार्य सफलतापूर्वक सौंपा गया (Task assigned successfully)";
             } catch (PDOException $e) {
@@ -89,7 +89,7 @@ if ($event_id) {
             SELECT a.*, o.name as organizer_name, c.name as category_name
             FROM em_work_assignments a
             LEFT JOIN em_organizers o ON a.organizer_id = o.id
-            LEFT JOIN em_work_categories c ON a.category_id = c.id
+            LEFT JOIN em_work_categories c ON a.work_category_id = c.id
             WHERE a.event_id = ?
             ORDER BY a.assignment_date DESC, a.id DESC
         ");
