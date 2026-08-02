@@ -116,11 +116,12 @@ if ($pdo && isLoggedIn() && isset($_SESSION['shakha_id'])) {
                                         <li><a href="../pages/dashboard.php" class="<?php echo $currentPage === 'dashboard' ? 'active' : ''; ?>">🏠 मुख्य पृष्ठ</a></li>
                                         <li><a href="../pages/swayamsevaks.php" class="<?php echo $currentPage === 'swayamsevaks' ? 'active' : ''; ?>">👥 स्वयंसेवक</a></li>
                                         
-                                        <?php $dailyOpsActive = in_array($currentPage, ['daily_record', 'activities', 'notice', 'subhashit', 'geet', 'ghoshnayein', 'greetings', 'panchang_daily', 'paper_content', 'print_straight']) ? 'open' : ''; ?>
+                                        <?php $dailyOpsActive = in_array($currentPage, ['daily_record', 'bulk_record', 'activities', 'notice', 'subhashit', 'geet', 'ghoshnayein', 'greetings', 'panchang_daily', 'paper_content', 'print_straight']) ? 'open' : ''; ?>
                                         <li class="nav-group <?php echo $dailyOpsActive; ?>">
                                             <div class="nav-group-header"><span>📅 दैनिक कार्य (Daily Ops)</span> <span class="chevron">▼</span></div>
                                             <ul class="nav-group-items">
                                                 <li><a href="../pages/daily_record.php" class="<?php echo $currentPage === 'daily_record' ? 'active' : ''; ?>">📝 दैनिक रिकॉर्ड</a></li>
+                                                <li><a href="../pages/bulk_record.php" class="<?php echo $currentPage === 'bulk_record' ? 'active' : ''; ?>">📝 थोक रिकॉर्ड (Bulk)</a></li>
                                                 <li><a href="../pages/activities.php" class="<?php echo $currentPage === 'activities' ? 'active' : ''; ?>">📋 गतिविधियाँ</a></li>
                                                 <li><a href="../pages/notice.php" class="<?php echo $currentPage === 'notice' ? 'active' : ''; ?>">📢 सूचना</a></li>
                                                 <li><a href="../pages/subhashit.php" class="<?php echo $currentPage === 'subhashit' ? 'active' : ''; ?>">📜 सुभाषित</a></li>
