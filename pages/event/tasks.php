@@ -15,16 +15,18 @@ $error = '';
 $categories = [];
 if ($event_id) {
     try {
-        $stmt = $pdo->query("SELECT id, name FROM em_work_categories ORDER BY name");
+        $stmt = $pdo->prepare("SELECT id, name FROM em_work_categories WHERE event_id = ? ORDER BY name");
+        $stmt->execute([$event_id]);
         $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         if (empty($categories)) {
             $default_cats = ['भोजन व्यवस्था', 'हाजिरी', 'आवास व्यवस्था', 'स्वागत कक्ष'];
-            $insert_stmt = $pdo->prepare("INSERT INTO em_work_categories (name) VALUES (?)");
+            $insert_stmt = $pdo->prepare("INSERT INTO em_work_categories (event_id, name) VALUES (?, ?)");
             foreach ($default_cats as $cat) {
-                $insert_stmt->execute([$cat]);
+                $insert_stmt->execute([$event_id, $cat]);
             }
-            $stmt = $pdo->query("SELECT id, name FROM em_work_categories ORDER BY name");
+            $stmt = $pdo->prepare("SELECT id, name FROM em_work_categories WHERE event_id = ? ORDER BY name");
+            $stmt->execute([$event_id]);
             $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
     } catch (PDOException $e) {

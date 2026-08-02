@@ -13,7 +13,7 @@ $sessionCount = $sessionCheckStmt->fetchColumn();
 if ($sessionCount == 0) {
     // Auto-seed
     $defaultSessions = ['प्रातः सत्र (Morning Session)', 'सायं सत्र (Evening Session)'];
-    $insertSessStmt = $pdo->prepare("INSERT INTO em_attendance_sessions (event_id, session_name) VALUES (?, ?)");
+    $insertSessStmt = $pdo->prepare("INSERT INTO em_attendance_sessions (event_id, session_name, session_date) VALUES (?, ?, CURDATE())");
     foreach ($defaultSessions as $sname) {
         $insertSessStmt->execute([$event_id, $sname]);
     }

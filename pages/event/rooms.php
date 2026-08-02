@@ -91,7 +91,7 @@ $search_name = $_GET['search_name'] ?? '';
 $search_city = $_GET['search_city'] ?? '';
 
 $sql = "
-    SELECT p.id, p.name, p.city, r.id as room_id, r.room_number, r.building
+    SELECT p.id, p.name, p.city, r.id as room_id, r.room_name, r.building
     FROM em_participants p
     LEFT JOIN em_room_allotments ra ON p.id = ra.allottee_id AND ra.allottee_type = 'participant' AND ra.event_id = :event_id
     LEFT JOIN em_rooms r ON ra.room_id = r.id
@@ -152,7 +152,7 @@ include 'includes/header.php';
                             <td><?= htmlspecialchars($p['city']) ?></td>
                             <td>
                                 <?php if ($p['room_id']): ?>
-                                    <span style="color: var(--amber); font-weight: bold;"><?= htmlspecialchars($p['room_number']) ?></span> 
+                                    <span style="color: var(--amber); font-weight: bold;"><?= htmlspecialchars($p['room_name']) ?></span> 
                                     <br><small><?= htmlspecialchars($p['building']) ?></small>
                                 <?php else: ?>
                                     <span style="color: #999;">आवंटित नहीं (Not Allotted)</span>
