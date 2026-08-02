@@ -84,16 +84,16 @@ try {
             $actStmt->execute([$recordId, $act['id'], $isDone, $conductor]);
         }
 
-        // 2. Initialize Attendance if it does not exist (all marked absent by default)
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM attendance WHERE daily_record_id = ?");
-        $stmt->execute([$recordId]);
-        $attCount = $stmt->fetchColumn();
+        // 2. Save Attendance
+        // Clear old attendance for this record
+        $pdo->prepare("DELETE FROM attendance WHERE daily_record_id = ?")->execute([$recordId]);
 
-        if ($attCount == 0 && !empty($allSwayamsevaks)) {
-            $attStmt = $pdo->prepare("INSERT INTO attendance (daily_record_id, swayamsevak_id, is_present, updated_at) VALUES (?, ?, 0, NOW())");
-            foreach ($allSwayamsevaks as $s) {
-                $attStmt->execute([$recordId, $s['id']]);
-            }
+        // Insert attendance
+        $attData = $data['attendance'] ?? [];
+        $attStmt = $pdo->prepare("INSERT INTO attendance (daily_record_id, swayamsevak_id, is_present, updated_at) VALUES (?, ?, ?, NOW())");
+        foreach ($allSwayamsevaks as $s) {
+            $isPresent = isset($attData[$s['id']]) ? 1 : 0;
+            $attStmt->execute([$recordId, $s['id'], $isPresent]);
         }
     }
 

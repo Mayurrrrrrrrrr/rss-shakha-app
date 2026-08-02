@@ -55,6 +55,8 @@ if (!empty($dates)) {
     
     if (!empty($recordIds)) {
         $idPlaceholders = implode(',', array_fill(0, count($recordIds), '?'));
+        
+        // Fetch activities
         $stmt = $pdo->prepare("SELECT * FROM daily_activities WHERE daily_record_id IN ($idPlaceholders)");
         $stmt->execute(array_keys($recordIds));
         $daList = $stmt->fetchAll();
@@ -65,6 +67,20 @@ if (!empty($dates)) {
                 $existingActivities[$dateKey] = [];
             }
             $existingActivities[$dateKey][$da['activity_id']] = $da;
+        }
+        
+        // Fetch attendance
+        $stmt = $pdo->prepare("SELECT * FROM attendance WHERE daily_record_id IN ($idPlaceholders)");
+        $stmt->execute(array_keys($recordIds));
+        $attList = $stmt->fetchAll();
+        
+        $existingAttendance = []; // [date][swayamsevak_id] = is_present
+        foreach ($attList as $att) {
+            $dateKey = $recordIds[$att['daily_record_id']];
+            if (!isset($existingAttendance[$dateKey])) {
+                $existingAttendance[$dateKey] = [];
+            }
+            $existingAttendance[$dateKey][$att['swayamsevak_id']] = $att['is_present'];
         }
     }
 }
@@ -186,6 +202,29 @@ function formatHindiDateShort($dateStr) {
                 </div>
                 
                 <div style="flex-grow: 1;">
+                    <!-- Attendance Checklist -->
+                    <div style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <h4 style="font-size: 0.95rem; margin-bottom: 0; color: #e65100;">👥 उपस्थिति (Attendance)</h4>
+                            <button type="button" class="copy-btn" title="यह उपस्थिति सभी दिनों में कॉपी करें" onclick="copyAttendanceToAll(<?php echo $index; ?>)">🔗 कॉपी</button>
+                        </div>
+                        <div style="max-height: 150px; overflow-y: auto; border: 1px solid #ffe0b2; border-radius: 8px; padding: 8px; background: #fff9f2;">
+                            <?php foreach ($swayamsevaks as $s): 
+                                $isPresent = (isset($existingAttendance[$date][$s['id']]) && $existingAttendance[$date][$s['id']]) ? true : false;
+                            ?>
+                                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 0.85rem; color: #4a1c00; cursor: pointer;">
+                                    <input type="checkbox" 
+                                           name="record[<?php echo $date; ?>][attendance][<?php echo $s['id']; ?>]" 
+                                           value="1" 
+                                           class="att-checkbox"
+                                           data-swayamsevak-id="<?php echo $s['id']; ?>"
+                                           <?php echo $isPresent ? 'checked' : ''; ?>>
+                                    <span><?php echo htmlspecialchars($s['name']); ?></span>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
                     <h4 style="font-size: 0.95rem; margin-bottom: 8px; color: #e65100;">📋 गतिविधियाँ</h4>
                     <?php if (empty($activities)): ?>
                         <div class="alert alert-info" style="font-size: 0.85rem; padding: 8px;">ℹ️ गतिविधियाँ उपलब्ध नहीं हैं।</div>
@@ -269,6 +308,36 @@ function copyActivityToAll(activityId, fromIndex) {
     
     // Toast notification or highlight
     alert('यह गतिविधि की जानकारी सभी दिनों में कॉपी कर दी गई है!');
+}
+
+function copyAttendanceToAll(fromIndex) {
+    const cards = document.querySelectorAll('.bulk-card');
+    if (fromIndex >= cards.length) return;
+    
+    const sourceCard = cards[fromIndex];
+    const sourceCheckboxes = sourceCard.querySelectorAll('.att-checkbox');
+    
+    // Map of swayamsevakId -> checked status
+    const attState = {};
+    sourceCheckboxes.forEach(cb => {
+        const id = cb.getAttribute('data-swayamsevak-id');
+        attState[id] = cb.checked;
+    });
+    
+    // Apply to all target cards
+    cards.forEach((card, idx) => {
+        if (idx === fromIndex) return; // skip self
+        
+        const targetCheckboxes = card.querySelectorAll('.att-checkbox');
+        targetCheckboxes.forEach(cb => {
+            const id = cb.getAttribute('data-swayamsevak-id');
+            if (attState[id] !== undefined) {
+                cb.checked = attState[id];
+            }
+        });
+    });
+    
+    alert('यह उपस्थिति सभी दिनों में कॉपी कर दी गई है!');
 }
 </script>
 
