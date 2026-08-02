@@ -1,0 +1,109 @@
+<?php
+require_once '../config.php';
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    sendResponse(false, 'विधि की अनुमति नहीं है');
+}
+
+$data = json_decode(file_get_contents("php://input"), true);
+$username = trim($data['username'] ?? '');
+$password = $data['password'] ?? '';
+$event_id = $data['event_id'] ?? null;
+
+if (empty($username) || empty($password)) {
+    http_response_code(400);
+    sendResponse(false, 'उपयोगकर्ता नाम और पासवर्ड आवश्यक हैं');
+}
+
+$ip_address = $_SERVER['REMOTE_ADDR'];
+
+// Rate limiting check
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM em_login_attempts WHERE ip_address = ? AND attempt_time > (NOW() - INTERVAL 15 MINUTE)");
+$stmt->execute([$ip_address]);
+$attempts = $stmt->fetchColumn();
+
+if ($attempts >= 5) {
+    http_response_code(429);
+    sendResponse(false, 'बहुत अधिक लॉगिन प्रयास। कृपया 15 मिनट बाद पुन: प्रयास करें।');
+}
+
+// Fetch organizer
+$stmt = $pdo->prepare("SELECT * FROM em_organizers WHERE username = ?");
+$stmt->execute([$username]);
+$organizer = $stmt->fetch(PDO::FETCH_ASSOC);
+
+function logAttempt($pdo, $ip, $username) {
+    $stmt = $pdo->prepare("INSERT INTO em_login_attempts (ip_address, username, attempt_time) VALUES (?, ?, NOW())");
+    $stmt->execute([$ip, $username]);
+}
+
+if (!$organizer || !password_verify($password, $organizer['password'])) {
+    logAttempt($pdo, $ip_address, $username);
+    http_response_code(401);
+    sendResponse(false, 'अमान्य उपयोगकर्ता नाम या पासवर्ड');
+}
+
+if (($organizer['status'] ?? 'active') !== 'active') {
+    http_response_code(403);
+    sendResponse(false, 'आपका खाता निष्क्रिय है');
+}
+
+$selected_event_id = null;
+$selected_event_name = '';
+
+// Check event association
+if ($event_id) {
+    // Check if organizer belongs to this event
+    $stmt = $pdo->prepare("
+        SELECT e.id, e.name 
+        FROM em_events e 
+        JOIN em_event_organizers eo ON e.id = eo.event_id 
+        WHERE eo.organizer_id = ? AND e.id = ? AND e.status = 'active'
+    ");
+    $stmt->execute([$organizer['id'], $event_id]);
+    $event = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$event) {
+        http_response_code(403);
+        sendResponse(false, 'आप इस आयोजन के आयोजक नहीं हैं या आयोजन सक्रिय नहीं है');
+    }
+    
+    $selected_event_id = $event['id'];
+    $selected_event_name = $event['name'];
+} else {
+    // Find most recent active event
+    $stmt = $pdo->prepare("
+        SELECT e.id, e.name 
+        FROM em_events e 
+        JOIN em_event_organizers eo ON e.id = eo.event_id 
+        WHERE eo.organizer_id = ? AND e.status = 'active' 
+        ORDER BY e.created_at DESC LIMIT 1
+    ");
+    $stmt->execute([$organizer['id']]);
+    $event = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$event) {
+        http_response_code(403);
+        sendResponse(false, 'आप किसी भी सक्रिय आयोजन से जुड़े नहीं हैं');
+    }
+    
+    $selected_event_id = $event['id'];
+    $selected_event_name = $event['name'];
+}
+
+// Clear login attempts
+$stmt = $pdo->prepare("DELETE FROM em_login_attempts WHERE ip_address = ?");
+$stmt->execute([$ip_address]);
+
+// Generate token (using event_id as shakha_id for event organizers)
+$token = generateAPIToken($organizer['id'], 'event_organizer', $selected_event_id);
+
+sendResponse(true, 'लॉगिन सफल', [
+    'organizer_id' => $organizer['id'],
+    'name' => $organizer['name'],
+    'role' => $organizer['role'],
+    'event_id' => $selected_event_id,
+    'event_name' => $selected_event_name,
+    'token' => $token
+]);

@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/providers.dart';
+import '../../core/api/api_client.dart';
 import '../../core/config/app_config.dart';
+import '../dashboard/dashboard_screen.dart';
+import '../event/providers/event_providers.dart';
+import '../event/screens/event_selection_screen.dart';
+
+enum LoginPortal { shakha, event }
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -14,6 +20,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  
+  LoginPortal _selectedPortal = LoginPortal.shakha;
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -34,32 +42,69 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     try {
       final apiClient = ref.read(apiClientProvider);
-      final response = await apiClient.post(
-        '/api/login.php',
-        data: {
-          'username': _usernameController.text.trim(),
-          'password': _passwordController.text,
-        },
-      );
+      
+      if (_selectedPortal == LoginPortal.shakha) {
+        final response = await apiClient.post(
+          '/api/login.php',
+          data: {
+            'username': _usernameController.text.trim(),
+            'password': _passwordController.text,
+          },
+        );
 
-      if (response.statusCode == 200 && response.data != null) {
-        final data = response.data;
-        if (data['success'] == true) {
-          final userData = data['data'] as Map<String, dynamic>;
-          // Save session using Riverpod SessionNotifier
-          await ref.read(sessionProvider.notifier).login(userData);
-          
-          // Trigger first-time delta sync
-          ref.read(syncEngineProvider).sync();
+        if (response.statusCode == 200 && response.data != null) {
+          final data = response.data;
+          if (data['success'] == true) {
+            final userData = data['data'] as Map<String, dynamic>;
+            await ref.read(sessionProvider.notifier).login(userData);
+            ref.read(syncEngineProvider).sync();
+            
+            if (mounted) {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const DashboardScreen()),
+              );
+            }
+          } else {
+            setState(() {
+              _errorMessage = data['message'] ?? 'लॉगिन विफल। कृपया पुनः प्रयास करें।';
+            });
+          }
         } else {
           setState(() {
-            _errorMessage = data['message'] ?? 'लॉगिन विफल। कृपया पुनः प्रयास करें।';
+            _errorMessage = 'सर्वर कनेक्शन विफल। कृपया इंटरनेट जांचें।';
           });
         }
       } else {
-        setState(() {
-          _errorMessage = 'सर्वर कनेक्शन विफल। कृपया इंटरनेट जांचें।';
-        });
+        // Event Portal Login
+        final response = await apiClient.post(
+          '/api/v1/event/auth/login.php',
+          data: {
+            'username': _usernameController.text.trim(),
+            'password': _passwordController.text,
+          },
+        );
+
+        if (response.statusCode == 200 && response.data != null) {
+          final data = response.data;
+          if (data['success'] == true) {
+            final userData = data['data'] as Map<String, dynamic>;
+            await ref.read(eventSessionProvider.notifier).login(userData);
+            
+            if (mounted) {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const EventSelectionScreen()),
+              );
+            }
+          } else {
+            setState(() {
+              _errorMessage = data['message'] ?? 'लॉगिन विफल। कृपया पुनः प्रयास करें।';
+            });
+          }
+        } else {
+          setState(() {
+            _errorMessage = 'सर्वर कनेक्शन विफल। कृपया इंटरनेट जांचें।';
+          });
+        }
       }
     } catch (e) {
       setState(() {
@@ -72,6 +117,58 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         });
       }
     }
+  }
+
+  Widget _buildPortalCard({
+    required String title,
+    required String iconText,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFFFFF3E0) : Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isSelected ? const Color(0xFFFF6B00) : Colors.grey.shade300,
+              width: isSelected ? 2 : 1,
+            ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFFFF6B00).withOpacity(0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    )
+                  ]
+                : [],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                iconText,
+                style: const TextStyle(fontSize: 28),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  color: isSelected ? const Color(0xFFFF6B00) : Colors.grey.shade700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -103,21 +200,47 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        '🚩 संघस्थान',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFFF6B00),
-                        ),
+                      Row(
+                        children: [
+                          _buildPortalCard(
+                            title: 'संघस्थान',
+                            iconText: '🚩',
+                            isSelected: _selectedPortal == LoginPortal.shakha,
+                            onTap: () {
+                              if (_selectedPortal != LoginPortal.shakha) {
+                                setState(() {
+                                  _selectedPortal = LoginPortal.shakha;
+                                  _errorMessage = null;
+                                });
+                              }
+                            },
+                          ),
+                          const SizedBox(width: 16),
+                          _buildPortalCard(
+                            title: 'आयोजन',
+                            iconText: '📋',
+                            isSelected: _selectedPortal == LoginPortal.event,
+                            onTap: () {
+                              if (_selectedPortal != LoginPortal.event) {
+                                setState(() {
+                                  _selectedPortal = LoginPortal.event;
+                                  _errorMessage = null;
+                                });
+                              }
+                            },
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'दैनिक गतिविधि एवं उपस्थिति प्रबंधन',
+                      const SizedBox(height: 24),
+                      Text(
+                        _selectedPortal == LoginPortal.shakha
+                            ? 'दैनिक गतिविधि एवं उपस्थिति प्रबंधन'
+                            : 'कार्यक्रम आयोजन एवं प्रबंधन',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           color: Colors.black54,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(height: 32),
