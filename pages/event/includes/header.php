@@ -21,14 +21,17 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
         :root {
             --saffron: #FF6B00;
             --amber: #FFB300;
-            --cream: #F9F6F0;
-            --text-dark: #333333;
-            --card-bg: #FFFFFF;
+            --bg-color: #0F0F14;
+            --container-bg: #1A1A24;
+            --card-bg: #22222E;
+            --text-color: #F5F5F5;
+            --input-bg: #2A2A38;
+            --border-color: #333344;
         }
         body {
             font-family: 'Noto Sans Devanagari', sans-serif;
-            background-color: var(--cream);
-            color: var(--text-dark);
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
             padding: 0;
         }
@@ -106,14 +109,15 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
             width: 100%;
             border-collapse: collapse;
             margin-top: 1rem;
+            color: var(--text-color);
         }
         th, td {
             padding: 0.75rem;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--border-color);
         }
         th {
-            background-color: #f1f1f1;
+            background-color: var(--container-bg);
             font-weight: 600;
         }
         .form-group {
@@ -127,10 +131,16 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
         .form-control {
             width: 100%;
             padding: 0.5rem;
-            border: 1px solid #ccc;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
             border-radius: 4px;
             font-family: inherit;
             box-sizing: border-box;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--saffron);
         }
         .status-bar {
             height: 10px;
@@ -157,7 +167,7 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
             <a href="participants.php">प्रतिभागी (Participants)</a>
             <a href="rooms.php">आवास (Rooms)</a>
             <a href="food.php">भोजन (Food)</a>
-            <a href="#">अनुसूची (Schedule)</a>
+            <a href="schedule.php">अनुसूची (Schedule)</a>
             <a href="logout.php">लॉगआउट (Logout)</a>
         </div>
     </nav>

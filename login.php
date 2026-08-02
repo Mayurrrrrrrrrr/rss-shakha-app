@@ -159,6 +159,9 @@ if (!$db_error && $_SERVER['REQUEST_METHOD'] === 'POST') {
                            placeholder="पासवर्ड दर्ज करें" required>
                 </div>
                 <button type="submit" class="btn btn-primary">🔑 लॉगिन करें</button>
+                <div style="text-align: center; margin-top: 15px;">
+                    <a href="pages/event/login.php" style="color: var(--saffron, #FF9933); text-decoration: none; font-weight: 600; display: inline-block; border: 1px solid var(--saffron, #FF9933); padding: 8px 16px; border-radius: 6px; transition: all 0.3s; background-color: rgba(255, 153, 51, 0.1);">📋 आयोजन प्रबंधन लॉगिन (Aayojan Event Login)</a>
+                </div>
                 <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
                     <a href="index.php" style="color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
                         🏠 मुख्य पृष्ठ पर वापस जाएं (Back to Home)

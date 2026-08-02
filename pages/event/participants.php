@@ -1,6 +1,64 @@
 <?php
 session_start();
 require_once '../../config/db.php';
+
+// Handle CSV Export
+if (isset($_GET['export']) && $_GET['export'] == 'csv') {
+    header('Content-Type: text/csv; charset=UTF-8');
+    header('Content-Disposition: attachment; filename=participants.csv');
+    $output = fopen('php://output', 'w');
+    fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM for Excel Hindi
+    fputcsv($output, ['ID', 'Name', 'Category', 'City', 'Phone', 'Entry Type', 'Event ID']);
+    $stmt = $pdo->query("SELECT id, name, category, city, phone, entry_type, event_id FROM em_participants ORDER BY id DESC");
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        fputcsv($output, $row);
+    }
+    fclose($output);
+    exit;
+}
+
+// Handle Spot Entry
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'spot_entry') {
+    $name = trim($_POST['name'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
+    $city = trim($_POST['city'] ?? '');
+    $event_id = $_SESSION['event_id'] ?? 1; // Default to 1 if not set
+    $registered_by = $_SESSION['event_user_id'] ?? 0;
+    
+    if ($name && $phone) {
+        $stmt = $pdo->prepare("INSERT INTO em_participants (event_id, name, phone, city, entry_type, registered_by) VALUES (?, ?, ?, ?, 'spot', ?)");
+        $stmt->execute([$event_id, $name, $phone, $city, $registered_by]);
+    }
+    header("Location: participants.php");
+    exit;
+}
+
+// Handle CSV Import
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'import_csv' && isset($_FILES['csv_file'])) {
+    $file = $_FILES['csv_file']['tmp_name'];
+    $event_id = $_SESSION['event_id'] ?? 1;
+    if ($file && is_uploaded_file($file)) {
+        if (($handle = fopen($file, "r")) !== FALSE) {
+            $header = fgetcsv($handle, 1000, ","); // skip header
+            $stmt = $pdo->prepare("INSERT INTO em_participants (event_id, name, category, city, phone, entry_type) VALUES (?, ?, ?, ?, ?, 'pre-registered')");
+            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                if (count($data) >= 4) {
+                    $name = $data[1] ?? '';
+                    $category = $data[2] ?? 'सामान्य';
+                    $city = $data[3] ?? '';
+                    $phone = $data[4] ?? '';
+                    if ($name) {
+                        $stmt->execute([$event_id, $name, $category, $city, $phone]);
+                    }
+                }
+            }
+            fclose($handle);
+        }
+    }
+    header("Location: participants.php");
+    exit;
+}
+
 include 'includes/header.php';
 
 $search = $_GET['search'] ?? '';
@@ -27,8 +85,9 @@ try {
 
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
     <h2>प्रतिभागी सूची (Participants)</h2>
-    <div>
+    <div style="display: flex; gap: 0.5rem;">
         <a href="?export=csv" class="btn btn-outline">CSV निर्यात (Export)</a>
+        <button class="btn btn-outline" onclick="document.getElementById('importModal').style.display='block'">CSV आयात (Import)</button>
         <button class="btn" onclick="document.getElementById('addModal').style.display='block'">नया पंजीकरण (New Registration)</button>
     </div>
 </div>
@@ -78,6 +137,7 @@ try {
         <h3>स्पॉट एंट्री (Spot Entry)</h3>
         <span onclick="document.getElementById('addModal').style.display='none'" style="position:absolute; right:1.5rem; top:1.5rem; cursor:pointer; font-size:1.5rem;">&times;</span>
         <form method="POST" action="participants.php">
+            <input type="hidden" name="action" value="spot_entry">
             <div class="form-group">
                 <label>नाम (Name)</label>
                 <input type="text" name="name" class="form-control" required>
@@ -90,8 +150,23 @@ try {
                 <label>नगर (City)</label>
                 <input type="text" name="city" class="form-control">
             </div>
-            <button type="button" class="btn">सुरक्षित करें (Save)</button>
-            <p style="font-size: 0.8em; color: #666; margin-top: 1rem;">नोट: कार्यक्षमता प्रदर्शन के लिए है। (Note: Functionality is for display)</p>
+            <button type="submit" class="btn">सुरक्षित करें (Save)</button>
+        </form>
+    </div>
+</div>
+
+<div id="importModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;">
+    <div class="card" style="max-width:500px; margin: 10% auto; position:relative;">
+        <h3>CSV आयात (CSV Import)</h3>
+        <span onclick="document.getElementById('importModal').style.display='none'" style="position:absolute; right:1.5rem; top:1.5rem; cursor:pointer; font-size:1.5rem;">&times;</span>
+        <form method="POST" action="participants.php" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="import_csv">
+            <div class="form-group">
+                <label>CSV फाइल चुनें (Select CSV File)</label>
+                <input type="file" name="csv_file" accept=".csv" class="form-control" required>
+                <p style="font-size: 0.8em; margin-top: 5px;">Format: ID, Name, Category, City, Phone</p>
+            </div>
+            <button type="submit" class="btn">आयात करें (Import)</button>
         </form>
     </div>
 </div>
