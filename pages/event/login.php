@@ -19,8 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['event_user_name'] = $user['name'];
                 $_SESSION['event_role'] = $user['role'];
                 
-                // Find active event
-                $stmt = $pdo->query("SELECT id, name FROM events WHERE status = 'active' LIMIT 1");
+                // Find active event from em_events
+                $stmt = $pdo->query("SELECT id, name FROM em_events WHERE status = 'active' LIMIT 1");
                 $event = $stmt->fetch();
                 if ($event) {
                     $_SESSION['event_id'] = $event['id'];
