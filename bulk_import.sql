@@ -1,4 +1,4 @@
-ALTER TABLE em_participants ADD COLUMN IF NOT EXISTS bhag VARCHAR(100) AFTER category;
+ALTER TABLE em_participants ADD COLUMN bhag VARCHAR(100) AFTER category;
 DELETE FROM em_participants;
 ALTER TABLE em_participants AUTO_INCREMENT = 1;
 INSERT INTO em_participants (event_id, phone, name, responsibility, level_type, organization, sangh_shikshan, age_group, city, vasti, email, category, bhag, entry_type) VALUES (1, '7021901112', 'डॉ रवी मनोज पांडे', 'सेवा प्रमुख', 'नगर', 'रा.स्व.संघ', 'निरंक', 'प्रौढ वयोगट', 'भांडुप पश्चिम', 'भट्टी पाडा', '', 'जागरण', 'मुलुंड', 'pre-registered'),
