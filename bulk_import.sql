@@ -1,4 +1,3 @@
-ALTER TABLE em_participants ADD COLUMN bhag VARCHAR(100) AFTER category;
 ALTER TABLE em_participants MODIFY phone VARCHAR(100);
 DELETE FROM em_participants;
 ALTER TABLE em_participants AUTO_INCREMENT = 1;

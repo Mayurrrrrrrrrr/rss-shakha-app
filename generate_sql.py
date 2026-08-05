@@ -5,7 +5,6 @@ file_path = r'C:\Users\mayur\OneDrive\Desktop\New folder (2)\Master_Karyakarta_D
 df = pd.read_excel(file_path)
 
 sql_lines = []
-sql_lines.append("ALTER TABLE em_participants ADD COLUMN bhag VARCHAR(100) AFTER category;")
 sql_lines.append("ALTER TABLE em_participants MODIFY phone VARCHAR(100);")
 sql_lines.append("DELETE FROM em_participants;")
 sql_lines.append("ALTER TABLE em_participants AUTO_INCREMENT = 1;")
