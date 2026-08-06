@@ -13,9 +13,9 @@ class ImageGenerator
     private $width = 1080;
     private $height = 1920;
 
-    public function generate(array $panchang, ?array $subhashit, string $logoPath, string $shakhaName): string
+    public function generate(array $panchang, ?array $subhashit, string $logoPath, string $shakhaName, ?string $date = null): string
     {
-        $date = $panchang['panchang_date'] ?? date('Y-m-d');
+        $date = $date ?? $panchang['panchang_date'] ?? date('Y-m-d');
         
         $outputDir = BASE_PATH . '/storage/creatives';
         if (!is_dir($outputDir)) {
