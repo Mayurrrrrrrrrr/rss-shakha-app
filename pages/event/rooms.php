@@ -143,13 +143,13 @@ $event_id = $_SESSION['event_id'] ?? 1;
 
 // Fetch rooms
 try {
-    $roomsStmt = $pdo->prepare("SELECT id, room_number, building, capacity, occupancy FROM em_rooms WHERE event_id = ? ORDER BY building, room_number");
+    $roomsStmt = $pdo->prepare("SELECT id, room_name, building, capacity, occupancy FROM em_rooms WHERE event_id = ? ORDER BY building, room_name");
     $roomsStmt->execute([$event_id]);
     $rooms = $roomsStmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     // If column event_id doesn't exist on em_rooms or table doesn't exist, fallback
     try {
-        $rooms = $pdo->query("SELECT id, room_number, building, capacity, occupancy FROM em_rooms ORDER BY building, room_number")->fetchAll(PDO::FETCH_ASSOC);
+        $rooms = $pdo->query("SELECT id, room_name, building, capacity, occupancy FROM em_rooms ORDER BY building, room_name")->fetchAll(PDO::FETCH_ASSOC);
     } catch (Exception $e2) {
         $rooms = [];
     }

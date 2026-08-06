@@ -60,11 +60,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $name = trim($_POST['name'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
     $city = trim($_POST['city'] ?? '');
+    $vasti = trim($_POST['vasti'] ?? '');
     $organization = trim($_POST['organization'] ?? '');
+    $level_type = trim($_POST['level_type'] ?? '');
+    $responsibility = trim($_POST['responsibility'] ?? '');
+    $sangh_shikshan = trim($_POST['sangh_shikshan'] ?? '');
+    $age_group = trim($_POST['age_group'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $category = trim($_POST['category'] ?? '');
+    $notes = trim($_POST['notes'] ?? '');
     
     if ($participant_id && $name) {
-        $stmt = $pdo->prepare("UPDATE em_participants SET name = ?, phone = ?, city = ?, organization = ? WHERE id = ? AND event_id = ?");
-        $stmt->execute([$name, $phone, $city, $organization, $participant_id, $event_id]);
+        $stmt = $pdo->prepare("UPDATE em_participants SET name = ?, phone = ?, city = ?, vasti = ?, organization = ?, level_type = ?, responsibility = ?, sangh_shikshan = ?, age_group = ?, email = ?, category = ?, notes = ? WHERE id = ? AND event_id = ?");
+        $stmt->execute([$name, $phone, $city, $vasti, $organization, $level_type, $responsibility, $sangh_shikshan, $age_group, $email, $category, $notes, $participant_id, $event_id]);
     }
     
     // Redirect back to preserve GET params
@@ -86,16 +94,29 @@ $selected_session_id = $_GET['session_id'] ?? ($sessions[0]['id'] ?? 0);
 
 // Filters
 $search = trim($_GET['search'] ?? '');
-$nagar = trim($_GET['nagar'] ?? '');
+$vyavastha = $_SESSION['event_vyavastha'] ?? '';
+$is_hajiri = ($vyavastha === 'hajiri');
 
-// Fetch Distinct Cities
-$citiesStmt = $pdo->prepare("SELECT DISTINCT city FROM em_participants WHERE event_id = ? AND city IS NOT NULL AND city != '' ORDER BY city");
-$citiesStmt->execute([$event_id]);
-$cities = $citiesStmt->fetchAll(PDO::FETCH_COLUMN);
+// Fetch Distinct Cities or Bhag
+if ($is_hajiri) {
+    $citiesStmt = $pdo->prepare("SELECT DISTINCT bhag FROM em_participants WHERE event_id = ? AND bhag IS NOT NULL AND bhag != '' ORDER BY bhag");
+    $citiesStmt->execute([$event_id]);
+    $filter_options = $citiesStmt->fetchAll(PDO::FETCH_COLUMN);
+    $filter_label = "भाग चुनें (Select Bhag)";
+    $filter_name = "bhag";
+    $filter_value = trim($_GET['bhag'] ?? '');
+} else {
+    $citiesStmt = $pdo->prepare("SELECT DISTINCT city FROM em_participants WHERE event_id = ? AND city IS NOT NULL AND city != '' ORDER BY city");
+    $citiesStmt->execute([$event_id]);
+    $filter_options = $citiesStmt->fetchAll(PDO::FETCH_COLUMN);
+    $filter_label = "सभी नगर (All Cities)";
+    $filter_name = "nagar";
+    $filter_value = trim($_GET['nagar'] ?? '');
+}
 
 // Fetch Participants and their current attendance status
 $query = "
-    SELECT p.id, p.name, p.phone, p.city, p.organization, a.is_present
+    SELECT p.id, p.name, p.phone, p.city, p.vasti, p.organization, p.level_type, p.responsibility, p.sangh_shikshan, p.age_group, p.email, p.category, p.notes, a.is_present
     FROM em_participants p
     LEFT JOIN em_participant_attendance a ON p.id = a.participant_id AND a.attendance_session_id = :session_id
     WHERE p.event_id = :event_id
@@ -106,9 +127,13 @@ if ($search !== '') {
     $query .= " AND (p.name LIKE :search OR p.phone LIKE :search)";
     $params[':search'] = "%$search%";
 }
-if ($nagar !== '') {
-    $query .= " AND p.city = :nagar";
-    $params[':nagar'] = $nagar;
+if ($filter_value !== '') {
+    if ($is_hajiri) {
+        $query .= " AND p.bhag = :filter_val";
+    } else {
+        $query .= " AND p.city = :filter_val";
+    }
+    $params[':filter_val'] = $filter_value;
 }
 
 $query .= " ORDER BY p.name ASC";
@@ -167,10 +192,10 @@ include 'includes/header.php';
             
             <input type="text" name="search" class="form-control filter-input" placeholder="नाम या फोन से खोजें (Search by name or phone)" value="<?= htmlspecialchars($search) ?>" oninput="debounceSearch()">
             
-            <select name="nagar" class="form-control filter-input" onchange="document.getElementById('filter-form').submit()">
-                <option value="">सभी नगर (All Cities)</option>
-                <?php foreach ($cities as $c): ?>
-                    <option value="<?= htmlspecialchars($c) ?>" <?= $c === $nagar ? 'selected' : '' ?>>
+            <select name="<?= $filter_name ?>" class="form-control filter-input" onchange="document.getElementById('filter-form').submit()">
+                <option value=""><?= htmlspecialchars($filter_label) ?></option>
+                <?php foreach ($filter_options as $c): ?>
+                    <option value="<?= htmlspecialchars($c) ?>" <?= $c === $filter_value ? 'selected' : '' ?>>
                         <?= htmlspecialchars($c) ?>
                     </option>
                 <?php endforeach; ?>
@@ -191,7 +216,15 @@ include 'includes/header.php';
                         'name' => $p['name'],
                         'phone' => $p['phone'] ?? '',
                         'city' => $p['city'] ?? '',
-                        'organization' => $p['organization'] ?? ''
+                        'vasti' => $p['vasti'] ?? '',
+                        'organization' => $p['organization'] ?? '',
+                        'level_type' => $p['level_type'] ?? '',
+                        'responsibility' => $p['responsibility'] ?? '',
+                        'sangh_shikshan' => $p['sangh_shikshan'] ?? '',
+                        'age_group' => $p['age_group'] ?? '',
+                        'email' => $p['email'] ?? '',
+                        'category' => $p['category'] ?? '',
+                        'notes' => $p['notes'] ?? ''
                     ])) ?>)">✏️ Edit</button>
                 </div>
                 <div style="color: #666; margin-bottom: 5px;">📱 <?= htmlspecialchars($p['phone'] ?? 'N/A') ?> | 📍 <?= htmlspecialchars($p['city'] ?? 'N/A') ?></div>
@@ -235,8 +268,40 @@ include 'includes/header.php';
                 <input type="text" name="city" id="edit_city" class="form-control">
             </div>
             <div class="form-group">
+                <label>निवासी वस्ती (Vasti)</label>
+                <input type="text" name="vasti" id="edit_vasti" class="form-control">
+            </div>
+            <div class="form-group">
                 <label>संघटना (Organization)</label>
                 <input type="text" name="organization" id="edit_organization" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>स्तर / प्रकार (Level/Type)</label>
+                <input type="text" name="level_type" id="edit_level_type" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>दायित्व (Responsibility)</label>
+                <input type="text" name="responsibility" id="edit_responsibility" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>संघ शिक्षण (Sangh Shikshan)</label>
+                <input type="text" name="sangh_shikshan" id="edit_sangh_shikshan" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>वयोगट (Age Group)</label>
+                <input type="text" name="age_group" id="edit_age_group" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>अणुडाक (Email)</label>
+                <input type="email" name="email" id="edit_email" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>श्रेणी (Category)</label>
+                <input type="text" name="category" id="edit_category" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>इतर माहिती (Notes)</label>
+                <textarea name="notes" id="edit_notes" class="form-control" rows="2"></textarea>
             </div>
             
             <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">सुरक्षित करें (Save)</button>
@@ -250,7 +315,15 @@ include 'includes/header.php';
         document.getElementById('edit_name').value = data.name;
         document.getElementById('edit_phone').value = data.phone;
         document.getElementById('edit_city').value = data.city;
+        document.getElementById('edit_vasti').value = data.vasti;
         document.getElementById('edit_organization').value = data.organization;
+        document.getElementById('edit_level_type').value = data.level_type;
+        document.getElementById('edit_responsibility').value = data.responsibility;
+        document.getElementById('edit_sangh_shikshan').value = data.sangh_shikshan;
+        document.getElementById('edit_age_group').value = data.age_group;
+        document.getElementById('edit_email').value = data.email;
+        document.getElementById('edit_category').value = data.category;
+        document.getElementById('edit_notes').value = data.notes;
         document.getElementById('editModal').style.display = 'block';
     }
 

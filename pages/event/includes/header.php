@@ -46,22 +46,23 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
             -webkit-font-smoothing: antialiased;
         }
         
-        /* Modern Navbar with Glassmorphism */
-        .navbar {
-            background: rgba(26, 29, 39, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
+        /* Modern Sidebar Layout */
+        .sidebar {
+            position: fixed;
             top: 0;
+            left: 0;
+            width: 250px;
+            height: 100vh;
+            background: var(--container-bg);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
             z-index: 1000;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 24px rgba(0,0,0,0.1);
         }
-        .navbar-brand {
+        .sidebar-brand {
+            padding: 1.5rem;
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-color);
@@ -69,9 +70,10 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
             letter-spacing: 0.5px;
         }
-        .navbar-brand::before {
+        .sidebar-brand::before {
             content: '';
             display: inline-block;
             width: 12px;
@@ -80,71 +82,113 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
             border-radius: 50%;
             box-shadow: 0 0 12px rgba(249, 115, 22, 0.5);
         }
-        .menu-toggle {
-            display: none;
-            font-size: 1.8rem;
-            background: none;
-            border: none;
-            color: var(--text-color);
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-        .menu-toggle:hover {
-            color: var(--saffron);
-        }
-        .nav-links {
+        .sidebar-nav {
+            padding: 1.5rem 0;
             display: flex;
-            gap: 2rem;
-            align-items: center;
+            flex-direction: column;
+            flex: 1;
         }
-        .nav-links a {
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+        .nav-section-title {
+            padding: 0 1.5rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
             color: var(--text-muted);
             text-decoration: none;
             font-weight: 500;
             font-size: 0.95rem;
             transition: all 0.3s ease;
-            padding: 0.5rem 0;
-            position: relative;
+            border-left: 3px solid transparent;
         }
-        .nav-links a:hover, .nav-links a.active {
+        .sidebar-nav a:hover, .sidebar-nav a.active {
             color: var(--text-color);
+            background: rgba(255, 255, 255, 0.03);
+            border-left-color: var(--saffron);
         }
-        .nav-links a::after {
+        
+        .mobile-header {
+            display: none;
+            background: var(--container-bg);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .mobile-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .mobile-brand::before {
             content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 2px;
-            background: var(--saffron);
-            transition: width 0.3s ease;
-            border-radius: 2px;
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: linear-gradient(135deg, var(--saffron), var(--saffron-dark));
+            border-radius: 50%;
         }
-        .nav-links a:hover::after, .nav-links a.active::after {
-            width: 100%;
+        .menu-toggle {
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        
+        body.has-sidebar {
+            padding-left: 250px;
+        }
+        
         @media (max-width: 768px) {
-            .navbar { padding: 1rem; }
-            .menu-toggle { display: block; }
-            .nav-links {
+            body.has-sidebar {
+                padding-left: 0;
+            }
+            .mobile-header {
+                display: flex;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .sidebar-overlay {
                 display: none;
-                flex-direction: column;
-                position: absolute;
-                top: 100%;
+                position: fixed;
+                top: 0;
                 left: 0;
                 right: 0;
-                background: rgba(26, 29, 39, 0.95);
-                backdrop-filter: blur(16px);
-                border-bottom: 1px solid var(--border-color);
-                padding: 1.5rem;
-                gap: 1.25rem;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 998;
+                backdrop-filter: blur(4px);
             }
-            .nav-links.active { display: flex; }
-            .nav-links a {
-                width: 100%;
-                padding: 0.5rem 0;
+            .sidebar-overlay.active {
+                display: block;
             }
         }
         
@@ -298,60 +342,131 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
         }
     </style>
 </head>
-<body>
+<body class="<?= isset($_SESSION['event_user_id']) ? 'has-sidebar' : '' ?>">
+
 <?php if (isset($_SESSION['event_user_id'])): ?>
     <?php 
         $vyavastha = $_SESSION['event_vyavastha'] ?? 'all';
         $role = $_SESSION['event_role'] ?? '';
     ?>
-    <nav class="navbar">
-        <a href="dashboard.php" class="navbar-brand">आयोजन</a>
+    
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <a href="dashboard.php" class="mobile-brand">आयोजन</a>
         <button class="menu-toggle" aria-label="Toggle navigation" id="mobile-menu-btn">☰</button>
-        <div class="nav-links" id="nav-links">
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <a href="dashboard.php" class="sidebar-brand">आयोजन</a>
+        <nav class="sidebar-nav">
             <?php if ($role === 'admin' || $vyavastha === 'all'): ?>
-                <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
-                <a href="participants.php">प्रतिभागी (Participants)</a>
-                <a href="rooms.php">आवास (Rooms)</a>
-                <a href="food.php">भोजन (Food)</a>
-                <a href="schedule.php">अनुसूची (Schedule)</a>
-                <a href="attendance.php">हाजिरी (Attendance)</a>
-                <a href="tasks.php">कार्य (Tasks)</a>
-                <?php if ($role === 'admin'): ?>
-                <a href="organizers.php">आयोजक (Organizers)</a>
-                <a href="room_inventory.php">कक्ष सूची (Room Inventory)</a>
-                <?php endif; ?>
-                <a href="logout.php">लॉगआउट (Logout)</a>
+                <div class="nav-section">
+                    <div class="nav-section-title">डैशबोर्ड (Dashboard)</div>
+                    <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">संचालन (Operations)</div>
+                    <a href="attendance.php">हाजिरी (Attendance)</a>
+                    <a href="food.php">भोजन (Food)</a>
+                    <a href="rooms.php">आवास (Rooms)</a>
+                    <a href="tasks.php">कार्य (Tasks)</a>
+                    <a href="schedule.php">अनुसूची (Schedule)</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">लोग (People)</div>
+                    <a href="participants.php">प्रतिभागी (Participants)</a>
+                    <?php if ($role === 'admin'): ?>
+                    <a href="organizers.php">आयोजक (Organizers)</a>
+                    <?php endif; ?>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">सेटिंग्स (Settings)</div>
+                    <?php if ($role === 'admin'): ?>
+                    <a href="room_inventory.php">कक्ष सूची (Room Inventory)</a>
+                    <a href="data_cleanse.php">मास्टर डेटा अपडेट (Master Data Update)</a>
+                    <?php endif; ?>
+                    <a href="logout.php">लॉगआउट (Logout)</a>
+                </div>
+
             <?php elseif ($vyavastha === 'hajiri'): ?>
-                <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
-                <a href="attendance.php">हाजिरी (Attendance)</a>
-                <a href="logout.php">लॉगआउट (Logout)</a>
+                <div class="nav-section">
+                    <div class="nav-section-title">डैशबोर्ड (Dashboard)</div>
+                    <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">संचालन (Operations)</div>
+                    <a href="attendance.php">हाजिरी (Attendance)</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">सेटिंग्स (Settings)</div>
+                    <a href="logout.php">लॉगआउट (Logout)</a>
+                </div>
+
             <?php elseif ($vyavastha === 'bhojan'): ?>
-                <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
-                <a href="food.php">भोजन (Food)</a>
-                <a href="logout.php">लॉगआउट (Logout)</a>
+                <div class="nav-section">
+                    <div class="nav-section-title">डैशबोर्ड (Dashboard)</div>
+                    <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">संचालन (Operations)</div>
+                    <a href="food.php">भोजन (Food)</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">सेटिंग्स (Settings)</div>
+                    <a href="logout.php">लॉगआउट (Logout)</a>
+                </div>
+
             <?php elseif ($vyavastha === 'nivas'): ?>
-                <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
-                <a href="rooms.php">आवास (Rooms)</a>
-                <a href="room_inventory.php">कक्ष सूची (Room Inventory)</a>
-                <a href="logout.php">लॉगआउट (Logout)</a>
+                <div class="nav-section">
+                    <div class="nav-section-title">डैशबोर्ड (Dashboard)</div>
+                    <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">संचालन (Operations)</div>
+                    <a href="rooms.php">आवास (Rooms)</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">सेटिंग्स (Settings)</div>
+                    <a href="room_inventory.php">कक्ष सूची (Room Inventory)</a>
+                    <a href="logout.php">लॉगआउट (Logout)</a>
+                </div>
+
             <?php else: ?>
-                <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
-                <a href="attendance.php">हाजिरी (Attendance)</a>
-                <a href="logout.php">लॉगआउट (Logout)</a>
+                <div class="nav-section">
+                    <div class="nav-section-title">डैशबोर्ड (Dashboard)</div>
+                    <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">संचालन (Operations)</div>
+                    <a href="attendance.php">हाजिरी (Attendance)</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">सेटिंग्स (Settings)</div>
+                    <a href="logout.php">लॉगआउट (Logout)</a>
+                </div>
             <?php endif; ?>
-        </div>
-    </nav>
+        </nav>
+    </aside>
 <?php endif; ?>
+
 <div class="container">
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const menuBtn = document.getElementById('mobile-menu-btn');
-        const navLinks = document.getElementById('nav-links');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
         
-        if (menuBtn && navLinks) {
-            menuBtn.addEventListener('click', function() {
-                navLinks.classList.toggle('active');
-            });
+        if (menuBtn && sidebar && overlay) {
+            function toggleMenu() {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+            menuBtn.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
         }
 
         // Auto-wrap tables for mobile responsiveness
@@ -362,6 +477,16 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
                 wrapper.className = 'table-responsive';
                 table.parentNode.insertBefore(wrapper, table);
                 wrapper.appendChild(table);
+            }
+        });
+
+        // Highlight active link
+        const currentPath = window.location.pathname.split('/').pop() || 'dashboard.php';
+        const navLinks = document.querySelectorAll('.sidebar-nav a');
+        navLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href === currentPath || (currentPath === '' && href === 'dashboard.php')) {
+                link.classList.add('active');
             }
         });
     });
