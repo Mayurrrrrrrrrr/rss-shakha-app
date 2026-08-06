@@ -303,8 +303,9 @@ include 'includes/header.php';
                 <label>इतर माहिती (Notes)</label>
                 <textarea name="notes" id="edit_notes" class="form-control" rows="2"></textarea>
             </div>
-            
-            <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">सुरक्षित करें (Save)</button>
+            <div style="position: sticky; bottom: -2px; background: var(--card-bg, #1A1D27); padding: 1rem 0; z-index: 10; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 1rem; margin-bottom: -1rem;">
+                <button type="submit" class="btn" style="width: 100%;">सुरक्षित करें (Save)</button>
+            </div>
         </form>
     </div>
 </div>
