@@ -18,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['event_user_id'] = $user['id'];
                 $_SESSION['event_user_name'] = $user['name'];
                 $_SESSION['event_role'] = $user['role'];
+                $_SESSION['event_vyavastha'] = $user['vyavastha'] ?? 'all';
                 
                 // Find active event from em_events
                 $stmt = $pdo->query("SELECT id, name FROM em_events WHERE status = 'active' LIMIT 1");
@@ -27,7 +28,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['event_name'] = $event['name'];
                 }
                 
-                header('Location: dashboard.php');
+                if ($_SESSION['event_role'] === 'admin') {
+                    header('Location: dashboard.php');
+                } elseif ($_SESSION['event_vyavastha'] === 'hajiri') {
+                    header('Location: attendance.php');
+                } elseif ($_SESSION['event_vyavastha'] === 'bhojan') {
+                    header('Location: food.php');
+                } elseif ($_SESSION['event_vyavastha'] === 'nivas') {
+                    header('Location: rooms.php');
+                } else {
+                    header('Location: dashboard.php');
+                }
                 exit;
             } else {
                 $error = 'अमान्य क्रेडेंशियल (Invalid credentials)';

@@ -200,22 +200,45 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
 </head>
 <body>
 <?php if (isset($_SESSION['event_user_id'])): ?>
+    <?php 
+        $vyavastha = $_SESSION['event_vyavastha'] ?? 'all';
+        $role = $_SESSION['event_role'] ?? '';
+    ?>
     <nav class="navbar">
         <a href="dashboard.php" class="navbar-brand">आयोजन</a>
         <button class="menu-toggle" aria-label="Toggle navigation" id="mobile-menu-btn">☰</button>
         <div class="nav-links" id="nav-links">
-            <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
-            <a href="participants.php">प्रतिभागी (Participants)</a>
-            <a href="rooms.php">आवास (Rooms)</a>
-            <a href="food.php">भोजन (Food)</a>
-            <a href="schedule.php">अनुसूची (Schedule)</a>
-            <a href="attendance.php">हाजिरी (Attendance)</a>
-            <a href="tasks.php">कार्य (Tasks)</a>
-            <?php if (isset($_SESSION['event_role']) && $_SESSION['event_role'] === 'admin'): ?>
-            <a href="organizers.php">आयोजक (Organizers)</a>
-            <a href="room_inventory.php">कक्ष सूची (Room Inventory)</a>
+            <?php if ($role === 'admin' || $vyavastha === 'all'): ?>
+                <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
+                <a href="participants.php">प्रतिभागी (Participants)</a>
+                <a href="rooms.php">आवास (Rooms)</a>
+                <a href="food.php">भोजन (Food)</a>
+                <a href="schedule.php">अनुसूची (Schedule)</a>
+                <a href="attendance.php">हाजिरी (Attendance)</a>
+                <a href="tasks.php">कार्य (Tasks)</a>
+                <?php if ($role === 'admin'): ?>
+                <a href="organizers.php">आयोजक (Organizers)</a>
+                <a href="room_inventory.php">कक्ष सूची (Room Inventory)</a>
+                <?php endif; ?>
+                <a href="logout.php">लॉगआउट (Logout)</a>
+            <?php elseif ($vyavastha === 'hajiri'): ?>
+                <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
+                <a href="attendance.php">हाजिरी (Attendance)</a>
+                <a href="logout.php">लॉगआउट (Logout)</a>
+            <?php elseif ($vyavastha === 'bhojan'): ?>
+                <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
+                <a href="food.php">भोजन (Food)</a>
+                <a href="logout.php">लॉगआउट (Logout)</a>
+            <?php elseif ($vyavastha === 'nivas'): ?>
+                <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
+                <a href="rooms.php">आवास (Rooms)</a>
+                <a href="room_inventory.php">कक्ष सूची (Room Inventory)</a>
+                <a href="logout.php">लॉगआउट (Logout)</a>
+            <?php else: ?>
+                <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
+                <a href="attendance.php">हाजिरी (Attendance)</a>
+                <a href="logout.php">लॉगआउट (Logout)</a>
             <?php endif; ?>
-            <a href="logout.php">लॉगआउट (Logout)</a>
         </div>
     </nav>
 <?php endif; ?>

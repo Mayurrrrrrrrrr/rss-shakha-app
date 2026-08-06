@@ -54,6 +54,89 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $qs = http_build_query($qParams);
     header("Location: rooms.php" . ($qs ? "?$qs" : ""));
     exit;
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'bulk_allot_rooms') {
+    $participant_ids = $_POST['participant_ids'] ?? [];
+    $room_id = $_POST['room_id'] ?? 0;
+    $allotted_by = $_SESSION['event_user_id'] ?? 0;
+    $event_id = $_SESSION['event_id'] ?? 1;
+
+    if (!empty($participant_ids) && $room_id > 0) {
+        $pdo->beginTransaction();
+        try {
+            foreach ($participant_ids as $pid) {
+                $checkStmt = $pdo->prepare("SELECT room_id FROM em_room_allotments WHERE event_id = ? AND allottee_type = 'participant' AND allottee_id = ?");
+                $checkStmt->execute([$event_id, $pid]);
+                $old_room = $checkStmt->fetchColumn();
+
+                if ($old_room) {
+                    if ($old_room != $room_id) {
+                        $pdo->prepare("UPDATE em_room_allotments SET room_id = ?, allotted_by = ? WHERE event_id = ? AND allottee_type = 'participant' AND allottee_id = ?")->execute([$room_id, $allotted_by, $event_id, $pid]);
+                        $pdo->prepare("UPDATE em_rooms SET occupancy = GREATEST(0, occupancy - 1) WHERE id = ?")->execute([$old_room]);
+                        $pdo->prepare("UPDATE em_rooms SET occupancy = occupancy + 1 WHERE id = ?")->execute([$room_id]);
+                    }
+                } else {
+                    $stmt = $pdo->prepare("INSERT INTO em_room_allotments (event_id, room_id, allottee_type, allottee_id, allotted_by) VALUES (?, ?, 'participant', ?, ?)");
+                    $stmt->execute([$event_id, $room_id, $pid, $allotted_by]);
+                    $pdo->prepare("UPDATE em_rooms SET occupancy = occupancy + 1 WHERE id = ?")->execute([$room_id]);
+                }
+            }
+            $pdo->commit();
+        } catch (Exception $e) {
+            $pdo->rollBack();
+        }
+    }
+    header("Location: rooms.php");
+    exit;
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'csv_import') {
+    $allotted_by = $_SESSION['event_user_id'] ?? 0;
+    $event_id = $_SESSION['event_id'] ?? 1;
+    
+    if (isset($_FILES['csv_file']['tmp_name']) && is_uploaded_file($_FILES['csv_file']['tmp_name'])) {
+        $file = fopen($_FILES['csv_file']['tmp_name'], 'r');
+        $pdo->beginTransaction();
+        try {
+            while (($data = fgetcsv($file, 1000, ",")) !== FALSE) {
+                if (count($data) >= 2) {
+                    $phone = trim($data[0]);
+                    $room_name = trim($data[1]);
+                    
+                    if ($phone && $room_name) {
+                        $pStmt = $pdo->prepare("SELECT id FROM em_participants WHERE event_id = ? AND phone = ? LIMIT 1");
+                        $pStmt->execute([$event_id, $phone]);
+                        $pid = $pStmt->fetchColumn();
+
+                        $rStmt = $pdo->prepare("SELECT id FROM em_rooms WHERE event_id = ? AND (room_name = ? OR room_number = ?) LIMIT 1");
+                        $rStmt->execute([$event_id, $room_name, $room_name]);
+                        $rid = $rStmt->fetchColumn();
+
+                        if ($pid && $rid) {
+                            $checkStmt = $pdo->prepare("SELECT room_id FROM em_room_allotments WHERE event_id = ? AND allottee_type = 'participant' AND allottee_id = ?");
+                            $checkStmt->execute([$event_id, $pid]);
+                            $old_room = $checkStmt->fetchColumn();
+
+                            if ($old_room) {
+                                if ($old_room != $rid) {
+                                    $pdo->prepare("UPDATE em_room_allotments SET room_id = ?, allotted_by = ? WHERE event_id = ? AND allottee_type = 'participant' AND allottee_id = ?")->execute([$rid, $allotted_by, $event_id, $pid]);
+                                    $pdo->prepare("UPDATE em_rooms SET occupancy = GREATEST(0, occupancy - 1) WHERE id = ?")->execute([$old_room]);
+                                    $pdo->prepare("UPDATE em_rooms SET occupancy = occupancy + 1 WHERE id = ?")->execute([$rid]);
+                                }
+                            } else {
+                                $stmt = $pdo->prepare("INSERT INTO em_room_allotments (event_id, room_id, allottee_type, allottee_id, allotted_by) VALUES (?, ?, 'participant', ?, ?)");
+                                $stmt->execute([$event_id, $rid, $pid, $allotted_by]);
+                                $pdo->prepare("UPDATE em_rooms SET occupancy = occupancy + 1 WHERE id = ?")->execute([$rid]);
+                            }
+                        }
+                    }
+                }
+            }
+            $pdo->commit();
+        } catch (Exception $e) {
+            $pdo->rollBack();
+        }
+        fclose($file);
+    }
+    header("Location: rooms.php");
+    exit;
 }
 
 $event_id = $_SESSION['event_id'] ?? 1;
@@ -125,12 +208,14 @@ include 'includes/header.php';
         </div>
         <button type="submit" class="btn">खोजें (Search)</button>
         <a href="rooms.php" class="btn btn-outline" style="text-decoration:none; padding: 0.5rem 1rem;">रीसेट (Reset)</a>
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('csvModal').style.display='block'" style="margin-left:auto;">CSV से आवंटन (Assign via CSV)</button>
     </form>
 
-    <div style="overflow-x: auto;">
-        <table>
+    <div style="overflow-x: auto; padding-bottom: 80px;">
+        <table id="roomsTable">
             <thead>
                 <tr>
+                    <th><input type="checkbox" id="selectAll" onclick="toggleAll(this)" style="transform: scale(1.2);"></th>
                     <th>ID</th>
                     <th>नाम (Name)</th>
                     <th>शहर (City)</th>
@@ -143,6 +228,7 @@ include 'includes/header.php';
                 <?php if (count($participants) > 0): ?>
                     <?php foreach ($participants as $p): ?>
                         <tr>
+                            <td><input type="checkbox" class="row-checkbox" value="<?= $p['id'] ?>" onchange="updateBulkBar()" style="transform: scale(1.2);"></td>
                             <td><?= $p['id'] ?></td>
                             <td><?= htmlspecialchars($p['name']) ?></td>
                             <td><?= htmlspecialchars($p['city']) ?></td>
@@ -189,12 +275,87 @@ include 'includes/header.php';
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="6" style="text-align: center;">कोई प्रतिभागी नहीं मिला (No participants found).</td>
+                        <td colspan="7" style="text-align: center;">कोई प्रतिभागी नहीं मिला (No participants found).</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
         </table>
     </div>
 </div>
+
+<!-- Bulk Action Bar -->
+<div id="bulkActionBar" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg, #fff); padding: 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.2); z-index: 1000; justify-content: center; align-items: center; gap: 15px;">
+    <span id="selectedCount" style="font-weight: bold; margin-right: 15px;">0 selected</span>
+    <form method="POST" action="rooms.php" id="bulkForm" style="display: flex; gap: 10px; align-items: center;">
+        <input type="hidden" name="action" value="bulk_allot_rooms">
+        <div id="bulkHiddenInputs"></div>
+        <select name="room_id" class="form-control" style="width: 250px;" required>
+            <option value="">-- कमरा चुनें (Select Room) --</option>
+            <?php foreach ($rooms as $r): ?>
+                <option value="<?= $r['id'] ?>"><?= htmlspecialchars($r['room_number']) ?> (<?= $r['capacity'] - $r['occupancy'] ?> left)</option>
+            <?php endforeach; ?>
+        </select>
+        <button type="submit" class="btn">बल्क आवंटन (Bulk Assign)</button>
+    </form>
+</div>
+
+<!-- CSV Import Modal -->
+<div id="csvModal" style="display:none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000;">
+    <div class="card" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 400px;">
+        <h3 style="margin-top:0;">CSV से आवंटन (Assign via CSV)</h3>
+        <p style="font-size: 0.9em; color: #666;">CSV format: Phone,Room (e.g. 9876543210,101)</p>
+        <form method="POST" enctype="multipart/form-data" action="rooms.php">
+            <input type="hidden" name="action" value="csv_import">
+            <div class="form-group">
+                <input type="file" name="csv_file" class="form-control" accept=".csv" required>
+            </div>
+            <div style="display:flex; gap:10px; justify-content: flex-end; margin-top: 15px;">
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('csvModal').style.display='none'">रद्द करें (Cancel)</button>
+                <button type="submit" class="btn">अपलोड करें (Upload)</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleAll(source) {
+    checkboxes = document.getElementsByClassName('row-checkbox');
+    for(var i=0, n=checkboxes.length;i<n;i++) {
+        checkboxes[i].checked = source.checked;
+    }
+    updateBulkBar();
+}
+
+function updateBulkBar() {
+    let checkboxes = document.getElementsByClassName('row-checkbox');
+    let selectedIds = [];
+    for(var i=0, n=checkboxes.length;i<n;i++) {
+        if (checkboxes[i].checked) {
+            selectedIds.push(checkboxes[i].value);
+        }
+    }
+    
+    let bulkBar = document.getElementById('bulkActionBar');
+    let countSpan = document.getElementById('selectedCount');
+    let hiddenContainer = document.getElementById('bulkHiddenInputs');
+    
+    if (selectedIds.length > 0) {
+        bulkBar.style.display = 'flex';
+        countSpan.innerText = selectedIds.length + ' चयनित (Selected)';
+        
+        hiddenContainer.innerHTML = '';
+        selectedIds.forEach(id => {
+            let input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'participant_ids[]';
+            input.value = id;
+            hiddenContainer.appendChild(input);
+        });
+    } else {
+        bulkBar.style.display = 'none';
+        document.getElementById('selectAll').checked = false;
+    }
+}
+</script>
 
 <?php include 'includes/footer.php'; ?>

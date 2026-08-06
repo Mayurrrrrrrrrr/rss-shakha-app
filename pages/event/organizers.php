@@ -18,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
     $role = $_POST['role'] ?? 'volunteer';
+    $vyavastha = $_POST['vyavastha'] ?? '';
 
     if ($name && $username && $password && $event_id) {
         try {
@@ -28,8 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $error = "उपयोगकर्ता नाम पहले से मौजूद है (Username already exists)";
             } else {
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare("INSERT INTO em_organizers (event_id, name, phone, username, password, role) VALUES (?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$event_id, $name, $phone, $username, $hashed_password, $role]);
+                $stmt = $pdo->prepare("INSERT INTO em_organizers (event_id, name, phone, username, password, role, vyavastha) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$event_id, $name, $phone, $username, $hashed_password, $role, $vyavastha]);
                 $message = "आयोजक सफलतापूर्वक जोड़ा गया (Organizer added successfully)";
             }
         } catch (PDOException $e) {
@@ -66,6 +67,7 @@ if ($event_id) {
                 <th>फ़ोन (Phone)</th>
                 <th>यूज़रनेम (Username)</th>
                 <th>भूमिका (Role)</th>
+                <th>व्यवस्था (Vyavastha)</th>
             </tr>
         </thead>
         <tbody>
@@ -81,10 +83,19 @@ if ($event_id) {
                         else echo 'स्वयंसेवक (Volunteer)';
                     ?>
                 </td>
+                <td>
+                    <?php
+                        if (($org['vyavastha'] ?? '') === 'hajiri') echo 'हाजिरी (Attendance)';
+                        elseif (($org['vyavastha'] ?? '') === 'bhojan') echo 'भोजन (Food)';
+                        elseif (($org['vyavastha'] ?? '') === 'nivas') echo 'निवास (Rooms)';
+                        elseif (($org['vyavastha'] ?? '') === 'all') echo 'सर्व (All)';
+                        else echo '-';
+                    ?>
+                </td>
             </tr>
             <?php endforeach; ?>
             <?php if (empty($organizers)): ?>
-            <tr><td colspan="4">कोई आयोजक नहीं मिला। (No organizers found.)</td></tr>
+            <tr><td colspan="5">कोई आयोजक नहीं मिला। (No organizers found.)</td></tr>
             <?php endif; ?>
         </tbody>
     </table>
@@ -120,10 +131,21 @@ if ($event_id) {
             
             <div class="form-group">
                 <label>भूमिका (Role) *</label>
-                <select name="role" class="form-control" required>
+                <select name="role" id="role_select" class="form-control" onchange="toggleVyavastha()" required>
                     <option value="volunteer">स्वयंसेवक (Volunteer)</option>
                     <option value="coordinator">समन्वयक (Coordinator)</option>
                     <option value="admin">प्रशासक (Admin)</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="vyavastha_group" style="display: none;">
+                <label>व्यवस्था (Vyavastha)</label>
+                <select name="vyavastha" class="form-control">
+                    <option value=''>-- चुनें --</option>
+                    <option value='hajiri'>हाजिरी (Attendance)</option>
+                    <option value='bhojan'>भोजन (Food)</option>
+                    <option value='nivas'>निवास (Rooms)</option>
+                    <option value='all'>सर्व (All)</option>
                 </select>
             </div>
             
@@ -131,5 +153,17 @@ if ($event_id) {
         </form>
     </div>
 </div>
+
+<script>
+function toggleVyavastha() {
+    var role = document.getElementById('role_select').value;
+    var vyavasthaGroup = document.getElementById('vyavastha_group');
+    if (role === 'coordinator') {
+        vyavasthaGroup.style.display = 'block';
+    } else {
+        vyavasthaGroup.style.display = 'none';
+    }
+}
+</script>
 
 <?php include 'includes/footer.php'; ?>
