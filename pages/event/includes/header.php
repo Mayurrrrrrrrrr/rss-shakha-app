@@ -16,6 +16,10 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>आयोजन - Aayojan Portal</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1A1D27">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
