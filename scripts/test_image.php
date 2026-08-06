@@ -10,21 +10,24 @@ require_once BASE_PATH . '/config/db.php';
 \App\Core\DB::init($pdo);
 require_once BASE_PATH . '/includes/PanchangHelper.php';
 
-$today = date('Y-m-d');
-echo "Testing image generation for {$today}...\n";
+$date = '2026-08-07';
+$shakhaId = 1;
+$subhashitId = 3;
+
+echo "Testing image generation for {$date}...\n";
 
 // Fetch panchang
-$panchang = \PanchangHelper::getForDate($pdo, $today);
+$panchang = \PanchangHelper::getForDate($pdo, $date);
 echo "Panchang: Tithi={$panchang['tithi']}, Nakshatra={$panchang['nakshatra']}\n";
 
 // Fetch shakha
-$shakha = $pdo->query("SELECT * FROM shakhas WHERE id = 1")->fetch();
+$shakha = $pdo->query("SELECT * FROM shakhas WHERE id = {$shakhaId}")->fetch();
 $shakhaName = $shakha['name'] ?? 'Test Shakha';
 $logoPath = BASE_PATH . '/' . ($shakha['logo'] ?: 'assets/images/logo.svg');
 echo "Shakha: {$shakhaName}, Logo: {$logoPath}\n";
 
 // Fetch subhashit
-$sub = $pdo->query("SELECT * FROM subhashits WHERE shakha_id = 1 AND (is_deleted IS NULL OR is_deleted = 0) ORDER BY id ASC LIMIT 1")->fetch();
+$sub = $pdo->query("SELECT * FROM subhashits WHERE id = {$subhashitId} AND (is_deleted IS NULL OR is_deleted = 0)")->fetch();
 if ($sub) {
     echo "Subhashit ID: {$sub['id']}\n";
 } else {
@@ -33,7 +36,7 @@ if ($sub) {
 
 // Generate image
 $generator = new \App\Core\ImageGenerator();
-$imagePath = $generator->generate($panchang, $sub ?: null, $logoPath, $shakhaName);
+$imagePath = $generator->generate($panchang, $sub ?: null, $logoPath, $shakhaName, $date);
 echo "Image generated: {$imagePath}\n";
 echo "File size: " . round(filesize($imagePath) / 1024) . " KB\n";
 echo "SUCCESS!\n";
