@@ -54,6 +54,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
+// Handle Participant Edit
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit_participant') {
+    $participant_id = $_POST['participant_id'] ?? 0;
+    $name = trim($_POST['name'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
+    $city = trim($_POST['city'] ?? '');
+    $organization = trim($_POST['organization'] ?? '');
+    
+    if ($participant_id && $name) {
+        $stmt = $pdo->prepare("UPDATE em_participants SET name = ?, phone = ?, city = ?, organization = ? WHERE id = ? AND event_id = ?");
+        $stmt->execute([$name, $phone, $city, $organization, $participant_id, $event_id]);
+    }
+    
+    // Redirect back to preserve GET params
+    $queryParams = $_GET;
+    // Unset action if it somehow got in GET, just in case
+    unset($queryParams['action']);
+    $qs = http_build_query($queryParams);
+    header("Location: attendance.php" . ($qs ? '?' . $qs : ''));
+    exit;
+}
+
 // Fetch Sessions
 $sessionsStmt = $pdo->prepare("SELECT id, session_name FROM em_attendance_sessions WHERE event_id = ?");
 $sessionsStmt->execute([$event_id]);
@@ -162,7 +184,16 @@ include 'includes/header.php';
         <?php foreach ($participantsList as $p): ?>
             <?php $isPresent = !empty($p['is_present']); ?>
             <div class="participant-card <?= $isPresent ? 'present' : '' ?>" id="card-<?= $p['id'] ?>">
-                <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 5px;">👤 <?= htmlspecialchars($p['name']) ?></div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px;">
+                    <div style="font-size: 1.2rem; font-weight: bold;">👤 <?= htmlspecialchars($p['name']) ?></div>
+                    <button type="button" style="background: none; border: none; cursor: pointer; font-size: 1rem; color: #007bff; padding: 0;" onclick="openEditModal(<?= htmlspecialchars(json_encode([
+                        'id' => $p['id'],
+                        'name' => $p['name'],
+                        'phone' => $p['phone'] ?? '',
+                        'city' => $p['city'] ?? '',
+                        'organization' => $p['organization'] ?? ''
+                    ])) ?>)">✏️ Edit</button>
+                </div>
                 <div style="color: #666; margin-bottom: 5px;">📱 <?= htmlspecialchars($p['phone'] ?? 'N/A') ?> | 📍 <?= htmlspecialchars($p['city'] ?? 'N/A') ?></div>
                 <div style="color: #666; font-size: 0.9rem;">🏢 <?= htmlspecialchars($p['organization'] ?? 'N/A') ?></div>
                 
@@ -178,7 +209,51 @@ include 'includes/header.php';
     <?php endif; ?>
 </div>
 
+<!-- Edit Modal -->
+<div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000;">
+    <div class="card" style="width: 90%; max-width: 400px; margin: 5% auto; position: relative; max-height: 90vh; overflow-y: auto;">
+        <span onclick="document.getElementById('editModal').style.display='none'" style="position: absolute; right: 1rem; top: 1rem; cursor: pointer; font-size: 1.5rem;">&times;</span>
+        <h3 style="margin-top: 0; color: var(--saffron);">संपादित करें (Edit)</h3>
+        <?php
+            $qs = http_build_query($_GET);
+            $actionUrl = "attendance.php" . ($qs ? '?' . $qs : '');
+        ?>
+        <form method="POST" action="<?= htmlspecialchars($actionUrl) ?>">
+            <input type="hidden" name="action" value="edit_participant">
+            <input type="hidden" name="participant_id" id="edit_participant_id">
+            
+            <div class="form-group">
+                <label>पूर्ण नाव (Name) *</label>
+                <input type="text" name="name" id="edit_name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>भ्रमणध्वनी (Phone)</label>
+                <input type="text" name="phone" id="edit_phone" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>निवासी नगर (City)</label>
+                <input type="text" name="city" id="edit_city" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>संघटना (Organization)</label>
+                <input type="text" name="organization" id="edit_organization" class="form-control">
+            </div>
+            
+            <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">सुरक्षित करें (Save)</button>
+        </form>
+    </div>
+</div>
+
 <script>
+    function openEditModal(data) {
+        document.getElementById('edit_participant_id').value = data.id;
+        document.getElementById('edit_name').value = data.name;
+        document.getElementById('edit_phone').value = data.phone;
+        document.getElementById('edit_city').value = data.city;
+        document.getElementById('edit_organization').value = data.organization;
+        document.getElementById('editModal').style.display = 'block';
+    }
+
     let searchTimeout;
     function debounceSearch() {
         clearTimeout(searchTimeout);

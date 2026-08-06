@@ -75,6 +75,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
+// Handle Task Deletion (Admin & Coordinator only)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete_task') {
+    if ($_SESSION['event_role'] === 'admin' || $_SESSION['event_role'] === 'coordinator') {
+        $task_id = $_POST['task_id'] ?? null;
+        if ($task_id) {
+            try {
+                $stmt = $pdo->prepare("DELETE FROM em_work_assignments WHERE id = ? AND event_id = ?");
+                $stmt->execute([$task_id, $event_id]);
+                $message = "कार्य सफलतापूर्वक हटाया गया (Task deleted successfully)";
+            } catch (PDOException $e) {
+                $error = "त्रुटि: (Error: " . $e->getMessage() . ")";
+            }
+        }
+    } else {
+        $error = "आपको कार्य हटाने की अनुमति नहीं है। (You do not have permission to delete tasks.)";
+    }
+}
+
 // Fetch all organizers for dropdown
 $organizers = [];
 if ($event_id) {
@@ -115,21 +133,26 @@ if ($event_id) {
     <?php if ($message): ?><div style="color: #4caf50; margin-bottom: 1rem;"><?= htmlspecialchars($message) ?></div><?php endif; ?>
     <?php if ($error): ?><div style="color: #f44336; margin-bottom: 1rem;"><?= htmlspecialchars($error) ?></div><?php endif; ?>
 
-    <table>
-        <thead>
-            <tr>
-                <th>तारीख़ (Date)</th>
-                <th>कार्य श्रेणी (Category)</th>
-                <th>विवरण (Description)</th>
-                <th>समय (Time)</th>
-                <th>किसे सौंपा (Assigned To)</th>
-                <th>स्थिति (Status)</th>
-                <th>क्रिया (Action)</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($tasks as $task): ?>
-            <tr>
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>तारीख़ (Date)</th>
+                    <th>कार्य श्रेणी (Category)</th>
+                    <th>विवरण (Description)</th>
+                    <th>समय (Time)</th>
+                    <th>किसे सौंपा (Assigned To)</th>
+                    <th>स्थिति (Status)</th>
+                    <th>क्रिया (Action)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($tasks as $task): ?>
+                <?php 
+                $is_own_task = ($task['organizer_id'] == $_SESSION['event_user_id']);
+                $highlight_style = $is_own_task ? 'background-color: rgba(255, 153, 51, 0.1); border-left: 3px solid var(--saffron);' : '';
+                ?>
+                <tr style="<?= $highlight_style ?>">
                 <td><?= htmlspecialchars($task['assignment_date']) ?></td>
                 <td><?= htmlspecialchars($task['category_name']) ?></td>
                 <td><?= htmlspecialchars($task['description']) ?></td>
@@ -143,7 +166,7 @@ if ($event_id) {
                     ?>
                 </td>
                 <td>
-                    <form method="POST" style="display: inline-flex; gap: 0.5rem;">
+                    <form method="POST" style="display: inline-flex; gap: 0.5rem; align-items: center;">
                         <input type="hidden" name="action" value="update_status">
                         <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
                         <select name="status" class="form-control" style="width: auto; padding: 0.2rem;" onchange="this.form.submit()">
@@ -152,6 +175,13 @@ if ($event_id) {
                             <option value="completed" <?= $task['status'] === 'completed' ? 'selected' : '' ?>>पूर्ण</option>
                         </select>
                     </form>
+                    <?php if ($_SESSION['event_role'] === 'admin' || $_SESSION['event_role'] === 'coordinator'): ?>
+                    <form method="POST" style="display: inline-flex; margin-left: 0.5rem;" onsubmit="return confirm('क्या आप वाकई इस कार्य को हटाना चाहते हैं? (Are you sure you want to delete this task?)');">
+                        <input type="hidden" name="action" value="delete_task">
+                        <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
+                        <button type="submit" style="background: none; border: none; color: #f44336; cursor: pointer; font-size: 1.2rem; padding: 0;" title="हटाएं (Delete)">🗑️</button>
+                    </form>
+                    <?php endif; ?>
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -160,12 +190,13 @@ if ($event_id) {
             <?php endif; ?>
         </tbody>
     </table>
+    </div>
 </div>
 
 <!-- Modal -->
 <?php if ($_SESSION['event_role'] === 'admin' || $_SESSION['event_role'] === 'coordinator'): ?>
 <div id="assignModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000;">
-    <div class="card" style="width: 500px; margin: 4rem auto; position: relative; max-height: 90vh; overflow-y: auto;">
+    <div class="card" style="width: 90%; max-width: 500px; margin: 4rem auto; position: relative; max-height: 90vh; overflow-y: auto;">
         <span onclick="document.getElementById('assignModal').style.display='none'" style="position: absolute; right: 1rem; top: 1rem; cursor: pointer; font-size: 1.5rem;">&times;</span>
         <h3 style="margin-top: 0; color: var(--saffron);">कार्य सौंपें (Assign Task)</h3>
         <form method="POST">
