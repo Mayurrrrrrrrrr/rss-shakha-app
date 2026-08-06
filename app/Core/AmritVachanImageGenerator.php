@@ -123,7 +123,7 @@ class AmritVachanImageGenerator
             
             if ($purnimant && $amant) {
                 if ($purnimant === $amant) {
-                    $vikramText .= ' | ' . $purnimant;
+                    $vikramText .= ' | ' . $purnimant . ' (पूर्णिमान्त एवं अमान्त)';
                 } else {
                     $vikramText .= ' | ' . $purnimant . ' (पूर्णिमान्त) / ' . $amant . ' (अमान्त)';
                 }
@@ -178,14 +178,14 @@ body {
     border: 6px solid #FF6700;
     border-radius: 25px;
     background: radial-gradient(circle at center, #FFFFFF 0%, #FFF8F0 100%);
-    padding: 50px 70px;
+    padding: 30px 50px;
     display: flex;
     flex-direction: column;
 }
 .header { text-align: center; }
 .logo {
-    width: 180px;
-    height: 180px;
+    width: 160px;
+    height: 160px;
     object-fit: contain;
     border-radius: 50%;
     border: 6px solid #FF6700;
@@ -193,28 +193,28 @@ body {
     background: #fff;
 }
 .rss-title {
-    font-size: 52px;
+    font-size: 46px;
     font-weight: 900;
     color: #D32F2F;
-    margin: 15px 0 5px;
+    margin: 10px 0 5px;
     letter-spacing: 1px;
 }
 .shakha-name {
     font-family: 'Yatra One', cursive;
-    font-size: 48px;
+    font-size: 50px;
     color: #D35400;
-    margin: 5px 0 10px;
+    margin: 0 0 5px;
     line-height: 1.3;
 }
 .subtitle {
-    font-size: 32px;
+    font-size: 30px;
     color: #555555;
     font-weight: 600;
 }
 .date-section {
     text-align: center;
-    margin: 25px 0;
-    padding: 20px;
+    margin: 15px 0;
+    padding: 15px;
     background: #FFF3E0;
     border-radius: 20px;
     border: 2px solid #FFB74D;
@@ -225,16 +225,16 @@ body {
     justify-content: space-around;
     align-items: center;
 }
-.date-day { font-size: 45px; font-weight: 800; color: #E65100; }
-.date-greg { font-size: 40px; color: #424242; font-weight: 700; }
-.date-samvat { font-size: 36px; color: #D84315; margin-top: 15px; font-weight: 600;}
-.date-tithi { font-size: 36px; color: #D84315; margin-top: 5px; font-weight: 700;}
+.date-day { font-size: 40px; font-weight: 800; color: #E65100; }
+.date-greg { font-size: 36px; color: #424242; font-weight: 700; }
+.date-samvat { font-size: 32px; color: #D84315; margin-top: 10px; font-weight: 600;}
+.date-tithi { font-size: 32px; color: #D84315; margin-top: 5px; font-weight: 700;}
 .section-title {
     text-align: center;
-    font-size: 46px;
+    font-size: 42px;
     font-weight: 800;
     color: #E65100;
-    margin: 40px 0 25px;
+    margin: 20px 0 15px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -244,7 +244,7 @@ body {
     background: #FFFFFF;
     border: 4px solid #FFCC80;
     border-radius: 20px;
-    padding: 50px;
+    padding: 40px;
     box-shadow: 0 15px 35px rgba(255, 152, 0, 0.15);
     flex-grow: 1;
     display: flex;
@@ -252,38 +252,38 @@ body {
     justify-content: center;
 }
 .vachan-content {
-    font-size: 48px;
+    font-size: 42px;
     color: #BF360C;
     font-weight: 700;
     line-height: 1.6;
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     z-index: 2;
     position: relative;
 }
 .author {
-    font-size: 36px;
+    font-size: 32px;
     color: #555555;
     text-align: right;
     font-weight: 800;
-    margin-top: 20px;
+    margin-top: 15px;
 }
 .random-footer {
     text-align: center;
-    margin-top: 30px;
-    font-size: 34px;
+    margin-top: 20px;
+    font-size: 30px;
     color: #FFFFFF;
     background: #FF6700;
-    padding: 15px 30px;
+    padding: 10px 20px;
     border-radius: 15px;
     font-weight: 700;
     box-shadow: 0 5px 15px rgba(255, 103, 0, 0.3);
 }
 .footer {
     text-align: center;
-    margin-top: 25px;
-    padding-bottom: 10px;
-    font-size: 32px;
+    margin-top: 15px;
+    padding-bottom: 5px;
+    font-size: 30px;
     color: #E65100;
     font-weight: 800;
     display: flex;
