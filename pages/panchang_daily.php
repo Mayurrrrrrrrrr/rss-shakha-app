@@ -347,21 +347,17 @@ function populateCard(data, date) {
     document.getElementById('p-vikram').textContent = p.samvat?.vikram || p.vikram_samvat || '—';
     
     let maahText = '—';
-    if (p.maah) {
-        let purnimant = p.maah.purnimant || '';
-        let amant = p.maah.amant || '';
-        
-        if (purnimant && amant) {
-            if (purnimant === amant) {
-                maahText = purnimant;
-            } else {
-                maahText = `${purnimant} (पूर्णिमान्त) / ${amant} (अमान्त)`;
-            }
+    let purnimant = p.vikram_month || '';
+    let amant = p.amant_month || '';
+    
+    if (purnimant && amant) {
+        if (purnimant === amant) {
+            maahText = purnimant;
         } else {
-            maahText = purnimant || amant || '—';
+            maahText = `${purnimant} (पूर्णिमान्त) / ${amant} (अमान्त)`;
         }
     } else {
-        maahText = p.vikram_month || '—';
+        maahText = purnimant || amant || '—';
     }
     document.getElementById('p-maah').textContent = maahText;
     document.getElementById('p-paksha').textContent = p.paksha || '—';

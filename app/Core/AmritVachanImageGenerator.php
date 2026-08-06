@@ -117,6 +117,19 @@ class AmritVachanImageGenerator
         $vikramText = '';
         if (!empty($panchang['vikram_samvat'])) {
             $vikramText = 'विक्रम संवत् ' . $panchang['vikram_samvat'];
+            
+            $purnimant = $panchang['vikram_month'] ?? '';
+            $amant = $panchang['amant_month'] ?? '';
+            
+            if ($purnimant && $amant) {
+                if ($purnimant === $amant) {
+                    $vikramText .= ' | ' . $purnimant;
+                } else {
+                    $vikramText .= ' | ' . $purnimant . ' (पूर्णिमान्त) / ' . $amant . ' (अमान्त)';
+                }
+            } elseif ($purnimant) {
+                $vikramText .= ' | ' . $purnimant;
+            }
         }
 
         $tithiText = '';
@@ -179,11 +192,18 @@ body {
     box-shadow: 0 10px 25px rgba(255, 103, 0, 0.2);
     background: #fff;
 }
+.rss-title {
+    font-size: 52px;
+    font-weight: 900;
+    color: #D32F2F;
+    margin: 15px 0 5px;
+    letter-spacing: 1px;
+}
 .shakha-name {
     font-family: 'Yatra One', cursive;
-    font-size: 60px;
+    font-size: 48px;
     color: #D35400;
-    margin: 20px 0 10px;
+    margin: 5px 0 10px;
     line-height: 1.3;
 }
 .subtitle {
@@ -277,6 +297,7 @@ body {
         <div class="inner-wrapper">
             <div class="header">
                 <img src="{$logoBase64}" class="logo" />
+                <div class="rss-title">राष्ट्रीय स्वयंसेवक संघ</div>
                 <div class="shakha-name">{$shakhaName}</div>
                 <div class="subtitle">अमृत वचन</div>
             </div>
