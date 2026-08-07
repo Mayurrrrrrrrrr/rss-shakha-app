@@ -28,7 +28,14 @@ class ApiClient {
           }
 
           final prefs = await SharedPreferences.getInstance();
-          final token = prefs.getString('api_token');
+          String? token;
+          
+          if (options.path.startsWith('/api/v1/event/')) {
+            token = prefs.getString('event_api_token');
+          } else {
+            token = prefs.getString('api_token');
+          }
+
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
             options.headers['X-API-Token'] = token;
