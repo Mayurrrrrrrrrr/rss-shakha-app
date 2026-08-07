@@ -1,5 +1,5 @@
-const CACHE_NAME = 'sanghasthan-static-v1';
-const API_CACHE_NAME = 'sanghasthan-api-v1';
+const CACHE_NAME = 'sanghasthan-static-v2';
+const API_CACHE_NAME = 'sanghasthan-api-v2';
 
 const STATIC_ASSETS = [
   '/',
