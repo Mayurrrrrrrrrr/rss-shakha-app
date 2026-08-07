@@ -2,10 +2,9 @@
 require_once 'config/db.php';
 require_once 'includes/PanchangHelper.php';
 require_once 'includes/LunarMonthCalculator.php';
+require_once 'includes/PanchangCalculator.php';
 
-$lmc = new LunarMonthCalculator();
-echo "LMC Output:\n";
-print_r($lmc->getMonthForDate(2026, 8, 7, 'Krishna'));
-
-echo "\nPH Output:\n";
+$calc = new PanchangCalculator();
+echo "PC Output:\n";
+print_r($calc->getPanchang('2026-08-07'));
 print_r(PanchangHelper::getForDate($pdo, '2026-08-07'));
