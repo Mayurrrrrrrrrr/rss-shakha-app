@@ -228,11 +228,11 @@ class PanchangHelper {
         // Save to cache
         $stmtInsert = $pdo->prepare("
             INSERT IGNORE INTO panchang_data 
-            (panchang_date, tithi, paksha, nakshatra, chandra_rashi, vikram_month, vikram_samvat, shaka_samvat, yugabdha, sunrise, sunset, utsav, yoga, karana, rahukaal, chandra_udaya, chandra_asta, shubh_muhurt)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (panchang_date, tithi, paksha, nakshatra, chandra_rashi, vikram_month, amant_month, vikram_samvat, shaka_samvat, yugabdha, sunrise, sunset, utsav, yoga, karana, rahukaal, chandra_udaya, chandra_asta, shubh_muhurt)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $stmtInsert->execute([
-            $date, $tithi, $paksha, $nakshatra, $chandraRashi, $vikramMonth, 
+            $date, $tithi, $paksha, $nakshatra, $chandraRashi, $vikramMonth, $amantMonth, 
             $vikramSamvat ?: null, $shakaSamvat ?: null, $yugabdha ?: null, 
             $sunrise, $sunset, $utsav, $yoga, $karana, $rahukaal, $chandraUdaya, $chandraAsta, $shubhMuhurtJson
         ]);
