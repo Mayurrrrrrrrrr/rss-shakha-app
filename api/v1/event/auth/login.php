@@ -65,7 +65,7 @@ if (!$organizer || !password_verify($password, $organizer['password'])) {
     sendResponse(false, 'अमान्य उपयोगकर्ता नाम या पासवर्ड');
 }
 
-if (($organizer['status'] ?? 'active') !== 'active') {
+if ((int)($organizer['is_active'] ?? 1) !== 1) {
     http_response_code(403);
     sendResponse(false, 'आपका खाता निष्क्रिय है');
 }
@@ -79,10 +79,10 @@ if ($event_id) {
     $stmt = $pdo->prepare("
         SELECT e.id, e.name 
         FROM em_events e 
-        JOIN em_event_organizers eo ON e.id = eo.event_id 
-        WHERE eo.organizer_id = ? AND e.id = ? AND e.status = 'active'
+        WHERE e.id = ? AND e.id = ? AND e.status = 'active'
     ");
-    $stmt->execute([$organizer['id'], $event_id]);
+    // $organizer['event_id'] holds the event they belong to
+    $stmt->execute([$organizer['event_id'], $event_id]);
     $event = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$event) {
@@ -93,15 +93,13 @@ if ($event_id) {
     $selected_event_id = $event['id'];
     $selected_event_name = $event['name'];
 } else {
-    // Find most recent active event
+    // Find the event the organizer belongs to
     $stmt = $pdo->prepare("
         SELECT e.id, e.name 
         FROM em_events e 
-        JOIN em_event_organizers eo ON e.id = eo.event_id 
-        WHERE eo.organizer_id = ? AND e.status = 'active' 
-        ORDER BY e.created_at DESC LIMIT 1
+        WHERE e.id = ? AND e.status = 'active' 
     ");
-    $stmt->execute([$organizer['id']]);
+    $stmt->execute([$organizer['event_id']]);
     $event = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$event) {
