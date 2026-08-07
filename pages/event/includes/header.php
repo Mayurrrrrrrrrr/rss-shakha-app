@@ -453,6 +453,13 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
                     <a href="logout.php">लॉगआउट (Logout)</a>
                 </div>
             <?php endif; ?>
+
+            <div class="nav-section">
+                <div class="nav-section-title">ऐप (App)</div>
+                <a href="/sanghasthan/assets/downloads/sanghasthan-latest.apk" download style="color: var(--saffron); font-weight: bold;">
+                    📱 ऐप डाउनलोड करें (Download App)
+                </a>
+            </div>
         </nav>
     </aside>
 <?php endif; ?>
