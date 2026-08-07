@@ -1,7 +1,7 @@
 <?php
-require 'config/db.php';
-require 'includes/PanchangHelper.php';
-require 'includes/LunarMonthCalculator.php';
+require_once 'config/db.php';
+require_once 'includes/PanchangHelper.php';
+require_once 'includes/LunarMonthCalculator.php';
 
 $lmc = new LunarMonthCalculator();
 echo "LMC Output:\n";
