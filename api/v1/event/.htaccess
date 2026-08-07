@@ -1,0 +1,73 @@
+RewriteEngine On
+
+# ── Auth ──
+RewriteRule ^login$ auth/login.php [L,QSA]
+RewriteRule ^profile$ auth/me.php [L,QSA]
+
+# ── Events ──
+RewriteCond %{REQUEST_METHOD} POST
+RewriteRule ^events$ events/create.php [L,QSA]
+RewriteRule ^events$ events/list.php [L,QSA]
+RewriteRule ^events/([0-9]+)$ events/details.php?id=$1 [L,QSA]
+RewriteRule ^events/([0-9]+)/export$ events/export.php?id=$1 [L,QSA]
+RewriteRule ^events/([0-9]+)/clone$ events/clone.php?source_event_id=$1 [L,QSA]
+
+# ── Organizers ──
+RewriteCond %{REQUEST_METHOD} POST
+RewriteRule ^organizers$ organizers/save.php [L,QSA]
+RewriteRule ^organizers$ organizers/list.php [L,QSA]
+RewriteRule ^organizers/([0-9]+)/delete$ organizers/delete.php?id=$1 [L,QSA]
+
+# ── Participants ──
+RewriteCond %{REQUEST_METHOD} POST
+RewriteRule ^participants$ participants/save.php [L,QSA]
+RewriteRule ^participants$ participants/list.php [L,QSA]
+RewriteRule ^participants/spot-entry$ participants/spot_entry.php [L,QSA]
+RewriteRule ^participants/search$ participants/search.php [L,QSA]
+RewriteRule ^participants/([0-9]+)/delete$ participants/delete.php?id=$1 [L,QSA]
+RewriteRule ^participants/import$ participants/import.php [L,QSA]
+
+# ── Attendance ──
+RewriteCond %{REQUEST_METHOD} POST
+RewriteRule ^attendance/sessions$ attendance/sessions/save.php [L,QSA]
+RewriteRule ^attendance/sessions$ attendance/sessions/list.php [L,QSA]
+RewriteRule ^attendance/duties$ attendance/duties/list.php [L,QSA]
+RewriteRule ^attendance/duties/assign$ attendance/duties/assign.php [L,QSA]
+RewriteRule ^attendance/my-duties$ attendance/duties/my_duties.php [L,QSA]
+RewriteRule ^attendance/mark$ attendance/mark.php [L,QSA]
+RewriteRule ^attendance/report$ attendance/report.php [L,QSA]
+
+# ── Work ──
+RewriteCond %{REQUEST_METHOD} POST
+RewriteRule ^work/categories$ work/categories/save.php [L,QSA]
+RewriteRule ^work/categories$ work/categories/list.php [L,QSA]
+RewriteRule ^work/assignments$ work/assignments/list.php [L,QSA]
+RewriteRule ^work/assign$ work/assignments/assign.php [L,QSA]
+RewriteRule ^work/my-tasks$ work/assignments/my_tasks.php [L,QSA]
+RewriteRule ^work/tasks/([0-9]+)/status$ work/assignments/update_status.php?id=$1 [L,QSA]
+
+# ── Rooms ──
+RewriteCond %{REQUEST_METHOD} POST
+RewriteRule ^rooms$ rooms/save.php [L,QSA]
+RewriteRule ^rooms$ rooms/list.php [L,QSA]
+RewriteRule ^rooms/allot$ rooms/allot.php [L,QSA]
+RewriteRule ^rooms/allotments$ rooms/allotments.php [L,QSA]
+RewriteRule ^rooms/report$ rooms/report.php [L,QSA]
+
+# ── Food ──
+RewriteCond %{REQUEST_METHOD} POST
+RewriteRule ^food/meals$ food/save_meal.php [L,QSA]
+RewriteRule ^food/meals$ food/meals.php [L,QSA]
+RewriteRule ^food/track$ food/tracking.php [L,QSA]
+RewriteRule ^food/report$ food/report.php [L,QSA]
+
+# ── Schedule ──
+RewriteCond %{REQUEST_METHOD} POST
+RewriteRule ^schedule$ schedule/save.php [L,QSA]
+RewriteRule ^schedule$ schedule/list.php [L,QSA]
+RewriteRule ^schedule/today$ schedule/today.php [L,QSA]
+
+# ── Dashboard & Reports ──
+RewriteRule ^dashboard/stats$ dashboard/stats.php [L,QSA]
+RewriteRule ^reports/summary$ reports/summary.php [L,QSA]
+RewriteRule ^reports/export$ reports/export.php [L,QSA]
