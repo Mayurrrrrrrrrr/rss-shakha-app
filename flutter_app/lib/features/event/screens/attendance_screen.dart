@@ -20,14 +20,14 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(participantListProvider.notifier).fetchParticipants();
+      ref.invalidate(participantListProvider(const {}));
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(participantListProvider);
-    List<Participant> participants = state.participants ?? [];
+    final state = ref.watch(participantListProvider(const {}));
+    List<Participant> participants = (state.value?['data'] as List<dynamic>?)?.map((e) => Participant.fromJson(e)).toList() ?? [];
     
     if (_searchQuery.isNotEmpty) {
       participants = participants.where((p) => p.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
@@ -102,7 +102,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                         child: CheckboxListTile(
                           activeColor: const Color(0xFFFF6B00),
                           title: Text(p.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Noto Sans Devanagari')),
-                          subtitle: Text('📞 ${p.phone} | ${p.group ?? "समूह नहीं"}', style: const TextStyle(fontSize: 16, fontFamily: 'Noto Sans Devanagari')),
+                          subtitle: Text('📞 ${p.phone} | ${(p.groupNumber?.toString()) ?? "समूह नहीं"}', style: const TextStyle(fontSize: 16, fontFamily: 'Noto Sans Devanagari')),
                           value: isPresent,
                           onChanged: (val) {
                             setState(() {

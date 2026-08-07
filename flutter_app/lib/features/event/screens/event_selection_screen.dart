@@ -17,12 +17,12 @@ class _EventSelectionScreenState extends ConsumerState<EventSelectionScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(eventListProvider.notifier).fetchEvents();
+      ref.invalidate(eventListProvider);
     });
   }
 
   Future<void> _refresh() async {
-    await ref.read(eventListProvider.notifier).fetchEvents();
+    ref.invalidate(eventListProvider);
   }
 
   @override
@@ -58,16 +58,16 @@ class _EventSelectionScreenState extends ConsumerState<EventSelectionScreen> {
     );
   }
 
-  Widget _buildBody(EventListState state) {
-    if (state.isLoading) {
+  Widget _buildBody(dynamic state) {
+    if (state is AsyncLoading) {
       return const Center(child: CircularProgressIndicator(color: Color(0xFFFF6B00)));
     }
-    if (state.error != null) {
+    if (state is AsyncError) {
       return Center(
         child: Text('त्रुटि: ${state.error}', style: const TextStyle(color: Colors.red, fontSize: 18, fontFamily: 'Noto Sans Devanagari')),
       );
     }
-    final events = state.events;
+    final events = state.value ?? [];
     if (events == null || events.isEmpty) {
       return const Center(
         child: Text('कोई कार्यक्रम नहीं मिला।', style: TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari')),
@@ -90,7 +90,7 @@ class _EventSelectionScreenState extends ConsumerState<EventSelectionScreen> {
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () {
-              ref.read(currentEventProvider.notifier).setEvent(event);
+              ref.read(eventSessionProvider.notifier).switchEvent(event.id!, event.name!);
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const EventDashboardScreen()),

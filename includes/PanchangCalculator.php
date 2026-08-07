@@ -123,15 +123,18 @@ class PanchangCalculator {
     ];
 
     /**
-     * Main method — returns verified panchang data for a given date.
-     * @param string $dateString  Format: 'YYYY-MM-DD' or 'YYYY-MM-DD HH:MM:SS'
-     * @return array
+     * Initialize astronomical calculator instances.
      */
     public function __construct() {
         $this->transitCalc = new SolarTransitCalculator();
         $this->monthCalc = new LunarMonthCalculator();
     }
 
+    /**
+     * Main method — returns verified panchang data for a given date.
+     * @param string $dateString  Format: 'YYYY-MM-DD' or 'YYYY-MM-DD HH:MM:SS'
+     * @return array
+     */
     public function getPanchang(string $dateString): array {
         $ts     = strtotime($dateString);
         $gYear  = (int) date('Y', $ts);

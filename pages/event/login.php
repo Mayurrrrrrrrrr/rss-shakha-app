@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <div style="margin-top: 2rem; text-align: center; padding-top: 1.5rem; border-top: 1px solid rgba(0,0,0,0.1);">
             <h3 style="margin-bottom: 1rem; color: var(--text-color); font-family: 'Noto Sans Devanagari', sans-serif;">📱 मोबाइल ऐप डाउनलोड करें</h3>
-            <a href="/sanghasthan/assets/downloads/sanghasthan-latest.apk" download class="btn" style="width: 100%; background: linear-gradient(135deg, #4CAF50, #2E7D32); color: white; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+            <a href="/assets/downloads/sanghasthan-event.apk" download class="btn" style="width: 100%; background: linear-gradient(135deg, #4CAF50, #2E7D32); color: white; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 Android App (APK) डाउनलोड करें
             </a>

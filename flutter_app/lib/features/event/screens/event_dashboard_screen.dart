@@ -15,26 +15,26 @@ class EventDashboardScreen extends ConsumerStatefulWidget {
 
 class _EventDashboardScreenState extends ConsumerState<EventDashboardScreen> {
   Future<void> _refresh() async {
-    await ref.read(eventDashboardProvider.notifier).fetchDashboardData();
+    ref.invalidate(eventDashboardProvider);
   }
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(eventDashboardProvider.notifier).fetchDashboardData();
+      ref.invalidate(eventDashboardProvider);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final currentEvent = ref.watch(currentEventProvider);
+    final currentEvent = ref.watch(eventSessionProvider);
     final dashboardState = ref.watch(eventDashboardProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F6F0),
       appBar: AppBar(
-        title: Text(currentEvent?.name ?? 'डैशबोर्ड', style: const TextStyle(fontFamily: 'Noto Sans Devanagari', fontWeight: FontWeight.bold)),
+        title: Text(currentEvent?.eventName ?? 'डैशबोर्ड', style: const TextStyle(fontFamily: 'Noto Sans Devanagari', fontWeight: FontWeight.bold)),
         backgroundColor: const Color(0xFFFF6B00),
         foregroundColor: Colors.white,
       ),

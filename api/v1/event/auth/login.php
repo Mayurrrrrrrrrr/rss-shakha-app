@@ -18,28 +18,49 @@ if (empty($username) || empty($password)) {
 
 $ip_address = $_SERVER['REMOTE_ADDR'];
 
-// Rate limiting check
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM em_login_attempts WHERE ip_address = ? AND attempt_time > (NOW() - INTERVAL 15 MINUTE)");
-$stmt->execute([$ip_address]);
-$attempts = $stmt->fetchColumn();
+try {
+    // Rate limiting check — columns match migration: ip, attempted_at
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM em_login_attempts WHERE ip = ? AND attempted_at > (NOW() - INTERVAL 15 MINUTE)");
+    $stmt->execute([$ip_address]);
+    $attempts = $stmt->fetchColumn();
+} catch (PDOException $e) {
+    // Table might not exist yet — create it
+    $pdo->exec("CREATE TABLE IF NOT EXISTS em_login_attempts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        ip VARCHAR(45) NOT NULL,
+        attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_ip_attempted_at (ip, attempted_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    $attempts = 0;
+}
 
 if ($attempts >= 5) {
     http_response_code(429);
     sendResponse(false, 'बहुत अधिक लॉगिन प्रयास। कृपया 15 मिनट बाद पुन: प्रयास करें।');
 }
 
-// Fetch organizer
-$stmt = $pdo->prepare("SELECT * FROM em_organizers WHERE username = ?");
-$stmt->execute([$username]);
-$organizer = $stmt->fetch(PDO::FETCH_ASSOC);
+function logAttempt($pdo, $ip) {
+    try {
+        $stmt = $pdo->prepare("INSERT INTO em_login_attempts (ip, attempted_at) VALUES (?, NOW())");
+        $stmt->execute([$ip]);
+    } catch (PDOException $e) {
+        error_log('Failed to log login attempt: ' . $e->getMessage());
+    }
+}
 
-function logAttempt($pdo, $ip, $username) {
-    $stmt = $pdo->prepare("INSERT INTO em_login_attempts (ip_address, username, attempt_time) VALUES (?, ?, NOW())");
-    $stmt->execute([$ip, $username]);
+try {
+    // Fetch organizer
+    $stmt = $pdo->prepare("SELECT * FROM em_organizers WHERE username = ?");
+    $stmt->execute([$username]);
+    $organizer = $stmt->fetch(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    error_log('Event login DB error: ' . $e->getMessage());
+    http_response_code(500);
+    sendResponse(false, 'सर्वर त्रुटि। कृपया पुनः प्रयास करें।');
 }
 
 if (!$organizer || !password_verify($password, $organizer['password'])) {
-    logAttempt($pdo, $ip_address, $username);
+    logAttempt($pdo, $ip_address);
     http_response_code(401);
     sendResponse(false, 'अमान्य उपयोगकर्ता नाम या पासवर्ड');
 }
@@ -93,8 +114,13 @@ if ($event_id) {
 }
 
 // Clear login attempts
-$stmt = $pdo->prepare("DELETE FROM em_login_attempts WHERE ip_address = ?");
-$stmt->execute([$ip_address]);
+try {
+    $stmt = $pdo->prepare("DELETE FROM em_login_attempts WHERE ip = ?");
+    $stmt->execute([$ip_address]);
+} catch (PDOException $e) {
+    // Non-critical, just log
+    error_log('Failed to clear login attempts: ' . $e->getMessage());
+}
 
 // Generate token (using event_id as shakha_id for event organizers)
 $token = generateAPIToken($organizer['id'], 'event_organizer', $selected_event_id);
@@ -107,3 +133,4 @@ sendResponse(true, 'लॉगिन सफल', [
     'event_name' => $selected_event_name,
     'token' => $token
 ]);
+

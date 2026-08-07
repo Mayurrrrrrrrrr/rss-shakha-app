@@ -20,21 +20,21 @@ class _ParticipantListScreenState extends ConsumerState<ParticipantListScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(participantListProvider.notifier).fetchParticipants();
+      ref.invalidate(participantListProvider(const {}));
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(participantListProvider);
+    final state = ref.watch(participantListProvider(const {}));
     
     // Simulate local filtering
-    List<Participant> participants = state.participants ?? [];
+    List<Participant> participants = (state.value?['data'] as List<dynamic>?)?.map((e) => Participant.fromJson(e)).toList() ?? [];
     if (_searchQuery.isNotEmpty) {
       participants = participants.where((p) => p.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
     }
     if (_selectedGroup != 'सभी') {
-      participants = participants.where((p) => p.group == _selectedGroup).toList();
+      participants = participants.where((p) => p.groupNumber?.toString() == _selectedGroup?.toString()).toList();
     }
 
     return Scaffold(
@@ -105,7 +105,7 @@ class _ParticipantListScreenState extends ConsumerState<ParticipantListScreen> {
                               const SizedBox(height: 8),
                               Row(
                                 children: [
-                                  Chip(label: Text(p.group ?? 'N/A', style: const TextStyle(fontFamily: 'Noto Sans Devanagari')), backgroundColor: const Color(0xFFF9F6F0)),
+                                  Chip(label: Text((p.groupNumber?.toString()) ?? 'N/A', style: const TextStyle(fontFamily: 'Noto Sans Devanagari')), backgroundColor: const Color(0xFFF9F6F0)),
                                   const SizedBox(width: 8),
                                   if (p.entryType == 'spot')
                                     const Chip(label: Text('स्पॉट', style: TextStyle(color: Colors.white, fontFamily: 'Noto Sans Devanagari')), backgroundColor: Colors.red),

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../config.php';
 $auth = authenticateEventRequest();
 try {
     $stmt = $pdo->prepare("

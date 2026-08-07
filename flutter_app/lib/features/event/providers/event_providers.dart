@@ -1,3 +1,4 @@
+import '../../../core/providers/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/api/api_client.dart';
@@ -131,12 +132,12 @@ final eventDashboardProvider = FutureProvider<dynamic>((ref) async {
 
 final eventParticipantsProvider = FutureProvider.family<dynamic, Map<String, dynamic>>((ref, params) async {
   final api = ref.watch(eventApiServiceProvider);
-  return api.getParticipants(params);
+  return api.getParticipants(search: params['search'] as String?, group: params['group'] as int?, category: params['category'] as String?, page: (params['page'] as int?) ?? 1);
 });
 
 final eventScheduleProvider = FutureProvider.family<dynamic, String>((ref, date) async {
   final api = ref.watch(eventApiServiceProvider);
-  return api.getSchedule(date);
+  return api.getSchedule(date: date);
 });
 
 final eventAttendanceSessionsProvider = FutureProvider<dynamic>((ref) async {
@@ -156,5 +157,16 @@ final eventRoomsProvider = FutureProvider<dynamic>((ref) async {
 
 final eventMealsProvider = FutureProvider.family<dynamic, String>((ref, date) async {
   final api = ref.watch(eventApiServiceProvider);
-  return api.getMeals(date);
+  return api.getMeals(date: date);
+});
+
+
+final eventListProvider = FutureProvider<List<EventInfo>>((ref) async {
+  final api = ref.watch(eventApiServiceProvider);
+  return api.getEvents();
+});
+
+final participantListProvider = FutureProvider.family<dynamic, Map<String, dynamic>>((ref, params) async {
+  final api = ref.watch(eventApiServiceProvider);
+  return api.getParticipants(search: params['search'] as String?, group: params['group'] as int?, category: params['category'] as String?, page: (params['page'] as int?) ?? 1);
 });

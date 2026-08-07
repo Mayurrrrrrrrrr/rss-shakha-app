@@ -456,7 +456,7 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
 
             <div class="nav-section">
                 <div class="nav-section-title">ऐप (App)</div>
-                <a href="/sanghasthan/assets/downloads/sanghasthan-latest.apk" download style="color: var(--saffron); font-weight: bold;">
+                <a href="/assets/downloads/sanghasthan-event.apk" download style="color: var(--saffron); font-weight: bold;">
                     📱 ऐप डाउनलोड करें (Download App)
                 </a>
             </div>

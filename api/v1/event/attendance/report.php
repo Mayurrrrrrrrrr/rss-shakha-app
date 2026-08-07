@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../config.php';
 $auth = authenticateEventRequest();
 $session_id = $_GET['session_id'] ?? null;
 $date = $_GET['date'] ?? null;

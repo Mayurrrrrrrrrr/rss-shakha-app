@@ -88,8 +88,12 @@ if (empty($_SESSION['csrf_token'])) {
 if (isset($_SESSION['last_active']) && (time() - $_SESSION['last_active']) > 1800) {
     $_SESSION = [];
     session_destroy();
-    header('Location: /login.php?timeout=1');
-    exit;
+    // Only redirect for web requests, not API calls
+    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    if (strpos($requestUri, '/api/') === false) {
+        header('Location: /login.php?timeout=1');
+        exit;
+    }
 }
 if (isset($_SESSION['user_id'])) {
     $_SESSION['last_active'] = time();
@@ -247,7 +251,7 @@ function safe_mime_content_type($path) {
 }
 
 if (!function_exists('authenticateAPIRequest')) {
-    function authenticateAPIRequest() {
+    function authenticateAPIRequest($requireAuth = true) {
         $headers = [];
         if (function_exists('getallheaders')) {
             $headers = getallheaders();
@@ -294,10 +298,13 @@ if (!function_exists('authenticateAPIRequest')) {
             ];
         }
         
-        http_response_code(401);
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
-        exit;
+        if ($requireAuth) {
+            http_response_code(401);
+            header("Content-Type: application/json; charset=UTF-8");
+            echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
+            exit;
+        }
+        return null;
     }
 }
 

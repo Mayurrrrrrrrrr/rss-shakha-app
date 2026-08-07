@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../config.php';
 $auth = authenticateEventRequest();
 $room_id = $_GET['room_id'] ?? null;
 

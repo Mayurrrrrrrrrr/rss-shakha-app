@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../config.php';
 $auth = authenticateEventRequest();
 $input = json_decode(file_get_contents('php://input'), true);
 $attendance_session_id = $input['attendance_session_id'];
