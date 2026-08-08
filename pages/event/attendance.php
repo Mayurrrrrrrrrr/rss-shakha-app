@@ -47,18 +47,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $presStmt->execute([$event_id, $attendance_session_id]);
                 $present = $presStmt->fetchColumn();
                 
-                ob_clean();
+                if (ob_get_length()) ob_clean();
                 header('Content-Type: application/json');
                 echo json_encode(['success' => true, 'total' => $total, 'present' => $present]);
                 exit;
             } catch (Exception $e) {
-                ob_clean();
+                if (ob_get_length()) ob_clean();
                 header('Content-Type: application/json');
                 echo json_encode(['success' => false, 'error' => $e->getMessage()]);
                 exit;
             }
         }
-        ob_clean();
+        if (ob_get_length()) ob_clean();
         header('Content-Type: application/json');
         echo json_encode(['success' => false, 'error' => 'Missing ID']);
         exit;
@@ -415,8 +415,8 @@ include 'includes/header.php';
         .then(res => res.text()) // Get as text first to handle errors
         .then(text => {
             try {
-                // Extract JSON to ignore any leading whitespace, BOMs, or PHP notices
-                const jsonStr = text.substring(text.indexOf('{'));
+                // Extract JSON to ignore any leading/trailing garbage (PHP notices, BOMs, newlines)
+                const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
                 const data = JSON.parse(jsonStr);
                 if (data.success) {
                     // Update stats
