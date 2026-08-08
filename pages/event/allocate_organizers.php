@@ -165,8 +165,6 @@ $bhagList = $bhagStmt->fetchAll(PDO::FETCH_COLUMN);
                     <select name="vyavastha" class="form-control">
                         <option value=''>-- चुनें --</option>
                         <option value='hajiri'>हाजिरी (Attendance)</option>
-                        <option value='bhojan'>भोजन (Food)</option>
-                        <option value='nivas'>निवास (Rooms)</option>
                         <option value='all'>सर्व (All)</option>
                     </select>
                 </div>

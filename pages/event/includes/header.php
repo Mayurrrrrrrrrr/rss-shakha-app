@@ -368,10 +368,6 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
                 <div class="nav-section">
                     <div class="nav-section-title">संचालन (Operations)</div>
                     <a href="attendance.php">हाजिरी (Attendance)</a>
-                    <a href="food.php">भोजन (Food)</a>
-                    <a href="rooms.php">आवास (Rooms)</a>
-                    <a href="tasks.php">कार्य (Tasks)</a>
-                    <a href="schedule.php">अनुसूची (Schedule)</a>
                 </div>
                 <div class="nav-section">
                     <div class="nav-section-title">लोग (People)</div>
@@ -385,7 +381,6 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
                     <?php if ($role === 'admin'): ?>
                     <a href="analytics.php">विश्लेषण (Analytics)</a>
                     <a href="create_event.php">नया आयोजन (Create Event)</a>
-                    <a href="room_inventory.php">कक्ष सूची (Room Inventory)</a>
                     <a href="data_cleanse.php">मास्टर डेटा अपडेट (Master Data Update)</a>
                     <?php endif; ?>
                     <a href="logout.php">लॉगआउट (Logout)</a>
@@ -405,33 +400,7 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
                     <a href="logout.php">लॉगआउट (Logout)</a>
                 </div>
 
-            <?php elseif ($vyavastha === 'bhojan'): ?>
-                <div class="nav-section">
-                    <div class="nav-section-title">डैशबोर्ड (Dashboard)</div>
-                    <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
-                </div>
-                <div class="nav-section">
-                    <div class="nav-section-title">संचालन (Operations)</div>
-                    <a href="food.php">भोजन (Food)</a>
-                </div>
-                <div class="nav-section">
-                    <div class="nav-section-title">सेटिंग्स (Settings)</div>
-                    <a href="logout.php">लॉगआउट (Logout)</a>
-                </div>
 
-            <?php elseif ($vyavastha === 'nivas'): ?>
-                <div class="nav-section">
-                    <div class="nav-section-title">डैशबोर्ड (Dashboard)</div>
-                    <a href="dashboard.php">डैशबोर्ड (Dashboard)</a>
-                </div>
-                <div class="nav-section">
-                    <div class="nav-section-title">संचालन (Operations)</div>
-                    <a href="rooms.php">आवास (Rooms)</a>
-                </div>
-                <div class="nav-section">
-                    <div class="nav-section-title">सेटिंग्स (Settings)</div>
-                    <a href="logout.php">लॉगआउट (Logout)</a>
-                </div>
 
             <?php else: ?>
                 <div class="nav-section">

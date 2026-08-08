@@ -12,8 +12,7 @@ $is_volunteer = ($vyavastha === 'hajiri');
 
 $total_participants = 0;
 $total_organizers = 0;
-$rooms_filled = 0;
-$total_rooms = 0;
+
 $today_attendance = 0;
 $recent_participants = [];
 
@@ -27,10 +26,6 @@ try {
         $total_organizers->execute([$event_id]);
         $total_organizers = $total_organizers->fetchColumn() ?: 0;
 
-        try {
-            $rooms_filled = $pdo->query("SELECT COUNT(*) FROM em_rooms WHERE occupancy > 0")->fetchColumn() ?: 0;
-            $total_rooms = $pdo->query("SELECT COUNT(*) FROM em_rooms")->fetchColumn() ?: 0;
-        } catch (Exception $e) { /* ignore */ }
 
         $recent_participants = $pdo->prepare("SELECT name, city, phone FROM em_participants WHERE event_id = ? ORDER BY id DESC LIMIT 5");
         $recent_participants->execute([$event_id]);
@@ -244,10 +239,6 @@ include 'includes/header.php';
         <div class="stat-value"><?= $total_organizers ?></div>
         <div class="stat-label">प्रबंधक</div>
     </div>
-    <div class="stat-card blue fade-in">
-        <div class="stat-value"><?= $rooms_filled ?>/<?= $total_rooms ?></div>
-        <div class="stat-label">आवास भरे</div>
-    </div>
     <?php endif; ?>
 </div>
 
@@ -278,50 +269,7 @@ include 'includes/header.php';
                     <p>Participants</p>
                 </div>
             </a>
-            <a href="rooms.php" class="action-card">
-                <div class="action-icon room">🏠</div>
-                <div class="action-text">
-                    <h4>आवास</h4>
-                    <p>Room Allotment</p>
-                </div>
-            </a>
-            <a href="food.php" class="action-card">
-                <div class="action-icon food">🍽️</div>
-                <div class="action-text">
-                    <h4>भोजन</h4>
-                    <p>Food Management</p>
-                </div>
-            </a>
-            <a href="analytics.php" class="action-card">
-                <div class="action-icon chart">📊</div>
-                <div class="action-text">
-                    <h4>विश्लेषण</h4>
-                    <p>Analytics</p>
-                </div>
-            </a>
-            <a href="participants.php?action=add" class="action-card">
-                <div class="action-icon spot">➕</div>
-                <div class="action-text">
-                    <h4>स्पॉट एंट्री</h4>
-                    <p>Spot Entry</p>
-                </div>
-            </a>
-        <?php elseif ($vyavastha === 'bhojan'): ?>
-            <a href="food.php" class="action-card">
-                <div class="action-icon food">🍽️</div>
-                <div class="action-text">
-                    <h4>भोजन अपडेट करें</h4>
-                    <p>Update Meals</p>
-                </div>
-            </a>
-        <?php elseif ($vyavastha === 'nivas'): ?>
-            <a href="rooms.php" class="action-card">
-                <div class="action-icon room">🏠</div>
-                <div class="action-text">
-                    <h4>कमरा आबंटन</h4>
-                    <p>Room Allocation</p>
-                </div>
-            </a>
+
         <?php endif; ?>
     </div>
 </div>

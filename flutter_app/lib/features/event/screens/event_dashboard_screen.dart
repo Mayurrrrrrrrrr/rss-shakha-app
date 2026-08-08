@@ -68,13 +68,7 @@ class _EventDashboardScreenState extends ConsumerState<EventDashboardScreen> {
               children: [
                 _buildStatsRow(state),
                 const SizedBox(height: 16),
-                _buildFoodSection(state),
-                const SizedBox(height: 16),
-                _buildNextActivity(state),
-                const SizedBox(height: 16),
                 _buildQuickActions(context),
-                const SizedBox(height: 16),
-                _buildPendingTasks(state),
               ],
             ),
           ),
@@ -179,82 +173,7 @@ class _EventDashboardScreenState extends ConsumerState<EventDashboardScreen> {
     );
   }
 
-  Widget _buildFoodSection(dynamic state) {
-    if (state.todayMeals.isEmpty) return const SizedBox.shrink();
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('आज का भोजन', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Noto Sans Devanagari', color: Colors.black87)),
-            const SizedBox(height: 12),
-            ...state.todayMeals.map<Widget>((meal) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 4.0),
-                child: Text('${meal.mealName}: ${meal.consumedCount ?? 0}/${meal.expectedCount ?? 0}', style: const TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari', color: Colors.black87)),
-              );
-            }).toList(),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _buildNextActivity(dynamic state) {
-    if (state.nextActivity == null) return const SizedBox.shrink();
-    final act = state.nextActivity!;
-    final timeStr = act.startTime ?? '';
-    return Card(
-      elevation: 4,
-      color: const Color(0xFFFFB300),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            const Icon(Icons.schedule, size: 40, color: Colors.white),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('अगली गतिविधि', style: TextStyle(fontSize: 16, color: Colors.white, fontFamily: 'Noto Sans Devanagari')),
-                  Text('${act.activityName} - $timeStr', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Noto Sans Devanagari')),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPendingTasks(dynamic state) {
-    if (state.myPendingTasks.isEmpty) return const SizedBox.shrink();
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('मेरे लंबित कार्य', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Noto Sans Devanagari', color: Colors.black87)),
-            const SizedBox(height: 8),
-            ...state.myPendingTasks.map<Widget>((task) {
-              return ListTile(
-                leading: const Icon(Icons.check_box_outline_blank, color: Color(0xFFFF6B00)),
-                title: Text(task.description ?? task.categoryName ?? 'कार्य', style: const TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari', color: Colors.black87)),
-              );
-            }).toList(),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildQuickActions(BuildContext context) {
     return Wrap(

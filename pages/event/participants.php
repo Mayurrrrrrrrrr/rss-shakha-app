@@ -52,7 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $email = trim($_POST['email'] ?? '');
     $category = trim($_POST['category'] ?? '');
     $bhag = trim($_POST['bhag'] ?? '');
-    $room_id = $_POST['room_id'] ?? null;
     $event_id = $_SESSION['event_id'] ?? 1;
     $registered_by = $_SESSION['event_user_id'] ?? 0;
     
@@ -61,14 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         try {
             $stmt = $pdo->prepare("INSERT INTO em_participants (event_id, organization, level_type, responsibility, name, phone, sangh_shikshan, age_group, city, vasti, email, category, bhag, entry_type, registered_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'spot', ?)");
             $stmt->execute([$event_id, $organization, $level_type, $responsibility, $name, $phone, $sangh_shikshan, $age_group, $city, $vasti, $email, $category, $bhag, $registered_by]);
-            $participant_id = $pdo->lastInsertId();
-
-            if ($room_id) {
-                $stmtAllot = $pdo->prepare("INSERT INTO em_room_allotments (event_id, room_id, allottee_type, allottee_id, allotted_by) VALUES (?, ?, 'participant', ?, ?)");
-                $stmtAllot->execute([$event_id, $room_id, $participant_id, $registered_by]);
-                
-                $pdo->prepare("UPDATE em_rooms SET occupancy = occupancy + 1 WHERE id = ?")->execute([$room_id]);
-            }
+            
             $pdo->commit();
         } catch (Exception $e) {
             $pdo->rollBack();
@@ -117,9 +109,7 @@ include 'includes/header.php';
 $search = $_GET['search'] ?? '';
 
 // Build query
-$query = "SELECT p.*, r.room_name FROM em_participants p 
-          LEFT JOIN em_room_allotments ra ON ra.allottee_id = p.id AND ra.allottee_type = 'participant' 
-          LEFT JOIN em_rooms r ON r.id = ra.room_id 
+$query = "SELECT p.* FROM em_participants p
           WHERE p.is_deleted = 0";
 $params = [];
 
@@ -160,12 +150,6 @@ try {
     $participants = [];
 }
 
-// Fetch rooms with remaining capacity for allotment selection dropdown
-try {
-    $rooms = $pdo->query("SELECT id, room_name, capacity, occupancy FROM em_rooms WHERE occupancy < capacity")->fetchAll();
-} catch (Exception $e) {
-    $rooms = [];
-}
 ?>
 
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -284,15 +268,6 @@ try {
             <div class="form-group">
                 <label>भाग (Bhag)</label>
                 <input type="text" name="bhag" class="form-control">
-            </div>
-            <div class="form-group">
-                <label>आवास पूर्व आवंटन (Pre-Allot Room)</label>
-                <select name="room_id" class="form-control">
-                    <option value="">-- आवंटित न करें (Do Not Allot) --</option>
-                    <?php foreach($rooms as $r): ?>
-                        <option value="<?= $r['id'] ?>"><?= htmlspecialchars($r['room_name']) ?> (बचा स्थान: <?= $r['capacity'] - $r['occupancy'] ?>)</option>
-                    <?php endforeach; ?>
-                </select>
             </div>
             <button type="submit" class="btn">सुरक्षित करें (Save)</button>
         </form>

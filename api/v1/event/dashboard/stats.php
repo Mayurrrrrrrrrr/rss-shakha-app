@@ -46,41 +46,7 @@ try {
         $stats['today_attendance'] = null;
     }
     
-    // Food today
-    $stmt = $pdo->prepare("
-        SELECT m.meal_name, m.expected_count,
-        (SELECT COUNT(*) FROM em_meal_tracking t WHERE t.meal_id = m.id AND t.status = 'consumed') as consumed_count
-        FROM em_meals m WHERE event_id = ? AND meal_date = CURDATE()
-    ");
-    $stmt->execute([$auth['event_id']]);
-    $stats['today_meals'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Rooms
-    $stmt = $pdo->prepare("
-        SELECT 
-            COUNT(id) as total_rooms,
-            SUM(capacity) as total_capacity,
-            (SELECT COUNT(*) FROM em_room_allotments WHERE event_id = ?) as total_occupied
-        FROM em_rooms WHERE event_id = ?
-    ");
-    $stmt->execute([$auth['event_id'], $auth['event_id']]);
-    $room_stat = $stmt->fetch(PDO::FETCH_ASSOC);
-    $room_stat['available_capacity'] = $room_stat['total_capacity'] - $room_stat['total_occupied'];
-    $stats['room_stats'] = $room_stat;
-    
-    // Pending tasks
-    $stmt = $pdo->prepare("SELECT * FROM em_work_assignments WHERE event_id = ? AND organizer_id = ? AND status = 'pending'");
-    $stmt->execute([$auth['event_id'], $auth['organizer_id']]);
-    $stats['my_pending_tasks'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Next activity
-    $stmt = $pdo->prepare("
-        SELECT * FROM em_schedule 
-        WHERE event_id = ? AND (activity_date > CURDATE() OR (activity_date = CURDATE() AND start_time >= CURTIME()))
-        ORDER BY activity_date ASC, start_time ASC LIMIT 1
-    ");
-    $stmt->execute([$auth['event_id']]);
-    $stats['next_activity'] = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+
     
     // Spot entries
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM em_participants WHERE event_id = ? AND entry_type = 'spot' AND DATE(created_at) = CURDATE()");
