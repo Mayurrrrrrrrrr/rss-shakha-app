@@ -415,7 +415,9 @@ include 'includes/header.php';
         .then(res => res.text()) // Get as text first to handle errors
         .then(text => {
             try {
-                const data = JSON.parse(text);
+                // Extract JSON to ignore any leading whitespace, BOMs, or PHP notices
+                const jsonStr = text.substring(text.indexOf('{'));
+                const data = JSON.parse(jsonStr);
                 if (data.success) {
                     // Update stats
                     document.getElementById('present-count').innerText = data.present;
