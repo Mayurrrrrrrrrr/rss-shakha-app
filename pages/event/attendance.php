@@ -124,8 +124,9 @@ $query = "
 $params = [':session_id' => $selected_session_id, ':event_id' => $event_id];
 
 if ($search !== '') {
-    $query .= " AND (p.name LIKE :search OR p.phone LIKE :search)";
-    $params[':search'] = "%$search%";
+    $query .= " AND (p.name LIKE :search1 OR p.phone LIKE :search2)";
+    $params[':search1'] = "%$search%";
+    $params[':search2'] = "%$search%";
 }
 if ($filter_value !== '') {
     if ($is_hajiri) {
