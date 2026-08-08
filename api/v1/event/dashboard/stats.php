@@ -41,9 +41,9 @@ try {
         $stmt->execute([$auth['event_id'], $auth['event_id'], $latest_session]);
         $att = $stmt->fetch(PDO::FETCH_ASSOC);
         $att['percentage'] = $att['total'] > 0 ? round(($att['present'] / $att['total']) * 100, 2) : 0;
-        $stats['todays_attendance'] = $att;
+        $stats['today_attendance'] = $att;
     } else {
-        $stats['todays_attendance'] = null;
+        $stats['today_attendance'] = null;
     }
     
     // Food today
@@ -53,7 +53,7 @@ try {
         FROM em_meals m WHERE event_id = ? AND meal_date = CURDATE()
     ");
     $stmt->execute([$auth['event_id']]);
-    $stats['food_today'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stats['today_meals'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Rooms
     $stmt = $pdo->prepare("
@@ -66,12 +66,12 @@ try {
     $stmt->execute([$auth['event_id'], $auth['event_id']]);
     $room_stat = $stmt->fetch(PDO::FETCH_ASSOC);
     $room_stat['available_capacity'] = $room_stat['total_capacity'] - $room_stat['total_occupied'];
-    $stats['rooms'] = $room_stat;
+    $stats['room_stats'] = $room_stat;
     
     // Pending tasks
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM em_work_assignments WHERE event_id = ? AND organizer_id = ? AND status = 'pending'");
+    $stmt = $pdo->prepare("SELECT * FROM em_work_assignments WHERE event_id = ? AND organizer_id = ? AND status = 'pending'");
     $stmt->execute([$auth['event_id'], $auth['organizer_id']]);
-    $stats['my_pending_tasks'] = $stmt->fetchColumn();
+    $stats['my_pending_tasks'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Next activity
     $stmt = $pdo->prepare("
