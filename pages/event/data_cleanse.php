@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-$selected_column = $_GET['column'] ?? '';
+$selected_column = $_GET['column'] ?? $_POST['column'] ?? '';
 $distinct_values = [];
 
 if (array_key_exists($selected_column, $allowed_columns) && $event_id) {
@@ -109,7 +109,7 @@ if (array_key_exists($selected_column, $allowed_columns) && $event_id) {
     <?php if (array_key_exists($selected_column, $allowed_columns)): ?>
         <?php if (!empty($distinct_values)): ?>
             <hr style="border-color: var(--border-color); margin: 2rem 0;">
-            <form method="POST" action="">
+            <form method="POST" action="?column=<?= urlencode($selected_column) ?>">
                 <input type="hidden" name="action" value="merge_data">
                 <input type="hidden" name="column" value="<?= htmlspecialchars($selected_column) ?>">
                 
