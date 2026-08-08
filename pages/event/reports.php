@@ -28,7 +28,7 @@ $available_columns = [
     'age_group' => 'गट (Age Group)',
     'email' => 'ईमेल (Email)',
     'notes' => 'नोंद (Notes)',
-    'is_spot_entry' => 'स्पॉट एंट्री (Spot Entry)',
+    'entry_type' => 'स्पॉट एंट्री (Spot Entry)',
     'created_at' => 'पंजीकरण समय (Registration Time)'
 ];
 
