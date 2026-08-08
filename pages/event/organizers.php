@@ -19,7 +19,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $username = trim($_POST['username'] ?? '');
         $password = $_POST['password'] ?? '';
         $role = $_POST['role'] ?? 'volunteer';
-        $vyavastha = $_POST['vyavastha'] ?? '';
+        $vyavastha = $_POST['vyavastha'] ?? null;
+        if ($vyavastha === '') {
+            $vyavastha = null;
+        }
 
         if ($name && $username && $password && $event_id) {
             try {
@@ -45,7 +48,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $name = trim($_POST['name'] ?? '');
         $phone = trim($_POST['phone'] ?? '');
         $role = $_POST['role'] ?? 'volunteer';
-        $vyavastha = $_POST['vyavastha'] ?? '';
+        $vyavastha = $_POST['vyavastha'] ?? null;
+        if ($vyavastha === '') {
+            $vyavastha = null;
+        }
         $password = $_POST['password'] ?? '';
 
         if ($id && $name && $event_id) {
