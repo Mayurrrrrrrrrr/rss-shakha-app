@@ -2,6 +2,23 @@
 require_once __DIR__ . '/auth.php';
 
 $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
+
+// Quick Switch Event Logic
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quick_switch_event_id']) && ($_SESSION['event_role'] ?? '') === 'admin') {
+    $sw_id = (int)$_POST['quick_switch_event_id'];
+    require_once '../../config/db.php';
+    $sw_evt_stmt = $pdo->prepare("SELECT id, name FROM em_events WHERE id = ? AND status != 'deleted'");
+    $sw_evt_stmt->execute([$sw_id]);
+    $sw_evt = $sw_evt_stmt->fetch(PDO::FETCH_ASSOC);
+    if ($sw_evt) {
+        $pdo->exec("UPDATE em_events SET status = 'inactive'");
+        $pdo->prepare("UPDATE em_events SET status = 'active' WHERE id = ?")->execute([$sw_id]);
+        $_SESSION['event_id'] = $sw_evt['id'];
+        $_SESSION['event_name'] = $sw_evt['name'];
+        header("Location: " . $_SERVER['REQUEST_URI']);
+        exit;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="hi">
@@ -330,6 +347,111 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
             border-radius: 4px;
             background: linear-gradient(90deg, var(--saffron), var(--saffron-dark));
         }
+
+        /* --- Luma-inspired Design System Additions --- */
+        
+        /* Smooth CSS Transition Utility Classes */
+        .transition-all { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .transition-colors { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
+        .transition-transform { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .transition-opacity { transition: opacity 0.3s ease; }
+        .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 12px 40px -12px rgba(0,0,0,0.5); }
+        .hover-scale:hover { transform: scale(1.02); }
+        
+        /* Standardized Form Controls (Enhanced) */
+        .form-group { margin-bottom: 1.5rem; position: relative; }
+        .form-group label {
+            display: block; margin-bottom: 0.5rem; font-weight: 500;
+            color: var(--text-muted); font-size: 0.85rem; letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .form-control {
+            width: 100%; padding: 0.85rem 1.25rem;
+            background-color: rgba(255, 255, 255, 0.03);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px; font-family: inherit; font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+        .form-control:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        .form-control:focus {
+            outline: none; background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--saffron); box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
+        }
+        .form-control::placeholder { color: rgba(255, 255, 255, 0.3); }
+
+        /* Accessible Modal Overlays */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 14, 20, 0.85); backdrop-filter: blur(8px);
+            z-index: 1050; display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: all 0.3s ease;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-container {
+            background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;
+            transform: scale(0.95) translateY(20px); opacity: 0;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal-overlay.active .modal-container { transform: scale(1) translateY(0); opacity: 1; }
+        .modal-header {
+            padding: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-title { margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--text-color); }
+        .modal-close {
+            background: none; border: none; color: var(--text-muted); font-size: 1.5rem;
+            cursor: pointer; padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .modal-close:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-color); }
+        .modal-body { padding: 1.5rem; }
+        .modal-footer {
+            padding: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex; justify-content: flex-end; gap: 1rem;
+        }
+
+        /* Toast Notifications System */
+        .toast-container {
+            position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;
+            display: flex; flex-direction: column; gap: 1rem; pointer-events: none;
+        }
+        .toast {
+            background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-color); padding: 1rem 1.5rem; border-radius: 12px;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+            display: flex; align-items: center; gap: 1rem;
+            transform: translateX(120%) scale(0.9); opacity: 0;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: auto; min-width: 300px; max-width: 450px;
+        }
+        .toast.show { transform: translateX(0) scale(1); opacity: 1; }
+        .toast-icon {
+            width: 24px; height: 24px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 14px;
+        }
+        .toast.success .toast-icon { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .toast.error .toast-icon { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .toast.info .toast-icon { background: rgba(59, 130, 246, 0.2); color: #3B82F6; }
+        .toast-message { flex: 1; font-size: 0.95rem; font-weight: 500; }
+        .toast-close {
+            background: none; border: none; color: var(--text-muted);
+            cursor: pointer; padding: 0.25rem;
+            transition: color 0.2s ease;
+        }
+        .toast-close:hover { color: var(--text-color); }
+        
+        @media (max-width: 768px) {
+            .toast-container { bottom: 1rem; right: 1rem; left: 1rem; }
+            .toast { min-width: 0; width: 100%; box-sizing: border-box; }
+        }
     </style>
 </head>
 <body class="<?= isset($_SESSION['event_user_id']) ? 'has-sidebar' : '' ?>">
@@ -344,6 +466,20 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
     <div class="mobile-header">
         <button class="menu-toggle" aria-label="Toggle navigation" id="mobile-menu-btn">☰</button>
         <a href="dashboard.php" class="mobile-brand">आयोजन</a>
+
+        <?php if ($role === 'admin'): ?>
+        <?php
+            require_once '../../config/db.php';
+            $all_active_events = $pdo->query("SELECT id, name FROM em_events WHERE status != 'deleted' ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
+        ?>
+        <form method="POST" style="margin-left: auto; display: flex; align-items: center; gap: 0.5rem;" class="mobile-event-switcher">
+            <select name="quick_switch_event_id" class="form-control" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; height: auto; min-width: 120px;" onchange="this.form.submit()">
+                <?php foreach ($all_active_events as $e): ?>
+                    <option value="<?= $e['id'] ?>" <?= (isset($_SESSION['event_id']) && $_SESSION['event_id'] == $e['id']) ? 'selected' : '' ?>><?= htmlspecialchars($e['name']) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </form>
+        <?php endif; ?>
     </div>
 
     <!-- Sidebar Overlay -->
@@ -352,6 +488,20 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <a href="dashboard.php" class="sidebar-brand">आयोजन</a>
+        
+        <?php if ($role === 'admin' && !empty($all_active_events)): ?>
+        <div style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color);">
+            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 0.5rem; letter-spacing: 1px;">वर्तमान आयोजन (Active Event)</div>
+            <form method="POST">
+                <select name="quick_switch_event_id" class="form-control" style="padding: 0.5rem; font-size: 0.85rem;" onchange="this.form.submit()">
+                    <?php foreach ($all_active_events as $e): ?>
+                        <option value="<?= $e['id'] ?>" <?= (isset($_SESSION['event_id']) && $_SESSION['event_id'] == $e['id']) ? 'selected' : '' ?>><?= htmlspecialchars($e['name']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </form>
+        </div>
+        <?php endif; ?>
+
         <nav class="sidebar-nav">
             <?php if ($role === 'admin' || $vyavastha === 'all'): ?>
                 <div class="nav-section">
@@ -373,8 +523,8 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
                     <div class="nav-section-title">सेटिंग्स (Settings)</div>
                     <?php if ($role === 'admin'): ?>
                     <a href="analytics.php">विश्लेषण (Analytics)</a>
-                    <a href="create_event.php">नया आयोजन (Create Event)</a>
-                    <a href="data_cleanse.php">मास्टर डेटा अपडेट (Master Data Update)</a>
+                    <a href="create_event.php">आयोजन प्रबंधन (Events)</a>
+                    <a href="data_cleanse.php">मास्टर डेटा (Master Data)</a>
                     <?php endif; ?>
                     <a href="logout.php">लॉगआउट (Logout)</a>
                 </div>
@@ -392,8 +542,6 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
                     <div class="nav-section-title">सेटिंग्स (Settings)</div>
                     <a href="logout.php">लॉगआउट (Logout)</a>
                 </div>
-
-
 
             <?php else: ?>
                 <div class="nav-section">
