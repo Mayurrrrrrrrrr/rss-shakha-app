@@ -1,12 +1,5 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-if (!isset($_SESSION['event_user_id']) && basename($_SERVER['PHP_SELF']) !== 'login.php') {
-    header('Location: login.php');
-    exit;
-}
+require_once __DIR__ . '/auth.php';
 
 $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
 ?>
