@@ -33,7 +33,7 @@ try {
         FOREIGN KEY (created_by) REFERENCES admin_users(id) ON DELETE SET NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 } catch (PDOException $e) {}
-$stmtSub = $pdo->prepare("SELECT * FROM subhashits WHERE shakha_id = ? ORDER BY subhashit_date DESC LIMIT 1");
+$stmtSub = $pdo->prepare("SELECT * FROM subhashits WHERE (shakha_id = ? OR shakha_id IS NULL) ORDER BY subhashit_date DESC LIMIT 1");
 $stmtSub->execute([$shakhaId]);
 $latestSub = $stmtSub->fetch();
 if ($latestSub) {

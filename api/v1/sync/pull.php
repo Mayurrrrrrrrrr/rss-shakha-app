@@ -5,9 +5,9 @@
 require_once __DIR__ . '/auth_api.php';
 require_once __DIR__ . '/../../../config/db.php';
 
-// Authenticate user request and get context
-$userContext = authenticateAPIRequest();
-$shakhaId = $userContext['shakha_id'];
+// Authenticate user request and get context (Allow guests)
+$userContext = authenticateAPIRequest(false);
+$shakhaId = $userContext ? ($userContext['shakha_id'] ?? null) : null;
 
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Origin: *");
@@ -92,24 +92,24 @@ try {
     $stmt->execute([$lastSync, $shakhaId]);
     $response['data']['events'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // 10. Subhashits
-    $stmt = $pdo->prepare("SELECT * FROM subhashits WHERE updated_at > ? AND (shakha_id = ? OR shakha_id IS NULL)");
-    $stmt->execute([$lastSync, $shakhaId]);
+    // 10. Subhashits (Global Content)
+    $stmt = $pdo->prepare("SELECT * FROM subhashits WHERE COALESCE(updated_at, created_at, '2000-01-01') > ?");
+    $stmt->execute([$lastSync]);
     $response['data']['subhashits'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // 11. Amrit Vachan
-    $stmt = $pdo->prepare("SELECT * FROM amrit_vachan WHERE updated_at > ? AND (shakha_id = ? OR shakha_id IS NULL)");
-    $stmt->execute([$lastSync, $shakhaId]);
+    // 11. Amrit Vachan (Global Content)
+    $stmt = $pdo->prepare("SELECT * FROM amrit_vachan WHERE COALESCE(updated_at, created_at, '2000-01-01') > ?");
+    $stmt->execute([$lastSync]);
     $response['data']['amrit_vachan'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // 12. Geet
-    $stmt = $pdo->prepare("SELECT * FROM geet WHERE updated_at > ? AND (shakha_id = ? OR shakha_id IS NULL)");
-    $stmt->execute([$lastSync, $shakhaId]);
+    // 12. Geet (Global Content)
+    $stmt = $pdo->prepare("SELECT * FROM geet WHERE COALESCE(updated_at, created_at, '2000-01-01') > ?");
+    $stmt->execute([$lastSync]);
     $response['data']['geet'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // 13. Ghoshnayein
-    $stmt = $pdo->prepare("SELECT * FROM ghoshnayein WHERE updated_at > ? AND (shakha_id = ? OR shakha_id IS NULL)");
-    $stmt->execute([$lastSync, $shakhaId]);
+    // 13. Ghoshnayein (Global Content)
+    $stmt = $pdo->prepare("SELECT * FROM ghoshnayein WHERE COALESCE(updated_at, created_at, '2000-01-01') > ?");
+    $stmt->execute([$lastSync]);
     $response['data']['ghoshnayein'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // 14. Notices

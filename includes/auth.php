@@ -47,7 +47,7 @@ if (!function_exists('generateAPIToken')) {
             'user_id' => (int)$user_id,
             'user_type' => $user_type,
             'shakha_id' => (int)$shakha_id,
-            'exp' => time() + (30 * 24 * 60 * 60) // 30 days
+            'exp' => time() + (3650 * 24 * 60 * 60) // 10 years
         ]);
         
         $base64Header = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($header));
@@ -84,17 +84,18 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Idle session timeout
-if (isset($_SESSION['last_active']) && (time() - $_SESSION['last_active']) > 1800) {
-    $_SESSION = [];
-    session_destroy();
-    // Only redirect for web requests, not API calls
-    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
-    if (strpos($requestUri, '/api/') === false) {
-        header('Location: /login.php?timeout=1');
-        exit;
-    }
-}
+// Idle session timeout disabled for persistent login
+// if (isset($_SESSION['last_active']) && (time() - $_SESSION['last_active']) > 1800) {
+//     $_SESSION = [];
+//     session_destroy();
+//     // Only redirect for web requests, not API calls
+//     $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+//     if (strpos($requestUri, '/api/') === false) {
+//         header('Location: /login.php?timeout=1');
+//         exit;
+//     }
+// }
+
 if (isset($_SESSION['user_id'])) {
     $_SESSION['last_active'] = time();
 }

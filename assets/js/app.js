@@ -43,6 +43,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Auto-close sidebar when clicking a menu link (except accordion headers)
+    const sidebarLinks = document.querySelectorAll('.sidebar-menu a:not(.nav-group-header)');
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            window.closeSidebarFn();
+        });
+    });
+
     // Accordion Logic (Sidebar Groups)
     const navGroups = document.querySelectorAll('.nav-group-header');
     navGroups.forEach(header => {

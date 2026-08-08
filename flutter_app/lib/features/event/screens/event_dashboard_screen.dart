@@ -42,26 +42,43 @@ class _EventDashboardScreenState extends ConsumerState<EventDashboardScreen> {
       body: RefreshIndicator(
         onRefresh: _refresh,
         color: const Color(0xFFFF6B00),
-        child: dashboardState.isLoading
-            ? const Center(child: CircularProgressIndicator(color: Color(0xFFFF6B00)))
-            : SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildStatsRow(dashboardState),
-                    const SizedBox(height: 16),
-                    _buildFoodSection(),
-                    const SizedBox(height: 16),
-                    _buildNextActivity(),
-                    const SizedBox(height: 16),
-                    _buildQuickActions(context),
-                    const SizedBox(height: 16),
-                    _buildPendingTasks(),
-                  ],
+        child: dashboardState.when(
+          loading: () => const Center(child: CircularProgressIndicator(color: Color(0xFFFF6B00))),
+          error: (err, stack) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                const SizedBox(height: 16),
+                Text('त्रुटि: $err', textAlign: TextAlign.center, style: const TextStyle(color: Colors.red)),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _refresh,
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF6B00), foregroundColor: Colors.white),
+                  child: const Text('पुनः प्रयास करें'),
                 ),
-              ),
+              ],
+            ),
+          ),
+          data: (state) => SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildStatsRow(state),
+                const SizedBox(height: 16),
+                _buildFoodSection(),
+                const SizedBox(height: 16),
+                _buildNextActivity(),
+                const SizedBox(height: 16),
+                _buildQuickActions(context),
+                const SizedBox(height: 16),
+                _buildPendingTasks(),
+              ],
+            ),
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
@@ -128,11 +145,19 @@ class _EventDashboardScreenState extends ConsumerState<EventDashboardScreen> {
   }
 
   Widget _buildStatsRow(dynamic state) {
+    // state is a DashboardStats object here
+    int total = state.participantCount;
+    int present = 0;
+    if (state.todayAttendance != null && state.todayAttendance is Map) {
+       present = (state.todayAttendance['present_count'] as int?) ?? 0;
+    }
+    String attPct = total > 0 ? ((present / total) * 100).toStringAsFixed(1) : '0';
+
     return Row(
       children: [
-        Expanded(child: _buildStatCard('कुल प्रतिभागी', '${state.totalParticipants ?? 0}', Colors.blue)),
+        Expanded(child: _buildStatCard('कुल प्रतिभागी', '$total', Colors.blue)),
         const SizedBox(width: 8),
-        Expanded(child: _buildStatCard('आज की हाजिरी', '${state.attendancePercentage ?? 0}%', Colors.green)),
+        Expanded(child: _buildStatCard('आज की हाजिरी', '$attPct%', Colors.green)),
       ],
     );
   }

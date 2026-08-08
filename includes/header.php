@@ -87,6 +87,7 @@ if ($pdo && isLoggedIn() && isset($_SESSION['shakha_id'])) {
                         <ul class="sidebar-menu">
                                 <?php if (isAdmin()): ?>
                                         <li><a href="../pages/admin_dashboard.php" class="<?php echo $currentPage === 'admin_dashboard' ? 'active' : ''; ?>">👑 एडमिन डैशबोर्ड</a></li>
+                                        <li><a href="../pages/aayojan.php" class="<?php echo $currentPage === 'aayojan' ? 'active' : ''; ?>">📋 आयोजन (Event Mgmt)</a></li>
                                         
                                         <?php $adminOpsActive = in_array($currentPage, ['shakhas', 'mukhyashikshaks', 'events', 'notice', 'greetings']) ? 'open' : ''; ?>
                                         <li class="nav-group <?php echo $adminOpsActive; ?>">

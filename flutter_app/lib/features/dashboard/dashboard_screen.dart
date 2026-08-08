@@ -61,10 +61,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final syncEngine = ref.read(syncEngineProvider);
       syncEngine.isSyncing.addListener(_onSyncStateChanged);
-      // Auto-sync in the background on startup if logged in
-      if (ref.read(sessionProvider).isLoggedIn) {
-        syncEngine.sync();
-      }
+      // Auto-sync in the background on startup for all users
+      syncEngine.sync();
       
       // Check for updates
       _checkForUpdates();
@@ -580,15 +578,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 pinned: true,
                 backgroundColor: const Color(0xFFFF6B00),
                 actions: [
-                  if (session.isLoggedIn)
-                    IconButton(
-                      icon: const Icon(Icons.sync, color: Colors.white, size: 28),
-                      tooltip: 'सिंक करें',
-                      onPressed: () async {
-                        await syncEngine.sync();
-                        _refreshDashboardData();
-                      },
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.sync, color: Colors.white, size: 28),
+                    tooltip: 'सिंक करें',
+                    onPressed: () async {
+                      await syncEngine.sync();
+                      _refreshDashboardData();
+                    },
+                  ),
                 ],
                 flexibleSpace: FlexibleSpaceBar(
                   titlePadding: const EdgeInsets.only(left: 60.0, bottom: 16.0),
