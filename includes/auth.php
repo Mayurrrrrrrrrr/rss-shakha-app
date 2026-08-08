@@ -5,9 +5,6 @@
 // NEW JWT AUTHENTICATION HELPER for Event App
 // ---------------------------------------------------------
 require_once __DIR__.'/../config/jwt.php';
-require_once __DIR__.'/../vendor/autoload.php';
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
 
 function verify_token() {
     $headers = getallheaders();
@@ -23,17 +20,17 @@ function verify_token() {
         exit;
     }
     $token = trim(str_replace('Bearer', '', $authHeader));
-    try {
-        $payload = JWT::decode($token, new Key(JWT_SECRET, 'HS256'));
-        if (session_status() === PHP_SESSION_NONE) { session_start(); }
-        $_SESSION['event_user_id'] = $payload->sub ?? null;
-        $_SESSION['event_role']   = $payload->role ?? null;
-        return (array) $payload;
-    } catch (Exception $e) {
+    
+    $payload = validateAPIToken($token);
+    if (!$payload) {
         http_response_code(401);
-        echo json_encode(['error' => 'Invalid token', 'message' => $e->getMessage()]);
+        echo json_encode(['error' => 'Invalid token']);
         exit;
     }
+    if (session_status() === PHP_SESSION_NONE) { session_start(); }
+    $_SESSION['event_user_id'] = $payload['sub'] ?? null;
+    $_SESSION['event_role']   = $payload['role'] ?? null;
+    return (array) $payload;
 }
 
 function require_role(string $role) {
@@ -132,16 +129,9 @@ if (!function_exists('authenticateAPIRequest')) {
         
         if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
             $token = $matches[1];
-            // Try new Firebase JWT first
-            try {
-                $payload = JWT::decode($token, new Key(JWT_SECRET, 'HS256'));
-                return (array) $payload;
-            } catch (Exception $e) {
-                // Fallback to old token validation
-                $payload = validateAPIToken($token);
-                if ($payload) {
-                    return $payload;
-                }
+            $payload = validateAPIToken($token);
+            if ($payload) {
+                return $payload;
             }
         }
         
