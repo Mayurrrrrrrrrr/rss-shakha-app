@@ -198,7 +198,7 @@ include 'includes/header.php';
                 <?php endforeach; ?>
             </select>
             
-            <input type="text" name="search" class="form-control filter-input" placeholder="नाम या फोन से खोजें (Search by name or phone)" value="<?= htmlspecialchars($search) ?>" oninput="debounceSearch()" autofocus>
+            <input type="text" id="search_input" name="search" class="form-control filter-input" placeholder="नाम या फोन से खोजें (Search by name or phone)" value="<?= htmlspecialchars($search) ?>" oninput="debounceSearch()" autofocus>
             
             <?php if (!$is_hajiri): ?>
             <select name="<?= $filter_name ?>" class="form-control filter-input" onchange="document.getElementById('filter-form').submit()">
@@ -393,6 +393,23 @@ include 'includes/header.php';
             alert('Network error. Please try again.');
         });
     }
+</script>
+
+<!-- Google Transliteration API for Hindi Typing -->
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+    google.load("elements", "1", { packages: "transliteration" });
+    function onLoad() {
+        var options = {
+            sourceLanguage: google.elements.transliteration.LanguageCode.ENGLISH,
+            destinationLanguage: [google.elements.transliteration.LanguageCode.HINDI],
+            shortcutKey: 'ctrl+g',
+            transliterationEnabled: true
+        };
+        var control = new google.elements.transliteration.TransliterationControl(options);
+        control.makeTransliteratable(['search_input']);
+    }
+    google.setOnLoadCallback(onLoad);
 </script>
 
 <?php include 'includes/footer.php'; ?>
