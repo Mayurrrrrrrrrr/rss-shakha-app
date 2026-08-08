@@ -1,10 +1,9 @@
 <?php
-require_once __DIR__ . '/config/db.php';
-
+require_once "/var/www/html/sanghasthan/config/db.php";
+$sql = file_get_contents('/tmp/import_participants_full.sql');
 try {
-    $sql = file_get_contents(__DIR__ . '/bulk_import.sql');
     $pdo->exec($sql);
-    echo "Bulk import executed successfully.\n";
+    echo "Successfully imported.";
 } catch (Exception $e) {
-    echo "Error executing bulk import: " . $e->getMessage() . "\n";
+    echo "Error: " . $e->getMessage();
 }

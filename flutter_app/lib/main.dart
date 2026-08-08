@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/providers/providers.dart';
-import 'features/dashboard/dashboard_screen.dart';
+import 'features/auth/login_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Set system status bar color overlay
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Color(0xFFFF6B00), // Saffron Color
+    statusBarColor: Color(0xFF0B0E14), // Dark background
     statusBarIconBrightness: Brightness.light,
   ));
 
@@ -26,47 +26,33 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
-      title: 'संघस्थान - R.S.S. Shakha',
-      themeMode: ThemeMode.light,
+      title: 'Aayojan - Event Portal',
+      themeMode: ThemeMode.dark,
       theme: ThemeData(
         useMaterial3: true,
-        primaryColor: const Color(0xFFFF6B00),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFFF6B00),
-          primary: const Color(0xFFFF6B00),
-          secondary: const Color(0xFFFFB300),
-          surface: Colors.white,
-          surfaceContainerLowest: const Color(0xFFF9F6F0), // Soft cream
+        primaryColor: const Color(0xFF0D9488), // Teal
+        scaffoldBackgroundColor: const Color(0xFF0B0E14),
+        colorScheme: const ColorScheme.dark(
+          primary: Color(0xFF0D9488),
+          secondary: Color(0xFF14B8A6),
+          surface: Color(0xFF151821),
+          background: Color(0xFF0B0E14),
         ),
-        fontFamily: 'Noto Sans Devanagari',
-        // Senior-friendly: larger base font sizes
-        textTheme: Theme.of(context).textTheme.copyWith(
-          bodyLarge: const TextStyle(fontSize: 18),
-          bodyMedium: const TextStyle(fontSize: 16),
-          bodySmall: const TextStyle(fontSize: 14),
-          titleLarge: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          titleMedium: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          titleSmall: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          labelLarge: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        fontFamily: 'Inter',
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF151821),
+          foregroundColor: Colors.white,
+          elevation: 0,
         ),
-        // Comfortable density for larger touch targets
-        visualDensity: VisualDensity.comfortable,
-        materialTapTargetSize: MaterialTapTargetSize.padded,
-        cardTheme: const CardThemeData(
-          color: Colors.white,
+        cardTheme: CardThemeData(
+          color: const Color(0xFF1A1D27),
           surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
-        chipTheme: ChipThemeData(
-          backgroundColor: Colors.grey.shade200,
-          disabledColor: Colors.grey.shade100,
-          selectedColor: const Color(0xFFFF6B00),
-          secondarySelectedColor: const Color(0xFFFFB300),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-        // Senior-friendly: larger buttons
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF0D9488),
+            foregroundColor: Colors.white,
             minimumSize: const Size(double.infinity, 56),
             textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -74,7 +60,7 @@ class MyApp extends ConsumerWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home: const DashboardScreen(),
+      home: const LoginScreen(),
     );
   }
 }

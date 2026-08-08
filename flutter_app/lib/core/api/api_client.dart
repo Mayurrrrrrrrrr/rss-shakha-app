@@ -15,26 +15,8 @@ class ApiClient {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final versionedPaths = [
-            '/api/login.php',
-            '/api/fetch_panchang.php',
-            '/api/get_notices.php',
-            '/api/sync/push.php',
-            '/api/sync/pull.php',
-            '/api/get_personalities.php',
-          ];
-          if (versionedPaths.contains(options.path)) {
-            options.path = options.path.replaceFirst('/api/', '/api/v1/');
-          }
-
           final prefs = await SharedPreferences.getInstance();
-          String? token;
-          
-          if (options.path.startsWith('/api/v1/event/')) {
-            token = prefs.getString('event_api_token');
-          } else {
-            token = prefs.getString('api_token');
-          }
+          String? token = prefs.getString('event_api_token');
 
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
@@ -66,22 +48,6 @@ class ApiClient {
   Future<Response> post(String path, {dynamic data}) async {
     try {
       return await _dio.post(path, data: data);
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<Response> fetchPanchang(String date) async {
-    try {
-      return await get('/api/fetch_panchang.php', queryParameters: {'date': date});
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<Response> fetchPersonalities() async {
-    try {
-      return await post('/api/get_personalities.php');
     } catch (e) {
       rethrow;
     }

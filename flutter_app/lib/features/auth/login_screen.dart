@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/providers/providers.dart';
 import '../../core/api/api_client.dart';
-import '../../core/config/app_config.dart';
-import '../dashboard/dashboard_screen.dart';
+import '../../core/providers/providers.dart';
 import '../event/providers/event_providers.dart';
 import '../event/screens/event_selection_screen.dart';
-
-enum LoginPortal { shakha, event }
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -21,7 +17,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   
-  LoginPortal _selectedPortal = LoginPortal.shakha;
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -43,68 +38,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       final apiClient = ref.read(apiClientProvider);
       
-      if (_selectedPortal == LoginPortal.shakha) {
-        final response = await apiClient.post(
-          '/api/login.php',
-          data: {
-            'username': _usernameController.text.trim(),
-            'password': _passwordController.text,
-          },
-        );
+      final response = await apiClient.post(
+        '/api/v1/event/auth/login.php',
+        data: {
+          'username': _usernameController.text.trim(),
+          'password': _passwordController.text,
+        },
+      );
 
-        if (response.statusCode == 200 && response.data != null) {
-          final data = response.data;
-          if (data['success'] == true) {
-            final userData = data['data'] as Map<String, dynamic>;
-            await ref.read(sessionProvider.notifier).login(userData);
-            ref.read(syncEngineProvider).sync();
-            
-            if (mounted) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const DashboardScreen()),
-              );
-            }
-          } else {
-            setState(() {
-              _errorMessage = data['message'] ?? 'लॉगिन विफल। कृपया पुनः प्रयास करें।';
-            });
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data;
+        if (data['success'] == true) {
+          final userData = data['data'] as Map<String, dynamic>;
+          await ref.read(eventSessionProvider.notifier).login(userData);
+          
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const EventSelectionScreen()),
+            );
           }
         } else {
           setState(() {
-            _errorMessage = 'सर्वर कनेक्शन विफल। कृपया इंटरनेट जांचें।';
+            _errorMessage = data['message'] ?? 'लॉगिन विफल। कृपया पुनः प्रयास करें।';
           });
         }
       } else {
-        // Event Portal Login
-        final response = await apiClient.post(
-          '/api/v1/event/auth/login.php',
-          data: {
-            'username': _usernameController.text.trim(),
-            'password': _passwordController.text,
-          },
-        );
-
-        if (response.statusCode == 200 && response.data != null) {
-          final data = response.data;
-          if (data['success'] == true) {
-            final userData = data['data'] as Map<String, dynamic>;
-            await ref.read(eventSessionProvider.notifier).login(userData);
-            
-            if (mounted) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const EventSelectionScreen()),
-              );
-            }
-          } else {
-            setState(() {
-              _errorMessage = data['message'] ?? 'लॉगिन विफल। कृपया पुनः प्रयास करें।';
-            });
-          }
-        } else {
-          setState(() {
-            _errorMessage = 'सर्वर कनेक्शन विफल। कृपया इंटरनेट जांचें।';
-          });
-        }
+        setState(() {
+          _errorMessage = 'सर्वर कनेक्शन विफल। त्रुटि कोड: ${response.statusCode}';
+        });
       }
     } catch (e) {
       setState(() {
@@ -119,72 +80,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
-  Widget _buildPortalCard({
-    required String title,
-    required String iconText,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-          decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFFFFF3E0) : Colors.grey.shade50,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isSelected ? const Color(0xFFFF6B00) : Colors.grey.shade300,
-              width: isSelected ? 2 : 1,
-            ),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: const Color(0xFFFF6B00).withOpacity(0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    )
-                  ]
-                : [],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                iconText,
-                style: const TextStyle(fontSize: 28),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected ? const Color(0xFFFF6B00) : Colors.grey.shade700,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFFF8C00), // Dark Orange
-              Color(0xFFFF6B00), // Saffron
-              Color(0xFFE55B00), // Deep Saffron
-            ],
-          ),
+          color: Color(0xFF0B0E14), // Dark background
         ),
         child: Center(
           child: SingleChildScrollView(
@@ -192,7 +93,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Card(
               elevation: 12,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-              color: Colors.white.withOpacity(0.95),
+              color: const Color(0xFF151821),
               child: Padding(
                 padding: const EdgeInsets.all(32.0),
                 child: Form(
@@ -200,122 +101,128 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
-                        children: [
-                          _buildPortalCard(
-                            title: 'संघस्थान',
-                            iconText: '🚩',
-                            isSelected: _selectedPortal == LoginPortal.shakha,
-                            onTap: () {
-                              if (_selectedPortal != LoginPortal.shakha) {
-                                setState(() {
-                                  _selectedPortal = LoginPortal.shakha;
-                                  _errorMessage = null;
-                                });
-                              }
-                            },
-                          ),
-                          const SizedBox(width: 16),
-                          _buildPortalCard(
-                            title: 'आयोजन',
-                            iconText: '📋',
-                            isSelected: _selectedPortal == LoginPortal.event,
-                            onTap: () {
-                              if (_selectedPortal != LoginPortal.event) {
-                                setState(() {
-                                  _selectedPortal = LoginPortal.event;
-                                  _errorMessage = null;
-                                });
-                              }
-                            },
-                          ),
-                        ],
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: const Color(0xFF0D9488).withOpacity(0.1),
+                        ),
+                        child: const Icon(
+                          Icons.event,
+                          size: 64,
+                          color: Color(0xFF0D9488), // Teal accent
+                        ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'आयोजन',
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       Text(
-                        _selectedPortal == LoginPortal.shakha
-                            ? 'दैनिक गतिविधि एवं उपस्थिति प्रबंधन'
-                            : 'कार्यक्रम आयोजन एवं प्रबंधन',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        'Event Management Portal',
+                        style: TextStyle(
                           fontSize: 16,
-                          color: Colors.black54,
-                          fontWeight: FontWeight.w500,
+                          color: Colors.grey.shade400,
                         ),
                       ),
                       const SizedBox(height: 32),
-                      if (_errorMessage != null) ...[
+                      
+                      if (_errorMessage != null)
                         Container(
                           padding: const EdgeInsets.all(12),
+                          margin: const EdgeInsets.only(bottom: 24),
                           decoration: BoxDecoration(
-                            color: Colors.red.shade50,
+                            color: Colors.red.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.red.shade200),
+                            border: Border.all(color: Colors.red.withOpacity(0.3)),
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.error_outline, color: Colors.red.shade700),
+                              const Icon(Icons.error_outline, color: Colors.red),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
                                   _errorMessage!,
-                                  style: TextStyle(color: Colors.red.shade900),
+                                  style: const TextStyle(color: Colors.red),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 20),
-                      ],
+
                       TextFormField(
                         controller: _usernameController,
+                        style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           labelText: 'उपयोगकर्ता नाम (Username)',
-                          prefixIcon: const Icon(Icons.person_outline),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          labelStyle: TextStyle(color: Colors.grey.shade400),
+                          prefixIcon: const Icon(Icons.person_outline, color: Color(0xFF0D9488)),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: Colors.grey.shade800),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(color: Color(0xFF0D9488), width: 2),
+                          ),
+                          filled: true,
+                          fillColor: const Color(0xFF1A1D27),
                         ),
-                        validator: (value) =>
-                            value == null || value.isEmpty ? 'कृपया उपयोगकर्ता नाम दर्ज करें' : null,
+                        validator: (value) => value == null || value.isEmpty ? 'कृपया उपयोगकर्ता नाम दर्ज करें' : null,
                       ),
                       const SizedBox(height: 20),
                       TextFormField(
                         controller: _passwordController,
                         obscureText: true,
+                        style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           labelText: 'पासवर्ड (Password)',
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          labelStyle: TextStyle(color: Colors.grey.shade400),
+                          prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF0D9488)),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: Colors.grey.shade800),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(color: Color(0xFF0D9488), width: 2),
+                          ),
+                          filled: true,
+                          fillColor: const Color(0xFF1A1D27),
                         ),
-                        validator: (value) =>
-                            value == null || value.isEmpty ? 'कृपया पासवर्ड दर्ज करें' : null,
+                        validator: (value) => value == null || value.isEmpty ? 'कृपया पासवर्ड दर्ज करें' : null,
                       ),
                       const SizedBox(height: 32),
+                      
                       SizedBox(
                         width: double.infinity,
-                        height: 54,
+                        height: 56,
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _handleLogin,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFFF6B00),
+                            backgroundColor: const Color(0xFF0D9488),
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 0,
                           ),
                           child: _isLoading
-                              ? const CircularProgressIndicator(color: Colors.white)
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                                )
                               : const Text(
-                                  '🔑 लॉगिन करें',
+                                  'लॉगिन करें',
                                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                 ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'संस्करण (Version) ${AppConfig.versionName}+${AppConfig.versionCode}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.black38,
-                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
