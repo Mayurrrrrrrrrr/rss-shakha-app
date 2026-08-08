@@ -420,10 +420,42 @@ include 'includes/header.php';
     const container = document.getElementById('participants_container');
     const searchInput = document.getElementById('js_search');
     let currentSessionId = document.getElementById('session_select').value;
-    
-    function renderParticipants(filterText = '') {
-        // Normalize string: removes extra spaces and handles basic case
-        const cleanFilter = filterText.trim().toLowerCase();
+    let searchTimeout;
+
+    // 1. Intercept search, fetch Hindi text, and trigger render
+    async function handleSearch(filterText) {
+        const rawText = filterText.trim().toLowerCase();
+        
+        if (!rawText) {
+            renderParticipants([rawText]);
+            return;
+        }
+
+        // If the input contains English letters, fetch Hindi transliteration
+        if (/[a-z]/.test(rawText)) {
+            try {
+                const response = await fetch(`https://inputtools.google.com/request?text=${encodeURIComponent(rawText)}&itc=hi-t-i0-und&num=3`);
+                const data = await response.json();
+                
+                let searchTerms = [rawText]; // Always include the original English text (useful for matching email/organization)
+                
+                if (data[0] === 'SUCCESS' && data[1][0][1]) {
+                    // Combine the English text with the top 3 Hindi suggestions
+                    searchTerms = searchTerms.concat(data[1][0][1]);
+                }
+                renderParticipants(searchTerms);
+            } catch (e) {
+                console.error("Transliteration API failed, falling back to basic search.", e);
+                renderParticipants([rawText]);
+            }
+        } else {
+            // It's already in Hindi or numbers, search normally
+            renderParticipants([rawText]);
+        }
+    }
+
+    // 2. Render participants checking against multiple possible terms
+    function renderParticipants(searchTerms = ['']) {
         container.innerHTML = '';
         
         let presentCount = 0;
@@ -434,16 +466,14 @@ include 'includes/header.php';
             const isPresent = p.is_present == 1;
             if (isPresent) presentCount++;
             
-            // Advanced Search Logic
-            if (cleanFilter) {
-                // Combine fields and safely handle nulls
+            // Advanced Search Logic checking all transliterations
+            if (searchTerms.length > 0 && searchTerms[0] !== '') {
                 const searchableText = [
                     p.name, p.phone, p.organization, p.city, p.bhag
                 ].filter(Boolean).join(' ').toLowerCase();
-
-                // Check if every word in the search input exists in the row
-                const searchTerms = cleanFilter.split(/\s+/);
-                const isMatch = searchTerms.every(term => searchableText.includes(term));
+                
+                // Check if ANY of the search terms (English or Hindi) exist in the row
+                const isMatch = searchTerms.some(term => searchableText.includes(term));
                 
                 if (!isMatch) return;
             }
@@ -479,7 +509,7 @@ include 'includes/header.php';
             container.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 1rem; opacity: 0.5;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <p>No participants found matching your search.</p>
+                    <p>कोई प्रतिभागी नहीं मिला (No participants found matching your search).</p>
                 </div>
             `;
         }
@@ -557,7 +587,10 @@ include 'includes/header.php';
     }
 
     // Initialize
-    searchInput.addEventListener('input', (e) => renderParticipants(e.target.value));
+    searchInput.addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => handleSearch(e.target.value), 300); // 300ms delay
+    });
     renderParticipants();
 </script>
 
