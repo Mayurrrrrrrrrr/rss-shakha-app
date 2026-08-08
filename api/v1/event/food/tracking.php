@@ -6,7 +6,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 try {
     $stmt = $pdo->prepare("
-        INSERT INTO em_food_tracking (event_id, meal_id, person_type, person_id, status)
+        INSERT INTO em_meal_tracking (event_id, meal_id, person_type, person_id, status)
         VALUES (?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE status = VALUES(status)
     ");

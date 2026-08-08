@@ -49,7 +49,7 @@ try {
     // Food today
     $stmt = $pdo->prepare("
         SELECT m.meal_name, m.expected_count,
-        (SELECT COUNT(*) FROM em_food_tracking t WHERE t.meal_id = m.id AND t.status = 'consumed') as consumed_count
+        (SELECT COUNT(*) FROM em_meal_tracking t WHERE t.meal_id = m.id AND t.status = 'consumed') as consumed_count
         FROM em_meals m WHERE event_id = ? AND meal_date = CURDATE()
     ");
     $stmt->execute([$auth['event_id']]);
