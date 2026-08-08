@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['allocate'])) {
             // Insert into em_participants
             $insertStmt = $pdo->prepare("
                 INSERT INTO em_participants (event_id, name, phone, city, age, category, entry_type) 
-                VALUES (?, ?, ?, ?, ?, ?, 'allocated')
+                VALUES (?, ?, ?, ?, ?, ?, 'pre-registered')
             ");
             
             $count = 0;
