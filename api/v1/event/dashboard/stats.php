@@ -8,7 +8,7 @@ try {
     // Event info
     $stmt = $pdo->prepare("SELECT * FROM em_events WHERE id = ?");
     $stmt->execute([$auth['event_id']]);
-    $stats['event_info'] = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stats['event_info'] = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     
     // Participants
     $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM em_participants WHERE event_id = ? AND is_active = 1 AND is_deleted = 0");
@@ -80,7 +80,7 @@ try {
         ORDER BY activity_date ASC, start_time ASC LIMIT 1
     ");
     $stmt->execute([$auth['event_id']]);
-    $stats['next_activity'] = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stats['next_activity'] = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     
     // Spot entries
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM em_participants WHERE event_id = ? AND entry_type = 'spot' AND DATE(created_at) = CURDATE()");
