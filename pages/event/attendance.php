@@ -140,7 +140,7 @@ if ($filter_value !== '') {
 $query .= " ORDER BY p.name ASC";
 
 // Volunteers must search first — don't load full list
-if ($is_hajiri && $search === '') {
+if ($is_hajiri && $search === '' && $filter_value === '') {
     $participantsList = [];
 } else {
     $partStmt = $pdo->prepare($query);
@@ -180,10 +180,12 @@ include 'includes/header.php';
     .filter-input { min-height: 44px; margin-bottom: 0.5rem; }
 </style>
 
+<?php if (!$is_hajiri): ?>
 <div class="stats-bar">
     <h2>उपस्थित <span id="present-count"><?= $present_count ?></span> / कुल <?= $total_count ?></h2>
     <p>(Present / Total) - <span id="present-percentage"><?= $percentage ?></span>%</p>
 </div>
+<?php endif; ?>
 
 <div class="search-bar">
     <form id="filter-form" method="GET" action="">
@@ -196,8 +198,9 @@ include 'includes/header.php';
                 <?php endforeach; ?>
             </select>
             
-            <input type="text" name="search" class="form-control filter-input" placeholder="नाम या फोन से खोजें (Search by name or phone)" value="<?= htmlspecialchars($search) ?>" oninput="debounceSearch()">
+            <input type="text" name="search" class="form-control filter-input" placeholder="नाम या फोन से खोजें (Search by name or phone)" value="<?= htmlspecialchars($search) ?>" oninput="debounceSearch()" autofocus>
             
+            <?php if (!$is_hajiri): ?>
             <select name="<?= $filter_name ?>" class="form-control filter-input" onchange="document.getElementById('filter-form').submit()">
                 <option value=""><?= htmlspecialchars($filter_label) ?></option>
                 <?php foreach ($filter_options as $c): ?>
@@ -206,6 +209,7 @@ include 'includes/header.php';
                     </option>
                 <?php endforeach; ?>
             </select>
+            <?php endif; ?>
         </div>
     </form>
 </div>
