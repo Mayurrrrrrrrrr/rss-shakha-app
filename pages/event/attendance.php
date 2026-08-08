@@ -472,6 +472,8 @@ include 'includes/header.php';
             console.error(err);
             alert('Network error. Please try again.');
         });
+    }
+
     const searchInput = document.getElementById('search_input');
     if (searchInput) {
         // Simple client-side debounce for form submission
