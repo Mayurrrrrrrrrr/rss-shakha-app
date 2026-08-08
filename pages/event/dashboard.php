@@ -37,6 +37,9 @@ try {
 ?>
 
 <h2>डैशबोर्ड (Dashboard)</h2>
+<p style="color: var(--saffron); margin-top: -10px; margin-bottom: 20px; font-weight: 500;">
+    आयोजन: <?= htmlspecialchars($_SESSION['event_name'] ?? 'Unknown Event') ?>
+</p>
 
 <div class="grid">
     <div class="card" style="border-top: 4px solid var(--saffron);">

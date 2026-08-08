@@ -127,7 +127,8 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
             padding: 1rem 1.5rem;
             border-bottom: 1px solid var(--border-color);
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
+            gap: 1rem;
             position: sticky;
             top: 0;
             z-index: 999;
@@ -348,8 +349,8 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
     
     <!-- Mobile Header -->
     <div class="mobile-header">
-        <a href="dashboard.php" class="mobile-brand">आयोजन</a>
         <button class="menu-toggle" aria-label="Toggle navigation" id="mobile-menu-btn">☰</button>
+        <a href="dashboard.php" class="mobile-brand">आयोजन</a>
     </div>
 
     <!-- Sidebar Overlay -->
