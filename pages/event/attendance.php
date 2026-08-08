@@ -134,6 +134,14 @@ $query = "
 ";
 $params = [':session_id' => $selected_session_id, ':event_id' => $event_id];
 
+$assigned_bhag = $_SESSION['event_assigned_bhag'] ?? '';
+$is_hajiri = ($_SESSION['event_vyavastha'] ?? '') === 'hajiri';
+
+if ($is_hajiri && $assigned_bhag !== '') {
+    $query .= " AND (p.bhag = :assigned_bhag OR p.city = :assigned_bhag)";
+    $params[':assigned_bhag'] = $assigned_bhag;
+}
+
 $search = trim($_GET['search'] ?? '');
 if ($search !== '') {
     $search_hindi = $search;

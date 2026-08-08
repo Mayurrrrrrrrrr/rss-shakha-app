@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['event_user_name'] = $user['name'];
                 $_SESSION['event_role'] = $user['role'];
                 $_SESSION['event_vyavastha'] = $user['vyavastha'] ?? 'all';
+                $_SESSION['event_assigned_bhag'] = $user['assigned_bhag'] ?? '';
                 
                 // Find active event from em_events
                 $stmt = $pdo->query("SELECT id, name FROM em_events WHERE status = 'active' LIMIT 1");
