@@ -23,7 +23,7 @@ try {
 
     // 1. Get organizer bhag to assign to the new user
     $stmt = $pdo->prepare("SELECT assigned_bhag FROM em_organizers WHERE id = ?");
-    $stmt->execute([$auth['user_id']]);
+    $stmt->execute([$auth['organizer_id']]);
     $assigned_bhag = $stmt->fetchColumn() ?: '';
 
     // 2. Insert into participants
@@ -39,7 +39,7 @@ try {
         INSERT INTO em_participant_attendance (attendance_session_id, participant_id, is_present, updated_by) 
         VALUES (?, ?, 1, ?)
     ");
-    $stmt->execute([$session_id, $participant_id, $auth['user_id']]);
+    $stmt->execute([$session_id, $participant_id, $auth['organizer_id']]);
 
     $pdo->commit();
     sendResponse(true, "स्पॉट एंट्री सफलतापूर्वक की गई (Spot entry successful)", ['participant_id' => $participant_id]);
