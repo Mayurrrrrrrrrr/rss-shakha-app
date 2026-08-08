@@ -395,21 +395,61 @@ include 'includes/header.php';
     }
 </script>
 
-<!-- Google Transliteration API for Hindi Typing -->
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript">
-    google.load("elements", "1", { packages: "transliteration" });
-    function onLoad() {
-        var options = {
-            sourceLanguage: google.elements.transliteration.LanguageCode.ENGLISH,
-            destinationLanguage: [google.elements.transliteration.LanguageCode.HINDI],
-            shortcutKey: 'ctrl+g',
-            transliterationEnabled: true
-        };
-        var control = new google.elements.transliteration.TransliterationControl(options);
-        control.makeTransliteratable(['search_input']);
+<!-- Google Input Tools API for Hindi Typing -->
+<script>
+    async function transliterateWord(word) {
+        if (!word || !/^[a-zA-Z]+$/.test(word)) return word; 
+        try {
+            const response = await fetch(`https://inputtools.google.com/request?text=${word}&itc=hi-t-i0-und&num=1`);
+            const data = await response.json();
+            if (data[0] === 'SUCCESS' && data[1] && data[1][0] && data[1][0][1] && data[1][0][1][0]) {
+                return data[1][0][1][0];
+            }
+        } catch (e) {
+            console.error("Transliteration failed", e);
+        }
+        return word;
     }
-    google.setOnLoadCallback(onLoad);
+
+    const searchInput = document.getElementById('search_input');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', async function(e) {
+            if (e.key === ' ' || e.keyCode === 32) {
+                let cursorPosition = this.selectionStart;
+                let text = this.value;
+                let beforeCursor = text.substring(0, cursorPosition - 1);
+                let words = beforeCursor.split(' ');
+                let lastWord = words[words.length - 1];
+                
+                if (lastWord && /^[a-zA-Z]+$/.test(lastWord)) {
+                    let hindiWord = await transliterateWord(lastWord);
+                    if (hindiWord && hindiWord !== lastWord) {
+                        words[words.length - 1] = hindiWord;
+                        let newBeforeCursor = words.join(' ') + ' ';
+                        this.value = newBeforeCursor + text.substring(cursorPosition);
+                        this.setSelectionRange(newBeforeCursor.length, newBeforeCursor.length);
+                        this.dispatchEvent(new Event('input'));
+                    }
+                }
+            }
+        });
+
+        // Also transliterate the last word when clicking outside or hitting Enter
+        searchInput.addEventListener('change', async function(e) {
+            let words = this.value.trim().split(' ');
+            let changed = false;
+            for (let i=0; i<words.length; i++) {
+                if (words[i] && /^[a-zA-Z]+$/.test(words[i])) {
+                    words[i] = await transliterateWord(words[i]);
+                    changed = true;
+                }
+            }
+            if (changed) {
+                this.value = words.join(' ');
+                this.dispatchEvent(new Event('input'));
+            }
+        });
+    }
 </script>
 
 <?php include 'includes/footer.php'; ?>
