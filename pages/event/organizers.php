@@ -223,7 +223,7 @@ if ($event_id) {
                 <small style="color:#888;">केवल स्वयंसेवकों के लिए (Only for volunteers attending specific bhag)</small>
             </div>
             
-            <div class="form-group" id="vyavastha_group" style="display: none;">
+            <div class="form-group" id="vyavastha_group">
                 <label>व्यवस्था (Vyavastha)</label>
                 <select name="vyavastha" class="form-control">
                     <option value=''>-- चुनें --</option>
@@ -243,20 +243,20 @@ if ($event_id) {
 function toggleVyavastha() {
     var role = document.getElementById('role_select').value;
     var vyavasthaGroup = document.getElementById('vyavastha_group');
-    if (role === 'coordinator') {
-        vyavasthaGroup.style.display = 'block';
-    } else {
+    if (role === 'admin') {
         vyavasthaGroup.style.display = 'none';
+    } else {
+        vyavasthaGroup.style.display = 'block';
     }
 }
 
 function toggleEditVyavastha() {
     var role = document.getElementById('edit_role_select').value;
     var vyavasthaGroup = document.getElementById('edit_vyavastha_group');
-    if (role === 'coordinator') {
-        vyavasthaGroup.style.display = 'block';
-    } else {
+    if (role === 'admin') {
         vyavasthaGroup.style.display = 'none';
+    } else {
+        vyavasthaGroup.style.display = 'block';
     }
 }
 
