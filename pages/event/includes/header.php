@@ -383,6 +383,7 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
                 <div class="nav-section">
                     <div class="nav-section-title">सेटिंग्स (Settings)</div>
                     <?php if ($role === 'admin'): ?>
+                    <a href="analytics.php">विश्लेषण (Analytics)</a>
                     <a href="create_event.php">नया आयोजन (Create Event)</a>
                     <a href="room_inventory.php">कक्ष सूची (Room Inventory)</a>
                     <a href="data_cleanse.php">मास्टर डेटा अपडेट (Master Data Update)</a>
@@ -429,7 +430,6 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
                 </div>
                 <div class="nav-section">
                     <div class="nav-section-title">सेटिंग्स (Settings)</div>
-                    <a href="room_inventory.php">कक्ष सूची (Room Inventory)</a>
                     <a href="logout.php">लॉगआउट (Logout)</a>
                 </div>
 

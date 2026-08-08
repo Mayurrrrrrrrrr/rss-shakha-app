@@ -1,253 +1,359 @@
 <?php
 session_start();
 require_once '../../config/db.php';
-include 'includes/header.php';
+
+$event_id = $_SESSION['event_id'] ?? null;
+$vyavastha = $_SESSION['event_vyavastha'] ?? 'all';
+$role = $_SESSION['event_role'] ?? '';
+$user_name = $_SESSION['event_user_name'] ?? 'User';
+$assigned_bhag = $_SESSION['event_assigned_bhag'] ?? '';
+$is_admin = ($role === 'admin' || $vyavastha === 'all');
+$is_volunteer = ($vyavastha === 'hajiri');
 
 $total_participants = 0;
 $total_organizers = 0;
 $rooms_filled = 0;
 $total_rooms = 0;
+$today_attendance = 0;
 $recent_participants = [];
 
 try {
-    $total_participants = $pdo->query("SELECT COUNT(*) FROM em_participants")->fetchColumn() ?: 0;
-    $total_organizers = $pdo->query("SELECT COUNT(*) FROM em_organizers")->fetchColumn() ?: 0;
-    $rooms_filled = $pdo->query("SELECT COUNT(*) FROM em_rooms WHERE occupancy > 0")->fetchColumn() ?: 0;
-    $total_rooms = $pdo->query("SELECT COUNT(*) FROM em_rooms")->fetchColumn() ?: 0;
-    $recent_participants = $pdo->query("SELECT name, city, phone FROM em_participants ORDER BY id DESC LIMIT 5")->fetchAll();
-    
-    $event_id = $_SESSION['event_id'] ?? null;
-    
-    $today_attendance = 0;
-    if ($event_id) {
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM em_attendance a JOIN em_sessions s ON a.session_id = s.id WHERE s.event_id = ? AND DATE(s.start_time) = CURDATE() AND a.status = 'present'");
-        $stmt->execute([$event_id]);
-        $today_attendance = $stmt->fetchColumn() ?: 0;
+    $total_participants = $pdo->prepare("SELECT COUNT(*) FROM em_participants WHERE event_id = ?");
+    $total_participants->execute([$event_id]);
+    $total_participants = $total_participants->fetchColumn() ?: 0;
+
+    if ($is_admin) {
+        $total_organizers = $pdo->prepare("SELECT COUNT(*) FROM em_organizers WHERE event_id = ?");
+        $total_organizers->execute([$event_id]);
+        $total_organizers = $total_organizers->fetchColumn() ?: 0;
+
+        try {
+            $rooms_filled = $pdo->query("SELECT COUNT(*) FROM em_rooms WHERE occupancy > 0")->fetchColumn() ?: 0;
+            $total_rooms = $pdo->query("SELECT COUNT(*) FROM em_rooms")->fetchColumn() ?: 0;
+        } catch (Exception $e) { /* ignore */ }
+
+        $recent_participants = $pdo->prepare("SELECT name, city, phone FROM em_participants WHERE event_id = ? ORDER BY id DESC LIMIT 5");
+        $recent_participants->execute([$event_id]);
+        $recent_participants = $recent_participants->fetchAll(PDO::FETCH_ASSOC);
     }
-    
-    $meal_forecast = 0;
-    if ($event_id) {
-        $stmt = $pdo->prepare("SELECT SUM(expected_upcoming) FROM em_meals WHERE event_id = ? AND meal_date = CURDATE()");
-        $stmt->execute([$event_id]);
-        $meal_forecast = $stmt->fetchColumn() ?: 0;
-    }
-    
-    // Analytics queries
-    $catData = [];
-    $ageData = [];
-    $shikshanData = [];
-    $bhagData = [];
-    
-    if ($event_id) {
-        // Categories
-        $stmt = $pdo->prepare("SELECT category, COUNT(*) as cnt FROM em_participants WHERE event_id = ? GROUP BY category");
-        $stmt->execute([$event_id]);
-        $catData = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        // Age Groups
-        $stmt = $pdo->prepare("SELECT age_group, COUNT(*) as cnt FROM em_participants WHERE event_id = ? GROUP BY age_group");
-        $stmt->execute([$event_id]);
-        $ageData = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        // Sangh Shikshan
-        $stmt = $pdo->prepare("SELECT sangh_shikshan, COUNT(*) as cnt FROM em_participants WHERE event_id = ? GROUP BY sangh_shikshan");
-        $stmt->execute([$event_id]);
-        $shikshanData = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        // Bhag
-        $stmt = $pdo->prepare("SELECT COALESCE(bhag, city) as loc, COUNT(*) as cnt FROM em_participants WHERE event_id = ? AND COALESCE(bhag, city) IS NOT NULL AND COALESCE(bhag, city) != '' GROUP BY loc ORDER BY cnt DESC LIMIT 10");
-        $stmt->execute([$event_id]);
-        $bhagData = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+
+    // Today's attendance using the correct table
+    try {
+        $attStmt = $pdo->prepare("SELECT COUNT(*) FROM em_participant_attendance WHERE event_id = ? AND is_present = 1 AND DATE(marked_at) = CURDATE()");
+        $attStmt->execute([$event_id]);
+        $today_attendance = $attStmt->fetchColumn() ?: 0;
+    } catch (Exception $e) { /* table may not exist */ }
+
 } catch (Exception $e) {
-    // If tables don't exist yet, ignore errors for dashboard stats
+    // Tables may not exist yet
 }
+
+include 'includes/header.php';
 ?>
 
-<h2>डैशबोर्ड (Dashboard)</h2>
-<p style="color: var(--saffron); margin-top: -10px; margin-bottom: 20px; font-weight: 500;">
-    आयोजन: <?= htmlspecialchars($_SESSION['event_name'] ?? 'Unknown Event') ?>
-</p>
+<style>
+    .dash-greeting {
+        margin-bottom: 2rem;
+    }
+    .dash-greeting h2 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        background: linear-gradient(135deg, var(--text-color), var(--text-muted));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .dash-greeting p {
+        color: var(--text-muted);
+        margin: 0;
+        font-size: 0.95rem;
+    }
+    .dash-greeting .event-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: rgba(249, 115, 22, 0.15);
+        color: var(--saffron);
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .stat-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px -12px rgba(0,0,0,0.4);
+    }
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+    }
+    .stat-card.saffron::before { background: linear-gradient(90deg, #F97316, #FB923C); }
+    .stat-card.purple::before { background: linear-gradient(90deg, #8B5CF6, #A78BFA); }
+    .stat-card.green::before { background: linear-gradient(90deg, #10B981, #34D399); }
+    .stat-card.blue::before { background: linear-gradient(90deg, #3B82F6, #60A5FA); }
+    .stat-card.cyan::before { background: linear-gradient(90deg, #06B6D4, #22D3EE); }
+    .stat-value {
+        font-size: 2.25rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+    .stat-card.saffron .stat-value { color: #F97316; }
+    .stat-card.purple .stat-value { color: #8B5CF6; }
+    .stat-card.green .stat-value { color: #10B981; }
+    .stat-card.blue .stat-value { color: #3B82F6; }
+    .stat-card.cyan .stat-value { color: #06B6D4; }
+    .stat-label {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .dash-section {
+        margin-bottom: 2rem;
+    }
+    .dash-section h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+    }
+    .action-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem 1.5rem;
+        text-decoration: none;
+        color: var(--text-color);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .action-card:hover {
+        border-color: var(--saffron);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px -8px rgba(249, 115, 22, 0.2);
+    }
+    .action-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+    .action-icon.att { background: rgba(16, 185, 129, 0.15); }
+    .action-icon.food { background: rgba(249, 115, 22, 0.15); }
+    .action-icon.room { background: rgba(59, 130, 246, 0.15); }
+    .action-icon.people { background: rgba(139, 92, 246, 0.15); }
+    .action-icon.chart { background: rgba(6, 182, 212, 0.15); }
+    .action-icon.spot { background: rgba(236, 72, 153, 0.15); }
+    .action-text h4 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+    .action-text p {
+        margin: 0.15rem 0 0;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+    .recent-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .recent-table th {
+        background: rgba(255,255,255,0.02);
+        padding: 0.75rem 1rem;
+        text-align: left;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .recent-table td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.03);
+        font-size: 0.9rem;
+    }
+    .recent-table tr:last-child td { border-bottom: none; }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+        animation: fadeInUp 0.5s ease forwards;
+    }
+    .fade-in:nth-child(2) { animation-delay: 0.1s; }
+    .fade-in:nth-child(3) { animation-delay: 0.15s; }
+    .fade-in:nth-child(4) { animation-delay: 0.2s; }
+    .fade-in:nth-child(5) { animation-delay: 0.25s; }
+</style>
 
-<div class="grid">
-    <div class="card" style="border-top: 4px solid var(--saffron);">
-        <h3>कुल प्रतिभागी</h3>
-        <p style="font-size: 2rem; font-weight: bold; color: var(--saffron);"><?= $total_participants ?></p>
-    </div>
-    <div class="card" style="border-top: 4px solid var(--amber);">
-        <h3>प्रबंधक</h3>
-        <p style="font-size: 2rem; font-weight: bold; color: var(--amber);"><?= $total_organizers ?></p>
-    </div>
-    <div class="card" style="border-top: 4px solid #9c27b0;">
-        <h3>आज की हाजिरी (Today's Attendance)</h3>
-        <p style="font-size: 2rem; font-weight: bold; color: #9c27b0;"><?= $today_attendance ?></p>
-    </div>
-    <div class="card" style="border-top: 4px solid #4caf50;">
-        <h3>आवास स्थिति</h3>
-        <p style="font-size: 2rem; font-weight: bold; color: #4caf50;"><?= $rooms_filled ?> / <?= $total_rooms ?></p>
-        <?php 
-            $occupancy_pct = $total_rooms > 0 ? round(($rooms_filled / $total_rooms) * 100) : 0;
-            $status_color = $occupancy_pct > 80 ? 'status-red' : ($occupancy_pct > 50 ? 'status-yellow' : 'status-green');
-        ?>
-        <div class="status-bar">
-            <div class="status-fill <?= $status_color ?>" style="width: <?= $occupancy_pct ?>%;"></div>
-        </div>
-        <p style="font-size: 0.85rem; margin-top: 0.5rem; text-align: right;"><?= $occupancy_pct ?>% भरा हुआ</p>
-    </div>
-    <div class="card" style="border-top: 4px solid #2196f3;">
-        <h3>आज का भोजन अनुमान</h3>
-        <p style="font-size: 2rem; font-weight: bold; color: #2196f3;"><?= $meal_forecast ?></p>
-    </div>
+<!-- Greeting -->
+<div class="dash-greeting fade-in">
+    <h2>नमस्ते, <?= htmlspecialchars($user_name) ?> 🙏</h2>
+    <p>आपके आयोजन का अवलोकन</p>
+    <span class="event-badge">📋 <?= htmlspecialchars($_SESSION['event_name'] ?? 'Event') ?></span>
 </div>
 
-<div class="grid" style="grid-template-columns: 2fr 1fr; margin-top: 1rem;">
-    <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3>नवीनतम पंजीकरण (Recent Registrations)</h3>
-            <a href="participants.php" class="btn btn-outline">सभी देखें</a>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>नाम (Name)</th>
-                    <th>नगर (City)</th>
-                    <th>संपर्क (Phone)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if($recent_participants): foreach($recent_participants as $p): ?>
-                <tr>
-                    <td><?= htmlspecialchars($p['name']) ?></td>
-                    <td><?= htmlspecialchars($p['city']) ?></td>
-                    <td><?= htmlspecialchars($p['phone']) ?></td>
-                </tr>
-                <?php endforeach; else: ?>
-                <tr><td colspan="3">कोई रिकॉर्ड नहीं</td></tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+<!-- Stats -->
+<div class="stat-grid">
+    <div class="stat-card saffron fade-in">
+        <div class="stat-value"><?= $total_participants ?></div>
+        <div class="stat-label">कुल प्रतिभागी</div>
     </div>
-    
-    <div class="card">
-        <h3>त्वरित क्रिया (Quick Actions)</h3>
-        <?php 
-        $vyavastha = $_SESSION['event_vyavastha'] ?? 'all';
-        $role = $_SESSION['event_role'] ?? '';
-        
-        if ($role === 'admin' || $vyavastha === 'all'):
-        ?>
-        <a href="participants.php?action=add" class="btn" style="display: block; margin-bottom: 1rem; text-align: center;">स्पॉट एंट्री (Spot Entry)</a>
-        <button onclick="window.print()" class="btn btn-outline" style="display: block; width: 100%;">रिपोर्ट प्रिंट करें (Print Report)</button>
-        <?php elseif ($vyavastha === 'hajiri'): ?>
-        <a href="attendance.php" class="btn" style="display: block; margin-bottom: 1rem; text-align: center;">हाजिरी लें (Take Attendance)</a>
+    <div class="stat-card green fade-in">
+        <div class="stat-value"><?= $today_attendance ?></div>
+        <div class="stat-label">आज उपस्थित</div>
+    </div>
+    <?php if ($is_admin): ?>
+    <div class="stat-card purple fade-in">
+        <div class="stat-value"><?= $total_organizers ?></div>
+        <div class="stat-label">प्रबंधक</div>
+    </div>
+    <div class="stat-card blue fade-in">
+        <div class="stat-value"><?= $rooms_filled ?>/<?= $total_rooms ?></div>
+        <div class="stat-label">आवास भरे</div>
+    </div>
+    <?php endif; ?>
+</div>
+
+<!-- Quick Actions -->
+<div class="dash-section fade-in">
+    <h3>त्वरित क्रिया (Quick Actions)</h3>
+    <div class="quick-actions">
+        <?php if ($is_volunteer): ?>
+            <a href="attendance.php" class="action-card">
+                <div class="action-icon att">✅</div>
+                <div class="action-text">
+                    <h4>हाजिरी लें</h4>
+                    <p>Take Attendance</p>
+                </div>
+            </a>
+        <?php elseif ($is_admin): ?>
+            <a href="attendance.php" class="action-card">
+                <div class="action-icon att">✅</div>
+                <div class="action-text">
+                    <h4>हाजिरी</h4>
+                    <p>Attendance</p>
+                </div>
+            </a>
+            <a href="participants.php" class="action-card">
+                <div class="action-icon people">👥</div>
+                <div class="action-text">
+                    <h4>प्रतिभागी</h4>
+                    <p>Participants</p>
+                </div>
+            </a>
+            <a href="rooms.php" class="action-card">
+                <div class="action-icon room">🏠</div>
+                <div class="action-text">
+                    <h4>आवास</h4>
+                    <p>Room Allotment</p>
+                </div>
+            </a>
+            <a href="food.php" class="action-card">
+                <div class="action-icon food">🍽️</div>
+                <div class="action-text">
+                    <h4>भोजन</h4>
+                    <p>Food Management</p>
+                </div>
+            </a>
+            <a href="analytics.php" class="action-card">
+                <div class="action-icon chart">📊</div>
+                <div class="action-text">
+                    <h4>विश्लेषण</h4>
+                    <p>Analytics</p>
+                </div>
+            </a>
+            <a href="participants.php?action=add" class="action-card">
+                <div class="action-icon spot">➕</div>
+                <div class="action-text">
+                    <h4>स्पॉट एंट्री</h4>
+                    <p>Spot Entry</p>
+                </div>
+            </a>
         <?php elseif ($vyavastha === 'bhojan'): ?>
-        <a href="food.php" class="btn" style="display: block; margin-bottom: 1rem; text-align: center;">भोजन अपडेट करें (Update Meals)</a>
+            <a href="food.php" class="action-card">
+                <div class="action-icon food">🍽️</div>
+                <div class="action-text">
+                    <h4>भोजन अपडेट करें</h4>
+                    <p>Update Meals</p>
+                </div>
+            </a>
         <?php elseif ($vyavastha === 'nivas'): ?>
-        <a href="rooms.php" class="btn" style="display: block; margin-bottom: 1rem; text-align: center;">कमरा आबंटन (Room Allocation)</a>
+            <a href="rooms.php" class="action-card">
+                <div class="action-icon room">🏠</div>
+                <div class="action-text">
+                    <h4>कमरा आबंटन</h4>
+                    <p>Room Allocation</p>
+                </div>
+            </a>
         <?php endif; ?>
     </div>
 </div>
 
-<div class="card" style="margin-top: 2rem;">
-    <h2 style="margin-bottom: 1rem;">प्रतिभागी विश्लेषण (Participants Analytics)</h2>
-    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
-        
-        <!-- Category Chart -->
-        <div>
-            <h4 style="text-align: center;">श्रेणी (Category)</h4>
-            <canvas id="categoryChart"></canvas>
+<?php if ($is_admin && !empty($recent_participants)): ?>
+<!-- Recent Registrations (Admin Only) -->
+<div class="dash-section fade-in">
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <div style="padding: 1.5rem 1.5rem 1rem; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px;">नवीनतम पंजीकरण</h3>
+            <a href="participants.php" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.4rem 1rem;">सभी देखें</a>
         </div>
-        
-        <!-- Age Group Chart -->
-        <div>
-            <h4 style="text-align: center;">आयु वर्ग (Age Group)</h4>
-            <canvas id="ageChart"></canvas>
-        </div>
-        
-        <!-- Sangh Shikshan Chart -->
-        <div>
-            <h4 style="text-align: center;">संघ शिक्षा (Sangh Shikshan)</h4>
-            <canvas id="shikshanChart"></canvas>
-        </div>
-        
-        <!-- Bhag Chart -->
-        <div>
-            <h4 style="text-align: center;">भाग/नगर (Bhag/City)</h4>
-            <canvas id="bhagChart"></canvas>
-        </div>
-        
+        <table class="recent-table">
+            <thead>
+                <tr>
+                    <th>नाम</th>
+                    <th>नगर</th>
+                    <th>संपर्क</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($recent_participants as $p): ?>
+                <tr>
+                    <td><?= htmlspecialchars($p['name']) ?></td>
+                    <td><?= htmlspecialchars($p['city'] ?? '-') ?></td>
+                    <td><?= htmlspecialchars($p['phone'] ?? '-') ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Prepare Data
-    const catData = <?= json_encode($catData) ?>;
-    const ageData = <?= json_encode($ageData) ?>;
-    const shikshanData = <?= json_encode($shikshanData) ?>;
-    const bhagData = <?= json_encode($bhagData) ?>;
-
-    const chartColors = ['#0D9488', '#FF6B00', '#4CAF50', '#9C27B0', '#FFC107', '#2196F3', '#F44336', '#E91E63', '#795548', '#607D8B'];
-
-    // Helper to render chart
-    function renderChart(ctxId, type, dataArray, labelField, valueField, title) {
-        if (!dataArray || dataArray.length === 0) return;
-        const labels = dataArray.map(d => d[labelField] || 'N/A');
-        const values = dataArray.map(d => d[valueField]);
-        
-        new Chart(document.getElementById(ctxId), {
-            type: type,
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'प्रतिभागी संख्या',
-                    data: values,
-                    backgroundColor: chartColors,
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: (type === 'pie' || type === 'doughnut') ? 'bottom' : 'none',
-                    }
-                },
-                scales: (type === 'bar') ? {
-                    y: { beginAtZero: true }
-                } : {}
-            }
-        });
-    }
-
-    // Render all 4 charts
-    window.onload = function() {
-        renderChart('categoryChart', 'pie', catData, 'category', 'cnt', 'Category');
-        renderChart('ageChart', 'doughnut', ageData, 'age_group', 'cnt', 'Age Group');
-        renderChart('shikshanChart', 'bar', shikshanData, 'sangh_shikshan', 'cnt', 'Sangh Shikshan');
-        
-        // Custom horizontal bar for Bhag
-        if (bhagData && bhagData.length > 0) {
-            new Chart(document.getElementById('bhagChart'), {
-                type: 'bar',
-                data: {
-                    labels: bhagData.map(d => d.loc || 'N/A'),
-                    datasets: [{
-                        label: 'प्रतिभागी संख्या',
-                        data: bhagData.map(d => d.cnt),
-                        backgroundColor: chartColors,
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    indexAxis: 'y', // horizontal
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: { x: { beginAtZero: true } }
-                }
-            });
-        }
-    };
-</script>
+<?php endif; ?>
 
 <?php include 'includes/footer.php'; ?>

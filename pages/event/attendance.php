@@ -139,9 +139,14 @@ if ($filter_value !== '') {
 
 $query .= " ORDER BY p.name ASC";
 
-$partStmt = $pdo->prepare($query);
-$partStmt->execute($params);
-$participantsList = $partStmt->fetchAll(PDO::FETCH_ASSOC);
+// Volunteers must search first — don't load full list
+if ($is_hajiri && $search === '') {
+    $participantsList = [];
+} else {
+    $partStmt = $pdo->prepare($query);
+    $partStmt->execute($params);
+    $participantsList = $partStmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
 // Fetch global stats for header
 $totalStmt = $pdo->prepare("SELECT COUNT(*) FROM em_participants WHERE event_id = ?");
@@ -239,7 +244,15 @@ include 'includes/header.php';
             </div>
         <?php endforeach; ?>
     <?php else: ?>
+        <?php if ($is_hajiri && $search === ''): ?>
+        <div class="card" style="text-align: center; padding: 3rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+            <h3 style="margin: 0 0 0.5rem;">नाम या फोन नंबर खोजें</h3>
+            <p style="color: var(--text-muted); margin: 0;">Search by name or phone number to find participants</p>
+        </div>
+        <?php else: ?>
         <div class="card" style="text-align: center; padding: 2rem;">कोई प्रतिभागी नहीं मिला (No participants found).</div>
+        <?php endif; ?>
     <?php endif; ?>
 </div>
 

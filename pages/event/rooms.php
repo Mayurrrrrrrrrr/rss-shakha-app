@@ -188,8 +188,9 @@ if ($search_name !== '') {
     $params[':name'] = '%' . $search_name . '%';
 }
 if ($search_bhag !== '') {
-    $sql .= " AND (p.city = :bhag OR p.bhag = :bhag) ";
-    $params[':bhag'] = $search_bhag;
+    $sql .= " AND (p.city = :bhag1 OR p.bhag = :bhag2) ";
+    $params[':bhag1'] = $search_bhag;
+    $params[':bhag2'] = $search_bhag;
 }
 
 $sql .= " ORDER BY p.name ASC";
