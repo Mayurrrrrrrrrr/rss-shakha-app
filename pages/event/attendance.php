@@ -96,12 +96,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 
 // Fetch Sessions
-$sessionsStmt = $pdo->prepare("SELECT id, session_name FROM em_attendance_sessions WHERE event_id = ?");
+$sessionsStmt = $pdo->prepare("SELECT id, session_name, session_date FROM em_attendance_sessions WHERE event_id = ? ORDER BY session_date ASC, id ASC");
 $sessionsStmt->execute([$event_id]);
-$sessions = $sessionsStmt->fetchAll(PDO::FETCH_ASSOC);
+$all_sessions = $sessionsStmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Selected Session
-$selected_session_id = $_GET['session_id'] ?? ($sessions[0]['id'] ?? 0);
+// Group sessions by date
+$sessions_by_date = [];
+foreach($all_sessions as $sess) {
+    $date = $sess['session_date'];
+    if (!isset($sessions_by_date[$date])) {
+        $sessions_by_date[$date] = [];
+    }
+    $sessions_by_date[$date][] = $sess;
+}
+
+$dates = array_keys($sessions_by_date);
+$selected_date = $_GET['session_date'] ?? ($dates[0] ?? date('Y-m-d'));
+
+// Ensure selected_date exists in array, else fallback
+if (!isset($sessions_by_date[$selected_date]) && !empty($dates)) {
+    $selected_date = $dates[0];
+}
+
+$date_sessions = $sessions_by_date[$selected_date] ?? [];
+$selected_session_id = $_GET['session_id'] ?? ($date_sessions[0]['id'] ?? 0);
 
 // Filters
 $search = trim($_GET['search'] ?? '');
@@ -321,9 +339,20 @@ include 'includes/header.php';
 </div>
 
 <div class="search-container">
+    <!-- Date Tabs -->
+    <?php if (count($dates) > 0): ?>
+    <div class="date-tabs" style="display: flex; gap: 0.5rem; overflow-x: auto; margin-bottom: 1rem; padding-bottom: 0.5rem;">
+        <?php foreach ($dates as $d): ?>
+            <a href="?session_date=<?= $d ?>" class="btn <?= $d === $selected_date ? '' : 'btn-outline' ?>" style="white-space: nowrap; padding: 0.4rem 1rem; border-radius: 20px;">
+                <?= date('d M Y', strtotime($d)) ?>
+            </a>
+        <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+
     <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
         <select id="session_select" class="form-control" style="flex: 1; min-width: 200px;" onchange="changeSession()">
-            <?php foreach ($sessions as $sess): ?>
+            <?php foreach ($date_sessions as $sess): ?>
                 <option value="<?= $sess['id'] ?>" <?= $sess['id'] == $selected_session_id ? 'selected' : '' ?>>
                     <?= htmlspecialchars($sess['session_name']) ?>
                 </option>
@@ -393,22 +422,30 @@ include 'includes/header.php';
     let currentSessionId = document.getElementById('session_select').value;
     
     function renderParticipants(filterText = '') {
-        filterText = filterText.toLowerCase();
+        // Normalize string: removes extra spaces and handles basic case
+        const cleanFilter = filterText.trim().toLowerCase();
         container.innerHTML = '';
         
         let presentCount = 0;
         let displayedCount = 0;
-        
         const fragment = document.createDocumentFragment();
         
         participantsData.forEach(p => {
             const isPresent = p.is_present == 1;
             if (isPresent) presentCount++;
             
-            // Filter logic
-            if (filterText) {
-                const searchStr = `${p.name} ${p.phone} ${p.organization} ${p.city}`.toLowerCase();
-                if (!searchStr.includes(filterText)) return;
+            // Advanced Search Logic
+            if (cleanFilter) {
+                // Combine fields and safely handle nulls
+                const searchableText = [
+                    p.name, p.phone, p.organization, p.city, p.bhag
+                ].filter(Boolean).join(' ').toLowerCase();
+
+                // Check if every word in the search input exists in the row
+                const searchTerms = cleanFilter.split(/\s+/);
+                const isMatch = searchTerms.every(term => searchableText.includes(term));
+                
+                if (!isMatch) return;
             }
             
             displayedCount++;
@@ -496,7 +533,8 @@ include 'includes/header.php';
     
     function changeSession() {
         const sid = document.getElementById('session_select').value;
-        window.location.href = `attendance.php?session_id=${sid}`;
+        const sdate = new URLSearchParams(window.location.search).get('session_date') || '<?= $selected_date ?>';
+        window.location.href = `attendance.php?session_date=${sdate}&session_id=${sid}`;
     }
     
     function escapeHTML(str) {

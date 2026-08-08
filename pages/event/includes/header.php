@@ -173,16 +173,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quick_switch_event_id
             justify-content: center;
         }
         
+        /* 1. Fix the Dropdown (Select) Colors */
+        select.form-control option {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            padding: 10px;
+        }
+        
+        /* 2. Fix the Sidebar Layout */
         body.has-sidebar {
-            padding-left: 0;
+            padding-left: 250px; /* Push content right on desktop */
         }
         
         .sidebar {
-            transform: translateX(-100%);
+            transform: translateX(0); /* Visible on desktop */
             transition: transform 0.3s ease;
         }
-        .sidebar.active {
-            transform: translateX(0);
+        
+        .mobile-header {
+            display: none; /* Hide on desktop */
+        }
+
+        @media (max-width: 992px) {
+            body.has-sidebar {
+                padding-left: 0; /* Reset for mobile */
+            }
+            .sidebar {
+                width: 280px; /* Slightly wider on mobile for better touch targets */
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .mobile-header {
+                display: flex; /* Show on mobile */
+            }
         }
         .sidebar-overlay {
             display: none;
@@ -523,6 +548,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quick_switch_event_id
                     <div class="nav-section-title">सेटिंग्स (Settings)</div>
                     <?php if ($role === 'admin'): ?>
                     <a href="analytics.php">विश्लेषण (Analytics)</a>
+                    <a href="reports.php">रिपोर्ट (Reports)</a>
                     <a href="create_event.php">आयोजन प्रबंधन (Events)</a>
                     <a href="data_cleanse.php">मास्टर डेटा (Master Data)</a>
                     <?php endif; ?>

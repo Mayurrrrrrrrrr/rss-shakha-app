@@ -78,6 +78,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $error = "Name and Start Date are required.";
         }
+    } elseif (isset($_POST['action']) && $_POST['action'] === 'add_session') {
+        $evt_id = (int)($_POST['session_event_id'] ?? 0);
+        $s_name = trim($_POST['session_name'] ?? '');
+        $s_date = $_POST['session_date'] ?? '';
+        
+        if ($evt_id > 0 && !empty($s_name) && !empty($s_date)) {
+            try {
+                $stmt = $pdo->prepare("INSERT INTO em_attendance_sessions (event_id, session_name, session_date) VALUES (?, ?, ?)");
+                $stmt->execute([$evt_id, $s_name, $s_date]);
+                $message = "सत्र सफलतापूर्वक जोड़ा गया! (Session added successfully!)";
+            } catch (Exception $e) {
+                $error = "Database Error: " . $e->getMessage();
+            }
+        } else {
+            $error = "Session Name and Date are required.";
+        }
+    } elseif (isset($_POST['action']) && $_POST['action'] === 'delete_session') {
+        $s_id = (int)($_POST['session_id'] ?? 0);
+        if ($s_id > 0) {
+            try {
+                $stmt = $pdo->prepare("DELETE FROM em_attendance_sessions WHERE id = ?");
+                $stmt->execute([$s_id]);
+                $message = "सत्र हटा दिया गया। (Session deleted.)";
+            } catch (Exception $e) {
+                $error = "Database Error: " . $e->getMessage();
+            }
+        }
     }
 }
 ?>
@@ -198,6 +225,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     background: rgba(255,255,255,0.1);
     color: var(--text-color);
 }
+.session-list {
+    margin-top: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+.session-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    background: rgba(255,255,255,0.02);
+}
+.session-item:last-child {
+    border-bottom: none;
+}
 </style>
 
 <div class="container">
@@ -234,6 +278,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ORDER BY e.id DESC
         ")->fetchAll(PDO::FETCH_ASSOC);
 
+        // Fetch all sessions grouped by event_id
+        $all_sessions = $pdo->query("SELECT * FROM em_attendance_sessions ORDER BY session_date ASC, id ASC")->fetchAll(PDO::FETCH_ASSOC);
+        $sessions_by_event = [];
+        foreach ($all_sessions as $sess) {
+            $sessions_by_event[$sess['event_id']][] = $sess;
+        }
+
         if (empty($events)): ?>
             <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; background: var(--card-bg); border-radius: var(--radius-lg); border: 1px dashed var(--border-color);">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--text-muted); margin-bottom: 1rem;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
@@ -244,6 +295,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <?php foreach ($events as $evt): 
             $isActive = ($evt['status'] === 'active');
+            $evt_sessions = $sessions_by_event[$evt['id']] ?? [];
         ?>
         <div class="event-card <?= $isActive ? 'active-event' : '' ?>">
             <div class="event-status <?= $isActive ? 'status-active' : 'status-inactive' ?>">
@@ -275,11 +327,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="stat-num"><?= number_format($evt['organizers_count']) ?></div>
                     <div class="stat-label">आयोजक</div>
                 </div>
+                <div class="stat-box">
+                    <div class="stat-num"><?= count($evt_sessions) ?></div>
+                    <div class="stat-label">सत्र (Sessions)</div>
+                </div>
             </div>
             
             <div class="event-actions">
                 <a href="allocate_participants.php?event_id=<?= $evt['id'] ?>" class="btn btn-outline btn-sm">+ प्रतिभागी</a>
                 <a href="allocate_organizers.php?event_id=<?= $evt['id'] ?>" class="btn btn-outline btn-sm">+ आयोजक</a>
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                <button type="button" class="btn btn-outline btn-sm" style="flex: 2; padding: 0.4rem;" onclick='openSessionModal(<?= htmlspecialchars(json_encode([
+                    "event_id" => $evt["id"],
+                    "event_name" => $evt["name"],
+                    "sessions" => $evt_sessions
+                ]), ENT_QUOTES) ?>)'>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px; vertical-align:text-bottom;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    Manage Sessions
+                </button>
             </div>
             
             <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
@@ -291,13 +358,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </form>
                 <?php endif; ?>
                 
-                <button type="button" class="btn-icon" title="Edit Event" onclick="openEditModal(<?= htmlspecialchars(json_encode([
-                    'id' => $evt['id'],
-                    'name' => $evt['name'],
-                    'start_date' => $evt['start_date'],
-                    'end_date' => $evt['end_date'],
-                    'venue' => $evt['venue']
-                ])) ?>)">
+                <button type="button" class="btn-icon" title="Edit Event" onclick='openEditModal(<?= htmlspecialchars(json_encode([
+                    "id" => $evt["id"],
+                    "name" => $evt["name"],
+                    "start_date" => $evt["start_date"],
+                    "end_date" => $evt["end_date"],
+                    "venue" => $evt["venue"]
+                ]), ENT_QUOTES) ?>)'>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                 </button>
                 
@@ -385,10 +452,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
+<!-- Manage Sessions Modal -->
+<div id="sessionModal" class="modal-overlay" style="display: none;">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 class="modal-title">सत्र प्रबंधन (Manage Sessions)</h3>
+            <button class="modal-close" onclick="document.getElementById('sessionModal').classList.remove('active'); setTimeout(() => document.getElementById('sessionModal').style.display='none', 300);">&times;</button>
+        </div>
+        <div class="modal-body">
+            <h4 id="session_event_title" style="margin-top: 0; color: var(--saffron);"></h4>
+            
+            <form method="POST" style="margin-bottom: 2rem; background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                <input type="hidden" name="action" value="add_session">
+                <input type="hidden" name="session_event_id" id="session_event_id">
+                
+                <h5 style="margin-top: 0; margin-bottom: 1rem; font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px;">नया सत्र जोड़ें (Add New Session)</h5>
+                
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>सत्र का नाम (Session Name) *</label>
+                    <input type="text" name="session_name" class="form-control" required placeholder="e.g. Day 1 - Morning">
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>सत्र की तिथि (Session Date) *</label>
+                    <input type="date" name="session_date" class="form-control" required>
+                </div>
+                
+                <button type="submit" class="btn" style="width: 100%;">जोड़ें (Add Session)</button>
+            </form>
+            
+            <h5 style="margin-top: 0; margin-bottom: 0.5rem; font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px;">मौजूदा सत्र (Existing Sessions)</h5>
+            <div id="session_list_container" class="session-list">
+                <!-- Sessions populated via JS -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="document.getElementById('sessionModal').classList.remove('active'); setTimeout(() => document.getElementById('sessionModal').style.display='none', 300);">बंद करें (Close)</button>
+        </div>
+    </div>
+</div>
+
 <script>
-// Show Create Modal on init (display: flex but opacity 0 is handled by active class)
+// Show Modals on init (display: flex but opacity 0 is handled by active class)
 document.getElementById('createEventModal').style.display = 'flex';
 document.getElementById('editEventModal').style.display = 'flex';
+document.getElementById('sessionModal').style.display = 'flex';
 
 function openEditModal(eventData) {
     document.getElementById('edit_event_id').value = eventData.id;
@@ -398,9 +505,42 @@ function openEditModal(eventData) {
     document.getElementById('edit_venue').value = eventData.venue || '';
     
     document.getElementById('editEventModal').style.display = 'flex';
-    // Trigger reflow
     void document.getElementById('editEventModal').offsetWidth;
     document.getElementById('editEventModal').classList.add('active');
+}
+
+function openSessionModal(data) {
+    document.getElementById('session_event_id').value = data.event_id;
+    document.getElementById('session_event_title').textContent = data.event_name;
+    
+    const container = document.getElementById('session_list_container');
+    container.innerHTML = '';
+    
+    if (data.sessions && data.sessions.length > 0) {
+        data.sessions.forEach(sess => {
+            container.innerHTML += `
+                <div class="session-item">
+                    <div>
+                        <div style="font-weight: 600;">${sess.session_name}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">${sess.session_date}</div>
+                    </div>
+                    <form method="POST" onsubmit="return confirm('क्या आप इस सत्र को हटाना चाहते हैं? (Delete this session?)')" style="margin:0;">
+                        <input type="hidden" name="action" value="delete_session">
+                        <input type="hidden" name="session_id" value="${sess.id}">
+                        <button type="submit" class="btn-icon" style="color: var(--danger); border-color: transparent;" title="Delete">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </button>
+                    </form>
+                </div>
+            `;
+        });
+    } else {
+        container.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--text-muted);">कोई सत्र नहीं मिला (No sessions found)</div>';
+    }
+    
+    document.getElementById('sessionModal').style.display = 'flex';
+    void document.getElementById('sessionModal').offsetWidth;
+    document.getElementById('sessionModal').classList.add('active');
 }
 </script>
 
