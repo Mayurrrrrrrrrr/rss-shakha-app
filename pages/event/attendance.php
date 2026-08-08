@@ -158,6 +158,19 @@ $presentStmt->execute([$event_id, $selected_session_id]);
 $present_count = $presentStmt->fetchColumn();
 $percentage = $total_count > 0 ? round(($present_count / $total_count) * 100) : 0;
 
+// Fetch distinct values for edit dropdowns (datalists)
+$dropdown_cols = ['organization', 'level_type', 'responsibility', 'sangh_shikshan', 'age_group', 'category'];
+$dropdown_options = [];
+foreach($dropdown_cols as $col) {
+    try {
+        $optStmt = $pdo->prepare("SELECT DISTINCT `$col` FROM em_participants WHERE event_id = ? AND `$col` IS NOT NULL AND `$col` != '' ORDER BY `$col`");
+        $optStmt->execute([$event_id]);
+        $dropdown_options[$col] = $optStmt->fetchAll(PDO::FETCH_COLUMN);
+    } catch(Exception $e) {
+        $dropdown_options[$col] = [];
+    }
+}
+
 include 'includes/header.php';
 ?>
 
@@ -291,23 +304,43 @@ include 'includes/header.php';
             </div>
             <div class="form-group">
                 <label>संघटना (Organization)</label>
-                <input type="text" name="organization" id="edit_organization" class="form-control">
+                <input type="text" name="organization" id="edit_organization" class="form-control" list="list_organization">
+                <datalist id="list_organization">
+                    <option value="रा.स्व.संघ"></option>
+                    <?php foreach($dropdown_options['organization'] as $opt) { if($opt!=='रा.स्व.संघ') echo '<option value="'.htmlspecialchars($opt).'"></option>'; } ?>
+                </datalist>
             </div>
             <div class="form-group">
                 <label>स्तर / प्रकार (Level/Type)</label>
-                <input type="text" name="level_type" id="edit_level_type" class="form-control">
+                <input type="text" name="level_type" id="edit_level_type" class="form-control" list="list_level_type">
+                <datalist id="list_level_type">
+                    <option value="भाग"></option>
+                    <option value="नगर"></option>
+                    <?php foreach($dropdown_options['level_type'] as $opt) { if($opt!=='भाग' && $opt!=='नगर') echo '<option value="'.htmlspecialchars($opt).'"></option>'; } ?>
+                </datalist>
             </div>
             <div class="form-group">
                 <label>दायित्व (Responsibility)</label>
-                <input type="text" name="responsibility" id="edit_responsibility" class="form-control">
+                <input type="text" name="responsibility" id="edit_responsibility" class="form-control" list="list_responsibility">
+                <datalist id="list_responsibility">
+                    <option value="भाग सह कार्यवाह"></option>
+                    <?php foreach($dropdown_options['responsibility'] as $opt) { if($opt!=='भाग सह कार्यवाह') echo '<option value="'.htmlspecialchars($opt).'"></option>'; } ?>
+                </datalist>
             </div>
             <div class="form-group">
                 <label>संघ शिक्षण (Sangh Shikshan)</label>
-                <input type="text" name="sangh_shikshan" id="edit_sangh_shikshan" class="form-control">
+                <input type="text" name="sangh_shikshan" id="edit_sangh_shikshan" class="form-control" list="list_sangh_shikshan">
+                <datalist id="list_sangh_shikshan">
+                    <option value="द्वितीय"></option>
+                    <?php foreach($dropdown_options['sangh_shikshan'] as $opt) { if($opt!=='द्वितीय') echo '<option value="'.htmlspecialchars($opt).'"></option>'; } ?>
+                </datalist>
             </div>
             <div class="form-group">
                 <label>वयोगट (Age Group)</label>
-                <input type="text" name="age_group" id="edit_age_group" class="form-control">
+                <input type="text" name="age_group" id="edit_age_group" class="form-control" list="list_age_group">
+                <datalist id="list_age_group">
+                    <?php foreach($dropdown_options['age_group'] as $opt) { echo '<option value="'.htmlspecialchars($opt).'"></option>'; } ?>
+                </datalist>
             </div>
             <div class="form-group">
                 <label>अणुडाक (Email)</label>
@@ -315,7 +348,10 @@ include 'includes/header.php';
             </div>
             <div class="form-group">
                 <label>श्रेणी (Category)</label>
-                <input type="text" name="category" id="edit_category" class="form-control">
+                <input type="text" name="category" id="edit_category" class="form-control" list="list_category">
+                <datalist id="list_category">
+                    <?php foreach($dropdown_options['category'] as $opt) { echo '<option value="'.htmlspecialchars($opt).'"></option>'; } ?>
+                </datalist>
             </div>
             <div class="form-group">
                 <label>इतर माहिती (Notes)</label>
