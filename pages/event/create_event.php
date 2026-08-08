@@ -149,6 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php endif; ?>
                             
                             <a href="allocate_organizers.php?event_id=<?= $evt['id'] ?>" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">+ आयोजक (Organizers)</a>
+                            <a href="allocate_participants.php?event_id=<?= $evt['id'] ?>" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">+ प्रतिभागी (Participants)</a>
                             
                             <form method="POST" style="display:inline;" onsubmit="return confirm('क्या आप वाकई इस आयोजन को हटाना चाहते हैं? (Are you sure you want to delete this event?)')">
                                 <input type="hidden" name="action" value="delete_event">
