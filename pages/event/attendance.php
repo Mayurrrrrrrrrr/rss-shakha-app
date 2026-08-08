@@ -419,28 +419,35 @@ include 'includes/header.php';
                 const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
                 const data = JSON.parse(jsonStr);
                 if (data.success) {
-                    // Update stats
-                    document.getElementById('present-count').innerText = data.present;
-                    const pct = data.total > 0 ? Math.round((data.present / data.total) * 100) : 0;
-                    document.getElementById('present-percentage').innerText = pct;
+                    // Update stats safely (elements might not exist for volunteers)
+                    const presentEl = document.getElementById('present-count');
+                    if (presentEl) presentEl.innerText = data.present;
+                    
+                    const pctEl = document.getElementById('present-percentage');
+                    if (pctEl) {
+                        const pct = data.total > 0 ? Math.round((data.present / data.total) * 100) : 0;
+                        pctEl.innerText = pct;
+                    }
 
                     // Update card UI
                     const card = document.getElementById('card-' + participantId);
-                    const isPresentNow = (action === 'mark_present');
-                    
-                    if (isPresentNow) {
-                        card.classList.add('present');
-                        card.innerHTML = card.innerHTML.replace(/<button.*<\/button>/, `<button class="att-btn btn-absent" onclick="markAttendance(${participantId}, 'mark_absent')">❌ अनुपस्थित करें (Mark Absent)</button>`);
-                    } else {
-                        card.classList.remove('present');
-                        card.innerHTML = card.innerHTML.replace(/<button.*<\/button>/, `<button class="att-btn btn-present" onclick="markAttendance(${participantId}, 'mark_present')">✅ उपस्थित (Present)</button>`);
+                    if (card) {
+                        const isPresentNow = (action === 'mark_present');
+                        if (isPresentNow) {
+                            card.classList.add('present');
+                            card.innerHTML = card.innerHTML.replace(/<button.*<\/button>/, `<button class="att-btn btn-absent" onclick="markAttendance(${participantId}, 'mark_absent')">❌ अनुपस्थित करें (Mark Absent)</button>`);
+                        } else {
+                            card.classList.remove('present');
+                            card.innerHTML = card.innerHTML.replace(/<button.*<\/button>/, `<button class="att-btn btn-present" onclick="markAttendance(${participantId}, 'mark_present')">✅ उपस्थित (Present)</button>`);
+                        }
                     }
                 } else {
                     alert('Error: ' + (data.error || 'Failed to update attendance.'));
                 }
             } catch(e) {
-                console.error("Parse error. Response was: ", text);
-                alert('Server returned an invalid response. Check console.');
+                console.error("JavaScript Error: ", e);
+                console.error("Raw response: ", text);
+                alert('An error occurred updating the UI. Check console.');
             }
         })
         .catch(err => {
