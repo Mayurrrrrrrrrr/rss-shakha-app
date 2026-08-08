@@ -31,13 +31,14 @@ try {
     
     if ($latest_session) {
         $stmt = $pdo->prepare("
-            SELECT 
-                COUNT(*) as present,
-                (SELECT COUNT(*) FROM em_participants WHERE event_id = ?) as total
-            FROM em_attendance 
-            WHERE attendance_session_id = ? AND is_present = 1
+            SELECT COUNT(DISTINCT participant_id) as present,
+            (SELECT COUNT(*) FROM em_participants WHERE event_id = ?) as total
+            FROM em_participant_attendance 
+            WHERE event_id = ? 
+            AND attendance_session_id = ? 
+            AND is_present = 1
         ");
-        $stmt->execute([$auth['event_id'], $latest_session]);
+        $stmt->execute([$auth['event_id'], $auth['event_id'], $latest_session]);
         $att = $stmt->fetch(PDO::FETCH_ASSOC);
         $att['percentage'] = $att['total'] > 0 ? round(($att['present'] / $att['total']) * 100, 2) : 0;
         $stats['todays_attendance'] = $att;

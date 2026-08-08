@@ -9,7 +9,7 @@ try {
     $pdo->beginTransaction();
     
     $stmt = $pdo->prepare("
-        INSERT INTO em_attendance (event_id, attendance_session_id, participant_id, is_present, marked_by, marked_at) 
+        INSERT INTO em_participant_attendance (event_id, attendance_session_id, participant_id, is_present, marked_by, marked_at) 
         VALUES (?, ?, ?, ?, ?, NOW())
         ON DUPLICATE KEY UPDATE is_present = VALUES(is_present), marked_by = VALUES(marked_by), marked_at = VALUES(marked_at)
     ");

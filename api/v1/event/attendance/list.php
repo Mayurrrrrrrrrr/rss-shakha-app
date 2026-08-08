@@ -28,7 +28,7 @@ try {
         SELECT p.id, p.name, p.phone, p.city, p.vasti, p.organization, p.level_type, p.responsibility, p.sangh_shikshan, p.age_group, p.category, p.bhag,
                COALESCE(a.is_present, 0) as is_present
         FROM em_participants p
-        LEFT JOIN em_attendance a ON p.id = a.participant_id AND a.attendance_session_id = :session_id
+        LEFT JOIN em_participant_attendance a ON p.id = a.participant_id AND a.attendance_session_id = :session_id
         WHERE p.event_id = :event_id AND p.is_deleted = 0
     ";
     

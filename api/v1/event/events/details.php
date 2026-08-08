@@ -35,18 +35,18 @@ try {
     $occupied_rooms = $stmt->fetchColumn();
     
     $today = date('Y-m-d');
-    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT session_id) FROM em_attendance WHERE event_id = ? AND DATE(date) = ?");
+    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT session_id) FROM em_participant_attendance WHERE event_id = ? AND DATE(marked_at) = ?");
     $stmt->execute([$event_id, $today]);
     $sessions_today = $stmt->fetchColumn();
     
     $attendance_percentage = 0;
-    if ($sessions_today > 0 && $participants_count > 0) {
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM em_attendance WHERE event_id = ? AND DATE(date) = ? AND status = 'present'");
+    if ($sessions_today > 0) {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM em_participant_attendance WHERE event_id = ? AND DATE(marked_at) = ? AND is_present = 1");
         $stmt->execute([$event_id, $today]);
         $present_count = $stmt->fetchColumn();
         
         $total_expected = $sessions_today * $participants_count;
-        $attendance_percentage = round(($present_count / $total_expected) * 100, 2);
+        $attendance_percentage = $total_expected > 0 ? round(($present_count / $total_expected) * 100, 2) : 0;
     }
     
     $stats = [

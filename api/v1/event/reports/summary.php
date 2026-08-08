@@ -11,9 +11,9 @@ try {
     $summary['event_info'] = $stmt->fetch(PDO::FETCH_ASSOC);
     
     $stmt = $pdo->prepare("
-        SELECT s.session_date, COUNT(a.participant_id) as present_count 
+        SELECT s.session_date, COUNT(a.participant_id) as present_count
         FROM em_attendance_sessions s
-        LEFT JOIN em_attendance a ON s.id = a.attendance_session_id AND a.is_present = 1
+        LEFT JOIN em_participant_attendance a ON s.id = a.attendance_session_id AND a.is_present = 1
         WHERE s.event_id = ?
         GROUP BY s.session_date ORDER BY s.session_date ASC
     ");

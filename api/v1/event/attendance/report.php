@@ -10,7 +10,7 @@ try {
                SUM(CASE WHEN a.is_present = 1 THEN 1 ELSE 0 END) as present_count,
                SUM(CASE WHEN a.is_present = 0 OR a.is_present IS NULL THEN 1 ELSE 0 END) as absent_count
         FROM em_participants p
-        LEFT JOIN em_attendance a ON p.id = a.participant_id AND a.attendance_session_id = ?
+        LEFT JOIN em_participant_attendance a ON p.id = a.participant_id AND a.attendance_session_id = ?
         WHERE p.event_id = ?
         GROUP BY p.`group`
     ";

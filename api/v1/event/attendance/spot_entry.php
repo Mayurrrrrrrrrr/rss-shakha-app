@@ -36,7 +36,7 @@ try {
 
     // 3. Mark attendance immediately
     $stmt = $pdo->prepare("
-        INSERT INTO em_attendance (attendance_session_id, participant_id, is_present, updated_by) 
+        INSERT INTO em_participant_attendance (attendance_session_id, participant_id, is_present, updated_by) 
         VALUES (?, ?, 1, ?)
     ");
     $stmt->execute([$session_id, $participant_id, $auth['user_id']]);
