@@ -17,12 +17,14 @@ try {
               WHERE p.event_id = :event_id AND p.is_deleted = 0";
               
     // Using LIKE for simplicity and compatibility across DB setups without FULLTEXT index
-    $query .= " AND (p.name LIKE :search OR p.phone LIKE :search OR p.city LIKE :search)
-                ORDER BY p.name ASC LIMIT 20";
-                
+    $query .= " AND (p.name LIKE :search1 OR p.phone LIKE :search2 OR p.city LIKE :search3) 
+               ORDER BY p.name ASC LIMIT 20";
+    
     $stmt = $pdo->prepare($query);
     $stmt->bindValue(':event_id', $auth['event_id'], PDO::PARAM_INT);
-    $stmt->bindValue(':search', '%' . $q . '%', PDO::PARAM_STR);
+    $stmt->bindValue(':search1', '%' . $q . '%', PDO::PARAM_STR);
+    $stmt->bindValue(':search2', '%' . $q . '%', PDO::PARAM_STR);
+    $stmt->bindValue(':search3', '%' . $q . '%', PDO::PARAM_STR);
     $stmt->execute();
     
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);

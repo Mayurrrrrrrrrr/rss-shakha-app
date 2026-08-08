@@ -30,8 +30,10 @@ if ($entry_type !== null && $entry_type !== '') {
     $params[':entry_type'] = $entry_type;
 }
 if ($search !== null && $search !== '') {
-    $query .= " AND (name LIKE :search OR phone LIKE :search OR city LIKE :search)";
-    $params[':search'] = '%' . $search . '%';
+    $query .= " AND (name LIKE :search1 OR phone LIKE :search2 OR city LIKE :search3)";
+    $params[':search1'] = '%' . $search . '%';
+    $params[':search2'] = '%' . $search . '%';
+    $params[':search3'] = '%' . $search . '%';
 }
 
 $countQuery = "SELECT COUNT(*) FROM (" . $query . ") as count_table";
