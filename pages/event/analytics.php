@@ -264,195 +264,199 @@ $shikshanLevelsCount = count($shikshanData);
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Dark theme config
-    Chart.defaults.color = '#94A3B8';
-    Chart.defaults.font.family = "'Noto Sans Devanagari', 'Inter', sans-serif";
-    
-    const colors = ['#0D9488', '#F97316', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16', '#F59E0B', '#EF4444', '#6366F1', '#14B8A6', '#F43F5E', '#A855F7', '#3B82F6', '#22C55E', '#E11D48'];
-    const tooltipSettings = {
-        backgroundColor: 'rgba(21, 24, 33, 0.9)',
-        titleColor: '#fff',
-        bodyColor: '#cbd5e1',
-        borderColor: '#2D3748',
-        borderWidth: 1,
-        padding: 10,
-        cornerRadius: 8
-    };
-
-    // Helper to get labels and data
-    const extractData = (dataArray, labelKey, valueKey) => {
-        return {
-            labels: dataArray.map(item => item[labelKey]),
-            values: dataArray.map(item => item[valueKey])
+    try {
+        // Dark theme config
+        Chart.defaults.color = '#94A3B8';
+        Chart.defaults.font.family = "'Noto Sans Devanagari', 'Inter', sans-serif";
+        
+        const colors = ['#0D9488', '#F97316', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16', '#F59E0B', '#EF4444', '#6366F1', '#14B8A6', '#F43F5E', '#A855F7', '#3B82F6', '#22C55E', '#E11D48'];
+        const tooltipSettings = {
+            backgroundColor: 'rgba(21, 24, 33, 0.9)',
+            titleColor: '#fff',
+            bodyColor: '#cbd5e1',
+            borderColor: '#2D3748',
+            borderWidth: 1,
+            padding: 10,
+            cornerRadius: 8
         };
-    };
 
-    // 1. Category Chart (Doughnut)
-    const catData = <?= json_encode($catData) ?>;
-    const catExtracted = extractData(catData, 'category', 'cnt');
-    new Chart(document.getElementById('categoryChart'), {
-        type: 'doughnut',
-        data: {
-            labels: catExtracted.labels,
-            datasets: [{
-                data: catExtracted.values,
-                backgroundColor: colors,
-                borderWidth: 0,
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'right' },
-                tooltip: tooltipSettings
+        // Helper to get labels and data (Parse strings to integers!)
+        const extractData = (dataArray, labelKey, valueKey) => {
+            return {
+                labels: dataArray.map(item => item[labelKey] || 'अज्ञात'),
+                values: dataArray.map(item => parseInt(item[valueKey]) || 0)
+            };
+        };
+
+        // 1. Category Chart (Doughnut)
+        const catData = <?= json_encode($catData) ?>;
+        const catExtracted = extractData(catData, 'category', 'cnt');
+        new Chart(document.getElementById('categoryChart'), {
+            type: 'doughnut',
+            data: {
+                labels: catExtracted.labels,
+                datasets: [{
+                    data: catExtracted.values,
+                    backgroundColor: colors,
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
             },
-            cutout: '70%'
-        }
-    });
-
-    // 2. Age Group Chart (Pie)
-    const ageData = <?= json_encode($ageData) ?>;
-    const ageExtracted = extractData(ageData, 'age_group', 'cnt');
-    new Chart(document.getElementById('ageChart'), {
-        type: 'pie',
-        data: {
-            labels: ageExtracted.labels,
-            datasets: [{
-                data: ageExtracted.values,
-                backgroundColor: colors.slice(3).concat(colors.slice(0, 3)),
-                borderWidth: 0,
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'right' },
-                tooltip: tooltipSettings
-            }
-        }
-    });
-
-    // Grid settings for Bar charts
-    const gridOptions = {
-        x: { 
-            grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
-            ticks: { color: '#94A3B8' }
-        },
-        y: {
-            grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
-            ticks: { color: '#94A3B8', precision: 0 }
-        }
-    };
-
-    // 3. Sangh Shikshan Chart (Vertical Bar)
-    const shikshanData = <?= json_encode($shikshanData) ?>;
-    const shikshanExtracted = extractData(shikshanData, 'sangh_shikshan', 'cnt');
-    
-    // Create gradient
-    const ctxShikshan = document.getElementById('shikshanChart').getContext('2d');
-    let shikshanGradient = ctxShikshan.createLinearGradient(0, 0, 0, 400);
-    shikshanGradient.addColorStop(0, 'rgba(139, 92, 246, 0.8)');
-    shikshanGradient.addColorStop(1, 'rgba(139, 92, 246, 0.2)');
-
-    new Chart(ctxShikshan, {
-        type: 'bar',
-        data: {
-            labels: shikshanExtracted.labels,
-            datasets: [{
-                label: 'Participants',
-                data: shikshanExtracted.values,
-                backgroundColor: shikshanGradient,
-                borderRadius: 6,
-                borderWidth: 0,
-                barPercentage: 0.6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: tooltipSettings
-            },
-            scales: gridOptions
-        }
-    });
-
-    // 4. Bhag/City Chart (Horizontal Bar)
-    const bhagData = <?= json_encode($bhagData) ?>;
-    const bhagExtracted = extractData(bhagData, 'loc', 'cnt');
-    new Chart(document.getElementById('bhagChart'), {
-        type: 'bar',
-        data: {
-            labels: bhagExtracted.labels,
-            datasets: [{
-                label: 'Participants',
-                data: bhagExtracted.values,
-                backgroundColor: colors.slice(5).concat(colors.slice(0, 5)),
-                borderRadius: 4,
-                borderWidth: 0
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: tooltipSettings
-            },
-            scales: {
-                x: {
-                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                    ticks: { color: '#94A3B8', precision: 0 }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right' },
+                    tooltip: tooltipSettings
                 },
-                y: {
-                    grid: { display: false },
-                    ticks: { color: '#94A3B8' }
+                cutout: '70%'
+            }
+        });
+
+        // 2. Age Group Chart (Pie)
+        const ageData = <?= json_encode($ageData) ?>;
+        const ageExtracted = extractData(ageData, 'age_group', 'cnt');
+        new Chart(document.getElementById('ageChart'), {
+            type: 'pie',
+            data: {
+                labels: ageExtracted.labels,
+                datasets: [{
+                    data: ageExtracted.values,
+                    backgroundColor: colors.slice(3).concat(colors.slice(0, 3)),
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right' },
+                    tooltip: tooltipSettings
                 }
             }
-        }
-    });
+        });
 
-    // 5. Organization Chart (Bar)
-    const orgData = <?= json_encode($orgData) ?>;
-    const orgExtracted = extractData(orgData, 'organization', 'cnt');
-    
-    const ctxOrg = document.getElementById('orgChart').getContext('2d');
-    let orgGradient = ctxOrg.createLinearGradient(0, 0, 0, 400);
-    orgGradient.addColorStop(0, 'rgba(14, 165, 233, 0.8)'); // Light blue
-    orgGradient.addColorStop(1, 'rgba(14, 165, 233, 0.2)');
-
-    new Chart(ctxOrg, {
-        type: 'bar',
-        data: {
-            labels: orgExtracted.labels,
-            datasets: [{
-                label: 'Participants',
-                data: orgExtracted.values,
-                backgroundColor: orgGradient,
-                borderRadius: 6,
-                borderWidth: 0,
-                barPercentage: 0.5
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: tooltipSettings
+        // Grid settings for Bar charts
+        const gridOptions = {
+            x: { 
+                grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+                ticks: { color: '#94A3B8' }
             },
-            scales: gridOptions
-        }
-    });
+            y: {
+                grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+                ticks: { color: '#94A3B8', stepSize: 1 }
+            }
+        };
+
+        // 3. Sangh Shikshan Chart (Vertical Bar)
+        const shikshanData = <?= json_encode($shikshanData) ?>;
+        const shikshanExtracted = extractData(shikshanData, 'sangh_shikshan', 'cnt');
+        
+        // Create gradient
+        const ctxShikshan = document.getElementById('shikshanChart').getContext('2d');
+        let shikshanGradient = ctxShikshan.createLinearGradient(0, 0, 0, 400);
+        shikshanGradient.addColorStop(0, 'rgba(139, 92, 246, 0.8)');
+        shikshanGradient.addColorStop(1, 'rgba(139, 92, 246, 0.2)');
+
+        new Chart(ctxShikshan, {
+            type: 'bar',
+            data: {
+                labels: shikshanExtracted.labels,
+                datasets: [{
+                    label: 'Participants',
+                    data: shikshanExtracted.values,
+                    backgroundColor: shikshanGradient,
+                    borderRadius: 6,
+                    borderWidth: 0,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: tooltipSettings
+                },
+                scales: gridOptions
+            }
+        });
+
+        // 4. Bhag/City Chart (Horizontal Bar)
+        const bhagData = <?= json_encode($bhagData) ?>;
+        const bhagExtracted = extractData(bhagData, 'loc', 'cnt');
+        new Chart(document.getElementById('bhagChart'), {
+            type: 'bar',
+            data: {
+                labels: bhagExtracted.labels,
+                datasets: [{
+                    label: 'Participants',
+                    data: bhagExtracted.values,
+                    backgroundColor: colors.slice(5).concat(colors.slice(0, 5)),
+                    borderRadius: 4,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: tooltipSettings
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#94A3B8', stepSize: 1 }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { color: '#94A3B8' }
+                    }
+                }
+            }
+        });
+
+        // 5. Organization Chart (Bar)
+        const orgData = <?= json_encode($orgData) ?>;
+        const orgExtracted = extractData(orgData, 'organization', 'cnt');
+        
+        const ctxOrg = document.getElementById('orgChart').getContext('2d');
+        let orgGradient = ctxOrg.createLinearGradient(0, 0, 0, 400);
+        orgGradient.addColorStop(0, 'rgba(14, 165, 233, 0.8)'); // Light blue
+        orgGradient.addColorStop(1, 'rgba(14, 165, 233, 0.2)');
+
+        new Chart(ctxOrg, {
+            type: 'bar',
+            data: {
+                labels: orgExtracted.labels,
+                datasets: [{
+                    label: 'Participants',
+                    data: orgExtracted.values,
+                    backgroundColor: orgGradient,
+                    borderRadius: 6,
+                    borderWidth: 0,
+                    barPercentage: 0.5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: tooltipSettings
+                },
+                scales: gridOptions
+            }
+        });
+    } catch(err) {
+        console.error("Error rendering charts: ", err);
+    }
 });
 </script>
 
