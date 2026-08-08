@@ -27,15 +27,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $is_present = ($_POST['action'] === 'mark_present') ? 1 : 0;
         
         if ($participant_id && $attendance_session_id) {
-            $stmt = $pdo->prepare("
-                INSERT INTO em_participant_attendance (event_id, attendance_session_id, participant_id, is_present, marked_by, marked_at) 
-                VALUES (?, ?, ?, ?, ?, NOW()) 
-                ON DUPLICATE KEY UPDATE 
-                is_present = VALUES(is_present), 
-                marked_by = VALUES(marked_by), 
-                marked_at = NOW()
-            ");
-            if ($stmt->execute([$event_id, $attendance_session_id, $participant_id, $is_present, $marked_by])) {
+            try {
+                $stmt = $pdo->prepare("
+                    INSERT INTO em_participant_attendance (event_id, attendance_session_id, participant_id, is_present, marked_by, marked_at) 
+                    VALUES (?, ?, ?, ?, ?, NOW()) 
+                    ON DUPLICATE KEY UPDATE 
+                    is_present = VALUES(is_present), 
+                    marked_by = VALUES(marked_by), 
+                    marked_at = NOW()
+                ");
+                $stmt->execute([$event_id, $attendance_session_id, $participant_id, $is_present, $marked_by]);
+                
                 // Return updated counts
                 $countStmt = $pdo->prepare("SELECT COUNT(*) FROM em_participants WHERE event_id = ?");
                 $countStmt->execute([$event_id]);
@@ -45,11 +47,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $presStmt->execute([$event_id, $attendance_session_id]);
                 $present = $presStmt->fetchColumn();
                 
+                ob_clean();
+                header('Content-Type: application/json');
                 echo json_encode(['success' => true, 'total' => $total, 'present' => $present]);
+                exit;
+            } catch (Exception $e) {
+                ob_clean();
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => $e->getMessage()]);
                 exit;
             }
         }
-        echo json_encode(['success' => false]);
+        ob_clean();
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'error' => 'Missing ID']);
         exit;
     }
 }
@@ -401,27 +412,33 @@ include 'includes/header.php';
             method: 'POST',
             body: formData
         })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                // Update stats
-                document.getElementById('present-count').innerText = data.present;
-                const pct = data.total > 0 ? Math.round((data.present / data.total) * 100) : 0;
-                document.getElementById('present-percentage').innerText = pct;
+        .then(res => res.text()) // Get as text first to handle errors
+        .then(text => {
+            try {
+                const data = JSON.parse(text);
+                if (data.success) {
+                    // Update stats
+                    document.getElementById('present-count').innerText = data.present;
+                    const pct = data.total > 0 ? Math.round((data.present / data.total) * 100) : 0;
+                    document.getElementById('present-percentage').innerText = pct;
 
-                // Update card UI
-                const card = document.getElementById('card-' + participantId);
-                const isPresentNow = (action === 'mark_present');
-                
-                if (isPresentNow) {
-                    card.classList.add('present');
-                    card.innerHTML = card.innerHTML.replace(/<button.*<\/button>/, `<button class="att-btn btn-absent" onclick="markAttendance(${participantId}, 'mark_absent')">❌ अनुपस्थित करें (Mark Absent)</button>`);
+                    // Update card UI
+                    const card = document.getElementById('card-' + participantId);
+                    const isPresentNow = (action === 'mark_present');
+                    
+                    if (isPresentNow) {
+                        card.classList.add('present');
+                        card.innerHTML = card.innerHTML.replace(/<button.*<\/button>/, `<button class="att-btn btn-absent" onclick="markAttendance(${participantId}, 'mark_absent')">❌ अनुपस्थित करें (Mark Absent)</button>`);
+                    } else {
+                        card.classList.remove('present');
+                        card.innerHTML = card.innerHTML.replace(/<button.*<\/button>/, `<button class="att-btn btn-present" onclick="markAttendance(${participantId}, 'mark_present')">✅ उपस्थित (Present)</button>`);
+                    }
                 } else {
-                    card.classList.remove('present');
-                    card.innerHTML = card.innerHTML.replace(/<button.*<\/button>/, `<button class="att-btn btn-present" onclick="markAttendance(${participantId}, 'mark_present')">✅ उपस्थित (Present)</button>`);
+                    alert('Error: ' + (data.error || 'Failed to update attendance.'));
                 }
-            } else {
-                alert('Attendance update failed. Please try again.');
+            } catch(e) {
+                console.error("Parse error. Response was: ", text);
+                alert('Server returned an invalid response. Check console.');
             }
         })
         .catch(err => {
