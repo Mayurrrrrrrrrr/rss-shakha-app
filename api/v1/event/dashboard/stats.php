@@ -11,12 +11,12 @@ try {
     $stats['event_info'] = $stmt->fetch(PDO::FETCH_ASSOC);
     
     // Participants
-    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM em_participants WHERE event_id = ? AND status = 'active'");
+    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM em_participants WHERE event_id = ? AND is_active = 1 AND is_deleted = 0");
     $stmt->execute([$auth['event_id']]);
     $stats['participant_count'] = $stmt->fetchColumn();
     
     // Organizers
-    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM em_organizers WHERE event_id = ? AND status = 'active'");
+    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM em_organizers WHERE event_id = ? AND is_active = 1 AND is_deleted = 0");
     $stmt->execute([$auth['event_id']]);
     $stats['organizer_count'] = $stmt->fetchColumn();
     
