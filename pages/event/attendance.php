@@ -434,13 +434,13 @@ include 'includes/header.php';
         // If the input contains English letters, fetch Hindi transliteration
         if (/[a-z]/.test(rawText)) {
             try {
-                const response = await fetch(`https://inputtools.google.com/request?text=${encodeURIComponent(rawText)}&itc=hi-t-i0-und&num=3`);
+                const response = await fetch(`api_transliterate.php?text=${encodeURIComponent(rawText)}`);
                 const data = await response.json();
                 
                 let searchTerms = [rawText]; // Always include the original English text (useful for matching email/organization)
                 
-                if (data[0] === 'SUCCESS' && data[1][0][1]) {
-                    // Combine the English text with the top 3 Hindi suggestions
+                if (data && data[0] === 'SUCCESS' && data[1] && data[1][0] && data[1][0][1]) {
+                    // Combine the English text with the top Hindi suggestions
                     searchTerms = searchTerms.concat(data[1][0][1]);
                 }
                 renderParticipants(searchTerms);
