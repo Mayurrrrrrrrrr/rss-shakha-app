@@ -134,11 +134,29 @@ $query = "
 ";
 $params = [':session_id' => $selected_session_id, ':event_id' => $event_id];
 
+$search = trim($_GET['search'] ?? '');
 if ($search !== '') {
-    $query .= " AND (p.name LIKE :search1 OR p.phone LIKE :search2)";
+    $search_hindi = $search;
+    
+    // If search contains English characters, try to transliterate to Hindi on the backend
+    if (preg_match('/[a-zA-Z]/', $search)) {
+        $url = "https://inputtools.google.com/request?text=" . urlencode($search) . "&itc=hi-t-i0-und&num=1";
+        $ctx = stream_context_create(['http' => ['timeout' => 2]]);
+        $response = @file_get_contents($url, false, $ctx);
+        if ($response) {
+            $data = json_decode($response, true);
+            if (isset($data[0]) && $data[0] === 'SUCCESS' && isset($data[1][0][1][0])) {
+                $search_hindi = $data[1][0][1][0];
+            }
+        }
+    }
+
+    $query .= " AND (p.name LIKE :search1 OR p.name LIKE :search2 OR p.phone LIKE :search3)";
     $params[':search1'] = "%$search%";
-    $params[':search2'] = "%$search%";
+    $params[':search2'] = "%$search_hindi%";
+    $params[':search3'] = "%$search%";
 }
+
 if ($filter_value !== '') {
     if ($is_hajiri) {
         $query .= " AND p.bhag = :filter_val";
@@ -454,62 +472,11 @@ include 'includes/header.php';
             console.error(err);
             alert('Network error. Please try again.');
         });
-    }
-</script>
-
-<!-- Google Input Tools API for Hindi Typing -->
-<script>
-    async function transliterateWord(word) {
-        if (!word || !/^[a-zA-Z]+$/.test(word)) return word; 
-        try {
-            const response = await fetch(`https://inputtools.google.com/request?text=${word}&itc=hi-t-i0-und&num=1`);
-            const data = await response.json();
-            if (data[0] === 'SUCCESS' && data[1] && data[1][0] && data[1][0][1] && data[1][0][1][0]) {
-                return data[1][0][1][0];
-            }
-        } catch (e) {
-            console.error("Transliteration failed", e);
-        }
-        return word;
-    }
-
     const searchInput = document.getElementById('search_input');
     if (searchInput) {
-        searchInput.addEventListener('keyup', async function(e) {
-            if (e.key === ' ' || e.keyCode === 32) {
-                let cursorPosition = this.selectionStart;
-                let text = this.value;
-                let beforeCursor = text.substring(0, cursorPosition - 1);
-                let words = beforeCursor.split(' ');
-                let lastWord = words[words.length - 1];
-                
-                if (lastWord && /^[a-zA-Z]+$/.test(lastWord)) {
-                    let hindiWord = await transliterateWord(lastWord);
-                    if (hindiWord && hindiWord !== lastWord) {
-                        words[words.length - 1] = hindiWord;
-                        let newBeforeCursor = words.join(' ') + ' ';
-                        this.value = newBeforeCursor + text.substring(cursorPosition);
-                        this.setSelectionRange(newBeforeCursor.length, newBeforeCursor.length);
-                        this.dispatchEvent(new Event('input'));
-                    }
-                }
-            }
-        });
-
-        // Also transliterate the last word when clicking outside or hitting Enter
-        searchInput.addEventListener('change', async function(e) {
-            let words = this.value.trim().split(' ');
-            let changed = false;
-            for (let i=0; i<words.length; i++) {
-                if (words[i] && /^[a-zA-Z]+$/.test(words[i])) {
-                    words[i] = await transliterateWord(words[i]);
-                    changed = true;
-                }
-            }
-            if (changed) {
-                this.value = words.join(' ');
-                this.dispatchEvent(new Event('input'));
-            }
+        // Simple client-side debounce for form submission
+        searchInput.addEventListener('keyup', function(e) {
+            debounceSearch();
         });
     }
 </script>
