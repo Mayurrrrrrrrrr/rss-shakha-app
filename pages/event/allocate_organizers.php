@@ -31,7 +31,7 @@ $message = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['allocate'])) {
-    $selected_ids = $_POST['swayamsevak_ids'] ?? [];
+    $selected_ids = $_POST['participant_ids'] ?? [];
     $role = $_POST['role'] ?? 'volunteer';
     $vyavastha = $_POST['vyavastha'] ?? null;
     $assigned_bhag = $_POST['assigned_bhag'] ?? null;
@@ -40,16 +40,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['allocate'])) {
     if ($assigned_bhag === '') $assigned_bhag = null;
 
     if (empty($selected_ids)) {
-        $error = "No swayamsevaks selected.";
+        $error = "कोई प्रतिभागी नहीं चुना गया (No participants selected).";
     } else {
         try {
             $pdo->beginTransaction();
             
-            // Get selected swayamsevaks details
+            // Get selected participants details
             $placeholders = implode(',', array_fill(0, count($selected_ids), '?'));
-            $stmt = $pdo->prepare("SELECT * FROM swayamsevaks WHERE id IN ($placeholders)");
-            $stmt->execute($selected_ids);
-            $selected_swayamsevaks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt = $pdo->prepare("SELECT * FROM em_participants WHERE id IN ($placeholders) AND event_id = ?");
+            
+            $queryParams = $selected_ids;
+            $queryParams[] = $event_id;
+            $stmt->execute($queryParams);
+            $selected_participants = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             // Insert into em_organizers
             $insertStmt = $pdo->prepare("
@@ -58,22 +61,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['allocate'])) {
             ");
             
             $count = 0;
-            foreach ($selected_swayamsevaks as $sw) {
-                // Ensure they have a username (needed for login)
-                if (empty($sw['username'])) {
-                    continue; // Skip if no username is available
-                }
-                
-                // Check if already an organizer
-                $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM em_organizers WHERE event_id = ? AND username = ?");
-                $checkStmt->execute([$event_id, $sw['username']]);
+            foreach ($selected_participants as $p) {
+                // Generate a dummy username to avoid null constraint or conflicts if any
+                $dummy_username = 'evt_' . $event_id . '_p_' . $p['id'];
+                $dummy_password = password_hash('123456', PASSWORD_DEFAULT); // Dummy password if required by DB schema
+
+                // Check if already an organizer by name & phone to prevent duplicates
+                $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM em_organizers WHERE event_id = ? AND name = ? AND phone = ?");
+                $checkStmt->execute([$event_id, $p['name'], $p['phone'] ?? '']);
                 if ($checkStmt->fetchColumn() == 0) {
                     $insertStmt->execute([
                         $event_id, 
-                        $sw['name'], 
-                        $sw['phone'] ?? '', 
-                        $sw['username'],
-                        $sw['password'], // use their master password hash
+                        $p['name'], 
+                        $p['phone'] ?? '', 
+                        $dummy_username,
+                        $dummy_password,
                         $role,
                         $assigned_bhag,
                         $vyavastha
@@ -83,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['allocate'])) {
             }
             
             $pdo->commit();
-            $message = "$count organizers successfully allocated to the event!";
+            $message = "$count आयोजकों को सफलतापूर्वक आवंटित किया गया (organizers successfully allocated)!";
         } catch (Exception $e) {
             $pdo->rollBack();
             $error = "Database error: " . $e->getMessage();
@@ -93,18 +95,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['allocate'])) {
 
 // Search
 $search = $_GET['search'] ?? '';
-// Only pull swayamsevaks that have usernames so they can actually log in!
-$query = "SELECT * FROM swayamsevaks WHERE is_active = 1 AND is_deleted = 0 AND username IS NOT NULL AND username != ''";
-$params = [];
+$query = "SELECT * FROM em_participants WHERE event_id = ? AND is_deleted = 0";
+$params = [$event_id];
 if ($search) {
-    $query .= " AND (name LIKE ? OR phone LIKE ? OR username LIKE ?)";
-    $params = ["%$search%", "%$search%", "%$search%"];
+    $query .= " AND (name LIKE ? OR phone LIKE ? OR city LIKE ?)";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
 }
 $query .= " ORDER BY name ASC LIMIT 200";
 
 $stmt = $pdo->prepare($query);
 $stmt->execute($params);
-$swayamsevaks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$participantsList = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch distinct locs for Bhag dropdown
 $bhagStmt = $pdo->prepare("SELECT DISTINCT COALESCE(bhag, city) as loc FROM em_participants WHERE event_id = ? AND COALESCE(bhag, city) IS NOT NULL AND COALESCE(bhag, city) != '' ORDER BY loc ASC");
@@ -121,8 +124,7 @@ $bhagList = $bhagStmt->fetchAll(PDO::FETCH_COLUMN);
 
     <div class="card" style="margin-bottom: 1rem;">
         <h3 style="margin-top:0;">आयोजन: <?= htmlspecialchars($event['name']) ?></h3>
-        <p style="color: var(--text-muted); margin:0;">यहाँ आप मुख्य डेटाबेस से स्वयंसेवकों का चयन कर उन्हें इस आयोजन में आयोजक/कार्यकर्ता के रूप में जोड़ सकते हैं। (Allocate Swayamsevaks from the main database to this event.)<br>
-        <small>*केवल सिस्टम यूज़रनेम वाले स्वयंसेवक ही दिखाए जा रहे हैं (Only swayamsevaks with a system username are shown).</small></p>
+        <p style="color: var(--text-muted); margin:0;">यहाँ आप इस आयोजन के पंजीकृत प्रतिभागियों में से आयोजक/कार्यकर्ता नियुक्त कर सकते हैं। (Allocate Organizers from the event's participants.)</p>
     </div>
 
     <?php if ($error): ?>
@@ -140,7 +142,7 @@ $bhagList = $bhagStmt->fetchAll(PDO::FETCH_COLUMN);
     <div class="card">
         <form method="GET" action="" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
             <input type="hidden" name="event_id" value="<?= $event_id ?>">
-            <input type="text" name="search" class="form-control" placeholder="नाम, फोन, या यूज़रनेम से खोजें..." value="<?= htmlspecialchars($search) ?>">
+            <input type="text" name="search" class="form-control" placeholder="नाम, फोन, या नगर से खोजें..." value="<?= htmlspecialchars($search) ?>">
             <button type="submit" class="btn">खोजें (Search)</button>
             <?php if($search): ?>
                 <a href="allocate_organizers.php?event_id=<?= $event_id ?>" class="btn btn-outline">रीसेट</a>
@@ -186,23 +188,23 @@ $bhagList = $bhagStmt->fetchAll(PDO::FETCH_COLUMN);
                         <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
                             <th style="padding: 1rem;"><input type="checkbox" id="selectAll" onclick="toggleAll(this)"></th>
                             <th style="padding: 1rem;">नाम (Name)</th>
-                            <th style="padding: 1rem;">यूज़रनेम (Username)</th>
                             <th style="padding: 1rem;">फोन (Phone)</th>
-                            <th style="padding: 1rem;">दायित्व (Main DB Role)</th>
+                            <th style="padding: 1rem;">नगर (City)</th>
+                            <th style="padding: 1rem;">दायित्व (Responsibility)</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($swayamsevaks as $sw): ?>
+                        <?php foreach ($participantsList as $p): ?>
                         <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 1rem;"><input type="checkbox" name="swayamsevak_ids[]" value="<?= $sw['id'] ?>" class="row-checkbox"></td>
-                            <td style="padding: 1rem; font-weight: bold;"><?= htmlspecialchars($sw['name']) ?></td>
-                            <td style="padding: 1rem; color: var(--saffron);"><?= htmlspecialchars($sw['username']) ?></td>
-                            <td style="padding: 1rem;"><?= htmlspecialchars($sw['phone'] ?? '-') ?></td>
-                            <td style="padding: 1rem;"><?= htmlspecialchars($sw['role'] ?? '-') ?></td>
+                            <td style="padding: 1rem;"><input type="checkbox" name="participant_ids[]" value="<?= $p['id'] ?>" class="row-checkbox"></td>
+                            <td style="padding: 1rem; font-weight: bold;"><?= htmlspecialchars($p['name']) ?></td>
+                            <td style="padding: 1rem;"><?= htmlspecialchars($p['phone'] ?? '-') ?></td>
+                            <td style="padding: 1rem;"><?= htmlspecialchars($p['city'] ?? '-') ?></td>
+                            <td style="padding: 1rem;"><?= htmlspecialchars($p['responsibility'] ?? '-') ?></td>
                         </tr>
                         <?php endforeach; ?>
-                        <?php if (empty($swayamsevaks)): ?>
-                        <tr><td colspan="5" style="padding: 1rem; text-align: center;">कोई स्वयंसेवक नहीं मिला (No swayamsevaks found)</td></tr>
+                        <?php if (empty($participantsList)): ?>
+                        <tr><td colspan="5" style="padding: 1rem; text-align: center;">इस आयोजन में कोई प्रतिभागी पंजीकृत नहीं है (No participants in this event)</td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
