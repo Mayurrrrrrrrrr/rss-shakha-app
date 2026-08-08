@@ -26,7 +26,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['event_name'] = $evt['name'];
             $message = "Event '{$evt['name']}' is now active!";
         }
-    } else {
+    } elseif (isset($_POST['action']) && $_POST['action'] === 'delete_event') {
+        $evt_id = (int)($_POST['event_id'] ?? 0);
+        if ($evt_id > 0) {
+            $stmt = $pdo->prepare("UPDATE em_events SET status = 'deleted' WHERE id = ?");
+            $stmt->execute([$evt_id]);
+            $message = "Event deleted successfully (soft delete).";
+            if (isset($_SESSION['event_id']) && $_SESSION['event_id'] == $evt_id) {
+                unset($_SESSION['event_id']);
+                unset($_SESSION['event_name']);
+            }
+        }
+    } elseif (isset($_POST['action']) && $_POST['action'] === 'create_event') {
         $name = trim($_POST['name'] ?? '');
         $start_date = $_POST['start_date'] ?? '';
         $end_date = $_POST['end_date'] ?? '';
@@ -67,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST">
+            <input type="hidden" name="action" value="create_event">
             <div class="form-group" style="margin-bottom: 1.5rem;">
                 <label>आयोजन का नाम (Event Name) *</label>
                 <input type="text" name="name" class="form-control" required placeholder="उदा. प्राथमिक शिक्षा वर्ग">
@@ -108,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </thead>
                 <tbody>
                     <?php
-                    $events = $pdo->query("SELECT * FROM em_events ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
+                    $events = $pdo->query("SELECT * FROM em_events WHERE status != 'deleted' ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
                     foreach ($events as $evt):
                         $isActive = ($evt['status'] === 'active');
                     ?>
@@ -127,14 +139,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <span style="background: rgba(255,255,255,0.1); color: var(--text-muted); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">निजी (Inactive)</span>
                             <?php endif; ?>
                         </td>
-                        <td style="padding: 1rem;">
+                        <td style="padding: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
                             <?php if (!$isActive): ?>
                             <form method="POST" style="display:inline;" onsubmit="return confirm('क्या आप इस आयोजन को सक्रिय करना चाहते हैं? (Set this as active?)')">
                                 <input type="hidden" name="action" value="set_active">
                                 <input type="hidden" name="event_id" value="<?= $evt['id'] ?>">
-                                <button type="submit" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">सक्रिय करें (Set Active)</button>
+                                <button type="submit" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">सक्रिय (Set Active)</button>
                             </form>
                             <?php endif; ?>
+                            
+                            <a href="allocate_participants.php?event_id=<?= $evt['id'] ?>" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">+ प्रतिभागी (Participants)</a>
+                            <a href="allocate_organizers.php?event_id=<?= $evt['id'] ?>" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">+ आयोजक (Organizers)</a>
+                            
+                            <form method="POST" style="display:inline;" onsubmit="return confirm('क्या आप वाकई इस आयोजन को हटाना चाहते हैं? (Are you sure you want to delete this event?)')">
+                                <input type="hidden" name="action" value="delete_event">
+                                <input type="hidden" name="event_id" value="<?= $evt['id'] ?>">
+                                <button type="submit" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: var(--danger); border-color: var(--danger);">हटाएं (Delete)</button>
+                            </form>
                         </td>
                     </tr>
                     <?php endforeach; ?>
