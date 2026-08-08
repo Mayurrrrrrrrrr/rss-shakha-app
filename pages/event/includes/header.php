@@ -122,7 +122,7 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
         }
         
         .mobile-header {
-            display: none;
+            display: flex;
             background: var(--container-bg);
             padding: 1rem 1.5rem;
             border-bottom: 1px solid var(--border-color);
@@ -163,37 +163,29 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
         }
         
         body.has-sidebar {
-            padding-left: 250px;
+            padding-left: 0;
         }
         
-        @media (max-width: 768px) {
-            body.has-sidebar {
-                padding-left: 0;
-            }
-            .mobile-header {
-                display: flex;
-            }
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-            .sidebar.active {
-                transform: translateX(0);
-            }
-            .sidebar-overlay {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.5);
-                z-index: 998;
-                backdrop-filter: blur(4px);
-            }
-            .sidebar-overlay.active {
-                display: block;
-            }
+        .sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        .sidebar.active {
+            transform: translateX(0);
+        }
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+            backdrop-filter: blur(4px);
+        }
+        .sidebar-overlay.active {
+            display: block;
         }
         
         .container {
@@ -390,6 +382,7 @@ $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/event/';
                 <div class="nav-section">
                     <div class="nav-section-title">सेटिंग्स (Settings)</div>
                     <?php if ($role === 'admin'): ?>
+                    <a href="create_event.php">नया आयोजन (Create Event)</a>
                     <a href="room_inventory.php">कक्ष सूची (Room Inventory)</a>
                     <a href="data_cleanse.php">मास्टर डेटा अपडेट (Master Data Update)</a>
                     <?php endif; ?>
