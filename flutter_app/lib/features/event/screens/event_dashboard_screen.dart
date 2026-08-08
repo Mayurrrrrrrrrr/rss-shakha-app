@@ -82,7 +82,7 @@ class _EventDashboardScreenState extends ConsumerState<EventDashboardScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const SpotEntryScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const SpotEntryScreen(sessionId: 1)));
         },
         backgroundColor: const Color(0xFFFF6B00),
         icon: const Icon(Icons.add, color: Colors.white),
@@ -119,7 +119,7 @@ class _EventDashboardScreenState extends ConsumerState<EventDashboardScreen> {
             title: const Text('हाजिरी', style: TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari')),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const AttendanceScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const AttendanceScreen(sessionId: 1)));
             },
           ),
           ListTile(
@@ -256,7 +256,7 @@ class _EventDashboardScreenState extends ConsumerState<EventDashboardScreen> {
       alignment: WrapAlignment.center,
       children: [
         _buildActionBtn(context, 'हाजिरी', Icons.check_circle, () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const AttendanceScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const AttendanceScreen(sessionId: 1)));
         }),
         _buildActionBtn(context, 'प्रतिभागी', Icons.search, () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const ParticipantListScreen()));

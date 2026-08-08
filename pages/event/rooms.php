@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     // Preserve filters in redirect
     $qParams = [];
     if (!empty($_POST['search_name'])) $qParams['search_name'] = $_POST['search_name'];
-    if (!empty($_POST['search_city'])) $qParams['search_city'] = $_POST['search_city'];
+    if (!empty($_POST['search_bhag'])) $qParams['search_bhag'] = $_POST['search_bhag'];
     $qs = http_build_query($qParams);
     header("Location: rooms.php" . ($qs ? "?$qs" : ""));
     exit;
@@ -165,12 +165,17 @@ usort($topRooms, function($a, $b) {
 $topRooms = array_slice($topRooms, 0, 3);
 
 
+// Fetch distinct locs for Bhag dropdown
+$bhagStmt = $pdo->prepare("SELECT DISTINCT COALESCE(bhag, city) as loc FROM em_participants WHERE event_id = ? AND COALESCE(bhag, city) IS NOT NULL AND COALESCE(bhag, city) != '' ORDER BY loc ASC");
+$bhagStmt->execute([$event_id]);
+$bhagList = $bhagStmt->fetchAll(PDO::FETCH_COLUMN);
+
 // Fetch participants with filtering
 $search_name = $_GET['search_name'] ?? '';
-$search_city = $_GET['search_city'] ?? '';
+$search_bhag = $_GET['search_bhag'] ?? '';
 
 $sql = "
-    SELECT p.id, p.name, p.city, r.id as room_id, r.room_name, r.building
+    SELECT p.id, p.name, p.city, p.bhag, r.id as room_id, r.room_name, r.building
     FROM em_participants p
     LEFT JOIN em_room_allotments ra ON p.id = ra.allottee_id AND ra.allottee_type = 'participant' AND ra.event_id = :event_id1
     LEFT JOIN em_rooms r ON ra.room_id = r.id
@@ -182,9 +187,9 @@ if ($search_name !== '') {
     $sql .= " AND p.name LIKE :name ";
     $params[':name'] = '%' . $search_name . '%';
 }
-if ($search_city !== '') {
-    $sql .= " AND p.city LIKE :city ";
-    $params[':city'] = '%' . $search_city . '%';
+if ($search_bhag !== '') {
+    $sql .= " AND (p.city = :bhag OR p.bhag = :bhag) ";
+    $params[':bhag'] = $search_bhag;
 }
 
 $sql .= " ORDER BY p.name ASC";
@@ -204,7 +209,12 @@ include 'includes/header.php';
             <input type="text" name="search_name" class="form-control" placeholder="नाम से खोजें (Search Name)" value="<?= htmlspecialchars($search_name) ?>">
         </div>
         <div class="form-group" style="margin-bottom: 0;">
-            <input type="text" name="search_city" class="form-control" placeholder="शहर से खोजें (Search City)" value="<?= htmlspecialchars($search_city) ?>">
+            <select name="search_bhag" class="form-control">
+                <option value="">-- भाग/शहर से खोजें (Search Bhag/City) --</option>
+                <?php foreach ($bhagList as $bhag): ?>
+                    <option value="<?= htmlspecialchars($bhag) ?>" <?= $search_bhag === $bhag ? 'selected' : '' ?>><?= htmlspecialchars($bhag) ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <button type="submit" class="btn">खोजें (Search)</button>
         <a href="rooms.php" class="btn btn-outline" style="text-decoration:none; padding: 0.5rem 1rem;">रीसेट (Reset)</a>
@@ -218,7 +228,7 @@ include 'includes/header.php';
                     <th><input type="checkbox" id="selectAll" onclick="toggleAll(this)" style="transform: scale(1.2);"></th>
                     <th>ID</th>
                     <th>नाम (Name)</th>
-                    <th>शहर (City)</th>
+                    <th>भाग/शहर (Bhag/City)</th>
                     <th>वर्तमान कमरा (Current Room)</th>
                     <th>कमरा आवंटित करें (Allot Room)</th>
                     <th>कार्य (Action)</th>
@@ -231,7 +241,7 @@ include 'includes/header.php';
                             <td><input type="checkbox" class="row-checkbox" value="<?= $p['id'] ?>" onchange="updateBulkBar()" style="transform: scale(1.2);"></td>
                             <td><?= $p['id'] ?></td>
                             <td><?= htmlspecialchars($p['name']) ?></td>
-                            <td><?= htmlspecialchars($p['city']) ?></td>
+                            <td><?= htmlspecialchars($p['bhag'] ?? $p['city']) ?></td>
                             <td>
                                 <?php if ($p['room_id']): ?>
                                     <span style="color: var(--amber); font-weight: bold;"><?= htmlspecialchars($p['room_name']) ?></span> 
@@ -245,7 +255,7 @@ include 'includes/header.php';
                                     <input type="hidden" name="action" value="allot_room_matrix">
                                     <input type="hidden" name="participant_id" value="<?= $p['id'] ?>">
                                     <input type="hidden" name="search_name" value="<?= htmlspecialchars($search_name) ?>">
-                                    <input type="hidden" name="search_city" value="<?= htmlspecialchars($search_city) ?>">
+                                    <input type="hidden" name="search_bhag" value="<?= htmlspecialchars($search_bhag) ?>">
                                     
                                     <select name="room_id" class="form-control" style="width: 200px;">
                                         <option value="0">-- कमरा निकालें (Unassign) --</option>

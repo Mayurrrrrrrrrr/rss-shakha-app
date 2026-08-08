@@ -101,6 +101,11 @@ if ($event_id) {
     $stmt = $pdo->prepare("SELECT * FROM em_organizers WHERE event_id = ? ORDER BY role, name");
     $stmt->execute([$event_id]);
     $organizers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Fetch distinct locs for Bhag dropdown
+    $bhagStmt = $pdo->prepare("SELECT DISTINCT COALESCE(bhag, city) as loc FROM em_participants WHERE event_id = ? AND COALESCE(bhag, city) IS NOT NULL AND COALESCE(bhag, city) != '' ORDER BY loc ASC");
+    $bhagStmt->execute([$event_id]);
+    $bhagList = $bhagStmt->fetchAll(PDO::FETCH_COLUMN);
 }
 ?>
 <?php include 'includes/header.php'; ?>
@@ -209,7 +214,12 @@ if ($event_id) {
             
             <div class="form-group">
                 <label>नियुक्त भाग (Assigned Bhag)</label>
-                <input type="text" name="assigned_bhag" class="form-control" placeholder="उदा. भांडुप पश्चिम">
+                <select name="assigned_bhag" class="form-control">
+                    <option value=''>-- कोई नहीं (None) --</option>
+                    <?php foreach ($bhagList as $bhag): ?>
+                        <option value="<?= htmlspecialchars($bhag) ?>"><?= htmlspecialchars($bhag) ?></option>
+                    <?php endforeach; ?>
+                </select>
                 <small style="color:#888;">केवल स्वयंसेवकों के लिए (Only for volunteers attending specific bhag)</small>
             </div>
             
@@ -297,7 +307,12 @@ function editOrganizer(id, name, phone, role, vyavastha, assigned_bhag) {
             
             <div class="form-group">
                 <label>नियुक्त भाग (Assigned Bhag)</label>
-                <input type="text" name="assigned_bhag" id="edit_assigned_bhag" class="form-control" placeholder="उदा. भांडुप पश्चिम">
+                <select name="assigned_bhag" id="edit_assigned_bhag" class="form-control">
+                    <option value=''>-- कोई नहीं (None) --</option>
+                    <?php foreach ($bhagList as $bhag): ?>
+                        <option value="<?= htmlspecialchars($bhag) ?>"><?= htmlspecialchars($bhag) ?></option>
+                    <?php endforeach; ?>
+                </select>
                 <small style="color:#888;">केवल स्वयंसेवकों के लिए</small>
             </div>
             

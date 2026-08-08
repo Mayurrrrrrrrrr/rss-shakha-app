@@ -31,6 +31,34 @@ try {
         $stmt->execute([$event_id]);
         $meal_forecast = $stmt->fetchColumn() ?: 0;
     }
+    
+    // Analytics queries
+    $catData = [];
+    $ageData = [];
+    $shikshanData = [];
+    $bhagData = [];
+    
+    if ($event_id) {
+        // Categories
+        $stmt = $pdo->prepare("SELECT category, COUNT(*) as cnt FROM em_participants WHERE event_id = ? GROUP BY category");
+        $stmt->execute([$event_id]);
+        $catData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Age Groups
+        $stmt = $pdo->prepare("SELECT age_group, COUNT(*) as cnt FROM em_participants WHERE event_id = ? GROUP BY age_group");
+        $stmt->execute([$event_id]);
+        $ageData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Sangh Shikshan
+        $stmt = $pdo->prepare("SELECT sangh_shikshan, COUNT(*) as cnt FROM em_participants WHERE event_id = ? GROUP BY sangh_shikshan");
+        $stmt->execute([$event_id]);
+        $shikshanData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Bhag
+        $stmt = $pdo->prepare("SELECT COALESCE(bhag, city) as loc, COUNT(*) as cnt FROM em_participants WHERE event_id = ? AND COALESCE(bhag, city) IS NOT NULL AND COALESCE(bhag, city) != '' GROUP BY loc ORDER BY cnt DESC LIMIT 10");
+        $stmt->execute([$event_id]);
+        $bhagData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 } catch (Exception $e) {
     // If tables don't exist yet, ignore errors for dashboard stats
 }
@@ -119,5 +147,107 @@ try {
         <?php endif; ?>
     </div>
 </div>
+
+<div class="card" style="margin-top: 2rem;">
+    <h2 style="margin-bottom: 1rem;">प्रतिभागी विश्लेषण (Participants Analytics)</h2>
+    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+        
+        <!-- Category Chart -->
+        <div>
+            <h4 style="text-align: center;">श्रेणी (Category)</h4>
+            <canvas id="categoryChart"></canvas>
+        </div>
+        
+        <!-- Age Group Chart -->
+        <div>
+            <h4 style="text-align: center;">आयु वर्ग (Age Group)</h4>
+            <canvas id="ageChart"></canvas>
+        </div>
+        
+        <!-- Sangh Shikshan Chart -->
+        <div>
+            <h4 style="text-align: center;">संघ शिक्षा (Sangh Shikshan)</h4>
+            <canvas id="shikshanChart"></canvas>
+        </div>
+        
+        <!-- Bhag Chart -->
+        <div>
+            <h4 style="text-align: center;">भाग/नगर (Bhag/City)</h4>
+            <canvas id="bhagChart"></canvas>
+        </div>
+        
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Prepare Data
+    const catData = <?= json_encode($catData) ?>;
+    const ageData = <?= json_encode($ageData) ?>;
+    const shikshanData = <?= json_encode($shikshanData) ?>;
+    const bhagData = <?= json_encode($bhagData) ?>;
+
+    const chartColors = ['#0D9488', '#FF6B00', '#4CAF50', '#9C27B0', '#FFC107', '#2196F3', '#F44336', '#E91E63', '#795548', '#607D8B'];
+
+    // Helper to render chart
+    function renderChart(ctxId, type, dataArray, labelField, valueField, title) {
+        if (!dataArray || dataArray.length === 0) return;
+        const labels = dataArray.map(d => d[labelField] || 'N/A');
+        const values = dataArray.map(d => d[valueField]);
+        
+        new Chart(document.getElementById(ctxId), {
+            type: type,
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'प्रतिभागी संख्या',
+                    data: values,
+                    backgroundColor: chartColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: (type === 'pie' || type === 'doughnut') ? 'bottom' : 'none',
+                    }
+                },
+                scales: (type === 'bar') ? {
+                    y: { beginAtZero: true }
+                } : {}
+            }
+        });
+    }
+
+    // Render all 4 charts
+    window.onload = function() {
+        renderChart('categoryChart', 'pie', catData, 'category', 'cnt', 'Category');
+        renderChart('ageChart', 'doughnut', ageData, 'age_group', 'cnt', 'Age Group');
+        renderChart('shikshanChart', 'bar', shikshanData, 'sangh_shikshan', 'cnt', 'Sangh Shikshan');
+        
+        // Custom horizontal bar for Bhag
+        if (bhagData && bhagData.length > 0) {
+            new Chart(document.getElementById('bhagChart'), {
+                type: 'bar',
+                data: {
+                    labels: bhagData.map(d => d.loc || 'N/A'),
+                    datasets: [{
+                        label: 'प्रतिभागी संख्या',
+                        data: bhagData.map(d => d.cnt),
+                        backgroundColor: chartColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // horizontal
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true } }
+                }
+            });
+        }
+    };
+</script>
 
 <?php include 'includes/footer.php'; ?>

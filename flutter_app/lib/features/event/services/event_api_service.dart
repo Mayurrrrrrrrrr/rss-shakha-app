@@ -202,7 +202,7 @@ class EventApiService {
   }
 
   Future<Map<String, dynamic>> getAttendanceList(int sessionId, {String? search}) async {
-    final query = {'session_id': sessionId};
+    final Map<String, dynamic> query = {'session_id': sessionId};
     if (search != null && search.isNotEmpty) {
       query['search'] = search;
     }
