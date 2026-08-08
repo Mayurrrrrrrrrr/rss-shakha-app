@@ -145,6 +145,11 @@ final eventAttendanceSessionsProvider = FutureProvider<dynamic>((ref) async {
   return api.getAttendanceSessions();
 });
 
+final attendanceListProvider = FutureProvider.family<dynamic, Map<String, dynamic>>((ref, params) async {
+  final api = ref.watch(eventApiServiceProvider);
+  return api.getAttendanceList(params['session_id'] as int, search: params['search'] as String?);
+});
+
 final eventMyTasksProvider = FutureProvider<dynamic>((ref) async {
   final api = ref.watch(eventApiServiceProvider);
   return api.getMyTasks();

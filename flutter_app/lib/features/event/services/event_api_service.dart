@@ -201,6 +201,18 @@ class EventApiService {
     throw Exception(response.data['message'] ?? 'Failed to get attendance sessions');
   }
 
+  Future<Map<String, dynamic>> getAttendanceList(int sessionId, {String? search}) async {
+    final query = {'session_id': sessionId};
+    if (search != null && search.isNotEmpty) {
+      query['search'] = search;
+    }
+    final response = await _apiClient.get('/api/v1/event/attendance/list.php', queryParameters: query);
+    if (response.data['success'] == true) {
+      return response.data['data'];
+    }
+    throw Exception(response.data['message'] ?? 'Failed to get attendance list');
+  }
+
   Future<AttendanceSession> saveAttendanceSession(Map<String, dynamic> data) async {
     final response = await _apiClient.post('/api/v1/event/attendance/sessions', data: data);
     if (response.data['success'] == true) {

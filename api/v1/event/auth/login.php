@@ -127,6 +127,7 @@ sendResponse(true, 'लॉगिन सफल', [
     'organizer_id' => $organizer['id'],
     'name' => $organizer['name'],
     'role' => $organizer['role'],
+    'assigned_bhag' => $organizer['assigned_bhag'] ?? null,
     'event_id' => $selected_event_id,
     'event_name' => $selected_event_name,
     'token' => $token

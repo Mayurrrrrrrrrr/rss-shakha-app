@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/event_providers.dart';
+import '../../../core/api/api_client.dart';
+import '../models/event_models.dart';
 
 class SpotEntryScreen extends ConsumerStatefulWidget {
-  const SpotEntryScreen({Key? key}) : super(key: key);
+  final int sessionId;
+
+  const SpotEntryScreen({Key? key, required this.sessionId}) : super(key: key);
 
   @override
   ConsumerState<SpotEntryScreen> createState() => _SpotEntryScreenState();
@@ -13,19 +16,60 @@ class _SpotEntryScreenState extends ConsumerState<SpotEntryScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _cityController = TextEditingController();
-  final _ageController = TextEditingController();
-  final _notesController = TextEditingController();
-  String _gender = 'पुरुष';
+  final _categoryController = TextEditingController();
+  bool _isLoading = false;
+
+  Future<void> _submitSpotEntry() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final apiClient = ApiClient();
+      await apiClient.post(
+        '/api/v1/event/attendance/spot_entry.php',
+        data: {
+          'session_id': widget.sessionId,
+          'name': _nameController.text.trim(),
+          'phone': _phoneController.text.trim(),
+          'category': _categoryController.text.trim(),
+        },
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('स्पॉट एंट्री सफलतापूर्वक सहेजी गई (Spot entry saved)')),
+        );
+        Navigator.pop(context, true); // Return true to trigger refresh
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('त्रुटि: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    _categoryController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F6F0),
+      backgroundColor: const Color(0xFF0B0E14),
       appBar: AppBar(
-        title: const Text('➕ स्पॉट एंट्री', style: TextStyle(fontFamily: 'Noto Sans Devanagari', fontWeight: FontWeight.bold)),
-        backgroundColor: const Color(0xFFFF6B00),
-        foregroundColor: Colors.white,
+        title: const Text('स्पॉट एंट्री (Spot Entry)'),
+        backgroundColor: const Color(0xFF0D9488),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -34,84 +78,56 @@ class _SpotEntryScreenState extends ConsumerState<SpotEntryScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildTextField(_nameController, 'पूरा नाम', Icons.person, true),
-              const SizedBox(height: 16),
-              _buildTextField(_phoneController, 'फोन नंबर', Icons.phone, false, isNumber: true),
-              const SizedBox(height: 16),
-              _buildTextField(_cityController, 'शहर/गाँव', Icons.location_city, false),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(child: _buildTextField(_ageController, 'आयु', Icons.calendar_today, false, isNumber: true)),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      value: _gender,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      items: ['पुरुष', 'महिला'].map((g) => DropdownMenuItem(value: g, child: Text(g, style: const TextStyle(fontFamily: 'Noto Sans Devanagari', fontSize: 18)))).toList(),
-                      onChanged: (val) => setState(() => _gender = val!),
-                    ),
-                  ),
-                ],
+              TextFormField(
+                controller: _nameController,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'नाम (Name)',
+                  labelStyle: TextStyle(color: Colors.white70),
+                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFF0D9488))),
+                ),
+                validator: (val) => (val == null || val.trim().isEmpty) ? 'नाम आवश्यक है (Name required)' : null,
               ),
               const SizedBox(height: 16),
-              _buildTextField(_notesController, 'टिप्पणी', Icons.note, false, maxLines: 3),
-              const SizedBox(height: 32),
-              SizedBox(
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF6B00),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: const Text('रजिस्टर करें', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Noto Sans Devanagari')),
+              TextFormField(
+                controller: _phoneController,
+                keyboardType: TextInputType.phone,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'फ़ोन (Phone)',
+                  labelStyle: TextStyle(color: Colors.white70),
+                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFF0D9488))),
                 ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _categoryController,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'श्रेणी (Category)',
+                  labelStyle: TextStyle(color: Colors.white70),
+                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFF0D9488))),
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _submitSpotEntry,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0D9488),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('सहेजें (Save)', style: TextStyle(fontSize: 16, color: Colors.white)),
               ),
             ],
           ),
         ),
       ),
     );
-  }
-
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon, bool required, {bool isNumber = false, int maxLines = 1}) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-      maxLines: maxLines,
-      style: const TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari'),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(fontFamily: 'Noto Sans Devanagari', fontSize: 18),
-        prefixIcon: Icon(icon, color: const Color(0xFFFF6B00)),
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-      ),
-      validator: required ? (val) => val == null || val.isEmpty ? 'यह जानकारी आवश्यक है' : null : null,
-    );
-  }
-
-  void _submit() {
-    if (_formKey.currentState!.validate()) {
-      // API call to add spot entry
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${_nameController.text} का पंजीकरण सफल रहा', style: const TextStyle(fontFamily: 'Noto Sans Devanagari', fontSize: 16)),
-          backgroundColor: Colors.green,
-        ),
-      );
-      _formKey.currentState!.reset();
-      _nameController.clear();
-      _phoneController.clear();
-      _cityController.clear();
-      _ageController.clear();
-      _notesController.clear();
-    }
   }
 }

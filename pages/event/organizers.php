@@ -19,6 +19,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $username = trim($_POST['username'] ?? '');
         $password = $_POST['password'] ?? '';
         $role = $_POST['role'] ?? 'volunteer';
+        $assigned_bhag = $_POST['assigned_bhag'] ?? null;
+        if ($assigned_bhag === '') {
+            $assigned_bhag = null;
+        }
         $vyavastha = $_POST['vyavastha'] ?? null;
         if ($vyavastha === '') {
             $vyavastha = null;
@@ -33,8 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     $error = "उपयोगकर्ता नाम पहले से मौजूद है (Username already exists)";
                 } else {
                     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                    $stmt = $pdo->prepare("INSERT INTO em_organizers (event_id, name, phone, username, password, role, vyavastha) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                    $stmt->execute([$event_id, $name, $phone, $username, $hashed_password, $role, $vyavastha]);
+                    $stmt = $pdo->prepare("INSERT INTO em_organizers (event_id, name, phone, username, password, role, assigned_bhag, vyavastha) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([$event_id, $name, $phone, $username, $hashed_password, $role, $assigned_bhag, $vyavastha]);
                     $message = "आयोजक सफलतापूर्वक जोड़ा गया (Organizer added successfully)";
                 }
             } catch (PDOException $e) {
@@ -48,6 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $name = trim($_POST['name'] ?? '');
         $phone = trim($_POST['phone'] ?? '');
         $role = $_POST['role'] ?? 'volunteer';
+        $assigned_bhag = $_POST['assigned_bhag'] ?? null;
+        if ($assigned_bhag === '') {
+            $assigned_bhag = null;
+        }
         $vyavastha = $_POST['vyavastha'] ?? null;
         if ($vyavastha === '') {
             $vyavastha = null;
@@ -58,11 +66,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             try {
                 if ($password) {
                     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                    $stmt = $pdo->prepare("UPDATE em_organizers SET name = ?, phone = ?, role = ?, vyavastha = ?, password = ? WHERE id = ? AND event_id = ?");
-                    $stmt->execute([$name, $phone, $role, $vyavastha, $hashed_password, $id, $event_id]);
+                    $stmt = $pdo->prepare("UPDATE em_organizers SET name = ?, phone = ?, role = ?, assigned_bhag = ?, vyavastha = ?, password = ? WHERE id = ? AND event_id = ?");
+                    $stmt->execute([$name, $phone, $role, $assigned_bhag, $vyavastha, $hashed_password, $id, $event_id]);
                 } else {
-                    $stmt = $pdo->prepare("UPDATE em_organizers SET name = ?, phone = ?, role = ?, vyavastha = ? WHERE id = ? AND event_id = ?");
-                    $stmt->execute([$name, $phone, $role, $vyavastha, $id, $event_id]);
+                    $stmt = $pdo->prepare("UPDATE em_organizers SET name = ?, phone = ?, role = ?, assigned_bhag = ?, vyavastha = ? WHERE id = ? AND event_id = ?");
+                    $stmt->execute([$name, $phone, $role, $assigned_bhag, $vyavastha, $id, $event_id]);
                 }
                 $message = "आयोजक सफलतापूर्वक अद्यतन किया गया (Organizer updated successfully)";
             } catch (PDOException $e) {
@@ -114,6 +122,7 @@ if ($event_id) {
                     <th>फ़ोन (Phone)</th>
                     <th>यूज़रनेम (Username)</th>
                     <th>भूमिका (Role)</th>
+                    <th>भाग (Bhag)</th>
                     <th>व्यवस्था (Vyavastha)</th>
                     <th>कार्रवाई (Actions)</th>
                 </tr>
@@ -131,6 +140,7 @@ if ($event_id) {
                             else echo 'स्वयंसेवक (Volunteer)';
                         ?>
                     </td>
+                    <td><?= htmlspecialchars($org['assigned_bhag'] ?? '-') ?></td>
                     <td>
                         <?php
                             if (($org['vyavastha'] ?? '') === 'hajiri') echo 'हाजिरी (Attendance)';
@@ -141,7 +151,7 @@ if ($event_id) {
                         ?>
                     </td>
                     <td>
-                        <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.85rem; margin-right: 0.5rem;" onclick="editOrganizer(<?= $org['id'] ?>, '<?= htmlspecialchars(addslashes($org['name'])) ?>', '<?= htmlspecialchars(addslashes($org['phone'])) ?>', '<?= htmlspecialchars(addslashes($org['role'])) ?>', '<?= htmlspecialchars(addslashes($org['vyavastha'] ?? '')) ?>')">संपादित करें (Edit)</button>
+                        <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.85rem; margin-right: 0.5rem;" onclick="editOrganizer(<?= $org['id'] ?>, '<?= htmlspecialchars(addslashes($org['name'])) ?>', '<?= htmlspecialchars(addslashes($org['phone'])) ?>', '<?= htmlspecialchars(addslashes($org['role'])) ?>', '<?= htmlspecialchars(addslashes($org['vyavastha'] ?? '')) ?>', '<?= htmlspecialchars(addslashes($org['assigned_bhag'] ?? '')) ?>')">संपादित करें (Edit)</button>
                         <?php if ($org['id'] != $_SESSION['event_user_id']): ?>
                         <form method="POST" style="display:inline;" onsubmit="return confirm('क्या आप वाकई इस आयोजक को हटाना चाहते हैं? (Are you sure you want to delete this organizer?)');">
                             <input type="hidden" name="action" value="delete_organizer">
@@ -197,6 +207,12 @@ if ($event_id) {
                 </select>
             </div>
             
+            <div class="form-group">
+                <label>नियुक्त भाग (Assigned Bhag)</label>
+                <input type="text" name="assigned_bhag" class="form-control" placeholder="उदा. भांडुप पश्चिम">
+                <small style="color:#888;">केवल स्वयंसेवकों के लिए (Only for volunteers attending specific bhag)</small>
+            </div>
+            
             <div class="form-group" id="vyavastha_group" style="display: none;">
                 <label>व्यवस्था (Vyavastha)</label>
                 <select name="vyavastha" class="form-control">
@@ -234,12 +250,13 @@ function toggleEditVyavastha() {
     }
 }
 
-function editOrganizer(id, name, phone, role, vyavastha) {
+function editOrganizer(id, name, phone, role, vyavastha, assigned_bhag) {
     document.getElementById('edit_id').value = id;
     document.getElementById('edit_name').value = name;
     document.getElementById('edit_phone').value = phone;
     document.getElementById('edit_role_select').value = role;
     document.getElementById('edit_vyavastha').value = vyavastha;
+    document.getElementById('edit_assigned_bhag').value = assigned_bhag;
     toggleEditVyavastha();
     document.getElementById('editModal').style.display = 'block';
 }
@@ -276,6 +293,12 @@ function editOrganizer(id, name, phone, role, vyavastha) {
                     <option value="coordinator">समन्वयक (Coordinator)</option>
                     <option value="admin">प्रशासक (Admin)</option>
                 </select>
+            </div>
+            
+            <div class="form-group">
+                <label>नियुक्त भाग (Assigned Bhag)</label>
+                <input type="text" name="assigned_bhag" id="edit_assigned_bhag" class="form-control" placeholder="उदा. भांडुप पश्चिम">
+                <small style="color:#888;">केवल स्वयंसेवकों के लिए</small>
             </div>
             
             <div class="form-group" id="edit_vyavastha_group" style="display: none;">
