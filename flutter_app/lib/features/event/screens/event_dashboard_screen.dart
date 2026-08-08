@@ -68,13 +68,13 @@ class _EventDashboardScreenState extends ConsumerState<EventDashboardScreen> {
               children: [
                 _buildStatsRow(state),
                 const SizedBox(height: 16),
-                _buildFoodSection(),
+                _buildFoodSection(state),
                 const SizedBox(height: 16),
-                _buildNextActivity(),
+                _buildNextActivity(state),
                 const SizedBox(height: 16),
                 _buildQuickActions(context),
                 const SizedBox(height: 16),
-                _buildPendingTasks(),
+                _buildPendingTasks(state),
               ],
             ),
           ),
@@ -103,12 +103,12 @@ class _EventDashboardScreenState extends ConsumerState<EventDashboardScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.dashboard, color: Color(0xFFE55B00)),
-            title: const Text('डैशबोर्ड', style: TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari')),
+            title: const Text('डैशबोर्ड', style: TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari', color: Colors.black87)),
             onTap: () => Navigator.pop(context),
           ),
           ListTile(
             leading: const Icon(Icons.people, color: Color(0xFFE55B00)),
-            title: const Text('प्रतिभागी', style: TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari')),
+            title: const Text('प्रतिभागी', style: TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari', color: Colors.black87)),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(context, MaterialPageRoute(builder: (context) => const ParticipantListScreen()));
@@ -116,7 +116,7 @@ class _EventDashboardScreenState extends ConsumerState<EventDashboardScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.check_circle, color: Color(0xFFE55B00)),
-            title: const Text('हाजिरी', style: TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari')),
+            title: const Text('हाजिरी', style: TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari', color: Colors.black87)),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(context, MaterialPageRoute(builder: (context) => const AttendanceScreen(sessionId: 1)));
@@ -124,7 +124,7 @@ class _EventDashboardScreenState extends ConsumerState<EventDashboardScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.assignment_ind, color: Color(0xFFE55B00)),
-            title: const Text('उपस्थिति ड्यूटी', style: TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari')),
+            title: const Text('उपस्थिति ड्यूटी', style: TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari', color: Colors.black87)),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(context, MaterialPageRoute(builder: (context) => const AttendanceDutyScreen()));
@@ -172,14 +172,15 @@ class _EventDashboardScreenState extends ConsumerState<EventDashboardScreen> {
           children: [
             Text(value, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: color)),
             const SizedBox(height: 8),
-            Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, fontFamily: 'Noto Sans Devanagari')),
+            Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, fontFamily: 'Noto Sans Devanagari', color: Colors.black87)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFoodSection() {
+  Widget _buildFoodSection(dynamic state) {
+    if (state.todayMeals.isEmpty) return const SizedBox.shrink();
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -187,18 +188,25 @@ class _EventDashboardScreenState extends ConsumerState<EventDashboardScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text('आज का भोजन', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Noto Sans Devanagari')),
-            SizedBox(height: 12),
-            Text('नाश्ता: 200/250', style: TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari')),
-            Text('दोपहर का भोजन: 150/250', style: TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari')),
+          children: [
+            const Text('आज का भोजन', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Noto Sans Devanagari', color: Colors.black87)),
+            const SizedBox(height: 12),
+            ...state.todayMeals.map<Widget>((meal) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 4.0),
+                child: Text('${meal.mealName}: ${meal.consumedCount ?? 0}/${meal.expectedCount ?? 0}', style: const TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari', color: Colors.black87)),
+              );
+            }).toList(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildNextActivity() {
+  Widget _buildNextActivity(dynamic state) {
+    if (state.nextActivity == null) return const SizedBox.shrink();
+    final act = state.nextActivity!;
+    final timeStr = act.startTime ?? '';
     return Card(
       elevation: 4,
       color: const Color(0xFFFFB300),
@@ -206,15 +214,15 @@ class _EventDashboardScreenState extends ConsumerState<EventDashboardScreen> {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
-          children: const [
-            Icon(Icons.schedule, size: 40, color: Colors.white),
-            SizedBox(width: 16),
+          children: [
+            const Icon(Icons.schedule, size: 40, color: Colors.white),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('अगली गतिविधि', style: TextStyle(fontSize: 16, color: Colors.white, fontFamily: 'Noto Sans Devanagari')),
-                  Text('उद्घाटन सत्र - 10:00 AM', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Noto Sans Devanagari')),
+                  const Text('अगली गतिविधि', style: TextStyle(fontSize: 16, color: Colors.white, fontFamily: 'Noto Sans Devanagari')),
+                  Text('${act.activityName} - $timeStr', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Noto Sans Devanagari')),
                 ],
               ),
             ),
@@ -224,7 +232,8 @@ class _EventDashboardScreenState extends ConsumerState<EventDashboardScreen> {
     );
   }
 
-  Widget _buildPendingTasks() {
+  Widget _buildPendingTasks(dynamic state) {
+    if (state.myPendingTasks.isEmpty) return const SizedBox.shrink();
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -233,16 +242,14 @@ class _EventDashboardScreenState extends ConsumerState<EventDashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('मेरे लंबित कार्य', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Noto Sans Devanagari')),
+            const Text('मेरे लंबित कार्य', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Noto Sans Devanagari', color: Colors.black87)),
             const SizedBox(height: 8),
-            ListTile(
-              leading: const Icon(Icons.check_box_outline_blank, color: Color(0xFFFF6B00)),
-              title: const Text('कक्ष निरीक्षण', style: TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari')),
-            ),
-            ListTile(
-              leading: const Icon(Icons.check_box_outline_blank, color: Color(0xFFFF6B00)),
-              title: const Text('भोजन व्यवस्था', style: TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari')),
-            ),
+            ...state.myPendingTasks.map<Widget>((task) {
+              return ListTile(
+                leading: const Icon(Icons.check_box_outline_blank, color: Color(0xFFFF6B00)),
+                title: Text(task.description ?? task.categoryName ?? 'कार्य', style: const TextStyle(fontSize: 18, fontFamily: 'Noto Sans Devanagari', color: Colors.black87)),
+              );
+            }).toList(),
           ],
         ),
       ),
@@ -279,7 +286,7 @@ class _EventDashboardScreenState extends ConsumerState<EventDashboardScreen> {
             child: Icon(icon, size: 30, color: const Color(0xFFFF6B00)),
           ),
           const SizedBox(height: 8),
-          Text(title, style: const TextStyle(fontSize: 16, fontFamily: 'Noto Sans Devanagari')),
+          Text(title, style: const TextStyle(fontSize: 16, fontFamily: 'Noto Sans Devanagari', color: Colors.black87)),
         ],
       ),
     );
