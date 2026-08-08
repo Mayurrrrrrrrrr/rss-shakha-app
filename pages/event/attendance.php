@@ -138,8 +138,9 @@ $assigned_bhag = $_SESSION['event_assigned_bhag'] ?? '';
 $is_hajiri = ($_SESSION['event_vyavastha'] ?? '') === 'hajiri';
 
 if ($is_hajiri && $assigned_bhag !== '') {
-    $query .= " AND (p.bhag = :assigned_bhag OR p.city = :assigned_bhag)";
-    $params[':assigned_bhag'] = $assigned_bhag;
+    $query .= " AND (p.bhag = :assigned_bhag1 OR p.city = :assigned_bhag2)";
+    $params[':assigned_bhag1'] = $assigned_bhag;
+    $params[':assigned_bhag2'] = $assigned_bhag;
 }
 
 $search = trim($_GET['search'] ?? '');
